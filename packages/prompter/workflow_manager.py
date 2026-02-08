@@ -771,12 +771,21 @@ class WorkflowManager:
             COMFYUI_CHECKPOINTS_PATH / required_checkpoint,
             COMFYUI_DIFFUSION_MODELS_PATH / required_checkpoint,
         ]
-        
+
         for checkpoint_path in checkpoint_locations:
             if checkpoint_path.exists():
                 return {
                     "has_checkpoint": True,
                     "checkpoint_path": checkpoint_path,
+                    "missing_models": []
+                }
+
+        # Also search subfolders (models may be organized in subdirs like FLUX/)
+        for base_path in [COMFYUI_CHECKPOINTS_PATH, COMFYUI_DIFFUSION_MODELS_PATH]:
+            for match in base_path.rglob(required_checkpoint):
+                return {
+                    "has_checkpoint": True,
+                    "checkpoint_path": match,
                     "missing_models": []
                 }
         
