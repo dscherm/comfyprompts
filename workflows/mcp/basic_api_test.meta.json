@@ -1,0 +1,20 @@
+{
+  "name": "Basic API Test",
+  "description": "Simple SD 1.5 text-to-image workflow for testing ComfyUI API connectivity. Uses hardcoded parameters (no PARAM_* placeholders). Intended for validation only, not production use.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "EmptyLatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "v1-5-pruned-emaonly.ckpt"
+    },
+    "minimum_vram_gb": 4
+  },
+  "parameters": {},
+  "notes": "This workflow has no PARAM_* placeholders - all values are hardcoded. It is a raw ComfyUI API test workflow, not a parameterized MCP tool.",
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "testing",
+  "tags": ["test", "api-test", "sd15", "basic"]
+}

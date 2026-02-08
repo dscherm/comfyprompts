@@ -1,0 +1,76 @@
+{
+  "name": "Hunyuan3D v2.5 Image to 3D with PBR",
+  "description": "Full pipeline: image to PBR-textured 3D mesh using Hunyuan3D v2.5. Improved geometry (1024 res) over v2.0 with PBR material attributes (metallic, roughness). Includes background removal, mesh generation, delighting, multi-view texture sampling, baking, inpainting, and PBR attribute assignment.",
+  "requirements": {
+    "nodes": ["Hy3DModelLoader", "Hy3DGenerateMesh", "Hy3DVAEDecode", "Hy3DPostprocessMesh", "Hy3DExportMesh", "DownloadAndLoadHy3DDelightModel", "DownloadAndLoadHy3DPaintModel", "Hy3DDelightImage", "Hy3DMeshUVWrap", "Hy3DRenderMultiView", "Hy3DSampleMultiView", "Hy3DBakeFromMultiview", "Hy3DMeshVerticeInpaintTexture", "CV2InpaintTexture", "Hy3DApplyTexture", "Hy3DSetMeshPBRAttributes", "Hy3DCameraConfig", "TransparentBGSession+", "ImageRemoveBackground+", "ImageResize+", "ImageCompositeMasked", "SolidMask"],
+    "models": {
+      "diffusion_models": ["hy3dgen/hunyuan3d-dit-v2-5-fp16.safetensors"],
+      "diffusers": ["hunyuan3d-delight-v2-0", "hunyuan3d-paint-v2-0"]
+    },
+    "custom_nodes": ["ComfyUI-Hunyuan3DWrapper", "ComfyUI_essentials", "comfyui-inspyrenet-rembg"],
+    "vram_minimum_gb": 12,
+    "vram_recommended_gb": 16
+  },
+  "parameters": {
+    "PARAM_STR_IMAGE_PATH": {
+      "type": "string",
+      "description": "Path to input image",
+      "required": true
+    },
+    "PARAM_FLOAT_GUIDANCE_SCALE": {
+      "type": "float",
+      "description": "Guidance scale for mesh generation",
+      "default": 5.5,
+      "min": 1.0,
+      "max": 30.0
+    },
+    "PARAM_INT_STEPS": {
+      "type": "int",
+      "description": "Number of diffusion steps for mesh generation",
+      "default": 50,
+      "min": 10,
+      "max": 100
+    },
+    "PARAM_INT_SEED": {
+      "type": "int",
+      "description": "Random seed",
+      "default": 0
+    },
+    "PARAM_INT_OCTREE_RESOLUTION": {
+      "type": "int",
+      "description": "Octree resolution for VAE decode (v2.5 supports higher res)",
+      "default": 384,
+      "min": 128,
+      "max": 1024
+    },
+    "PARAM_INT_MAX_FACES": {
+      "type": "int",
+      "description": "Maximum face count after decimation",
+      "default": 50000,
+      "min": 5000,
+      "max": 500000
+    },
+    "PARAM_FLOAT_METALLIC": {
+      "type": "float",
+      "description": "PBR metallic factor (0=dielectric, 1=fully metallic)",
+      "default": 0.0,
+      "min": 0.0,
+      "max": 1.0
+    },
+    "PARAM_FLOAT_ROUGHNESS": {
+      "type": "float",
+      "description": "PBR roughness factor (0=mirror smooth, 1=fully rough)",
+      "default": 0.5,
+      "min": 0.0,
+      "max": 1.0
+    }
+  },
+  "outputs": {
+    "geometry_glb": "3D/Hy3D_v25_geometry_*.glb",
+    "pbr_textured_glb": "3D/Hy3D_v25_pbr_textured_*.glb"
+  },
+  "category": "3d_generation",
+  "tags": ["3d", "mesh", "hunyuan3d", "pbr", "textured", "metallic", "roughness", "game-ready", "image-to-3d"],
+  "estimated_time_seconds": 300,
+  "notes": "v2.5 offers 20% better texture fidelity and improved geometry over v2.0. PBR attributes (metallic/roughness) are set at export for game engine compatibility. For full PBR maps (albedo/roughness/metallic/normal), use Hy3DGetMeshPBRTextures node after export."
+}

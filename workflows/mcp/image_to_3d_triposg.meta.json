@@ -1,0 +1,28 @@
+{
+  "name": "Image to 3D (TripoSG)",
+  "description": "Image-to-3D conversion using TripoSG model. A newer alternative to TripoSR with VAE-based mesh decoding and GLB export.",
+  "requirements": {
+    "nodes": ["LoadImage", "TripoSGModelLoader", "TripoSGImageToMesh", "TripoSGVAEDecoder", "TripoSGExportMesh"],
+    "custom_nodes": {
+      "TripoSGModelLoader": {"install": "ComfyUI-TripoSG"},
+      "TripoSGImageToMesh": {"install": "ComfyUI-TripoSG"},
+      "TripoSGVAEDecoder": {"install": "ComfyUI-TripoSG"},
+      "TripoSGExportMesh": {"install": "ComfyUI-TripoSG"}
+    },
+    "models": {
+      "triposg": "auto-downloaded by TripoSGModelLoader"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Filename of the input image"},
+    "resolution": {"type": "int", "required": false, "description": "Mesh resolution"}
+  },
+  "output": {
+    "type": "3d_mesh",
+    "format": "glb",
+    "node": "TripoSGExportMesh"
+  },
+  "category": "conversion",
+  "tags": ["image-to-3d", "triposg", "3d", "mesh", "glb"]
+}

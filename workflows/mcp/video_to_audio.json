@@ -1,0 +1,83 @@
+{
+  "_comment": "MMAudio: Generate matching audio/sound effects from video content. Requires ComfyUI-MMAudio custom node. Models go in models/mmaudio/.",
+  "10": {
+    "inputs": {
+      "model": "mmaudio_44k.safetensors",
+      "precision": "fp16"
+    },
+    "class_type": "MMAudioModelLoader",
+    "_meta": {
+      "title": "MMAudio Model Loader"
+    }
+  },
+  "15": {
+    "inputs": {},
+    "class_type": "MMAudioVoCoderLoader",
+    "_meta": {
+      "title": "MMAudio VoCoder Loader"
+    }
+  },
+  "20": {
+    "inputs": {
+      "mode": "44k",
+      "precision": "fp16"
+    },
+    "class_type": "MMAudioFeatureUtilsLoader",
+    "_meta": {
+      "title": "MMAudio Feature Utils Loader"
+    }
+  },
+  "30": {
+    "inputs": {
+      "video": "PARAM_STR_VIDEO_PATH"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "Load Video"
+    }
+  },
+  "40": {
+    "inputs": {
+      "mmaudio_model": [
+        "10",
+        0
+      ],
+      "vocoder": [
+        "15",
+        0
+      ],
+      "feature_utils": [
+        "20",
+        0
+      ],
+      "images": [
+        "30",
+        0
+      ],
+      "prompt": "PARAM_STR_PROMPT",
+      "duration": "PARAM_FLOAT_DURATION",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "seed": "PARAM_INT_SEED"
+    },
+    "class_type": "MMAudioSampler",
+    "_meta": {
+      "title": "MMAudio Sampler"
+    }
+  },
+  "50": {
+    "inputs": {
+      "filename_prefix": "audio/video_audio",
+      "quality": "V0",
+      "audioUI": "",
+      "audio": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "SaveAudioMP3",
+    "_meta": {
+      "title": "Save Audio (MP3)"
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+  "name": "Hunyuan3D Turbo Image to 3D",
+  "description": "Fast 3D generation using Hunyuan3D Turbo model with ConsistencyFlowMatch scheduler. Includes texture generation via turbo paint model. Faster iteration with minimal quality loss compared to v2.0/v2.5. Skips delighting step for speed.",
+  "requirements": {
+    "nodes": ["Hy3DModelLoader", "Hy3DGenerateMesh", "Hy3DVAEDecode", "Hy3DPostprocessMesh", "Hy3DExportMesh", "DownloadAndLoadHy3DPaintModel", "Hy3DMeshUVWrap", "Hy3DRenderMultiView", "Hy3DSampleMultiView", "Hy3DBakeFromMultiview", "Hy3DMeshVerticeInpaintTexture", "CV2InpaintTexture", "Hy3DApplyTexture", "Hy3DCameraConfig", "TransparentBGSession+", "ImageRemoveBackground+", "ImageResize+"],
+    "models": {
+      "diffusion_models": ["hy3dgen/hunyuan3d-dit-v2-turbo-fp16.safetensors"],
+      "diffusers": ["hunyuan3d-paint-v2-0-turbo"]
+    },
+    "custom_nodes": ["ComfyUI-Hunyuan3DWrapper", "ComfyUI_essentials", "comfyui-inspyrenet-rembg"],
+    "vram_minimum_gb": 10,
+    "vram_recommended_gb": 12
+  },
+  "parameters": {
+    "PARAM_STR_IMAGE_PATH": {
+      "type": "string",
+      "description": "Path to input image",
+      "required": true
+    },
+    "PARAM_FLOAT_GUIDANCE_SCALE": {
+      "type": "float",
+      "description": "Guidance scale for mesh generation",
+      "default": 5.5,
+      "min": 1.0,
+      "max": 30.0
+    },
+    "PARAM_INT_STEPS": {
+      "type": "int",
+      "description": "Number of diffusion steps (turbo needs fewer steps)",
+      "default": 15,
+      "min": 5,
+      "max": 50
+    },
+    "PARAM_INT_SEED": {
+      "type": "int",
+      "description": "Random seed",
+      "default": 0
+    },
+    "PARAM_INT_OCTREE_RESOLUTION": {
+      "type": "int",
+      "description": "Octree resolution for VAE decode",
+      "default": 384,
+      "min": 128,
+      "max": 512
+    },
+    "PARAM_INT_MAX_FACES": {
+      "type": "int",
+      "description": "Maximum face count after decimation",
+      "default": 40000,
+      "min": 5000,
+      "max": 500000
+    }
+  },
+  "outputs": {
+    "geometry_glb": "3D/Hy3D_turbo_geometry_*.glb",
+    "textured_glb": "3D/Hy3D_turbo_textured_*.glb"
+  },
+  "category": "3d_generation",
+  "tags": ["3d", "mesh", "hunyuan3d", "turbo", "fast", "textured", "image-to-3d"],
+  "estimated_time_seconds": 120,
+  "notes": "Turbo variant uses ConsistencyFlowMatch scheduler for ~2x faster generation. Skips delighting for speed. Uses turbo paint model for texture sampling. Good for rapid prototyping and iteration."
+}

@@ -1,0 +1,10 @@
+{
+  "name": "Remove Background",
+  "description": "Removes background from images using InSPyReNet AI model. Returns foreground image with transparent background.",
+  "requirements": {
+    "nodes": ["InspyrenetRembg"],
+    "install": "comfyui-inspyrenet-rembg"
+  },
+  "category": "editing",
+  "tags": ["background", "removal", "transparency", "cutout"]
+}

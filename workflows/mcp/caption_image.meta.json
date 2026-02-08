@@ -1,0 +1,32 @@
+{
+  "name": "Caption Image (Florence-2)",
+  "description": "Generates captions, tags, or detailed descriptions for images using Microsoft Florence-2 vision model. Supports multiple tasks: caption, detailed_caption, more_detailed_caption, prompt_gen_tags, OCR, region detection, and more. Useful for LoRA training data prep and image cataloging.",
+  "requirements": {
+    "nodes": ["LoadImage", "DownloadAndLoadFlorence2Model", "Florence2Run", "SaveImage"],
+    "custom_nodes": {
+      "DownloadAndLoadFlorence2Model": {"install": "comfyui-florence2"},
+      "Florence2Run": {"install": "comfyui-florence2"}
+    },
+    "models": {
+      "florence2": "microsoft/Florence-2-large (auto-downloaded on first use)"
+    },
+    "minimum_vram_gb": 4
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Path to the image to caption"},
+    "model": {"type": "string", "required": false, "description": "Florence-2 model variant (microsoft/Florence-2-base, microsoft/Florence-2-large, etc.)"},
+    "task": {"type": "string", "required": false, "description": "Task type: caption, detailed_caption, more_detailed_caption, prompt_gen_tags, prompt_gen_mixed_caption, ocr, ocr_with_region, region_caption, dense_region_caption"},
+    "text_input": {"type": "string", "required": false, "description": "Optional text input for tasks like caption_to_phrase_grounding"}
+  },
+  "output": {
+    "type": "image+text",
+    "format": "png",
+    "node": "SaveImage",
+    "additional_outputs": {
+      "caption": {"node": "Florence2Run", "output_index": 2, "type": "STRING"},
+      "data": {"node": "Florence2Run", "output_index": 3, "type": "JSON"}
+    }
+  },
+  "category": "analysis",
+  "tags": ["caption", "tagging", "florence-2", "vision", "description", "OCR", "LoRA-training"]
+}

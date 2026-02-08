@@ -1,0 +1,34 @@
+{
+  "name": "Segment Image (Florence-2 + SAM2)",
+  "description": "Detects and segments objects in images using Florence-2 for object detection and SAM2 for precise mask generation. Describe what to segment in natural language. Outputs a precise mask useful for inpainting, compositing, or object extraction.",
+  "requirements": {
+    "nodes": ["LoadImage", "DownloadAndLoadFlorence2Model", "Florence2Run", "Florence2toCoordinates", "DownloadAndLoadSAM2Model", "Sam2Segmentation", "SaveImage"],
+    "custom_nodes": {
+      "DownloadAndLoadFlorence2Model": {"install": "comfyui-florence2"},
+      "Florence2Run": {"install": "comfyui-florence2"},
+      "DownloadAndLoadSAM2Model": {"install": "ComfyUI-segment-anything-2"},
+      "Florence2toCoordinates": {"install": "ComfyUI-segment-anything-2"},
+      "Sam2Segmentation": {"install": "ComfyUI-segment-anything-2"}
+    },
+    "models": {
+      "florence2": "microsoft/Florence-2-large (auto-downloaded)",
+      "sam2": "sam2.1_hiera_large.safetensors (auto-downloaded)"
+    },
+    "minimum_vram_gb": 6
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Path to image to segment"},
+    "object": {"type": "string", "required": true, "description": "Natural language description of what to segment (e.g., 'the cat', 'person on the left', 'red car')"},
+    "sam2_model": {"type": "string", "required": false, "description": "SAM2 model variant: sam2.1_hiera_tiny, sam2.1_hiera_small, sam2.1_hiera_base_plus, sam2.1_hiera_large"}
+  },
+  "output": {
+    "type": "image+mask",
+    "format": "png",
+    "node": "SaveImage",
+    "additional_outputs": {
+      "mask": {"node": "Sam2Segmentation", "output_index": 0, "type": "MASK"}
+    }
+  },
+  "category": "analysis",
+  "tags": ["segmentation", "mask", "SAM2", "florence-2", "object-detection", "inpainting-prep"]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "Berserkr",
+  "description": "1970s dark fantasy art in Frank Miller Sin City meets Frank Frazetta style. Heavy black ink illustration with selective bold color accents (crimson, amber), extreme noir contrast, pulp magazine cover aesthetic. Use 'subject' for the character/scene description - the style prompt is prepended automatically.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "subject": {"type": "string", "required": true, "description": "Character/scene description (e.g. 'a massive nordic berserker holding a great axe in a viking village town square'). The 70s dark fantasy Sin City style is applied automatically."},
+    "prompt": {"type": "string", "required": false, "description": "Full prompt override. If provided, replaces the auto-generated style+subject prompt entirely."},
+    "color_accent": {"type": "string", "required": false, "description": "Selective color accent to bleed through the ink darkness (default: 'deep crimson red and burning amber orange')"},
+    "width": {"type": "int", "required": false, "description": "Image width in pixels (default: 528)"},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels (default: 528)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"}
+  },
+  "prompt_template": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, {subject}, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of {color_accent}, stark dramatic noir shadows and silhouettes, thick aggressive ink brushstrokes and splatter, Frank Miller comic panel composition, pulp magazine cover art, exaggerated heroic muscular anatomy like Frazetta, deep chiaroscuro with pools of pure black shadow, gritty noir atmosphere, psychedelic lurid color bleeding through the black ink darkness, raw expressive linework, graphic novel aesthetic, visible ink texture and cross-hatching, romanticism meets noir, epic swords-and-sorcery mood, NOT photorealistic NOT smooth NOT digital NOT 3d render",
+  "defaults": {
+    "color_accent": "deep crimson red and burning amber orange",
+    "width": 528,
+    "height": 528,
+    "steps": 25,
+    "cfg": 1.0,
+    "sampler_name": "euler",
+    "scheduler": "simple"
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux", "t2i", "fantasy", "sin-city", "frazetta", "noir", "ink", "70s", "berserkr"]
+}

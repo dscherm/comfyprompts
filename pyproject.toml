@@ -1,0 +1,58 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "comfyui-toolchain"
+version = "0.1.0"
+description = "Unified toolkit for AI media generation via ComfyUI - SDK, MCP Server, and GUI"
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+keywords = ["comfyui", "mcp", "ai", "image-generation", "stable-diffusion", "flux"]
+
+dependencies = []
+
+[project.optional-dependencies]
+sdk = ["comfyui-agent-sdk"]
+mcp = ["comfyui-mcp-server"]
+prompter = ["comfyui-prompter"]
+all = [
+    "comfyui-agent-sdk",
+    "comfyui-mcp-server",
+    "comfyui-prompter",
+]
+dev = [
+    "pytest>=7.4.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "mypy>=1.7.0",
+]
+
+[project.scripts]
+comfyui-setup = "setup_wizard:main"
+
+[tool.hatch.build.targets.wheel]
+packages = []
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "W"]
+
+[tool.ruff.lint.isort]
+known-first-party = ["comfyui_agent_sdk"]
+
+[tool.pytest.ini_options]
+testpaths = [
+    "packages/sdk/tests",
+    "packages/mcp-server/tests",
+    "packages/prompter/tests",
+]
+markers = [
+    "integration: requires running ComfyUI instance",
+    "slow: long-running tests",
+]
+asyncio_mode = "auto"

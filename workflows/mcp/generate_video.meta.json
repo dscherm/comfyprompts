@@ -1,0 +1,41 @@
+{
+  "name": "Generate Video",
+  "description": "Text-to-video generation using Wan 2.1 14B (GGUF Q4_K_M quantized). Generates video frames from a text prompt with configurable resolution, frame count, and FPS.",
+  "requirements": {
+    "nodes": ["UnetLoaderGGUF", "CLIPLoader", "VAELoader", "CLIPTextEncode", "WanImageToVideo", "KSampler", "VAEDecode", "CreateVideo", "SaveVideo"],
+    "custom_nodes": {
+      "UnetLoaderGGUF": {"install": "ComfyUI-GGUF"},
+      "WanImageToVideo": {"install": "builtin"},
+      "CreateVideo": {"install": "builtin"},
+      "SaveVideo": {"install": "builtin"}
+    },
+    "models": {
+      "unet": "Wan2.1_14B_VACE-Q4_K_M.gguf",
+      "clip": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "vae": "wan_2.1_vae.safetensors"
+    },
+    "minimum_vram_gb": 12
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired video"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "width": {"type": "int", "required": false, "description": "Video width in pixels"},
+    "height": {"type": "int", "required": false, "description": "Video height in pixels"},
+    "frames": {"type": "int", "required": false, "description": "Number of frames to generate"},
+    "fps": {"type": "int", "required": false, "description": "Frames per second for output video"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength"}
+  },
+  "output": {
+    "type": "video",
+    "format": "mp4",
+    "codec": "h264",
+    "node": "SaveVideo"
+  },
+  "category": "generation",
+  "tags": ["text-to-video", "wan", "t2v", "video"]
+}

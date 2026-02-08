@@ -1,0 +1,49 @@
+{
+  "1": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "2": {
+    "inputs": {
+      "model": "PARAM_STR_MODEL",
+      "precision": "fp16",
+      "attention": "sdpa"
+    },
+    "class_type": "DownloadAndLoadFlorence2Model",
+    "_meta": {"title": "Load Florence-2 Model"},
+    "_defaults": {
+      "PARAM_STR_MODEL": "microsoft/Florence-2-large"
+    }
+  },
+  "3": {
+    "inputs": {
+      "image": ["1", 0],
+      "florence2_model": ["2", 0],
+      "text_input": "PARAM_STR_TEXT_INPUT",
+      "task": "PARAM_STR_TASK",
+      "fill_mask": true,
+      "keep_model_loaded": false,
+      "num_beams": 3,
+      "max_new_tokens": 1024,
+      "do_sample": true
+    },
+    "class_type": "Florence2Run",
+    "_meta": {"title": "Florence-2 Run"},
+    "_defaults": {
+      "PARAM_STR_TEXT_INPUT": "",
+      "PARAM_STR_TASK": "detailed_caption"
+    }
+  },
+  "4": {
+    "inputs": {
+      "filename_prefix": "ComfyUI_caption",
+      "images": ["3", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Annotated Image"}
+  }
+}

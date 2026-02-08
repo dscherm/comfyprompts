@@ -1,0 +1,47 @@
+{
+  "name": "Inpaint (Flux Fill)",
+  "description": "Dedicated inpainting using Flux Fill Dev, a purpose-built 12B parameter model for filling masked regions. Uses InpaintModelConditioning and DifferentialDiffusion for superior edge blending and content-aware fills compared to generic Flux + noise mask approach. Also supports outpainting by masking extended canvas areas.",
+  "requirements": {
+    "nodes": ["UNETLoader", "DualCLIPLoader", "VAELoader", "LoadImage", "ImageToMask", "CLIPTextEncode", "InpaintModelConditioning", "DifferentialDiffusion", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "diffusion_model": "flux1-fill-dev.safetensors",
+      "text_encoder_1": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "text_encoder_2": "clip_l.safetensors",
+      "vae": "ae.safetensors"
+    },
+    "model_downloads": {
+      "flux1-fill-dev.safetensors": "https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev/resolve/main/flux1-fill-dev.safetensors",
+      "t5xxl_fp8_e4m3fn_scaled.safetensors": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "clip_l.safetensors": "https://huggingface.co/comfyanonymous/flux_text_encoders/resolve/main/clip_l.safetensors",
+      "ae.safetensors": "https://huggingface.co/black-forest-labs/FLUX.1-schnell/resolve/main/ae.safetensors"
+    },
+    "minimum_vram_gb": 12,
+    "recommended_vram_gb": 16,
+    "comfyui_minimum_version": "0.3.30"
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Filename of the source image to inpaint"},
+    "mask_path": {"type": "string", "required": true, "description": "Filename of the mask image. White areas will be inpainted/filled."},
+    "prompt": {"type": "string", "required": true, "description": "Text description of what to generate in the masked area"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in the fill"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"},
+    "steps": {"type": "int", "required": false, "default": 25, "description": "Sampling steps (20-30 recommended)"},
+    "cfg": {"type": "float", "required": false, "default": 3.5, "description": "CFG scale (1.0-3.5 recommended)"},
+    "sampler_name": {"type": "string", "required": false, "default": "euler", "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "default": "simple", "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "default": 1.0, "description": "Denoising strength (1.0 for full inpainting)"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "editing",
+  "tags": ["inpainting", "outpainting", "flux-fill", "mask", "editing", "fill", "content-aware"],
+  "notes": {
+    "vs_basic_inpaint": "This workflow uses the dedicated Flux Fill model with InpaintModelConditioning and DifferentialDiffusion, which produces significantly better results than the basic inpaint.json workflow that uses generic Flux 1 + SetLatentNoiseMask.",
+    "outpainting": "For outpainting (canvas extension), extend the source image canvas size and create a mask covering the new empty area. The prompt should describe the desired content for the extended region.",
+    "gguf_alternative": "For lower VRAM, use GGUF quantized Flux Fill models with UnetLoaderGGUF (requires ComfyUI-GGUF custom node).",
+    "architecture": "Uses Flux 1 architecture (DualCLIPLoader with T5+CLIP-L), NOT Flux 2 architecture."
+  }
+}

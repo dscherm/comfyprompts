@@ -1,0 +1,152 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "ltx-2-19b-distilled-fp8.safetensors",
+      "weight_dtype": "fp8_e4m3fn"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {"title": "Load LTX-2 Model"}
+  },
+  "2": {
+    "inputs": {
+      "text_encoder_name": "gemma_3_12B_it_fp8_scaled.safetensors"
+    },
+    "class_type": "LTXAVTextEncoderLoader",
+    "_meta": {"title": "Load Gemma Text Encoder"}
+  },
+  "3": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Start Image"}
+  },
+  "4": {
+    "inputs": {
+      "image": ["3", 0]
+    },
+    "class_type": "LTXVPreprocess",
+    "_meta": {"title": "Preprocess Image for LTX-2"}
+  },
+  "5": {
+    "inputs": {
+      "text": "PARAM_PROMPT",
+      "clip": ["2", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Positive Prompt"}
+  },
+  "6": {
+    "inputs": {
+      "text": "PARAM_NEGATIVE_PROMPT",
+      "clip": ["2", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Negative Prompt"}
+  },
+  "7": {
+    "inputs": {
+      "positive": ["5", 0],
+      "negative": ["6", 0],
+      "frame_rate": "PARAM_INT_FPS"
+    },
+    "class_type": "LTXVConditioning",
+    "_meta": {"title": "LTX-2 Conditioning"}
+  },
+  "8": {
+    "inputs": {
+      "width": "PARAM_INT_WIDTH",
+      "height": "PARAM_INT_HEIGHT",
+      "length": "PARAM_INT_FRAMES",
+      "batch_size": 1
+    },
+    "class_type": "EmptyLTXVLatentVideo",
+    "_meta": {"title": "Empty LTX-2 Latent Video"}
+  },
+  "9": {
+    "inputs": {
+      "vae": ["1", 2],
+      "image": ["4", 0],
+      "latent": ["8", 0]
+    },
+    "class_type": "LTXVImgToVideoInplace",
+    "_meta": {"title": "Insert Image into Latent"}
+  },
+  "10": {
+    "inputs": {
+      "noise_seed": "PARAM_INT_SEED",
+      "control_after_generate": "fixed"
+    },
+    "class_type": "RandomNoise",
+    "_meta": {"title": "Random Noise"}
+  },
+  "11": {
+    "inputs": {
+      "sampler_name": "euler"
+    },
+    "class_type": "KSamplerSelect",
+    "_meta": {"title": "Sampler Select"}
+  },
+  "12": {
+    "inputs": {
+      "model": ["1", 0],
+      "positive": ["7", 0],
+      "negative": ["7", 1],
+      "cfg": "PARAM_FLOAT_CFG"
+    },
+    "class_type": "CFGGuider",
+    "_meta": {"title": "CFG Guider"}
+  },
+  "13": {
+    "inputs": {
+      "model": ["1", 0],
+      "scheduler": "simple",
+      "steps": "PARAM_INT_STEPS",
+      "denoise": 1.0
+    },
+    "class_type": "BasicScheduler",
+    "_meta": {"title": "Basic Scheduler"}
+  },
+  "14": {
+    "inputs": {
+      "noise": ["10", 0],
+      "guider": ["12", 0],
+      "sampler": ["11", 0],
+      "sigmas": ["13", 0],
+      "latent_image": ["9", 0]
+    },
+    "class_type": "SamplerCustomAdvanced",
+    "_meta": {"title": "Advanced Sampler"}
+  },
+  "15": {
+    "inputs": {
+      "samples": ["14", 0],
+      "vae": ["1", 2],
+      "tile_size": 512,
+      "overlap": 64,
+      "temporal_size": 64,
+      "temporal_overlap": 8
+    },
+    "class_type": "VAEDecodeTiled",
+    "_meta": {"title": "VAE Decode (Tiled)"}
+  },
+  "16": {
+    "inputs": {
+      "images": ["15", 0],
+      "fps": "PARAM_INT_FPS"
+    },
+    "class_type": "CreateVideo",
+    "_meta": {"title": "Create Video"}
+  },
+  "17": {
+    "inputs": {
+      "video": ["16", 0],
+      "filename_prefix": "ComfyUI_LTX2_I2V",
+      "format": "mp4",
+      "codec": "h264"
+    },
+    "class_type": "SaveVideo",
+    "_meta": {"title": "Save Video"}
+  }
+}

@@ -1,0 +1,48 @@
+{
+  "1": {
+    "class_type": "LoadImage",
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH"
+    }
+  },
+  "2": {
+    "class_type": "TS_ImageToSVGStringBW_Vtracer",
+    "inputs": {
+      "image": ["1", 0],
+      "mode": "PARAM_STR_MODE",
+      "filter_speckle": "PARAM_INT_FILTER_SPECKLE",
+      "corner_threshold": "PARAM_INT_CORNER_THRESHOLD",
+      "length_threshold": "PARAM_FLOAT_LENGTH_THRESHOLD",
+      "splice_threshold": "PARAM_INT_SPLICE_THRESHOLD"
+    },
+    "_defaults": {
+      "PARAM_STR_MODE": "spline",
+      "PARAM_INT_FILTER_SPECKLE": 4,
+      "PARAM_INT_CORNER_THRESHOLD": 60,
+      "PARAM_FLOAT_LENGTH_THRESHOLD": 4.0,
+      "PARAM_INT_SPLICE_THRESHOLD": 45
+    }
+  },
+  "3": {
+    "class_type": "TS_SVGStringToImage",
+    "inputs": {
+      "SVG_String": ["2", 0]
+    }
+  },
+  "4": {
+    "class_type": "TS_SaveSVGString",
+    "inputs": {
+      "SVG_String": ["2", 0],
+      "filename_prefix": "ComfyUI_SVG",
+      "append_timestamp": true,
+      "custom_output_path": ""
+    }
+  },
+  "5": {
+    "class_type": "SaveImage",
+    "inputs": {
+      "filename_prefix": "svg_preview",
+      "images": ["3", 0]
+    }
+  }
+}

@@ -1,0 +1,27 @@
+{
+  "name": "Image to 3D (Simple)",
+  "description": "Simplified image-to-3D conversion using TripoSR without background removal. Outputs to TripoSR viewer for direct preview.",
+  "requirements": {
+    "nodes": ["LoadImage", "TripoSRModelLoader", "TripoSRSampler", "TripoSRViewer"],
+    "custom_nodes": {
+      "TripoSRModelLoader": {"install": "ComfyUI-TripoSR"},
+      "TripoSRSampler": {"install": "ComfyUI-TripoSR"},
+      "TripoSRViewer": {"install": "ComfyUI-TripoSR"}
+    },
+    "models": {
+      "triposr": "tripoSR.ckpt"
+    },
+    "minimum_vram_gb": 6
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Filename of the input image"},
+    "resolution": {"type": "int", "required": false, "description": "3D mesh geometry resolution"}
+  },
+  "output": {
+    "type": "3d_mesh",
+    "format": "glb",
+    "node": "TripoSRViewer"
+  },
+  "category": "conversion",
+  "tags": ["image-to-3d", "triposr", "3d", "mesh", "simple"]
+}

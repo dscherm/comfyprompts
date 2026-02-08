@@ -1,0 +1,87 @@
+{
+  "1": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "2": {
+    "inputs": {
+      "image": ["1", 0]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {"title": "Resize to 518x518"}
+  },
+  "3": {
+    "inputs": {
+      "model": "hy3dgen/hunyuan3d-dit-v2-mini-fp16.safetensors",
+      "attention_mode": "sdpa"
+    },
+    "class_type": "Hy3DModelLoader",
+    "_meta": {"title": "Load Hunyuan3D Mini Model (0.6B)"}
+  },
+  "4": {
+    "inputs": {
+      "base": "base",
+      "post_processing": true
+    },
+    "class_type": "TransparentBGSession+",
+    "_meta": {"title": "Background Removal Session"}
+  },
+  "5": {
+    "inputs": {
+      "rembg_session": ["4", 0],
+      "image": ["2", 0]
+    },
+    "class_type": "ImageRemoveBackground+",
+    "_meta": {"title": "Remove Background"}
+  },
+  "6": {
+    "inputs": {
+      "pipeline": ["3", 0],
+      "image": ["2", 0],
+      "mask": ["5", 1],
+      "guidance_scale": "PARAM_FLOAT_GUIDANCE_SCALE",
+      "steps": "PARAM_INT_STEPS",
+      "seed": "PARAM_INT_SEED"
+    },
+    "class_type": "Hy3DGenerateMesh",
+    "_meta": {"title": "Generate Mesh Latents (Mini)"}
+  },
+  "7": {
+    "inputs": {
+      "vae": ["3", 1],
+      "latents": ["6", 0],
+      "box_v": 1.01,
+      "octree_resolution": "PARAM_INT_OCTREE_RESOLUTION",
+      "num_chunks": 32000,
+      "mc_level": 0,
+      "mc_algo": "mc"
+    },
+    "class_type": "Hy3DVAEDecode",
+    "_meta": {"title": "VAE Decode to Mesh"}
+  },
+  "8": {
+    "inputs": {
+      "trimesh": ["7", 0],
+      "remove_floaters": true,
+      "remove_degenerate_faces": true,
+      "reduce_faces": true,
+      "max_facenum": "PARAM_INT_MAX_FACES",
+      "smooth_normals": false
+    },
+    "class_type": "Hy3DPostprocessMesh",
+    "_meta": {"title": "Postprocess Mesh"}
+  },
+  "9": {
+    "inputs": {
+      "trimesh": ["8", 0],
+      "filename_prefix": "3D/Hy3D_mini",
+      "file_format": "glb"
+    },
+    "class_type": "Hy3DExportMesh",
+    "_meta": {"title": "Export Mesh"}
+  }
+}

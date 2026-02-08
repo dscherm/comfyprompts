@@ -1,0 +1,125 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "flux1-fill-dev.safetensors"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {"title": "Load Flux Fill Model"}
+  },
+  "2": {
+    "inputs": {
+      "clip_name1": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {"title": "Load CLIP Text Encoders"}
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {"title": "Load VAE"}
+  },
+  "4": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Source Image"}
+  },
+  "5": {
+    "inputs": {
+      "image": "PARAM_STR_MASK_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Mask Image"}
+  },
+  "6": {
+    "inputs": {
+      "image": ["5", 0],
+      "channel": "red"
+    },
+    "class_type": "ImageToMask",
+    "_meta": {"title": "Convert Image to Mask"}
+  },
+  "7": {
+    "inputs": {
+      "text": "PARAM_PROMPT",
+      "clip": ["2", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Positive Prompt"}
+  },
+  "8": {
+    "inputs": {
+      "text": "PARAM_NEGATIVE_PROMPT",
+      "clip": ["2", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Negative Prompt"},
+    "_defaults": {
+      "PARAM_NEGATIVE_PROMPT": ""
+    }
+  },
+  "9": {
+    "inputs": {
+      "positive": ["7", 0],
+      "negative": ["8", 0],
+      "vae": ["3", 0],
+      "pixels": ["4", 0],
+      "mask": ["6", 0]
+    },
+    "class_type": "InpaintModelConditioning",
+    "_meta": {"title": "Inpaint Model Conditioning"}
+  },
+  "10": {
+    "inputs": {
+      "model": ["1", 0]
+    },
+    "class_type": "DifferentialDiffusion",
+    "_meta": {"title": "Differential Diffusion"}
+  },
+  "11": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "PARAM_STR_SAMPLER_NAME",
+      "scheduler": "PARAM_STR_SCHEDULER",
+      "denoise": "PARAM_FLOAT_DENOISE",
+      "model": ["10", 0],
+      "positive": ["9", 0],
+      "negative": ["9", 1],
+      "latent_image": ["9", 2]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "KSampler"},
+    "_defaults": {
+      "PARAM_INT_STEPS": 25,
+      "PARAM_FLOAT_CFG": 3.5,
+      "PARAM_STR_SAMPLER_NAME": "euler",
+      "PARAM_STR_SCHEDULER": "simple",
+      "PARAM_FLOAT_DENOISE": 1.0
+    }
+  },
+  "12": {
+    "inputs": {
+      "samples": ["11", 0],
+      "vae": ["3", 0]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {"title": "VAE Decode"}
+  },
+  "13": {
+    "inputs": {
+      "filename_prefix": "ComfyUI_FluxFill",
+      "images": ["12", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Image"}
+  }
+}

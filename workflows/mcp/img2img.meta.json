@@ -1,0 +1,29 @@
+{
+  "name": "Image to Image",
+  "description": "Transforms an existing image based on a text prompt using Flux 1 Dev. Encodes the source image to latent space and re-generates with prompt guidance and configurable denoising.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "LoadImage", "VAEEncode", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Filename of the source image"},
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired transformation"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength (lower = closer to original)"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "editing",
+  "tags": ["img2img", "flux", "image-editing", "transformation"]
+}

@@ -1,0 +1,99 @@
+{
+  "1": {
+    "inputs": {
+      "unet_name": "flux1-dev-kontext_fp8_scaled.safetensors"
+    },
+    "class_type": "UNETLoader",
+    "_meta": {"title": "Load Flux Kontext Model"}
+  },
+  "2": {
+    "inputs": {
+      "clip_name1": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+      "clip_name2": "clip_l.safetensors",
+      "type": "flux"
+    },
+    "class_type": "DualCLIPLoader",
+    "_meta": {"title": "Load CLIP Text Encoders"}
+  },
+  "3": {
+    "inputs": {
+      "vae_name": "ae.safetensors"
+    },
+    "class_type": "VAELoader",
+    "_meta": {"title": "Load VAE"}
+  },
+  "4": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Source Image"}
+  },
+  "5": {
+    "inputs": {
+      "pixels": ["4", 0],
+      "vae": ["3", 0]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {"title": "Encode Source Image to Latent"}
+  },
+  "6": {
+    "inputs": {
+      "text": "PARAM_PROMPT",
+      "clip": ["2", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Edit Instruction"}
+  },
+  "7": {
+    "inputs": {
+      "text": "PARAM_NEGATIVE_PROMPT",
+      "clip": ["2", 0]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Negative Prompt"},
+    "_defaults": {
+      "PARAM_NEGATIVE_PROMPT": ""
+    }
+  },
+  "8": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "PARAM_STR_SAMPLER_NAME",
+      "scheduler": "PARAM_STR_SCHEDULER",
+      "denoise": "PARAM_FLOAT_DENOISE",
+      "model": ["1", 0],
+      "positive": ["6", 0],
+      "negative": ["7", 0],
+      "latent_image": ["5", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "KSampler"},
+    "_defaults": {
+      "PARAM_INT_STEPS": 25,
+      "PARAM_FLOAT_CFG": 3.5,
+      "PARAM_STR_SAMPLER_NAME": "euler",
+      "PARAM_STR_SCHEDULER": "simple",
+      "PARAM_FLOAT_DENOISE": 0.8
+    }
+  },
+  "9": {
+    "inputs": {
+      "samples": ["8", 0],
+      "vae": ["3", 0]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {"title": "VAE Decode"}
+  },
+  "10": {
+    "inputs": {
+      "filename_prefix": "ComfyUI_Kontext",
+      "images": ["9", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Image"}
+  }
+}

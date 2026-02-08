@@ -1,0 +1,22 @@
+{
+  "name": "Upscale Image",
+  "description": "Upscales an image using a dedicated upscale model (e.g., RealESRGAN). Supports 2x and 4x upscale factors with model auto-selection.",
+  "requirements": {
+    "nodes": ["LoadImage", "UpscaleModelLoader", "ImageUpscaleWithModel", "SaveImage"],
+    "models": {
+      "upscale_model": "user-specified (PARAM_STR_UPSCALE_MODEL, e.g., RealESRGAN_x4plus.pth or 4x-UltraSharp.pth)"
+    },
+    "minimum_vram_gb": 4
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Filename of the image to upscale"},
+    "upscale_model": {"type": "string", "required": false, "description": "Upscale model filename (auto-selected if omitted)"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "editing",
+  "tags": ["upscale", "super-resolution", "enhance", "realesrgan"]
+}

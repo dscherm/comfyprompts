@@ -1,0 +1,38 @@
+{
+  "name": "Style Transfer (Multi-Reference)",
+  "description": "Blends styles from two reference images using IP-Adapter Advanced with SDXL. Averages embeddings from both images for a combined style effect.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "CLIPTextEncode", "EmptyLatentImage", "LoadImage", "ImageBatch", "IPAdapterUnifiedLoader", "IPAdapterAdvanced", "KSampler", "VAEDecode", "SaveImage"],
+    "custom_nodes": {
+      "IPAdapterUnifiedLoader": {"install": "ComfyUI_IPAdapter_plus"},
+      "IPAdapterAdvanced": {"install": "ComfyUI_IPAdapter_plus"},
+      "ImageBatch": {"install": "builtin"}
+    },
+    "models": {
+      "checkpoint": "sd_xl_base_1.0.safetensors",
+      "ipadapter": "auto-loaded by IPAdapterUnifiedLoader (VIT-G preset)"
+    },
+    "minimum_vram_gb": 10
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired output"},
+    "negative_prompt": {"type": "string", "required": false, "default": "blurry, low quality, ugly, deformed, watermark"},
+    "style_image_1": {"type": "string", "required": true, "description": "Filename of first style reference image"},
+    "style_image_2": {"type": "string", "required": true, "description": "Filename of second style reference image"},
+    "weight": {"type": "float", "required": false, "default": 0.8, "description": "Overall IP-Adapter weight"},
+    "width": {"type": "int", "required": false, "default": 1024, "description": "Image width"},
+    "height": {"type": "int", "required": false, "default": 1024, "description": "Image height"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "default": 25, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "default": 7.5, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "default": "dpmpp_2m", "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "default": "karras", "description": "Noise scheduler"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "style-transfer",
+  "tags": ["style-transfer", "ipadapter", "sdxl", "multi-reference", "style-blend"]
+}

@@ -1,0 +1,29 @@
+{
+  "name": "Generate Pixel Art Image",
+  "description": "Generates pixel art style images using Flux with the PixelArtV3 LoRA. Good for retro game assets, sprite concepts, and pixel art illustrations.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "LoraLoader", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors",
+      "lora": "style/PixelArtV3Flux.safetensors"
+    },
+    "minimum_vram_gb": 12
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Description of pixel art to generate (e.g., 'pixel art, a medieval knight with sword and shield')"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "lora_strength": {"type": "float", "required": false, "description": "Pixel art LoRA strength (default 0.85, lower for subtle effect)"},
+    "width": {"type": "int", "required": false, "description": "Image width (default 1024)"},
+    "height": {"type": "int", "required": false, "description": "Image height (default 1024)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps (default 20)"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale (default 1.0 for Flux)"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["pixel-art", "retro", "game-assets", "LoRA", "flux", "style"]
+}

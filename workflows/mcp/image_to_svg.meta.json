@@ -1,0 +1,35 @@
+{
+  "name": "Image to SVG",
+  "description": "Convert an image to SVG vector format using Vtracer (black and white). Supports spline and polygon modes with adjustable detail parameters. Requires ComfyUI-ToSVG custom node.",
+  "category": "conversion",
+  "required_nodes": ["ComfyUI-ToSVG"],
+  "tags": ["svg", "vector", "conversion", "trace"],
+  "defaults": {
+    "mode": "spline",
+    "filter_speckle": 4,
+    "corner_threshold": 60,
+    "length_threshold": 4.0,
+    "splice_threshold": 45
+  },
+  "constraints": {
+    "mode": {
+      "enum": ["spline", "polygon"]
+    },
+    "filter_speckle": {
+      "min": 1,
+      "max": 100
+    },
+    "corner_threshold": {
+      "min": 1,
+      "max": 180
+    },
+    "length_threshold": {
+      "min": 0.1,
+      "max": 100.0
+    },
+    "splice_threshold": {
+      "min": 1,
+      "max": 180
+    }
+  }
+}

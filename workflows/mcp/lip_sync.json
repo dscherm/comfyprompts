@@ -1,0 +1,57 @@
+{
+  "_comment": "Wav2Lip: Local lip sync from video frames + audio. Requires ComfyUI_wav2lip custom node. Download wav2lip model to custom_nodes/ComfyUI_wav2lip/Wav2Lip/checkpoints/.",
+  "10": {
+    "inputs": {
+      "audio": "PARAM_STR_AUDIO_PATH"
+    },
+    "class_type": "LoadAudio",
+    "_meta": {
+      "title": "Load Audio"
+    }
+  },
+  "20": {
+    "inputs": {
+      "video": "PARAM_STR_VIDEO_PATH"
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {
+      "title": "Load Video"
+    }
+  },
+  "30": {
+    "inputs": {
+      "images": [
+        "20",
+        0
+      ],
+      "audio": [
+        "10",
+        0
+      ],
+      "mode": "sequential",
+      "face_detect_batch": "PARAM_INT_FACE_DETECT_BATCH"
+    },
+    "class_type": "Wav2Lip",
+    "_meta": {
+      "title": "Wav2Lip"
+    }
+  },
+  "40": {
+    "inputs": {
+      "filename_prefix": "video/lipsync",
+      "fps": 25,
+      "images": [
+        "30",
+        0
+      ],
+      "audio": [
+        "30",
+        1
+      ]
+    },
+    "class_type": "VHS_VideoCombine",
+    "_meta": {
+      "title": "Video Combine"
+    }
+  }
+}

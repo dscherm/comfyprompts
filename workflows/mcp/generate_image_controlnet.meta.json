@@ -1,0 +1,37 @@
+{
+  "name": "Generate Image with ControlNet",
+  "description": "Controlled image generation using Flux 1 Dev with Flux Union ControlNet. Supports multiple control types (canny, depth, pose, etc.) from a reference control image.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "ControlNetLoader", "LoadImage", "EmptySD3LatentImage", "CLIPTextEncode", "FluxUnionControlNetApply", "KSampler", "VAEDecode", "SaveImage"],
+    "custom_nodes": {
+      "FluxUnionControlNetApply": {"install": "ComfyUI-Flux-Union-ControlNet"}
+    },
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors",
+      "controlnet": "flux-dev-controlnet-union.safetensors"
+    },
+    "minimum_vram_gb": 10
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired image"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "control_image": {"type": "string", "required": true, "description": "Filename of the control image (canny, depth, pose, etc.)"},
+    "controlnet_type": {"type": "string", "required": false, "description": "Union ControlNet type (canny, depth, pose, etc.)"},
+    "controlnet_strength": {"type": "float", "required": false, "description": "ControlNet influence strength (0.0-1.0)"},
+    "width": {"type": "int", "required": false, "description": "Image width in pixels"},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["controlnet", "flux", "controlled-generation", "canny", "depth", "pose"]
+}

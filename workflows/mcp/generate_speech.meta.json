@@ -1,0 +1,22 @@
+{
+  "name": "Generate Speech (TTS)",
+  "description": "Generates speech audio from text using TTS-Audio-Suite F5-TTS engine. Supports voice cloning from reference audio files. Models auto-download on first use (~1.2GB per language).",
+  "requirements": {
+    "nodes": ["TTS Text", "F5 TTS Engine", "Character Voices"],
+    "install": "TTS-Audio-Suite",
+    "install_url": "https://github.com/diodiogod/TTS-Audio-Suite",
+    "models_auto_download": true,
+    "estimated_vram": "4-6GB"
+  },
+  "category": "audio_tts",
+  "tags": ["speech", "tts", "text-to-speech", "voice", "f5-tts", "voice-cloning"],
+  "defaults": {
+    "model": "F5-TTS",
+    "voice_reference": "default"
+  },
+  "parameter_notes": {
+    "text": "The text to convert to speech. Supports [CharacterName] syntax for multi-speaker. Unlimited length with smart chunking.",
+    "model": "TTS model variant. Default: F5-TTS base model. Auto-downloads from HuggingFace.",
+    "voice_reference": "Name of a voice reference file (without extension) in ComfyUI/input/ or voices directory. Place a .wav file + matching .txt transcript. Use 'default' for the engine's default voice."
+  }
+}

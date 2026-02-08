@@ -1,0 +1,44 @@
+{
+  "name": "Generate Image (Flux 2 Dev)",
+  "description": "Text-to-image generation using Flux 2 Dev (FP8). Produces images up to 4MP with improved prompt adherence, better typography, photorealism, and lighting compared to Flux 1. Uses Mistral 3 Small text encoder for superior prompt understanding.",
+  "requirements": {
+    "nodes": ["UNETLoader", "CLIPLoader", "VAELoader", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "diffusion_model": "flux2_dev_fp8mixed.safetensors",
+      "text_encoder": "mistral_3_small_flux2_fp8.safetensors",
+      "vae": "flux2-vae.safetensors"
+    },
+    "model_downloads": {
+      "flux2_dev_fp8mixed.safetensors": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/diffusion_models/flux2_dev_fp8mixed.safetensors",
+      "mistral_3_small_flux2_fp8.safetensors": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/text_encoders/mistral_3_small_flux2_fp8.safetensors",
+      "flux2-vae.safetensors": "https://huggingface.co/Comfy-Org/flux2-dev/resolve/main/split_files/vae/flux2-vae.safetensors"
+    },
+    "minimum_vram_gb": 12,
+    "recommended_vram_gb": 16,
+    "comfyui_minimum_version": "0.3.39"
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired image. Flux 2 supports complex multi-part prompts, hex color codes, and typography instructions."},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in the image"},
+    "width": {"type": "int", "required": false, "default": 1024, "description": "Image width in pixels. Flux 2 supports up to 2048 (4MP total)."},
+    "height": {"type": "int", "required": false, "default": 1024, "description": "Image height in pixels. Flux 2 supports up to 2048 (4MP total)."},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"},
+    "steps": {"type": "int", "required": false, "default": 25, "description": "Sampling steps (20-30 recommended)"},
+    "cfg": {"type": "float", "required": false, "default": 3.5, "description": "CFG scale (1.0-3.5 recommended for Flux 2)"},
+    "sampler_name": {"type": "string", "required": false, "default": "euler", "description": "Sampler algorithm (euler or dpmpp_2m recommended)"},
+    "scheduler": {"type": "string", "required": false, "default": "simple", "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "default": 1.0, "description": "Denoising strength"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux2", "t2i", "4mp", "typography", "photorealistic"],
+  "notes": {
+    "architecture": "Flux 2 uses separate UNETLoader + CLIPLoader + VAELoader instead of CheckpointLoaderSimple. The Mistral 3 Small text encoder replaces T5+CLIP-L from Flux 1.",
+    "gguf_alternative": "For lower VRAM (6-8 GB), use GGUF quantized models from huggingface.co/city96/FLUX.2-dev-gguf with UnetLoaderGGUF node (requires ComfyUI-GGUF custom node).",
+    "multi_reference": "Flux 2 supports up to 10 reference images for consistency. Add LoadImage nodes and connect to the model for multi-reference generation."
+  }
+}

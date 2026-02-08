@@ -1,0 +1,33 @@
+{
+  "name": "Generate Image with LoRA",
+  "description": "Text-to-image generation using Flux 1 Dev with a LoRA adapter for style or subject customization. Supports configurable LoRA strength.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "LoraLoader", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors",
+      "lora": "user-specified (PARAM_STR_LORA_NAME)"
+    },
+    "minimum_vram_gb": 10
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired image"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "lora_name": {"type": "string", "required": true, "description": "Filename of the LoRA model to apply"},
+    "lora_strength": {"type": "float", "required": false, "description": "LoRA influence strength (applied to both model and CLIP)"},
+    "width": {"type": "int", "required": false, "description": "Image width in pixels"},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["lora", "flux", "text-to-image", "style", "customization"]
+}

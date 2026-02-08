@@ -1,0 +1,127 @@
+{
+  "_comment": "Stable Audio Open 1.0: Text-to-sound-effects/ambient audio generation. Uses native ComfyUI nodes. Requires stable_audio_open_1.0.safetensors in models/checkpoints/ and t5_base.safetensors in models/text_encoders/.",
+  "10": {
+    "inputs": {
+      "ckpt_name": "stable_audio_open_1.0.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {
+      "title": "Load Checkpoint"
+    }
+  },
+  "20": {
+    "inputs": {
+      "text": "PARAM_STR_PROMPT",
+      "clip": [
+        "10",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Positive)"
+    }
+  },
+  "25": {
+    "inputs": {
+      "text": "PARAM_STR_NEGATIVE_PROMPT",
+      "clip": [
+        "10",
+        1
+      ]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {
+      "title": "CLIP Text Encode (Negative)"
+    }
+  },
+  "30": {
+    "inputs": {
+      "positive": [
+        "20",
+        0
+      ],
+      "negative": [
+        "25",
+        0
+      ],
+      "seconds_start": 0.0,
+      "seconds_total": "PARAM_FLOAT_SECONDS"
+    },
+    "class_type": "ConditioningStableAudio",
+    "_meta": {
+      "title": "Conditioning Stable Audio"
+    }
+  },
+  "40": {
+    "inputs": {
+      "seconds": "PARAM_FLOAT_SECONDS",
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentAudio",
+    "_meta": {
+      "title": "Empty Latent Audio"
+    }
+  },
+  "50": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "euler",
+      "scheduler": "normal",
+      "denoise": 1.0,
+      "model": [
+        "10",
+        0
+      ],
+      "positive": [
+        "30",
+        0
+      ],
+      "negative": [
+        "30",
+        1
+      ],
+      "latent_image": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "KSampler",
+    "_meta": {
+      "title": "KSampler"
+    }
+  },
+  "60": {
+    "inputs": {
+      "samples": [
+        "50",
+        0
+      ],
+      "vae": [
+        "10",
+        2
+      ]
+    },
+    "class_type": "VAEDecodeAudio",
+    "_meta": {
+      "title": "VAE Decode Audio"
+    }
+  },
+  "70": {
+    "inputs": {
+      "filename_prefix": "audio/sfx",
+      "quality": "V0",
+      "audioUI": "",
+      "audio": [
+        "60",
+        0
+      ]
+    },
+    "class_type": "SaveAudioMP3",
+    "_meta": {
+      "title": "Save Audio (MP3)"
+    }
+  }
+}

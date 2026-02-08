@@ -1,0 +1,30 @@
+{
+  "name": "Generate Image",
+  "description": "Text-to-image generation using Flux 1 Dev (FP8). Produces a single image from a text prompt with configurable resolution, sampling, and CFG settings.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired image"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in the image"},
+    "width": {"type": "int", "required": false, "description": "Image width in pixels"},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"},
+    "steps": {"type": "int", "required": false, "description": "Number of sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "Classifier-free guidance scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux", "t2i"]
+}

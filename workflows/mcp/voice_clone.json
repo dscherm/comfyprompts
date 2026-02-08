@@ -1,0 +1,84 @@
+{
+  "_comment": "TTS-Audio-Suite: Voice cloning with RVC post-processing. Generates speech with F5-TTS then applies RVC voice model for higher quality cloning. Requires TTS-Audio-Suite custom node.",
+  "10": {
+    "inputs": {
+      "tts_engine": [
+        "20",
+        0
+      ],
+      "text": "PARAM_TEXT",
+      "character_voice": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "TTS Text",
+    "_meta": {
+      "title": "TTS Text"
+    }
+  },
+  "20": {
+    "inputs": {
+      "model": "PARAM_STR_MODEL",
+      "device": "auto",
+      "unload_model_after_generate": true,
+      "precision": "bf16"
+    },
+    "class_type": "F5 TTS Engine",
+    "_meta": {
+      "title": "F5 TTS Engine"
+    }
+  },
+  "30": {
+    "inputs": {
+      "voice_name": "PARAM_STR_VOICE_REFERENCE",
+      "voices_dir": "default"
+    },
+    "class_type": "Character Voices",
+    "_meta": {
+      "title": "Character Voices"
+    }
+  },
+  "40": {
+    "inputs": {
+      "rvc_model": [
+        "50",
+        0
+      ],
+      "audio": [
+        "10",
+        0
+      ],
+      "pitch_shift": "PARAM_INT_PITCH_SHIFT",
+      "index_rate": 0.75
+    },
+    "class_type": "Voice Changer",
+    "_meta": {
+      "title": "Voice Changer (RVC)"
+    }
+  },
+  "50": {
+    "inputs": {
+      "model_name": "PARAM_STR_RVC_MODEL"
+    },
+    "class_type": "Load RVC Character Model",
+    "_meta": {
+      "title": "Load RVC Character Model"
+    }
+  },
+  "60": {
+    "inputs": {
+      "filename_prefix": "audio/voice_clone",
+      "quality": "V0",
+      "audioUI": "",
+      "audio": [
+        "40",
+        0
+      ]
+    },
+    "class_type": "SaveAudioMP3",
+    "_meta": {
+      "title": "Save Audio (MP3)"
+    }
+  }
+}

@@ -1,0 +1,60 @@
+{
+  "name": "Hunyuan3D Mini Image to 3D",
+  "description": "Lightweight 3D mesh generation using Hunyuan3D Mini (0.6B parameters). Geometry-only output without texturing. Designed for lower VRAM GPUs (~6GB). Good for quick geometry previews.",
+  "requirements": {
+    "nodes": ["Hy3DModelLoader", "Hy3DGenerateMesh", "Hy3DVAEDecode", "Hy3DPostprocessMesh", "Hy3DExportMesh", "TransparentBGSession+", "ImageRemoveBackground+", "ImageResize+"],
+    "models": {
+      "diffusion_models": ["hy3dgen/hunyuan3d-dit-v2-mini-fp16.safetensors"]
+    },
+    "custom_nodes": ["ComfyUI-Hunyuan3DWrapper", "ComfyUI_essentials", "comfyui-inspyrenet-rembg"],
+    "vram_minimum_gb": 6,
+    "vram_recommended_gb": 8
+  },
+  "parameters": {
+    "PARAM_STR_IMAGE_PATH": {
+      "type": "string",
+      "description": "Path to input image",
+      "required": true
+    },
+    "PARAM_FLOAT_GUIDANCE_SCALE": {
+      "type": "float",
+      "description": "Guidance scale for mesh generation",
+      "default": 5.5,
+      "min": 1.0,
+      "max": 30.0
+    },
+    "PARAM_INT_STEPS": {
+      "type": "int",
+      "description": "Number of diffusion steps",
+      "default": 30,
+      "min": 10,
+      "max": 100
+    },
+    "PARAM_INT_SEED": {
+      "type": "int",
+      "description": "Random seed",
+      "default": 0
+    },
+    "PARAM_INT_OCTREE_RESOLUTION": {
+      "type": "int",
+      "description": "Octree resolution for VAE decode",
+      "default": 256,
+      "min": 128,
+      "max": 384
+    },
+    "PARAM_INT_MAX_FACES": {
+      "type": "int",
+      "description": "Maximum face count after decimation",
+      "default": 30000,
+      "min": 5000,
+      "max": 200000
+    }
+  },
+  "outputs": {
+    "geometry_glb": "3D/Hy3D_mini_*.glb"
+  },
+  "category": "3d_generation",
+  "tags": ["3d", "mesh", "hunyuan3d", "mini", "lightweight", "low-vram", "geometry", "image-to-3d"],
+  "estimated_time_seconds": 90,
+  "notes": "Mini model (0.6B params) produces geometry-only output. No texturing pipeline included to keep VRAM low. For textured output, use the v2.0 or v2.5 workflows instead. Can be chained with external texturing solutions."
+}

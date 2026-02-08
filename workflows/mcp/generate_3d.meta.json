@@ -1,0 +1,33 @@
+{
+  "name": "Generate 3D from Text",
+  "description": "Text-to-3D pipeline: generates an image from a text prompt using Flux, removes background, then converts to a 3D mesh using TripoSR.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "TripoSRModelLoader", "ImageRemoveBackground", "TripoSRSampler", "SaveTripoSRMesh"],
+    "custom_nodes": {
+      "TripoSRModelLoader": {"install": "ComfyUI-TripoSR"},
+      "TripoSRSampler": {"install": "ComfyUI-TripoSR"},
+      "SaveTripoSRMesh": {"install": "ComfyUI-TripoSR"},
+      "ImageRemoveBackground": {"install": "ComfyUI-BRIA-AI-RMBG or ComfyUI-rembg"}
+    },
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors",
+      "triposr": "TripoSR"
+    },
+    "minimum_vram_gb": 10
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired 3D object"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "resolution": {"type": "int", "required": false, "description": "3D mesh geometry resolution"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale"}
+  },
+  "output": {
+    "type": "3d_mesh",
+    "format": "glb",
+    "node": "SaveTripoSRMesh"
+  },
+  "category": "generation",
+  "tags": ["text-to-3d", "triposr", "3d", "mesh"]
+}

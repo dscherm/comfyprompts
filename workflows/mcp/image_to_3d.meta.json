@@ -1,0 +1,28 @@
+{
+  "name": "Image to 3D",
+  "description": "Converts a single image to a 3D mesh using TripoSR. Automatically removes the background before 3D reconstruction.",
+  "requirements": {
+    "nodes": ["LoadImage", "TripoSRModelLoader", "ImageRemoveBackground", "TripoSRSampler", "SaveTripoSRMesh"],
+    "custom_nodes": {
+      "TripoSRModelLoader": {"install": "ComfyUI-TripoSR"},
+      "TripoSRSampler": {"install": "ComfyUI-TripoSR"},
+      "SaveTripoSRMesh": {"install": "ComfyUI-TripoSR"},
+      "ImageRemoveBackground": {"install": "ComfyUI-BRIA-AI-RMBG or ComfyUI-rembg"}
+    },
+    "models": {
+      "triposr": "TripoSR"
+    },
+    "minimum_vram_gb": 6
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Filename of the input image"},
+    "resolution": {"type": "int", "required": false, "description": "3D mesh geometry resolution"}
+  },
+  "output": {
+    "type": "3d_mesh",
+    "format": "glb",
+    "node": "SaveTripoSRMesh"
+  },
+  "category": "conversion",
+  "tags": ["image-to-3d", "triposr", "3d", "mesh", "reconstruction"]
+}

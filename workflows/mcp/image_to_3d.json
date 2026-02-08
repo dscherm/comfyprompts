@@ -1,0 +1,44 @@
+{
+  "1": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "2": {
+    "inputs": {
+      "model": "TripoSR",
+      "chunk_size": 8192
+    },
+    "class_type": "TripoSRModelLoader",
+    "_meta": {"title": "Load TripoSR Model"}
+  },
+  "3": {
+    "inputs": {
+      "image": ["1", 0]
+    },
+    "class_type": "ImageRemoveBackground",
+    "_meta": {"title": "Remove Background"}
+  },
+  "4": {
+    "inputs": {
+      "tripoSR_model": ["2", 0],
+      "reference_image": ["3", 0],
+      "foreground_ratio": 0.9,
+      "geometry_resolution": "PARAM_INT_RESOLUTION",
+      "threshold": 25.0
+    },
+    "class_type": "TripoSRSampler",
+    "_meta": {"title": "TripoSR Sampler"}
+  },
+  "5": {
+    "inputs": {
+      "mesh": ["4", 0],
+      "filename_prefix": "ComfyUI_3D"
+    },
+    "class_type": "SaveTripoSRMesh",
+    "_meta": {"title": "Save 3D Mesh"}
+  }
+}

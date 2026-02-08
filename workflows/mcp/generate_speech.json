@@ -1,0 +1,57 @@
+{
+  "_comment": "TTS-Audio-Suite: Text-to-Speech generation using F5-TTS engine with optional voice cloning. Requires TTS-Audio-Suite custom node (install via ComfyUI Manager). Models auto-download on first use.",
+  "10": {
+    "inputs": {
+      "tts_engine": [
+        "20",
+        0
+      ],
+      "text": "PARAM_TEXT",
+      "character_voice": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "TTS Text",
+    "_meta": {
+      "title": "TTS Text"
+    }
+  },
+  "20": {
+    "inputs": {
+      "model": "PARAM_STR_MODEL",
+      "device": "auto",
+      "unload_model_after_generate": true,
+      "precision": "bf16"
+    },
+    "class_type": "F5 TTS Engine",
+    "_meta": {
+      "title": "F5 TTS Engine"
+    }
+  },
+  "30": {
+    "inputs": {
+      "voice_name": "PARAM_STR_VOICE_REFERENCE",
+      "voices_dir": "default"
+    },
+    "class_type": "Character Voices",
+    "_meta": {
+      "title": "Character Voices"
+    }
+  },
+  "40": {
+    "inputs": {
+      "filename_prefix": "audio/speech",
+      "quality": "V0",
+      "audioUI": "",
+      "audio": [
+        "10",
+        0
+      ]
+    },
+    "class_type": "SaveAudioMP3",
+    "_meta": {
+      "title": "Save Audio (MP3)"
+    }
+  }
+}

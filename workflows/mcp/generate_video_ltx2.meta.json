@@ -1,0 +1,132 @@
+{
+  "name": "LTX-2 Text to Video",
+  "description": "Generate video from text prompts using the LTX-2 19B model by Lightricks. Supports up to 4K resolution, 50fps, and 20-second clips. Uses distilled FP8 variant for efficiency. Two-pass pipeline with spatial upscaling available separately.",
+  "requirements": {
+    "nodes": [
+      "CheckpointLoaderSimple",
+      "LTXAVTextEncoderLoader",
+      "LTXVConditioning",
+      "EmptyLTXVLatentVideo",
+      "SamplerCustomAdvanced",
+      "VAEDecodeTiled",
+      "CreateVideo",
+      "SaveVideo"
+    ],
+    "install": "ComfyUI-LTXVideo",
+    "models": {
+      "checkpoint": {
+        "name": "ltx-2-19b-distilled-fp8.safetensors",
+        "size": "27.1 GB",
+        "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-distilled-fp8.safetensors",
+        "folder": "checkpoints"
+      },
+      "text_encoder": {
+        "name": "gemma_3_12B_it_fp8_scaled.safetensors",
+        "url": "https://huggingface.co/Lightricks/LTX-2/tree/main/text_encoder",
+        "folder": "text_encoders"
+      },
+      "spatial_upscaler": {
+        "name": "ltx-2-spatial-upscaler-x2-1.0.safetensors",
+        "size": "996 MB",
+        "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-spatial-upscaler-x2-1.0.safetensors",
+        "folder": "latent_upscale_models",
+        "note": "Optional, for 2x spatial upscale pass"
+      },
+      "temporal_upscaler": {
+        "name": "ltx-2-temporal-upscaler-x2-1.0.safetensors",
+        "size": "262 MB",
+        "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-temporal-upscaler-x2-1.0.safetensors",
+        "folder": "latent_upscale_models",
+        "note": "Optional, for 2x frame rate upscale"
+      },
+      "distilled_lora": {
+        "name": "ltx-2-19b-distilled-lora-384.safetensors",
+        "size": "7.67 GB",
+        "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-distilled-lora-384.safetensors",
+        "folder": "loras",
+        "note": "Optional, for distilled upscale pass (fewer steps)"
+      }
+    },
+    "alternatives": {
+      "full_model": {
+        "name": "ltx-2-19b-dev-fp8.safetensors",
+        "size": "27.1 GB",
+        "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev-fp8.safetensors",
+        "note": "Full (non-distilled) model, higher quality, more steps needed"
+      },
+      "fp4_model": {
+        "name": "ltx-2-19b-dev-fp4.safetensors",
+        "size": "20 GB",
+        "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-dev-fp4.safetensors",
+        "note": "FP4 for RTX 50 Series NVFP4 support, 60% less VRAM"
+      }
+    }
+  },
+  "category": "video_generation",
+  "tags": ["video", "text-to-video", "ltx-2", "lightricks", "4k", "audio"],
+  "parameters": {
+    "PARAM_PROMPT": {
+      "type": "string",
+      "description": "Text description of the video to generate. Include motion descriptors like 'slow pan', 'walking forward'."
+    },
+    "PARAM_NEGATIVE_PROMPT": {
+      "type": "string",
+      "description": "Negative prompt for undesired content",
+      "default": "bad quality, blurry, distorted, low resolution, artifacts, noise, jittery motion"
+    },
+    "PARAM_INT_WIDTH": {
+      "type": "integer",
+      "description": "Video width in pixels (must be divisible by 32)",
+      "default": 768,
+      "options": [512, 640, 768, 960, 1280, 1920]
+    },
+    "PARAM_INT_HEIGHT": {
+      "type": "integer",
+      "description": "Video height in pixels (must be divisible by 32)",
+      "default": 512,
+      "options": [384, 480, 512, 640, 720, 1080]
+    },
+    "PARAM_INT_FRAMES": {
+      "type": "integer",
+      "description": "Number of frames (must be 8n+1: 9, 17, 25, 33, 41, 49, 57, 65, 81, 97, 121)",
+      "default": 41
+    },
+    "PARAM_INT_FPS": {
+      "type": "integer",
+      "description": "Frames per second for output video",
+      "default": 24,
+      "options": [16, 24, 30, 50]
+    },
+    "PARAM_INT_SEED": {
+      "type": "integer",
+      "description": "Random seed for reproducibility",
+      "default": -1
+    },
+    "PARAM_INT_STEPS": {
+      "type": "integer",
+      "description": "Sampling steps (distilled: 8-12, full: 20-30)",
+      "default": 10
+    },
+    "PARAM_FLOAT_CFG": {
+      "type": "float",
+      "description": "Classifier-free guidance scale (recommended 3.5-6.5)",
+      "default": 4.0
+    }
+  },
+  "vram_requirements": {
+    "480p_short": "~12 GB (768x480, 25 frames)",
+    "720p_standard": "~16 GB (1280x720, 41 frames)",
+    "1080p": "~24 GB (1920x1080, 41 frames)",
+    "4k": "~32 GB+ (3840x2160, requires tiled decode)"
+  },
+  "resolution_presets": {
+    "480p_landscape": {"width": 832, "height": 480},
+    "480p_portrait": {"width": 480, "height": 832},
+    "480p_square": {"width": 640, "height": 640},
+    "720p_landscape": {"width": 1280, "height": 720},
+    "720p_portrait": {"width": 720, "height": 1280},
+    "720p_square": {"width": 960, "height": 960},
+    "1080p_landscape": {"width": 1920, "height": 1080},
+    "1080p_portrait": {"width": 1080, "height": 1920}
+  }
+}

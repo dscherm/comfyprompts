@@ -1,0 +1,29 @@
+{
+  "name": "Generate Sound Effects",
+  "description": "Generates sound effects, ambient audio, or short music clips from text descriptions using Stable Audio Open 1.0. Uses native ComfyUI nodes (no custom nodes required). Up to 47 seconds of audio.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "CLIPTextEncode", "ConditioningStableAudio", "EmptyLatentAudio", "KSampler", "VAEDecodeAudio", "SaveAudioMP3"],
+    "install": "native (no custom nodes needed)",
+    "models": {
+      "checkpoint": "stable_audio_open_1.0.safetensors (place in models/checkpoints/)",
+      "text_encoder": "t5_base.safetensors (place in models/text_encoders/)",
+      "download_url": "https://huggingface.co/stabilityai/stable-audio-open-1.0"
+    },
+    "estimated_vram": "4GB"
+  },
+  "category": "audio_sfx",
+  "tags": ["sound-effects", "sfx", "ambient", "audio-generation", "stable-audio"],
+  "defaults": {
+    "seconds": 10.0,
+    "steps": 100,
+    "cfg": 7.0,
+    "negative_prompt": "low quality, distorted, noise, glitch, hiss, hum"
+  },
+  "parameter_notes": {
+    "prompt": "Describe the sound effect. Be specific: 'door creaking open slowly in a haunted house', 'rain on a tin roof with distant thunder', 'footsteps on gravel path'. Include mood, material, environment.",
+    "negative_prompt": "What to avoid: 'low quality, distorted, noise, glitch, hiss'. Default provided.",
+    "seconds": "Duration of generated audio in seconds. Max 47s for Stable Audio Open 1.0.",
+    "steps": "Diffusion steps. Higher = better quality. Recommended: 100 for best quality, 50 for faster.",
+    "cfg": "Classifier-free guidance. Higher = more adherence to prompt. Range 3-12, default 7."
+  }
+}

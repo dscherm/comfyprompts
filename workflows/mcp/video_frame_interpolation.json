@@ -1,0 +1,47 @@
+{
+  "1": {
+    "inputs": {
+      "video": "PARAM_STR_VIDEO_PATH",
+      "force_rate": 0,
+      "force_size": "Disabled",
+      "custom_width": 0,
+      "custom_height": 0,
+      "frame_load_cap": 0,
+      "skip_first_frames": 0,
+      "select_every_nth": 1
+    },
+    "class_type": "VHS_LoadVideo",
+    "_meta": {"title": "Load Input Video"}
+  },
+  "2": {
+    "inputs": {
+      "ckpt_name": "PARAM_STR_RIFE_MODEL",
+      "frames": ["1", 0],
+      "clear_cache_after_n_frames": 10,
+      "multiplier": "PARAM_INT_MULTIPLIER",
+      "fast_mode": true,
+      "ensemble": true,
+      "scale_factor": 1.0
+    },
+    "class_type": "RIFE VFI",
+    "_meta": {"title": "RIFE Frame Interpolation"}
+  },
+  "3": {
+    "inputs": {
+      "images": ["2", 0],
+      "fps": "PARAM_INT_OUTPUT_FPS"
+    },
+    "class_type": "CreateVideo",
+    "_meta": {"title": "Create Interpolated Video"}
+  },
+  "4": {
+    "inputs": {
+      "video": ["3", 0],
+      "filename_prefix": "ComfyUI_Interpolated",
+      "format": "mp4",
+      "codec": "h264"
+    },
+    "class_type": "SaveVideo",
+    "_meta": {"title": "Save Interpolated Video"}
+  }
+}

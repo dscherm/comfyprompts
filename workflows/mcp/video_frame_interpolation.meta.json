@@ -1,0 +1,82 @@
+{
+  "name": "Video Frame Interpolation (RIFE)",
+  "description": "Boost video frame rate using RIFE (Real-Time Intermediate Flow Estimation). Takes an input video and generates intermediate frames to increase smoothness. Supports 2x-8x frame rate multiplication. Use as post-processing after any video generation workflow.",
+  "requirements": {
+    "nodes": [
+      "VHS_LoadVideo",
+      "RIFE VFI",
+      "CreateVideo",
+      "SaveVideo"
+    ],
+    "install": [
+      "ComfyUI-Frame-Interpolation",
+      "ComfyUI-VideoHelperSuite"
+    ],
+    "models": {
+      "rife47": {
+        "name": "rife47.pth",
+        "note": "Auto-downloaded on first use by ComfyUI-Frame-Interpolation",
+        "recommended": true
+      },
+      "rife49": {
+        "name": "rife49.pth",
+        "note": "Newest RIFE version, slightly better quality"
+      }
+    },
+    "optional_install": "ComfyUI-Rife-Tensorrt (for NVIDIA TensorRT accelerated RIFE, ultra-fast)"
+  },
+  "category": "video_postprocessing",
+  "tags": ["video", "frame-interpolation", "rife", "fps-boost", "smooth-motion", "post-processing"],
+  "parameters": {
+    "PARAM_STR_VIDEO_PATH": {
+      "type": "string",
+      "description": "Path to the input video file to interpolate"
+    },
+    "PARAM_STR_RIFE_MODEL": {
+      "type": "string",
+      "description": "RIFE model checkpoint to use",
+      "default": "rife47.pth",
+      "options": ["rife40.pth", "rife41.pth", "rife42.pth", "rife43.pth", "rife44.pth", "rife45.pth", "rife46.pth", "rife47.pth", "rife48.pth", "rife49.pth"]
+    },
+    "PARAM_INT_MULTIPLIER": {
+      "type": "integer",
+      "description": "Frame rate multiplier (2 = double FPS, 4 = quadruple FPS)",
+      "default": 2,
+      "options": [2, 3, 4, 6, 8]
+    },
+    "PARAM_INT_OUTPUT_FPS": {
+      "type": "integer",
+      "description": "Output video frame rate. Should be input_fps * multiplier.",
+      "default": 48
+    }
+  },
+  "usage_examples": {
+    "16fps_to_48fps": {
+      "description": "Triple a 16fps video to smooth 48fps",
+      "PARAM_INT_MULTIPLIER": 3,
+      "PARAM_INT_OUTPUT_FPS": 48
+    },
+    "24fps_to_48fps": {
+      "description": "Double a 24fps video to 48fps",
+      "PARAM_INT_MULTIPLIER": 2,
+      "PARAM_INT_OUTPUT_FPS": 48
+    },
+    "24fps_to_60fps": {
+      "description": "Approximate 60fps from 24fps (2.5x, use 3x then trim)",
+      "PARAM_INT_MULTIPLIER": 3,
+      "PARAM_INT_OUTPUT_FPS": 60
+    },
+    "16fps_to_64fps": {
+      "description": "4x a 16fps video to 64fps for ultra-smooth motion",
+      "PARAM_INT_MULTIPLIER": 4,
+      "PARAM_INT_OUTPUT_FPS": 64
+    }
+  },
+  "vram_requirements": {
+    "480p": "~2 GB",
+    "720p": "~4 GB",
+    "1080p": "~6 GB",
+    "4k": "~12 GB"
+  },
+  "notes": "RIFE is very fast and lightweight. rife47 is recommended for best quality/speed balance. Set ensemble=true for better quality at slight speed cost. The clear_cache_after_n_frames parameter controls memory usage during long videos."
+}

@@ -1,0 +1,38 @@
+{
+  "name": "Face ID Portrait",
+  "description": "Generates images that preserve the facial identity from a reference photo. Uses IP-Adapter FaceID with SDXL to create new portraits, character art, or scene compositions while maintaining face consistency. Requires InsightFace detection models (antelopev2) to be installed.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "CLIPTextEncode", "EmptyLatentImage", "LoadImage", "IPAdapterUnifiedLoaderFaceID", "IPAdapterFaceID", "KSampler", "VAEDecode", "SaveImage"],
+    "custom_nodes": {
+      "IPAdapterUnifiedLoaderFaceID": {"install": "comfyui_ipadapter_plus"},
+      "IPAdapterFaceID": {"install": "comfyui_ipadapter_plus"}
+    },
+    "models": {
+      "checkpoint": "sd_xl_base_1.0.safetensors",
+      "ipadapter": "ip-adapter-faceid_sdxl_lora.safetensors (installed)",
+      "insightface": "antelopev2 detection model (MAY NEED INSTALL - only inswapper_128.onnx found)"
+    },
+    "minimum_vram_gb": 8,
+    "status": "PARTIAL - InsightFace antelopev2 detection model may need to be downloaded. The IPAdapterUnifiedLoaderFaceID will auto-download on first use if onnxruntime is installed. Run: pip install onnxruntime-gpu insightface"
+  },
+  "parameters": {
+    "face_image": {"type": "string", "required": true, "description": "Path to face reference image (clear front-facing photo works best)"},
+    "prompt": {"type": "string", "required": true, "description": "Description of the desired output image (e.g., 'a woman in a medieval dress in a castle')"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "weight": {"type": "float", "required": false, "description": "Overall FaceID influence strength (0.0-1.0, default 0.85)"},
+    "weight_faceid": {"type": "float", "required": false, "description": "FaceID v2 embedding weight (0.0-5.0, default 1.0)"},
+    "lora_strength": {"type": "float", "required": false, "description": "FaceID LoRA strength (0.0-1.0, default 0.6)"},
+    "width": {"type": "int", "required": false, "description": "Image width (default 1024)"},
+    "height": {"type": "int", "required": false, "description": "Image height (default 1024)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps (default 25)"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale (default 7.5)"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["face", "identity", "portrait", "FaceID", "IP-Adapter", "character-consistency"]
+}

@@ -1,0 +1,36 @@
+{
+  "name": "Style Transfer (IP-Adapter)",
+  "description": "Applies the visual style of a reference image to a new generation using IP-Adapter with SDXL. Uses VIT-G medium strength preset for balanced style transfer.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "CLIPTextEncode", "EmptyLatentImage", "LoadImage", "IPAdapterUnifiedLoader", "IPAdapter", "KSampler", "VAEDecode", "SaveImage"],
+    "custom_nodes": {
+      "IPAdapterUnifiedLoader": {"install": "ComfyUI_IPAdapter_plus"},
+      "IPAdapter": {"install": "ComfyUI_IPAdapter_plus"}
+    },
+    "models": {
+      "checkpoint": "sd_xl_base_1.0.safetensors",
+      "ipadapter": "auto-loaded by IPAdapterUnifiedLoader (VIT-G preset)"
+    },
+    "minimum_vram_gb": 10
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired output"},
+    "negative_prompt": {"type": "string", "required": false, "default": "blurry, low quality, ugly, deformed, watermark"},
+    "style_image": {"type": "string", "required": true, "description": "Filename of the style reference image"},
+    "weight": {"type": "float", "required": false, "default": 0.8, "description": "IP-Adapter weight (style influence strength)"},
+    "width": {"type": "int", "required": false, "default": 1024, "description": "Image width"},
+    "height": {"type": "int", "required": false, "default": 1024, "description": "Image height"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "default": 25, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "default": 7.5, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "default": "dpmpp_2m", "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "default": "karras", "description": "Noise scheduler"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "style-transfer",
+  "tags": ["style-transfer", "ipadapter", "sdxl", "reference-image"]
+}

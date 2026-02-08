@@ -1,0 +1,28 @@
+{
+  "name": "Voice Clone (TTS + RVC)",
+  "description": "Generates speech with F5-TTS and applies RVC voice conversion for high-fidelity voice cloning. Two-stage pipeline: TTS generates base speech, then RVC converts to target voice. Requires TTS-Audio-Suite with RVC support.",
+  "requirements": {
+    "nodes": ["TTS Text", "F5 TTS Engine", "Character Voices", "Voice Changer", "Load RVC Character Model"],
+    "install": "TTS-Audio-Suite",
+    "install_url": "https://github.com/diodiogod/TTS-Audio-Suite",
+    "models": {
+      "tts": "Auto-downloaded F5-TTS models (~1.2GB per language)",
+      "rvc": "User-provided RVC .pth model files (100-300MB each, place in models/TTS/RVC/)"
+    },
+    "estimated_vram": "4-6GB"
+  },
+  "category": "audio_tts",
+  "tags": ["voice-cloning", "rvc", "tts", "voice-conversion", "f5-tts"],
+  "defaults": {
+    "model": "F5-TTS",
+    "voice_reference": "default",
+    "pitch_shift": 0
+  },
+  "parameter_notes": {
+    "text": "Text to speak. Supports unlimited length with smart chunking.",
+    "model": "TTS model variant for base speech generation.",
+    "voice_reference": "Reference voice for F5-TTS zero-shot cloning. Name of .wav + .txt pair in voices directory.",
+    "rvc_model": "RVC model filename (.pth) for voice conversion. Must be pre-trained on target voice.",
+    "pitch_shift": "Pitch adjustment in semitones. 0 = no change, +12 = one octave up, -12 = one octave down. Use for gender/age adjustment."
+  }
+}

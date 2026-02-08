@@ -1,0 +1,232 @@
+{
+  "1": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "2": {
+    "inputs": {
+      "image": ["1", 0]
+    },
+    "class_type": "ImageResize+",
+    "_meta": {"title": "Resize to 518x518"}
+  },
+  "3": {
+    "inputs": {
+      "model": "hy3dgen/hunyuan3d-dit-v2-0-fp16.safetensors",
+      "attention_mode": "sdpa"
+    },
+    "class_type": "Hy3DModelLoader",
+    "_meta": {"title": "Load Hunyuan3D v2.0 Model"}
+  },
+  "4": {
+    "inputs": {
+      "model": "hunyuan3d-delight-v2-0"
+    },
+    "class_type": "DownloadAndLoadHy3DDelightModel",
+    "_meta": {"title": "Load Delight Model"}
+  },
+  "5": {
+    "inputs": {
+      "model": "hunyuan3d-paint-v2-0"
+    },
+    "class_type": "DownloadAndLoadHy3DPaintModel",
+    "_meta": {"title": "Load Paint Model"}
+  },
+  "6": {
+    "inputs": {
+      "base": "base",
+      "post_processing": true
+    },
+    "class_type": "TransparentBGSession+",
+    "_meta": {"title": "Background Removal Session"}
+  },
+  "7": {
+    "inputs": {
+      "rembg_session": ["6", 0],
+      "image": ["2", 0]
+    },
+    "class_type": "ImageRemoveBackground+",
+    "_meta": {"title": "Remove Background"}
+  },
+  "8": {
+    "inputs": {
+      "pipeline": ["3", 0],
+      "image": ["2", 0],
+      "mask": ["7", 1],
+      "guidance_scale": "PARAM_FLOAT_GUIDANCE_SCALE",
+      "steps": "PARAM_INT_STEPS",
+      "seed": "PARAM_INT_SEED"
+    },
+    "class_type": "Hy3DGenerateMesh",
+    "_meta": {"title": "Generate Mesh Latents"}
+  },
+  "9": {
+    "inputs": {
+      "vae": ["3", 1],
+      "latents": ["8", 0],
+      "box_v": 1.01,
+      "octree_resolution": "PARAM_INT_OCTREE_RESOLUTION",
+      "num_chunks": 32000,
+      "mc_level": 0,
+      "mc_algo": "mc"
+    },
+    "class_type": "Hy3DVAEDecode",
+    "_meta": {"title": "VAE Decode to Mesh"}
+  },
+  "10": {
+    "inputs": {
+      "trimesh": ["9", 0],
+      "remove_floaters": true,
+      "remove_degenerate_faces": true,
+      "reduce_faces": true,
+      "max_facenum": "PARAM_INT_MAX_FACES",
+      "smooth_normals": false
+    },
+    "class_type": "Hy3DPostprocessMesh",
+    "_meta": {"title": "Postprocess Mesh"}
+  },
+  "11": {
+    "inputs": {
+      "trimesh": ["10", 0],
+      "filename_prefix": "3D/Hy3D_v20_geometry",
+      "file_format": "glb"
+    },
+    "class_type": "Hy3DExportMesh",
+    "_meta": {"title": "Export Geometry (no texture)"}
+  },
+  "12": {
+    "inputs": {
+      "destination": ["18", 0],
+      "source": ["2", 0],
+      "mask": ["7", 1]
+    },
+    "class_type": "ImageCompositeMasked",
+    "_meta": {"title": "Composite Image on Background"}
+  },
+  "13": {
+    "inputs": {
+      "delight_pipe": ["4", 0],
+      "image": ["12", 0],
+      "steps": 50,
+      "width": 512,
+      "height": 512,
+      "cfg_image": 1.0,
+      "seed": "PARAM_INT_SEED"
+    },
+    "class_type": "Hy3DDelightImage",
+    "_meta": {"title": "Delight Image"}
+  },
+  "14": {
+    "inputs": {
+      "trimesh": ["10", 0]
+    },
+    "class_type": "Hy3DMeshUVWrap",
+    "_meta": {"title": "UV Wrap Mesh"}
+  },
+  "15": {
+    "inputs": {
+      "camera_azimuths": "0, 90, 180, 270, 0, 180",
+      "camera_elevations": "0, 0, 0, 0, 90, -90",
+      "view_weights": "1, 0.1, 0.5, 0.1, 0.05, 0.05",
+      "camera_distance": 1.45,
+      "ortho_scale": 1.2
+    },
+    "class_type": "Hy3DCameraConfig",
+    "_meta": {"title": "Camera Configuration"}
+  },
+  "16": {
+    "inputs": {
+      "trimesh": ["14", 0],
+      "render_size": 1024,
+      "texture_size": 2048,
+      "camera_config": ["15", 0],
+      "normal_space": "world"
+    },
+    "class_type": "Hy3DRenderMultiView",
+    "_meta": {"title": "Render Multi-View"}
+  },
+  "17": {
+    "inputs": {
+      "pipeline": ["5", 0],
+      "ref_image": ["13", 0],
+      "normal_maps": ["16", 0],
+      "position_maps": ["16", 1],
+      "view_size": 512,
+      "steps": 25,
+      "seed": "PARAM_INT_SEED",
+      "camera_config": ["15", 0]
+    },
+    "class_type": "Hy3DSampleMultiView",
+    "_meta": {"title": "Sample Multi-View Textures"}
+  },
+  "18": {
+    "inputs": {
+      "value": 0.8,
+      "width": 512,
+      "height": 512
+    },
+    "class_type": "SolidMask",
+    "_meta": {"title": "Background Mask (for delight)"}
+  },
+  "19": {
+    "inputs": {
+      "image": ["17", 0],
+      "width": 2048,
+      "height": 2048,
+      "method": "lanczos",
+      "condition": "always",
+      "multiple_of": 0
+    },
+    "class_type": "ImageResize+",
+    "_meta": {"title": "Resize Multiview for Baking"}
+  },
+  "20": {
+    "inputs": {
+      "images": ["19", 0],
+      "renderer": ["16", 2],
+      "camera_config": ["15", 0]
+    },
+    "class_type": "Hy3DBakeFromMultiview",
+    "_meta": {"title": "Bake Texture from Multi-View"}
+  },
+  "21": {
+    "inputs": {
+      "texture": ["20", 0],
+      "mask": ["20", 1],
+      "renderer": ["20", 2]
+    },
+    "class_type": "Hy3DMeshVerticeInpaintTexture",
+    "_meta": {"title": "Vertex Inpaint Texture"}
+  },
+  "22": {
+    "inputs": {
+      "texture": ["21", 0],
+      "mask": ["21", 1],
+      "inpaint_radius": 3,
+      "method": "ns"
+    },
+    "class_type": "CV2InpaintTexture",
+    "_meta": {"title": "CV2 Inpaint Texture"}
+  },
+  "23": {
+    "inputs": {
+      "texture": ["22", 0],
+      "renderer": ["21", 2]
+    },
+    "class_type": "Hy3DApplyTexture",
+    "_meta": {"title": "Apply Texture to Mesh"}
+  },
+  "24": {
+    "inputs": {
+      "trimesh": ["23", 0],
+      "filename_prefix": "3D/Hy3D_v20_textured",
+      "file_format": "glb"
+    },
+    "class_type": "Hy3DExportMesh",
+    "_meta": {"title": "Export Textured Mesh"}
+  }
+}

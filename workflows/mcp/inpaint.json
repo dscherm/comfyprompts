@@ -1,0 +1,97 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "flux1-dev-fp8.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {"title": "Load Checkpoint"}
+  },
+  "2": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "3": {
+    "inputs": {
+      "image": "PARAM_STR_MASK_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Mask"}
+  },
+  "4": {
+    "inputs": {
+      "image": ["3", 0],
+      "channel": "red"
+    },
+    "class_type": "ImageToMask",
+    "_meta": {"title": "Image to Mask"}
+  },
+  "5": {
+    "inputs": {
+      "pixels": ["2", 0],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEEncode",
+    "_meta": {"title": "VAE Encode"}
+  },
+  "6": {
+    "inputs": {
+      "samples": ["5", 0],
+      "mask": ["4", 0]
+    },
+    "class_type": "SetLatentNoiseMask",
+    "_meta": {"title": "Set Latent Noise Mask"}
+  },
+  "7": {
+    "inputs": {
+      "text": "PARAM_PROMPT",
+      "clip": ["1", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Positive Prompt"}
+  },
+  "8": {
+    "inputs": {
+      "text": "PARAM_NEGATIVE_PROMPT",
+      "clip": ["1", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Negative Prompt"}
+  },
+  "9": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "PARAM_STR_SAMPLER_NAME",
+      "scheduler": "PARAM_STR_SCHEDULER",
+      "denoise": "PARAM_FLOAT_DENOISE",
+      "model": ["1", 0],
+      "positive": ["7", 0],
+      "negative": ["8", 0],
+      "latent_image": ["6", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "KSampler"}
+  },
+  "10": {
+    "inputs": {
+      "samples": ["9", 0],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {"title": "VAE Decode"}
+  },
+  "11": {
+    "inputs": {
+      "filename_prefix": "ComfyUI_Inpaint",
+      "images": ["10", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Image"}
+  }
+}

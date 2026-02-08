@@ -1,0 +1,35 @@
+{
+  "1": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "2": {
+    "inputs": {
+      "model": "tripoSR.ckpt",
+      "chunk_size": 8192
+    },
+    "class_type": "TripoSRModelLoader",
+    "_meta": {"title": "Load TripoSR Model"}
+  },
+  "4": {
+    "inputs": {
+      "model": ["2", 0],
+      "reference_image": ["1", 0],
+      "geometry_resolution": "PARAM_INT_RESOLUTION",
+      "threshold": 25.0
+    },
+    "class_type": "TripoSRSampler",
+    "_meta": {"title": "TripoSR Sampler"}
+  },
+  "5": {
+    "inputs": {
+      "mesh": ["4", 0]
+    },
+    "class_type": "TripoSRViewer",
+    "_meta": {"title": "Save/View 3D Mesh"}
+  }
+}

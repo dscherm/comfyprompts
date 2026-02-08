@@ -1,0 +1,44 @@
+{
+  "1": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "2": {
+    "inputs": {},
+    "class_type": "TripoSGModelLoader",
+    "_meta": {"title": "Load TripoSG Model"}
+  },
+  "3": {
+    "inputs": {
+      "model": ["2", 0],
+      "image": ["1", 0],
+      "seed": 0,
+      "num_steps": 50,
+      "cfg_scale": 7.5,
+      "resolution": "PARAM_INT_RESOLUTION"
+    },
+    "class_type": "TripoSGImageToMesh",
+    "_meta": {"title": "TripoSG Image to Mesh"}
+  },
+  "4": {
+    "inputs": {
+      "model": ["2", 0],
+      "latents": ["3", 0]
+    },
+    "class_type": "TripoSGVAEDecoder",
+    "_meta": {"title": "Decode Mesh"}
+  },
+  "5": {
+    "inputs": {
+      "mesh": ["4", 0],
+      "filename_prefix": "triposg_mesh",
+      "file_format": "glb"
+    },
+    "class_type": "TripoSGExportMesh",
+    "_meta": {"title": "Export Mesh"}
+  }
+}

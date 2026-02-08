@@ -1,0 +1,27 @@
+{
+  "name": "Lip Sync (Wav2Lip)",
+  "description": "Generates lip-synced video by matching mouth movements to audio input. Uses Wav2Lip model for local processing (no API key needed). Takes input video + audio and produces synced output.",
+  "requirements": {
+    "nodes": ["Wav2Lip", "VHS_LoadVideo", "VHS_VideoCombine", "LoadAudio"],
+    "install": ["ComfyUI_wav2lip", "ComfyUI-VideoHelperSuite"],
+    "install_urls": {
+      "wav2lip": "https://github.com/ShmuelRonen/ComfyUI_wav2lip",
+      "video_helper": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
+    },
+    "models": {
+      "wav2lip": "wav2lip.pth or wav2lip_gan.pth (place in custom_nodes/ComfyUI_wav2lip/Wav2Lip/checkpoints/)",
+      "face_detection": "s3fd.pth (auto-downloaded)"
+    },
+    "estimated_vram": "2-4GB"
+  },
+  "category": "lip_sync",
+  "tags": ["lip-sync", "wav2lip", "talking-head", "audio-visual", "face-animation"],
+  "defaults": {
+    "face_detect_batch": 8
+  },
+  "parameter_notes": {
+    "video_path": "Path to input video file with a face to animate.",
+    "audio_path": "Path to audio file (speech) that drives the lip movements.",
+    "face_detect_batch": "Batch size for face detection. Higher = faster but more VRAM. Default: 8."
+  }
+}

@@ -1,0 +1,89 @@
+{
+  "name": "LTX-2 Image to Video",
+  "description": "Animate a still image into a video using the LTX-2 19B model by Lightricks. Preprocesses the input image and inserts it as the first frame, then generates motion from the text prompt. Supports up to 4K output.",
+  "requirements": {
+    "nodes": [
+      "CheckpointLoaderSimple",
+      "LTXAVTextEncoderLoader",
+      "LTXVConditioning",
+      "LTXVPreprocess",
+      "LTXVImgToVideoInplace",
+      "EmptyLTXVLatentVideo",
+      "SamplerCustomAdvanced",
+      "VAEDecodeTiled",
+      "CreateVideo",
+      "SaveVideo"
+    ],
+    "install": "ComfyUI-LTXVideo",
+    "models": {
+      "checkpoint": {
+        "name": "ltx-2-19b-distilled-fp8.safetensors",
+        "size": "27.1 GB",
+        "url": "https://huggingface.co/Lightricks/LTX-2/resolve/main/ltx-2-19b-distilled-fp8.safetensors",
+        "folder": "checkpoints"
+      },
+      "text_encoder": {
+        "name": "gemma_3_12B_it_fp8_scaled.safetensors",
+        "url": "https://huggingface.co/Lightricks/LTX-2/tree/main/text_encoder",
+        "folder": "text_encoders"
+      }
+    }
+  },
+  "category": "video_generation",
+  "tags": ["video", "image-to-video", "ltx-2", "lightricks", "animation", "i2v"],
+  "parameters": {
+    "PARAM_STR_IMAGE_PATH": {
+      "type": "string",
+      "description": "Path to the input image to animate"
+    },
+    "PARAM_PROMPT": {
+      "type": "string",
+      "description": "Text description of the motion/animation to apply. Describe how the image should come alive."
+    },
+    "PARAM_NEGATIVE_PROMPT": {
+      "type": "string",
+      "description": "Negative prompt for undesired content",
+      "default": "bad quality, blurry, distorted, low resolution, artifacts, noise, jittery motion, static"
+    },
+    "PARAM_INT_WIDTH": {
+      "type": "integer",
+      "description": "Video width in pixels (must be divisible by 32, should match input image aspect ratio)",
+      "default": 768
+    },
+    "PARAM_INT_HEIGHT": {
+      "type": "integer",
+      "description": "Video height in pixels (must be divisible by 32)",
+      "default": 512
+    },
+    "PARAM_INT_FRAMES": {
+      "type": "integer",
+      "description": "Number of frames (must be 8n+1: 9, 17, 25, 33, 41, 49, 57, 65, 81, 97)",
+      "default": 41
+    },
+    "PARAM_INT_FPS": {
+      "type": "integer",
+      "description": "Frames per second",
+      "default": 24
+    },
+    "PARAM_INT_SEED": {
+      "type": "integer",
+      "description": "Random seed for reproducibility",
+      "default": -1
+    },
+    "PARAM_INT_STEPS": {
+      "type": "integer",
+      "description": "Sampling steps (distilled: 8-12, full: 20-30)",
+      "default": 10
+    },
+    "PARAM_FLOAT_CFG": {
+      "type": "float",
+      "description": "Classifier-free guidance scale (recommended 3.5-6.5)",
+      "default": 4.0
+    }
+  },
+  "vram_requirements": {
+    "480p_short": "~12 GB (768x480, 25 frames)",
+    "720p_standard": "~16 GB (1280x720, 41 frames)",
+    "1080p": "~24 GB (1920x1080, 41 frames)"
+  }
+}

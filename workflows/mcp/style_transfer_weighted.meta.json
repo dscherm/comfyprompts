@@ -1,0 +1,41 @@
+{
+  "name": "Style Transfer (Weighted Multi-Reference)",
+  "description": "Advanced style transfer blending two reference images with individual weight controls using IP-Adapter Encoder, CombineEmbeds, and Embeds nodes on SDXL. Allows per-image weight tuning plus overall weight.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "CLIPTextEncode", "EmptyLatentImage", "LoadImage", "IPAdapterUnifiedLoader", "IPAdapterEncoder", "IPAdapterCombineEmbeds", "IPAdapterEmbeds", "KSampler", "VAEDecode", "SaveImage"],
+    "custom_nodes": {
+      "IPAdapterUnifiedLoader": {"install": "ComfyUI_IPAdapter_plus"},
+      "IPAdapterEncoder": {"install": "ComfyUI_IPAdapter_plus"},
+      "IPAdapterCombineEmbeds": {"install": "ComfyUI_IPAdapter_plus"},
+      "IPAdapterEmbeds": {"install": "ComfyUI_IPAdapter_plus"}
+    },
+    "models": {
+      "checkpoint": "sd_xl_base_1.0.safetensors",
+      "ipadapter": "auto-loaded by IPAdapterUnifiedLoader (VIT-G preset)"
+    },
+    "minimum_vram_gb": 10
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired output"},
+    "negative_prompt": {"type": "string", "required": false, "default": "blurry, low quality, ugly, deformed, watermark"},
+    "style_image_1": {"type": "string", "required": true, "description": "Filename of first style reference image"},
+    "style_image_2": {"type": "string", "required": true, "description": "Filename of second style reference image"},
+    "weight_1": {"type": "float", "required": false, "default": 0.6, "description": "Weight for first style image"},
+    "weight_2": {"type": "float", "required": false, "default": 0.4, "description": "Weight for second style image"},
+    "overall_weight": {"type": "float", "required": false, "default": 0.85, "description": "Overall style transfer strength"},
+    "width": {"type": "int", "required": false, "default": 1024, "description": "Image width"},
+    "height": {"type": "int", "required": false, "default": 1024, "description": "Image height"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "default": 25, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "default": 7.5, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "default": "dpmpp_2m", "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "default": "karras", "description": "Noise scheduler"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "style-transfer",
+  "tags": ["style-transfer", "ipadapter", "sdxl", "weighted", "multi-reference", "advanced"]
+}

@@ -1,0 +1,39 @@
+{
+  "name": "Image to Video",
+  "description": "Animates a static image into a video using Wan 2.1 14B image-to-video pipeline. Takes a starting image and a motion prompt to create an MP4 video.",
+  "requirements": {
+    "nodes": ["UnetLoaderGGUF", "CLIPLoader", "VAELoader", "LoadImage", "CLIPTextEncode", "WanImageToVideo", "KSampler", "VAEDecode", "CreateVideo", "SaveVideo"],
+    "custom_nodes": {
+      "UnetLoaderGGUF": {"install": "ComfyUI-GGUF"}
+    },
+    "models": {
+      "unet": "Wan2.1_14B_VACE-Q4_K_M.gguf",
+      "clip": "umt5_xxl_fp8_e4m3fn_scaled.safetensors",
+      "vae": "wan_2.1_vae.safetensors"
+    },
+    "minimum_vram_gb": 12
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Motion description for the video"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},
+    "image_path": {"type": "string", "required": true, "description": "Filename of the starting image"},
+    "width": {"type": "int", "required": false, "description": "Video width in pixels"},
+    "height": {"type": "int", "required": false, "description": "Video height in pixels"},
+    "frames": {"type": "int", "required": false, "description": "Number of frames to generate"},
+    "fps": {"type": "int", "required": false, "description": "Frames per second"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength"}
+  },
+  "output": {
+    "type": "video",
+    "format": "mp4",
+    "codec": "h264",
+    "node": "SaveVideo"
+  },
+  "category": "conversion",
+  "tags": ["image-to-video", "wan", "i2v", "animation"]
+}

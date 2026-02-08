@@ -1,0 +1,121 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "sd_xl_base_1.0.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {"title": "Load Checkpoint"}
+  },
+  "2": {
+    "inputs": {
+      "text": "PARAM_PROMPT",
+      "clip": ["1", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Positive Prompt"}
+  },
+  "3": {
+    "inputs": {
+      "text": "PARAM_STR_NEGATIVE_PROMPT",
+      "clip": ["1", 1]
+    },
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Negative Prompt"},
+    "_defaults": {
+      "PARAM_STR_NEGATIVE_PROMPT": "blurry, low quality, ugly, deformed, watermark, extra fingers"
+    }
+  },
+  "4": {
+    "inputs": {
+      "width": "PARAM_INT_WIDTH",
+      "height": "PARAM_INT_HEIGHT",
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {"title": "Empty Latent Image"},
+    "_defaults": {
+      "PARAM_INT_WIDTH": 1024,
+      "PARAM_INT_HEIGHT": 1024
+    }
+  },
+  "5": {
+    "inputs": {
+      "image": "PARAM_STR_FACE_IMAGE",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Face Reference Image"}
+  },
+  "6": {
+    "inputs": {
+      "model": ["1", 0],
+      "preset": "FACEID PORTRAIT (style transfer)",
+      "lora_strength": "PARAM_FLOAT_LORA_STRENGTH",
+      "provider": "CUDA"
+    },
+    "class_type": "IPAdapterUnifiedLoaderFaceID",
+    "_meta": {"title": "Load FaceID Adapter"},
+    "_defaults": {
+      "PARAM_FLOAT_LORA_STRENGTH": 0.6
+    }
+  },
+  "7": {
+    "inputs": {
+      "model": ["6", 0],
+      "ipadapter": ["6", 1],
+      "image": ["5", 0],
+      "weight": "PARAM_FLOAT_WEIGHT",
+      "weight_faceidv2": "PARAM_FLOAT_WEIGHT_FACEID",
+      "weight_type": "linear",
+      "combine_embeds": "average",
+      "start_at": 0.0,
+      "end_at": 1.0,
+      "embeds_scaling": "V only"
+    },
+    "class_type": "IPAdapterFaceID",
+    "_meta": {"title": "Apply FaceID"},
+    "_defaults": {
+      "PARAM_FLOAT_WEIGHT": 0.85,
+      "PARAM_FLOAT_WEIGHT_FACEID": 1.0
+    }
+  },
+  "8": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "PARAM_STR_SAMPLER_NAME",
+      "scheduler": "PARAM_STR_SCHEDULER",
+      "denoise": 1,
+      "model": ["7", 0],
+      "positive": ["2", 0],
+      "negative": ["3", 0],
+      "latent_image": ["4", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "KSampler"},
+    "_defaults": {
+      "PARAM_INT_SEED": -1,
+      "PARAM_INT_STEPS": 25,
+      "PARAM_FLOAT_CFG": 7.5,
+      "PARAM_STR_SAMPLER_NAME": "dpmpp_2m",
+      "PARAM_STR_SCHEDULER": "karras"
+    }
+  },
+  "9": {
+    "inputs": {
+      "samples": ["8", 0],
+      "vae": ["1", 2]
+    },
+    "class_type": "VAEDecode",
+    "_meta": {"title": "VAE Decode"}
+  },
+  "10": {
+    "inputs": {
+      "filename_prefix": "ComfyUI_FaceID",
+      "images": ["9", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Image"}
+  }
+}

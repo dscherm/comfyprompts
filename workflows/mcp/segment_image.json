@@ -1,0 +1,79 @@
+{
+  "1": {
+    "inputs": {
+      "image": "PARAM_STR_IMAGE_PATH",
+      "upload": "image"
+    },
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load Image"}
+  },
+  "2": {
+    "inputs": {
+      "model": "microsoft/Florence-2-large",
+      "precision": "fp16",
+      "attention": "sdpa"
+    },
+    "class_type": "DownloadAndLoadFlorence2Model",
+    "_meta": {"title": "Load Florence-2 Model"}
+  },
+  "3": {
+    "inputs": {
+      "image": ["1", 0],
+      "florence2_model": ["2", 0],
+      "text_input": "PARAM_STR_OBJECT",
+      "task": "caption_to_phrase_grounding",
+      "fill_mask": true,
+      "keep_model_loaded": false,
+      "num_beams": 3,
+      "max_new_tokens": 1024,
+      "do_sample": true
+    },
+    "class_type": "Florence2Run",
+    "_meta": {"title": "Florence-2 Detect Object"},
+    "_defaults": {
+      "PARAM_STR_OBJECT": "the main subject"
+    }
+  },
+  "4": {
+    "inputs": {
+      "data": ["3", 3],
+      "index": "0",
+      "batch": false
+    },
+    "class_type": "Florence2toCoordinates",
+    "_meta": {"title": "Convert to Coordinates"}
+  },
+  "5": {
+    "inputs": {
+      "model": "PARAM_STR_SAM2_MODEL",
+      "segmentor": "single_image",
+      "device": "cuda",
+      "precision": "fp16"
+    },
+    "class_type": "DownloadAndLoadSAM2Model",
+    "_meta": {"title": "Load SAM2 Model"},
+    "_defaults": {
+      "PARAM_STR_SAM2_MODEL": "sam2.1_hiera_large.safetensors"
+    }
+  },
+  "6": {
+    "inputs": {
+      "sam2_model": ["5", 0],
+      "image": ["1", 0],
+      "coordinates_positive": ["4", 0],
+      "keep_model_loaded": false,
+      "individual_objects": false,
+      "bboxes": ["4", 1]
+    },
+    "class_type": "Sam2Segmentation",
+    "_meta": {"title": "SAM2 Segment"}
+  },
+  "7": {
+    "inputs": {
+      "filename_prefix": "ComfyUI_mask",
+      "images": ["3", 0]
+    },
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Annotated Image"}
+  }
+}

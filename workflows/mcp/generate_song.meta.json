@@ -1,0 +1,33 @@
+{
+  "name": "Generate Song",
+  "description": "Music generation using ACE-Step 3.5B model. Creates songs from tags and lyrics with configurable duration and lyrics influence strength.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "TextEncodeAceStepAudio", "ConditioningZeroOut", "ModelSamplingSD3", "LatentOperationTonemapReinhard", "LatentApplyOperationCFG", "EmptyAceStepLatentAudio", "KSampler", "VAEDecodeAudio", "SaveAudioMP3"],
+    "custom_nodes": {
+      "TextEncodeAceStepAudio": {"install": "ComfyUI-AceStepAudio"},
+      "EmptyAceStepLatentAudio": {"install": "ComfyUI-AceStepAudio"},
+      "SaveAudioMP3": {"install": "builtin"}
+    },
+    "models": {
+      "checkpoint": "ace_step_v1_3.5b.safetensors"
+    },
+    "minimum_vram_gb": 7,
+    "status": "BROKEN - AceStep nodes and model not installed. Install ComfyUI-AceStepAudio via ComfyUI-Manager and download ace_step_v1_3.5b.safetensors from HuggingFace (ACE-Step/ACE-Step-v1-3.5B)"
+  },
+  "parameters": {
+    "tags": {"type": "string", "required": true, "description": "Music style tags (e.g., 'rock, guitar, energetic')"},
+    "lyrics": {"type": "string", "required": true, "description": "Song lyrics text"},
+    "lyrics_strength": {"type": "float", "required": false, "description": "How closely to follow lyrics"},
+    "seconds": {"type": "int", "required": false, "description": "Duration of generated audio in seconds"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale"}
+  },
+  "output": {
+    "type": "audio",
+    "format": "mp3",
+    "node": "SaveAudioMP3"
+  },
+  "category": "generation",
+  "tags": ["music", "audio", "song", "ace-step"]
+}

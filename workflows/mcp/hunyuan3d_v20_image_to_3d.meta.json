@@ -1,0 +1,62 @@
+{
+  "name": "Hunyuan3D v2.0 Image to 3D",
+  "description": "Full pipeline: image to textured 3D mesh using Hunyuan3D v2.0. Includes background removal, mesh generation, delighting, multi-view texture sampling, baking, and inpainting. Outputs geometry-only GLB and textured GLB.",
+  "requirements": {
+    "nodes": ["Hy3DModelLoader", "Hy3DGenerateMesh", "Hy3DVAEDecode", "Hy3DPostprocessMesh", "Hy3DExportMesh", "DownloadAndLoadHy3DDelightModel", "DownloadAndLoadHy3DPaintModel", "Hy3DDelightImage", "Hy3DMeshUVWrap", "Hy3DRenderMultiView", "Hy3DSampleMultiView", "Hy3DBakeFromMultiview", "Hy3DMeshVerticeInpaintTexture", "CV2InpaintTexture", "Hy3DApplyTexture", "Hy3DCameraConfig", "TransparentBGSession+", "ImageRemoveBackground+", "ImageResize+", "ImageCompositeMasked", "SolidMask"],
+    "models": {
+      "diffusion_models": ["hy3dgen/hunyuan3d-dit-v2-0-fp16.safetensors"],
+      "diffusers": ["hunyuan3d-delight-v2-0", "hunyuan3d-paint-v2-0"]
+    },
+    "custom_nodes": ["ComfyUI-Hunyuan3DWrapper", "ComfyUI_essentials", "comfyui-inspyrenet-rembg"],
+    "vram_minimum_gb": 12,
+    "vram_recommended_gb": 16
+  },
+  "parameters": {
+    "PARAM_STR_IMAGE_PATH": {
+      "type": "string",
+      "description": "Path to input image",
+      "required": true
+    },
+    "PARAM_FLOAT_GUIDANCE_SCALE": {
+      "type": "float",
+      "description": "Guidance scale for mesh generation",
+      "default": 5.5,
+      "min": 1.0,
+      "max": 30.0
+    },
+    "PARAM_INT_STEPS": {
+      "type": "int",
+      "description": "Number of diffusion steps for mesh generation",
+      "default": 50,
+      "min": 10,
+      "max": 100
+    },
+    "PARAM_INT_SEED": {
+      "type": "int",
+      "description": "Random seed",
+      "default": 0
+    },
+    "PARAM_INT_OCTREE_RESOLUTION": {
+      "type": "int",
+      "description": "Octree resolution for VAE decode (higher = more detail, more VRAM)",
+      "default": 384,
+      "min": 128,
+      "max": 512
+    },
+    "PARAM_INT_MAX_FACES": {
+      "type": "int",
+      "description": "Maximum face count after decimation",
+      "default": 50000,
+      "min": 5000,
+      "max": 500000
+    }
+  },
+  "outputs": {
+    "geometry_glb": "3D/Hy3D_v20_geometry_*.glb",
+    "textured_glb": "3D/Hy3D_v20_textured_*.glb"
+  },
+  "category": "3d_generation",
+  "tags": ["3d", "mesh", "hunyuan3d", "textured", "image-to-3d"],
+  "estimated_time_seconds": 300,
+  "notes": "Full textured pipeline takes ~5 minutes on RTX 3070. Geometry-only is available at node 11 for faster results."
+}

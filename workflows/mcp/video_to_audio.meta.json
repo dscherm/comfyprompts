@@ -1,0 +1,35 @@
+{
+  "name": "Video to Audio (MMAudio)",
+  "description": "Generates contextually matching audio/sound effects from video content using MMAudio. Analyzes video frames via CLIP and Synchformer to produce synchronized audio. Optional text prompt for guidance. Output at 44.1kHz.",
+  "requirements": {
+    "nodes": ["MMAudioModelLoader", "MMAudioVoCoderLoader", "MMAudioFeatureUtilsLoader", "MMAudioSampler", "VHS_LoadVideo"],
+    "install": ["ComfyUI-MMAudio", "ComfyUI-VideoHelperSuite"],
+    "install_urls": {
+      "mmaudio": "https://github.com/kijai/ComfyUI-MMAudio",
+      "video_helper": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
+    },
+    "models": {
+      "mmaudio": "mmaudio_44k.safetensors (place in models/mmaudio/)",
+      "vae": "vae_44k.safetensors (place in models/mmaudio/)",
+      "synchformer": "synchformer.safetensors (place in models/mmaudio/)",
+      "clip": "apple_DFN5B-CLIP-ViT-H-14-384_fp16.safetensors (place in models/mmaudio/)",
+      "vocoder": "BigVGAN vocoder (auto-downloads from HuggingFace)",
+      "total_size": "~2GB"
+    },
+    "estimated_vram": "4-6GB (video < 1 min recommended for 8GB GPU)"
+  },
+  "category": "audio_generation",
+  "tags": ["video-to-audio", "mmaudio", "sound-effects", "audio-sync", "foley"],
+  "defaults": {
+    "duration": 8.0,
+    "steps": 25,
+    "cfg": 4.5
+  },
+  "parameter_notes": {
+    "video_path": "Path to input video. Keep under 1 minute for 8GB VRAM GPUs.",
+    "prompt": "Optional text description to guide audio generation. E.g., 'footsteps on gravel with birds chirping'. Leave empty for fully video-driven generation.",
+    "duration": "Length of generated audio in seconds. Should match video duration.",
+    "steps": "Flow matching iterations. 20-25 recommended. More = better quality.",
+    "cfg": "Conditioning strength. 3-7 range. Higher = more adherence to prompt/video."
+  }
+}
