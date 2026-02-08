@@ -874,7 +874,22 @@ class ComfyUIPrompterGUI:
                     return
 
                 # Queue in ComfyUI
-                result = self.comfyui_api.queue_prompt(api_workflow)
+                try:
+                    import requests as req
+                    r = req.post(
+                        f"{COMFYUI_URL}/prompt",
+                        json={"prompt": api_workflow, "client_id": self.comfyui_api.client_id},
+                        timeout=30,
+                    )
+                    if r.status_code == 200:
+                        result = r.json()
+                    else:
+                        error_detail = r.text[:300] if r.text else "No details"
+                        self.log(f"❌ ComfyUI rejected prompt (HTTP {r.status_code}): {error_detail}")
+                        result = None
+                except Exception as qe:
+                    self.log(f"❌ Error connecting to ComfyUI: {qe}")
+                    result = None
 
                 if result:
                     prompt_id = result.get('prompt_id')

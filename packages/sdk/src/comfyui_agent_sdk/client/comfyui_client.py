@@ -196,7 +196,7 @@ class ComfyUIClient:
             )
             if r.status_code == 200:
                 return r.json()
-            logger.warning("Failed to queue prompt: %s", r.status_code)
+            logger.warning("Failed to queue prompt: %s %s", r.status_code, r.text[:500])
             return None
         except requests.RequestException as e:
             logger.error("Error queueing prompt: %s", e)
