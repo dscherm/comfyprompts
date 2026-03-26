@@ -52,3 +52,9 @@ temp/
 
 # Logs
 *.log
+
+# Ralph Loop auto-generated state (changes every iteration, must not block runs)
+.ralph/last_known_good
+.ralph/metrics.jsonl
+.ralph/logs/
+.ralph/lock
