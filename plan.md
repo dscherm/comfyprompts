@@ -5,20 +5,17 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
 
 ---
 
-## Task Format
+## Task Format (template — not a real task)
 
-```json
+<!-- Template for reference only. Do NOT pick this up as a task.
 {
   "category": "setup|feature|testing|bugfix",
   "priority": 1,
   "description": "One-line description of what this task accomplishes",
-  "steps": [
-    "Specific action step 1",
-    "Specific action step 2"
-  ],
-  "passes": false
+  "steps": ["Step 1", "Step 2"],
+  "passes": true
 }
-```
+-->
 
 ---
 
@@ -37,7 +34,7 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
     "Check if the Blender MCP addon is installed and what version it is",
     "Document findings in activity.md with exact test counts and any errors"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -54,7 +51,7 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
     "Test that the Blender addon can reach the Flask API at port 5050",
     "Document the integration state: what works, what's broken, what's missing"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
