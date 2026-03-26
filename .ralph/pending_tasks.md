@@ -1,32 +1,8 @@
 # Pending Tasks (auto-generated)
 
-8 pending task(s), sorted by priority:
+4 pending task(s), sorted by priority:
 
-### Task 1 [CRITICAL] (setup|feature|testing|bugfix)
-**One-line description of what this task accomplishes**
-
-1. Specific action step 1
-2. Specific action step 2
-
-### Task 2 [CRITICAL] (setup) ✓ COMPLETE 2026-03-26
-**Audit current codebase state — run existing tests, check package installations, identify broken/missing pieces**
-Result: 194 passed, 9 failed (workflow path issue), 6 skipped. All 3 packages installed. ComfyUI not running. Both Blender addons present.
-
-### Task 3 [CRITICAL] (setup) ✓ COMPLETE 2026-03-26
-**Verify Blender MCP integration — confirm blender MCP server is installed and can communicate with ComfyUI**
-Result: Both addons structurally sound. MCP tools v1.3.0 (port 9000), ComfyUI tools v2.0.0 (port 5050). Neither service running. Blender not on PATH.
-
-### Task 4 [HIGH] (setup)
-**Map ComfyUI installation at C:\Users\Teacher\ComfyUI — verify models, custom nodes, and output paths**
-
-1. Check C:\Users\Teacher\ComfyUI exists and identify the version
-2. List installed models in ComfyUI/models/ (checkpoints, loras, controlnets)
-3. List installed custom nodes in ComfyUI/custom_nodes/
-4. Check if ComfyUI output directory matches COMFYUI_OUTPUT_ROOT env var
-5. Verify parametric workflows in workflows/mcp/ reference available models
-6. Document any missing models or custom nodes that workflows depend on
-
-### Task 5 [HIGH] (feature)
+### Task 1 [HIGH] (feature)
 **Create end-to-end Blender-to-ComfyUI generation pipeline — render Blender scene, send to ComfyUI for AI processing**
 
 1. Read blender/comfyui_mcp_tools/ to understand existing MCP-based operators
@@ -37,7 +13,7 @@ Result: Both addons structurally sound. MCP tools v1.3.0 (port 9000), ComfyUI to
 6. Write tests for the pipeline components
 7. Run targeted tests to verify
 
-### Task 6 [HIGH] (feature)
+### Task 2 [HIGH] (feature)
 **Wire MCP server tools into Blender addon — expose ComfyUI generation capabilities as Blender operators via MCP**
 
 1. Read packages/mcp-server/server.py to understand available MCP tools
@@ -47,7 +23,7 @@ Result: Both addons structurally sound. MCP tools v1.3.0 (port 9000), ComfyUI to
 5. Add UI panels in Blender for the new operators
 6. Test each new operator manually and document in activity.md
 
-### Task 7 [MEDIUM] (feature)
+### Task 3 [MEDIUM] (feature)
 **Add Blender-specific parametric workflows — depth-guided generation, normal-map-based texturing, pose-to-render**
 
 1. Analyze existing workflows in workflows/mcp/ to understand the pattern
@@ -57,7 +33,7 @@ Result: Both addons structurally sound. MCP tools v1.3.0 (port 9000), ComfyUI to
 5. Register new workflows with the MCP server's workflow manager
 6. Test workflows with sample Blender scenes
 
-### Task 8 [MEDIUM] (testing)
+### Task 4 [MEDIUM] (testing)
 **Establish integration test suite for Blender-ComfyUI pipeline with mocked and live test modes**
 
 1. Create tests/integration/ directory with conftest.py
@@ -66,4 +42,3 @@ Result: Both addons structurally sound. MCP tools v1.3.0 (port 9000), ComfyUI to
 4. Add test fixtures for sample Blender scenes and expected outputs
 5. Run the full test suite and baseline the count
 6. Update CLAUDE.md with test commands
-

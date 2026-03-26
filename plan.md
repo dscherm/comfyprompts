@@ -68,7 +68,7 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
     "Verify parametric workflows in workflows/mcp/ reference available models",
     "Document any missing models or custom nodes that workflows depend on"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
