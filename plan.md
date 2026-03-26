@@ -88,7 +88,7 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
     "Write tests for the pipeline components",
     "Run targeted tests to verify"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -105,7 +105,7 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
     "Add UI panels in Blender for the new operators",
     "Test each new operator manually and document in activity.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -124,7 +124,7 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
     "Register new workflows with the MCP server's workflow manager",
     "Test workflows with sample Blender scenes"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -141,6 +141,6 @@ Only ONE task per iteration. Mark `"passes": true` when complete.
     "Run the full test suite and baseline the count",
     "Update CLAUDE.md with test commands"
   ],
-  "passes": false
+  "passes": true
 }
 ```
