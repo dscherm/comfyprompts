@@ -12,15 +12,9 @@
 **Audit current codebase state — run existing tests, check package installations, identify broken/missing pieces**
 Result: 194 passed, 9 failed (workflow path issue), 6 skipped. All 3 packages installed. ComfyUI not running. Both Blender addons present.
 
-### Task 3 [CRITICAL] (setup)
+### Task 3 [CRITICAL] (setup) ✓ COMPLETE 2026-03-26
 **Verify Blender MCP integration — confirm blender MCP server is installed and can communicate with ComfyUI**
-
-1. Check blender/comfyui_mcp_tools/ addon structure and version
-2. Check blender/comfyui_tools/ addon structure and version
-3. Verify the MCP server entry point (comfyui-mcp) works
-4. Check if Blender is installed and accessible from command line
-5. Test that the Blender addon can reach the Flask API at port 5050
-6. Document the integration state: what works, what's broken, what's missing
+Result: Both addons structurally sound. MCP tools v1.3.0 (port 9000), ComfyUI tools v2.0.0 (port 5050). Neither service running. Blender not on PATH.
 
 ### Task 4 [HIGH] (setup)
 **Map ComfyUI installation at C:\Users\Teacher\ComfyUI — verify models, custom nodes, and output paths**

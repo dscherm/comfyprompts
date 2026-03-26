@@ -32,3 +32,42 @@ Both addons present with correct structure:
 - `blender/comfyui_tools/` — 14 files (full-featured addon with generation, rigging, animation, mocap, export)
 
 **Status:** COMPLETE
+
+## 2026-03-26 - Task 3: Verify Blender MCP Integration
+
+**Goal:** Verify Blender MCP integration — confirm server and addons can communicate
+
+**Changes Made:**
+- No code changes (verification only)
+
+**Findings:**
+
+### Blender MCP Tools Addon (comfyui_mcp_tools v1.3.0)
+- Structure: 7 files — __init__.py, animations.py, operators.py, panels.py, properties.py, utils.py
+- MCP connection: configured via addon preferences (host: 127.0.0.1, port: 9000)
+- Operators: COMFY_OT_auto_rig, COMFY_OT_generate_animation, COMFY_OT_import_mocap, COMFY_OT_export_model
+- Rig backends: RIGIFY (local), UNIRIG (MCP), TRIPO (MCP)
+- Animation types: walk, run, idle, wave, jump, nod, look_around
+- Note: utils.py contains animation/rigging utilities, NOT MCP HTTP client code
+
+### Blender ComfyUI Tools Addon (comfyui_tools v2.0.0)
+- Structure: 14 files — full-featured addon
+- Flask API connection via api_client.py (urllib-based, port 5050, 30s timeout)
+- Endpoints: /api/status, /api/analyze, /api/workflows, /api/generate, /api/job/{id}, /api/upload, /api/queue, /api/queue/clear, /api/interrupt, /api/outputs, /api/validate
+
+### MCP Server Entry Point
+- `comfyui-mcp` command installed at Python312/Scripts/comfyui-mcp
+- Entry point maps to `packages/mcp-server/server.py:main`
+
+### Service Status
+- Flask API at localhost:5050 — **NOT RUNNING** (connection refused)
+- ComfyUI at localhost:8188 — **NOT RUNNING** (connection refused)
+- Blender — **NOT ON PATH** (`where blender` finds nothing)
+
+### Integration Assessment
+- Addon code is structurally sound — both addons have correct bl_info, class prefixes, and operator structure
+- Neither backend service (Flask API nor MCP server) is currently running
+- Blender is not accessible from CLI (likely installed but not on PATH)
+- The MCP tools addon's HTTP client for MCP communication is not clearly separated — rigging operators reference MCP backends (UNIRIG, TRIPO) but show warnings that they run via MCP server
+
+**Status:** COMPLETE
