@@ -139,11 +139,14 @@ Both Blender addons follow strict constraints:
 ## Testing
 
 - Framework: pytest
-- Test paths: `packages/sdk/tests/`, `packages/mcp-server/tests/`, `packages/prompter/tests/`
+- Test paths: `packages/sdk/tests/`, `packages/mcp-server/tests/`, `packages/prompter/tests/`, `tests/`
 - Markers: `@pytest.mark.integration` (requires running ComfyUI), `@pytest.mark.slow`
 - Async tests: `pytest-asyncio` for MCP server tests
 - Run all: `pytest` from repo root
 - Run one package: `pytest packages/mcp-server/tests/`
+- Integration tests (mocked, no services): `pytest tests/integration/ -v`
+- Integration tests (live, requires ComfyUI): `pytest tests/integration/ -m integration -v`
+- Integration tests (live + slow generation): `pytest tests/integration/ -m "integration and slow" -v`
 
 ## Common Pitfalls
 

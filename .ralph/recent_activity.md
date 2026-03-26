@@ -1,27 +1,19 @@
 # Recent Activity (auto-generated)
 
-## 2026-03-26 - Task 3: Blender-Specific Parametric Workflows
+## 2026-03-26 - Task 4: Integration Test Suite for Blender-ComfyUI Pipeline
 
-**Goal:** Add depth-guided, normal-map texturing, and pose-to-render workflows for the Blender-ComfyUI pipeline
+**Goal:** Establish integration test suite with mocked and live test modes for the Blender-to-ComfyUI pipeline.
 
 **Changes Made:**
-- `workflows/mcp/blender_depth_guided.json`: Depth-guided img2img workflow — loads Blender depth pass + source render, applies ControlNet depth conditioning (control_v11f1p_sd15_depth.pth), KSampler with configurable denoise for img2img
-- `workflows/mcp/blender_depth_guided.meta.json`: Metadata sidecar — SD1.5 + depth ControlNet requirements, 3 required params (depth_image, source_image, prompt), defaults (strength 0.85, denoise 0.65, dpmpp_2m/karras)
-- `workflows/mcp/blender_normal_texturing.json`: Normal-map texturing workflow — loads Blender normal pass, applies ControlNet normal conditioning (control_v11p_sd15_normalbae.pth), txt2img generation
-- `workflows/mcp/blender_normal_texturing.meta.json`: Metadata sidecar — SD1.5 + normal ControlNet, defaults (strength 0.9, 512x512, 30 steps)
-- `workflows/mcp/blender_pose_to_render.json`: Pose-to-render workflow — loads OpenPose stick figure from Blender armature, generates character render via ControlNet (control_v11p_sd15_openpose.pth)
-- `workflows/mcp/blender_pose_to_render.meta.json`: Metadata sidecar — SD1.5 + openpose ControlNet, defaults (strength 0.8, 512x768 portrait)
-- `packages/mcp-server/tests/test_blender_workflows.py`: 37 tests covering file validation, WorkflowManager discovery, parameter parsing, and render substitution
-
-**Design Decisions:**
-- Used built-in `ControlNetApply` node (not FluxUnionControlNetApply) — no custom nodes needed
-- Targeted SD1.5 (`v1-5-pruned-emaonly.ckpt`) since that's what's installed locally
-- All three workflows use standard ControlNet v1.1 models (depth, normalbae, openpose)
-- Category "blender" and tag "blender" for easy filtering
-- Each meta.json includes Blender setup notes and model download URLs
+- `tests/integration/__init__.py`: Created integration test package
+- `tests/integration/conftest.py`: Shared fixtures — MockComfyUI server (full HTTP mock), MockMCP server (streamable-http mock), client factories, sample PNG fixtures, live ComfyUI/SDK client fixtures with auto-skip
+- `tests/integration/test_pipeline_mocked.py`: 23 mocked tests — full direct pipeline (upload→build→submit→poll→download), MCP pipeline (health check, generate, Blender workflows), session management, custom responses, multi-job sequencing, error handling
+- `tests/integration/test_pipeline_live.py`: 9 live tests (skip if ComfyUI unavailable) — connection, checkpoints, upload, txt2img generation, img2img generation, SDK client, workflow manager
+- `tests/integration/test_workflow_validation.py`: 20 tests — file integrity, meta/JSON consistency, ControlNet model matching, PARAM_* placeholder coverage, node graph connectivity, workflow rendering with full/partial params, cross-pipeline consistency
+- `CLAUDE.md`: Added integration test commands to Testing section
 
 **Verification:**
-- `pytest packages/mcp-server/tests/test_blender_workflows.py -v` -- 37 passed, 0 failures
-- `pytest packages/mcp-server/tests/ -v --tb=short -q` -- 194 passed, 9 failed (pre-existing), 6 skipped
+- `pytest tests/integration/ -v` — 45 passed, 9 skipped (live tests, ComfyUI not running)
+- `pytest --tb=line -q` — 353 passed, 9 failed (pre-existing test_workflows.py bug), 15 skipped
 
 **Status:** COMPLETE
