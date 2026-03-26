@@ -1,0 +1,51 @@
+{
+  "name": "Blender Normal Map Texturing",
+  "description": "Generate textures guided by Blender normal maps. Takes a normal pass from Blender and generates surface textures that respect the 3D geometry via ControlNet normal conditioning. Ideal for creating PBR-ready textures from 3D models.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "ControlNetLoader", "LoadImage", "EmptyLatentImage", "CLIPTextEncode", "ControlNetApply", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "v1-5-pruned-emaonly.ckpt",
+      "controlnet": "control_v11p_sd15_normalbae.pth"
+    },
+    "minimum_vram_gb": 6
+  },
+  "parameters": {
+    "normal_image": {"type": "string", "required": true, "description": "Filename of the Blender normal pass render (RGB normal map)"},
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired texture (e.g., 'weathered stone texture, mossy cracks, photorealistic')"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in texture generation"},
+    "controlnet_strength": {"type": "float", "required": false, "description": "Normal map ControlNet influence (0.0-1.0, higher = stricter geometry adherence)"},
+    "width": {"type": "int", "required": false, "description": "Output texture width in pixels"},
+    "height": {"type": "int", "required": false, "description": "Output texture height in pixels"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"},
+    "steps": {"type": "int", "required": false, "description": "Number of sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "Classifier-free guidance scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength"}
+  },
+  "defaults": {
+    "controlnet_strength": 0.9,
+    "width": 512,
+    "height": 512,
+    "steps": 30,
+    "cfg": 7.5,
+    "sampler_name": "dpmpp_2m",
+    "scheduler": "karras",
+    "denoise": 1.0
+  },
+  "constraints": {
+    "controlnet_strength": {"min": 0.0, "max": 1.0},
+    "denoise": {"min": 0.0, "max": 1.0}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "blender",
+  "tags": ["blender", "normal-map", "controlnet", "texturing", "sd15", "pbr"],
+  "notes": {
+    "blender_setup": "In Blender, enable the Normal pass in View Layer Properties > Passes > Data. Render to PNG with RGB channels. Use camera-space normals for best ControlNet compatibility.",
+    "model_download": "Download control_v11p_sd15_normalbae.pth from https://huggingface.co/lllyasviel/ControlNet-v1-1 and place in ComfyUI/models/controlnet/"
+  }
+}

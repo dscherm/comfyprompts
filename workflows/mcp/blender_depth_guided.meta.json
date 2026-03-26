@@ -1,0 +1,48 @@
+{
+  "name": "Blender Depth-Guided Img2Img",
+  "description": "Depth-guided image-to-image generation for Blender scenes. Takes a Blender depth pass and source render, uses ControlNet depth conditioning to regenerate the scene while preserving spatial structure. Ideal for stylizing 3D renders with AI while maintaining geometry.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "ControlNetLoader", "LoadImage", "VAEEncode", "CLIPTextEncode", "ControlNetApply", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "v1-5-pruned-emaonly.ckpt",
+      "controlnet": "control_v11f1p_sd15_depth.pth"
+    },
+    "minimum_vram_gb": 6
+  },
+  "parameters": {
+    "depth_image": {"type": "string", "required": true, "description": "Filename of the Blender depth pass render (grayscale depth map)"},
+    "source_image": {"type": "string", "required": true, "description": "Filename of the Blender source render to transform"},
+    "prompt": {"type": "string", "required": true, "description": "Text description of desired output style or content"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in the generation"},
+    "controlnet_strength": {"type": "float", "required": false, "description": "Depth ControlNet influence strength (0.0-1.0, higher = stricter depth adherence)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"},
+    "steps": {"type": "int", "required": false, "description": "Number of sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "Classifier-free guidance scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm (e.g., euler, dpmpp_2m)"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler (e.g., normal, karras)"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength (lower = closer to source render, higher = more creative)"}
+  },
+  "defaults": {
+    "controlnet_strength": 0.85,
+    "steps": 25,
+    "cfg": 7.5,
+    "sampler_name": "dpmpp_2m",
+    "scheduler": "karras",
+    "denoise": 0.65
+  },
+  "constraints": {
+    "controlnet_strength": {"min": 0.0, "max": 1.0},
+    "denoise": {"min": 0.0, "max": 1.0}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "blender",
+  "tags": ["blender", "depth", "controlnet", "img2img", "sd15", "3d-to-2d"],
+  "notes": {
+    "blender_setup": "In Blender, enable the Depth pass in View Layer Properties > Passes > Data. Render to EXR or normalize to grayscale PNG for best results.",
+    "model_download": "Download control_v11f1p_sd15_depth.pth from https://huggingface.co/lllyasviel/ControlNet-v1-1 and place in ComfyUI/models/controlnet/"
+  }
+}

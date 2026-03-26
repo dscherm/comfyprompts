@@ -1,16 +1,6 @@
 # Pending Tasks (auto-generated)
 
-2 pending task(s), sorted by priority:
-
-### Task 3 [MEDIUM] (feature)
-**Add Blender-specific parametric workflows — depth-guided generation, normal-map-based texturing, pose-to-render**
-
-1. Analyze existing workflows in workflows/mcp/ to understand the pattern
-2. Create a depth-guided img2img workflow (Blender depth pass -> ComfyUI ControlNet)
-3. Create a normal-map texturing workflow (Blender normal pass -> ComfyUI texture generation)
-4. Write .meta.json sidecars for each new workflow
-5. Register new workflows with the MCP server's workflow manager
-6. Test workflows with sample Blender scenes
+1 pending task(s), sorted by priority:
 
 ### Task 4 [MEDIUM] (testing)
 **Establish integration test suite for Blender-ComfyUI pipeline with mocked and live test modes**
