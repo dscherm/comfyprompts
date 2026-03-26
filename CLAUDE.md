@@ -1,5 +1,45 @@
 # ComfyUI Toolchain
 
+## Project Goal
+
+This project is used in conjunction with:
+- **Blender MCP** — installed as a Claude Code MCP server for direct Blender control
+- **ComfyUI** — local installation at `C:\Users\Teacher\ComfyUI`
+
+The goal is to build a seamless AI-powered creative pipeline:
+Blender (3D scene) -> ComfyUI (AI generation/processing) -> Blender (result integration)
+
+The Blender MCP addon enables Claude to directly manipulate Blender scenes, while ComfyUI
+provides the AI generation backend (image, video, audio, 3D). This project bridges them.
+
+## Key Commands
+
+```bash
+# Run all tests
+pytest
+
+# Run one package's tests
+pytest packages/mcp-server/tests/
+
+# Start MCP server
+comfyui-mcp
+
+# Start Flask API (for Blender addon)
+comfyui-api
+
+# Check ComfyUI is running
+curl http://localhost:8188/system_stats
+```
+
+## Rules
+
+- ONE task per ralph loop iteration
+- No stubs or placeholders — full implementations only
+- Always run tests after implementing
+- Update plan.md after every loop
+- Commit after each completed task
+- Blender addons: NO pip dependencies, urllib only, Blender 4.0+ API
+
 ## Architecture
 
 Three packages in `packages/` directory:
