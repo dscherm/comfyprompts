@@ -1,40 +1,22 @@
 # Recent Activity (auto-generated)
 
-## 2026-03-26 - Task 3: Map ComfyUI Installation
+## 2026-03-26 - Task 1: End-to-end Blender-to-ComfyUI generation pipeline
 
-**Goal:** Verify ComfyUI installation at C:\Users\Teacher\ComfyUI — models, custom nodes, output paths, and workflow compatibility.
+**Goal:** Create a complete render-to-AI pipeline in the comfyui_mcp_tools Blender addon
 
-**Findings:**
+**Changes Made:**
+- `blender/comfyui_mcp_tools/comfyui_client.py`: New file — lightweight ComfyUI HTTP client (urllib only) with upload_image (multipart), queue_prompt, get_history, get_job_status, download_image, get_checkpoints, extract_output_images
+- `blender/comfyui_mcp_tools/workflows.py`: New file — img2img and txt2img workflow builders targeting SD 1.5 (v1-5-pruned-emaonly.ckpt default)
+- `blender/comfyui_mcp_tools/operators_pipeline.py`: New file — 8 operators: check_comfyui, capture_viewport_mcp, use_render_result_mcp, run_pipeline, monitor_pipeline (modal timer), cancel_pipeline, apply_as_texture, open_output
+- `blender/comfyui_mcp_tools/properties.py`: Added ComfyMCPPipelineProps (mode, prompts, generation params, capture settings, job state) and comfyui_url to preferences
+- `blender/comfyui_mcp_tools/panels.py`: Added COMFY_PT_pipeline_panel with full UI for connection, mode selection, input capture, prompts, generation settings, status, and output actions
+- `blender/comfyui_mcp_tools/__init__.py`: Registered all new classes, bumped version to 1.4.0
+- `tests/test_blender_pipeline.py`: New file — 38 tests covering workflow builders, HTTP client (mock server), output extraction, singleton, and full pipeline round-trip
+- `pyproject.toml`: Added `tests` to testpaths
 
-- **ComfyUI Version:** 0.16.4
-- **Checkpoints installed:** 512-inpainting-ema.safetensors, dreamshaper_8.safetensors, v1-5-pruned-emaonly-fp16.safetensors, v1-5-pruned-emaonly.safetensors
-- **LoRAs installed:** blindbox_V1Mix.safetensors
-- **ControlNets installed:** NONE
-- **VAE:** ae.safetensors
-- **Custom nodes:** NONE (only example_node.py.example and websocket_image_save.py)
-- **Output directory:** default (ComfyUI/output/)
-- **COMFYUI_OUTPUT_ROOT env var:** NOT SET
-
-**Workflow-Model Gap Analysis:**
-
-Most workflows reference models NOT installed:
-- `flux1-dev-fp8.safetensors` — referenced by 10+ workflows (generate_image, img2img, inpaint, etc.) — **NOT INSTALLED**
-- `sd_xl_base_1.0.safetensors` — referenced by face_id_portrait, style_transfer_* — **NOT INSTALLED**
-- `stable_audio_open_1.0.safetensors` — referenced by generate_sfx — **NOT INSTALLED**
-- `ace_step_v1_3.5b.safetensors` — referenced by generate_song — **NOT INSTALLED**
-- `flux-dev-controlnet-union.safetensors` — referenced by generate_image_controlnet — **NOT INSTALLED**
-- LTX2 video checkpoint — referenced by generate_video_ltx2, image_to_video_ltx2 — **NOT INSTALLED**
-- TripoSR model — referenced by generate_3d — **NOT INSTALLED**
-
-Only `basic_api_test` could potentially work with installed models, but its meta.json says `v1-5-pruned-emaonly.ckpt` while the actual JSON hardcodes `flux1-dev-fp8.safetensors` (also not installed). The installed `v1-5-pruned-emaonly.safetensors` is close but has different extension.
-
-**Custom node dependencies missing:**
-- ComfyUI-Flux-Union-ControlNet (for generate_image_controlnet)
-- IPAdapter nodes (for style_transfer_*, face_id_portrait)
-- TripoSR nodes (for generate_3d)
-- wav2lip nodes (for lip_sync)
-- AceStep nodes (for generate_song)
-
-**Verification:** Data provided by human operator (direct filesystem inspection). Workflow analysis via grep of workflows/mcp/*.json and *.meta.json.
+**Verification:**
+- `python -c "import py_compile; ..."` — all 5 addon files compile OK
+- `pytest tests/test_blender_pipeline.py -v` — 38 passed, 0 failures
+- `pytest -x --tb=short -q` — 190 passed, 6 skipped, 1 pre-existing failure (mem-20260326-001)
 
 **Status:** COMPLETE

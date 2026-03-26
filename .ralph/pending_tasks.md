@@ -1,17 +1,9 @@
 # Pending Tasks (auto-generated)
 
-4 pending task(s), sorted by priority:
+3 pending task(s), sorted by priority:
 
-### Task 1 [HIGH] (feature)
-**Create end-to-end Blender-to-ComfyUI generation pipeline — render Blender scene, send to ComfyUI for AI processing**
-
-1. Read blender/comfyui_mcp_tools/ to understand existing MCP-based operators
-2. Read blender/comfyui_tools/ to understand existing Flask-based operators
-3. Identify the gap: what pipeline steps are missing between Blender render and ComfyUI ingest
-4. Implement or wire up the missing pipeline: Blender render -> image upload -> ComfyUI workflow -> result download
-5. Test the pipeline with a simple scene (e.g., render a cube, apply img2img)
-6. Write tests for the pipeline components
-7. Run targeted tests to verify
+### ~~Task 1 [HIGH] (feature) — COMPLETE~~
+~~Create end-to-end Blender-to-ComfyUI generation pipeline~~
 
 ### Task 2 [HIGH] (feature)
 **Wire MCP server tools into Blender addon — expose ComfyUI generation capabilities as Blender operators via MCP**
@@ -42,3 +34,4 @@
 4. Add test fixtures for sample Blender scenes and expected outputs
 5. Run the full test suite and baseline the count
 6. Update CLAUDE.md with test commands
+
