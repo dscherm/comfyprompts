@@ -2,21 +2,39 @@
 
 ## 2026-03-26 - Task 2: Audit Codebase State
 
-**Goal:** Verify packages installed, run tests, check ComfyUI reachability, document baseline
+**Goal:** Audit current codebase state — run existing tests, check package installations, identify broken/missing pieces
 
 **Changes Made:**
-- No code changes — audit only
+- No code changes (audit only)
 
 **Findings:**
-- All 3 packages installed as editable: `comfyui-agent-sdk 0.1.0`, `comfyui-mcp-server 1.0.0`, `comfyui-prompter 0.1.0`
-- Test baseline: **194 passed, 9 failed, 6 skipped** (73s)
-- All 9 failures are in `packages/mcp-server/tests/test_workflows.py` — WorkflowManager defaults to `packages/mcp-server/workflows` but parametric workflows live at repo-root `workflows/mcp/`. Already documented in memories as `mem-20260326-001`.
-- 6 skips are `@pytest.mark.integration` tests requiring running ComfyUI
-- ComfyUI at `http://localhost:8188` is **not running** (connection refused)
-- Blender MCP addon available via MCP tools
+
+### Package Installations
+- `comfyui-agent-sdk` 0.1.0 — installed editable from `packages/sdk/`
+- `comfyui-mcp-server` 1.0.0 — installed editable from `packages/mcp-server/`
+- `comfyui-prompter` 0.1.0 — installed editable from `packages/prompter/`
+- All three installed correctly with proper dependency chain
+
+### Test Baseline
+- **194 passed, 9 failed, 6 skipped** (72.99s)
+- All 9 failures are in `packages/mcp-server/tests/test_workflows.py`
+- Root cause: `WorkflowManager` defaults to `packages/mcp-server/workflows/` but parametric workflows live at repo-root `workflows/mcp/` (documented in mem-20260326-001)
+- 6 skipped tests are marked `@pytest.mark.integration` or `@pytest.mark.slow`
+
+### ComfyUI Status
+- **NOT RUNNING** — `curl http://localhost:8188/system_stats` returns connection refused (exit code 7)
+- Expected install location: `C:\Users\Teacher\ComfyUI`
+
+### Blender Status
+- **NOT ON PATH** — `where blender` returned no results
+- `comfyui_mcp_tools` addon v1.3.0 — syntax OK
+- `comfyui_tools` addon v2.0.0 — syntax OK
+- Both addons compile cleanly
+
+### Flask API (port 5050)
+- Not tested (depends on `comfyui-api` being started manually)
 
 **Verification:**
-- `pytest --tb=short -q` -- 194 passed, 9 failed, 6 skipped
-- `curl http://localhost:8188/system_stats` -- connection refused (exit 7)
+- `pytest --tb=line -q` — 194 passed, 9 failed, 6 skipped
 
 **Status:** COMPLETE
