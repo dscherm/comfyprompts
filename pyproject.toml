@@ -50,6 +50,7 @@ testpaths = [
     "packages/sdk/tests",
     "packages/mcp-server/tests",
     "packages/prompter/tests",
+    "tests",
 ]
 markers = [
     "integration: requires running ComfyUI instance",

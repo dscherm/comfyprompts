@@ -1,0 +1,51 @@
+{
+  "name": "Blender Pose to Render",
+  "description": "Generate character renders from Blender armature poses. Exports a pose visualization from Blender (stick figure or silhouette) and uses OpenPose ControlNet to generate a fully rendered character matching the pose. Ideal for character concept art and animation previews.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "ControlNetLoader", "LoadImage", "EmptyLatentImage", "CLIPTextEncode", "ControlNetApply", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "v1-5-pruned-emaonly.ckpt",
+      "controlnet": "control_v11p_sd15_openpose.pth"
+    },
+    "minimum_vram_gb": 6
+  },
+  "parameters": {
+    "pose_image": {"type": "string", "required": true, "description": "Filename of the Blender pose visualization (OpenPose-style stick figure on black background)"},
+    "prompt": {"type": "string", "required": true, "description": "Text description of the character to generate (e.g., 'a warrior in medieval armor, detailed, fantasy art')"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in the generation"},
+    "controlnet_strength": {"type": "float", "required": false, "description": "Pose ControlNet influence (0.0-1.0, higher = stricter pose adherence)"},
+    "width": {"type": "int", "required": false, "description": "Output image width in pixels"},
+    "height": {"type": "int", "required": false, "description": "Output image height in pixels"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"},
+    "steps": {"type": "int", "required": false, "description": "Number of sampling steps"},
+    "cfg": {"type": "float", "required": false, "description": "Classifier-free guidance scale"},
+    "sampler_name": {"type": "string", "required": false, "description": "Sampler algorithm"},
+    "scheduler": {"type": "string", "required": false, "description": "Noise scheduler"},
+    "denoise": {"type": "float", "required": false, "description": "Denoising strength"}
+  },
+  "defaults": {
+    "controlnet_strength": 0.8,
+    "width": 512,
+    "height": 768,
+    "steps": 25,
+    "cfg": 7.5,
+    "sampler_name": "dpmpp_2m",
+    "scheduler": "karras",
+    "denoise": 1.0
+  },
+  "constraints": {
+    "controlnet_strength": {"min": 0.0, "max": 1.0},
+    "denoise": {"min": 0.0, "max": 1.0}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "blender",
+  "tags": ["blender", "pose", "openpose", "controlnet", "character", "sd15", "armature"],
+  "notes": {
+    "blender_setup": "Render a stick-figure visualization of your Blender armature: use a Freestyle line render or a simple script to draw colored lines for each bone on a black background. Follow OpenPose joint color conventions for best results.",
+    "model_download": "Download control_v11p_sd15_openpose.pth from https://huggingface.co/lllyasviel/ControlNet-v1-1 and place in ComfyUI/models/controlnet/"
+  }
+}
