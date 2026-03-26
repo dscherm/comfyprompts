@@ -1,44 +1,42 @@
 # Recent Activity (auto-generated)
 
-## 2026-03-26 - Task 2: Audit Current Codebase State
+## 2026-03-26 - Task 2: Audit Codebase State
 
-**Goal:** Run existing tests, check package installations, identify broken/missing pieces
+**Goal:** Audit current codebase — run tests, check installations, identify broken/missing pieces
 
 **Changes Made:**
-- No code changes — audit only
+- No code changes (audit only)
 
 **Findings:**
 
-1. **Packages:** All three packages installed correctly as editable:
-   - `comfyui-agent-sdk` v0.1.0 (packages/sdk)
-   - `comfyui-mcp-server` v1.0.0 (packages/mcp-server)
-   - `comfyui-prompter` v0.1.0 (packages/prompter)
+### Package Installation
+- `comfyui-agent-sdk` v0.1.0 — installed editable ✓
+- `comfyui-mcp-server` v1.0.0 — installed editable ✓
+- `comfyui-prompter` v0.1.0 — installed editable ✓
+- Dependency graph correct: mcp-server and prompter both require SDK
 
-2. **Test Suite:** 194 passed, 9 failed, 6 skipped (72.93s)
-   - All 9 failures are in `packages/mcp-server/tests/test_workflows.py`
-   - Root cause: `WorkflowManager` defaults to `packages/mcp-server/workflows` but parametric workflows live at `workflows/mcp/`
-   - Known issue (mem-20260326-001): `COMFY_MCP_WORKFLOW_DIR` env var can override
+### Test Suite
+- **194 passed, 9 failed, 6 skipped** (72.87s)
+- All 9 failures in `packages/mcp-server/tests/test_workflows.py`
+- Root cause: WorkflowManager defaults to `packages/mcp-server/workflows` but parametric workflows live at `workflows/mcp/` (known issue, mem-20260326-001)
+- 6 skipped tests are integration tests requiring running ComfyUI
 
-3. **Failed tests (all workflow path related):**
-   - `TestWorkflowDiscovery::test_workflows_directory_exists`
-   - `TestWorkflowDiscovery::test_workflows_discovered`
-   - `TestWorkflowDiscovery::test_core_workflows_present`
-   - `TestWorkflowParameters::test_generate_image_params`
-   - `TestWorkflowParameters::test_generate_video_params`
-   - `TestWorkflowParameters::test_generate_song_params`
-   - `TestWorkflowOutputTypes::test_image_workflow_output`
-   - `TestWorkflowOutputTypes::test_video_workflow_output`
-   - `TestWorkflowOutputTypes::test_audio_workflow_output`
+### ComfyUI
+- Installation at `C:\Users\Teacher\ComfyUI` exists (access restricted from sandbox)
+- ComfyUI server at http://localhost:8188 is **NOT running** (curl exit code 7 = connection refused)
 
-4. **ComfyUI:** Not reachable at http://localhost:8188 (not running)
+### Blender Addons
+- `blender/comfyui_mcp_tools/` — 7 files, compiles OK
+- `blender/comfyui_tools/` — 14 files, compiles OK
+- Both addons have valid Python syntax
 
-5. **Blender addons:** Both compile successfully
-   - `blender/comfyui_tools/` — Flask-based addon
-   - `blender/comfyui_mcp_tools/` — MCP-based addon
-
-6. **Workflows:** Present at `workflows/mcp/` with 10+ parametric workflows and meta sidecars
+### Architecture
+- 3 packages in `packages/` with correct dependency graph
+- 2 Blender addons with separate backends (Flask API vs MCP HTTP)
+- Parametric workflows in `workflows/mcp/`
+- Entry points: comfyui-mcp, comfyui-gui, comfyui-api, comfyui-setup
 
 **Verification:**
-- `pytest --tb=no -q` -- 194 passed, 9 failed, 6 skipped
+- `pytest --tb=line -q` — 194 passed, 9 failed, 6 skipped
 
 **Status:** COMPLETE
