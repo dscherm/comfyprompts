@@ -62,3 +62,4 @@
 4. Add test fixtures for sample Blender scenes and expected outputs
 5. Run the full test suite and baseline the count
 6. Update CLAUDE.md with test commands
+
