@@ -2,30 +2,47 @@
 
 ## 2026-03-26 - Task 2: Audit Current Codebase State
 
-**Goal:** Audit codebase — check package installations, run tests, verify external dependencies
+**Goal:** Verify package installations, run baseline tests, check ComfyUI/Blender availability
 
 **Changes Made:**
-- Installed all three packages in editable mode:
-  - `pip install -e packages/sdk/` → comfyui-agent-sdk 0.1.0
-  - `pip install -e packages/mcp-server/` → comfyui-mcp-server 1.0.0
-  - `pip install -e packages/prompter/` → comfyui-prompter 0.1.0
+- No code changes — audit only
 
 **Findings:**
-- **Packages:** All three packages were NOT installed. Now installed in editable mode.
-- **Tests:** 190 passed, 1 failed, 6 skipped (73.89s)
-  - FAILED: `test_workflows_directory_exists` — WorkflowManager looks for `packages/mcp-server/workflows` but workflows are at repo-level `workflows/mcp/`
-  - 6 skipped: likely integration tests requiring running ComfyUI
-- **ComfyUI:** Directory exists at `C:\Users\Teacher\ComfyUI` but server is NOT running (localhost:8188 unreachable)
-- **Blender:** NOT on PATH. Both addon directories present:
-  - `blender/comfyui_mcp_tools/` — 6 files (MCP-based, lightweight)
-  - `blender/comfyui_tools/` — 13 files (Flask-based, full-featured)
 
-**Issues Discovered:**
-- WorkflowManager workflow directory path bug (test_workflows_directory_exists fails)
-- ComfyUI not running (needed for integration tests)
-- Blender not on PATH (manual testing blocked)
+### Package Installation
+- `comfyui-agent-sdk` v0.1.0 — installed editable from `packages/sdk/`
+- `comfyui-mcp-server` v1.0.0 — installed editable from `packages/mcp-server/`
+- `comfyui-prompter` v0.1.0 — installed editable from `packages/prompter/`
+- All three packages installed correctly with correct dependency chain
+
+### Test Baseline
+- **194 passed, 9 failed, 6 skipped** (73s)
+- All 9 failures in `packages/mcp-server/tests/test_workflows.py`
+- Root cause: `WorkflowManager` defaults to `packages/mcp-server/workflows` but parametric workflows live at repo-root `workflows/mcp/`. Known issue (mem-20260326-001).
+- Failed tests:
+  - `TestWorkflowDiscovery::test_workflows_directory_exists`
+  - `TestWorkflowDiscovery::test_workflows_discovered`
+  - `TestWorkflowDiscovery::test_core_workflows_present`
+  - `TestWorkflowParameters::test_generate_image_params`
+  - `TestWorkflowParameters::test_generate_video_params`
+  - `TestWorkflowParameters::test_generate_song_params`
+  - `TestWorkflowOutputTypes::test_image_workflow_output`
+  - `TestWorkflowOutputTypes::test_video_workflow_output`
+  - `TestWorkflowOutputTypes::test_audio_workflow_output`
+- 6 skipped tests (likely `@pytest.mark.integration` or `@pytest.mark.slow`)
+
+### ComfyUI Status
+- **NOT reachable** at http://localhost:8188 (curl exit code 7 = connection refused)
+- ComfyUI is not currently running
+
+### Blender Addons
+- `blender/comfyui_mcp_tools/` — v1.3.0, Blender 4.0+ required
+- `blender/comfyui_tools/` — v2.0.0, Blender 4.0+ required
+- Both addons present with correct structure
 
 **Verification:**
-- `pytest -x --tb=short -q` — 190 passed, 1 failed, 6 skipped
+- `pytest --tb=no -q` — 194 passed, 9 failed, 6 skipped
+- `curl http://localhost:8188/system_stats` — connection refused
+- `pip show` confirms all three packages installed
 
 **Status:** COMPLETE
