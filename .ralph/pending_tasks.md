@@ -1,6 +1,16 @@
 # Pending Tasks (auto-generated)
 
-6 pending task(s), sorted by priority:
+8 pending task(s), sorted by priority:
+
+### Task 1 [CRITICAL] (setup|feature|testing|bugfix)
+**One-line description of what this task accomplishes**
+
+1. Specific action step 1
+2. Specific action step 2
+
+### Task 2 [CRITICAL] (setup) ✓ COMPLETE 2026-03-26
+**Audit current codebase state — run existing tests, check package installations, identify broken/missing pieces**
+Result: 194 passed, 9 failed (workflow path issue), 6 skipped. All 3 packages installed. ComfyUI not running. Both Blender addons present.
 
 ### Task 3 [CRITICAL] (setup)
 **Verify Blender MCP integration — confirm blender MCP server is installed and can communicate with ComfyUI**
