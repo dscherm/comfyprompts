@@ -2,6 +2,9 @@
 
 6 pending task(s), sorted by priority:
 
+### ~~Task 1 [DONE]~~ — placeholder, skipped
+### ~~Task 2 [DONE]~~ — Audit codebase state (194 passed, 9 failed, 6 skipped)
+
 ### Task 3 [CRITICAL] (setup)
 **Verify Blender MCP integration — confirm blender MCP server is installed and can communicate with ComfyUI**
 
