@@ -20,7 +20,7 @@ Usage:
 bl_info = {
     "name": "ComfyUI MCP Tools",
     "author": "ComfyUI MCP Server",
-    "version": (1, 4, 0),
+    "version": (1, 5, 0),
     "blender": (4, 0, 0),
     "location": "View3D > Sidebar > ComfyUI",
     "description": "AI-powered generation pipeline, auto-rigging, animation, and MCP integration",
@@ -36,6 +36,7 @@ from .properties import (
     ComfyMCPAnimationProps,
     ComfyMCPMocapProps,
     ComfyMCPExportProps,
+    ComfyMCPServerProps,
     ComfyMCPPipelineProps,
 )
 from .operators import (
@@ -54,9 +55,20 @@ from .operators_pipeline import (
     COMFY_OT_apply_as_texture,
     COMFY_OT_open_output,
 )
+from .operators_mcp import (
+    COMFY_OT_mcp_connect,
+    COMFY_OT_mcp_generate,
+    COMFY_OT_mcp_upscale,
+    COMFY_OT_mcp_variations,
+    COMFY_OT_mcp_list_styles,
+    COMFY_OT_mcp_apply_style,
+    COMFY_OT_mcp_list_models,
+    COMFY_OT_mcp_list_workflows,
+)
 from .panels import (
     COMFY_PT_main_panel,
     COMFY_PT_pipeline_panel,
+    COMFY_PT_mcp_tools_panel,
     COMFY_PT_rigging_panel,
     COMFY_PT_animation_panel,
     COMFY_PT_mocap_panel,
@@ -70,8 +82,9 @@ classes = (
     ComfyMCPAnimationProps,
     ComfyMCPMocapProps,
     ComfyMCPExportProps,
+    ComfyMCPServerProps,
     ComfyMCPPipelineProps,
-    # Pipeline operators
+    # Pipeline operators (direct ComfyUI)
     COMFY_OT_check_comfyui,
     COMFY_OT_capture_viewport,
     COMFY_OT_use_render_result,
@@ -80,6 +93,15 @@ classes = (
     COMFY_OT_cancel_pipeline,
     COMFY_OT_apply_as_texture,
     COMFY_OT_open_output,
+    # MCP server operators
+    COMFY_OT_mcp_connect,
+    COMFY_OT_mcp_generate,
+    COMFY_OT_mcp_upscale,
+    COMFY_OT_mcp_variations,
+    COMFY_OT_mcp_list_styles,
+    COMFY_OT_mcp_apply_style,
+    COMFY_OT_mcp_list_models,
+    COMFY_OT_mcp_list_workflows,
     # Existing operators
     COMFY_OT_auto_rig,
     COMFY_OT_generate_animation,
@@ -88,6 +110,7 @@ classes = (
     # Panels
     COMFY_PT_main_panel,
     COMFY_PT_pipeline_panel,
+    COMFY_PT_mcp_tools_panel,
     COMFY_PT_rigging_panel,
     COMFY_PT_animation_panel,
     COMFY_PT_mocap_panel,
@@ -102,12 +125,14 @@ def register():
     bpy.types.Scene.comfy_animation = PointerProperty(type=ComfyMCPAnimationProps)
     bpy.types.Scene.comfy_mocap = PointerProperty(type=ComfyMCPMocapProps)
     bpy.types.Scene.comfy_export = PointerProperty(type=ComfyMCPExportProps)
+    bpy.types.Scene.comfy_mcp = PointerProperty(type=ComfyMCPServerProps)
     bpy.types.Scene.comfy_pipeline = PointerProperty(type=ComfyMCPPipelineProps)
-    print("ComfyUI MCP Tools addon registered (v1.4.0)")
+    print("ComfyUI MCP Tools addon registered (v1.5.0)")
 
 
 def unregister():
     del bpy.types.Scene.comfy_pipeline
+    del bpy.types.Scene.comfy_mcp
     del bpy.types.Scene.comfy_export
     del bpy.types.Scene.comfy_mocap
     del bpy.types.Scene.comfy_animation

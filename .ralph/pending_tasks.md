@@ -1,19 +1,6 @@
 # Pending Tasks (auto-generated)
 
-3 pending task(s), sorted by priority:
-
-### ~~Task 1 [HIGH] (feature) — COMPLETE~~
-~~Create end-to-end Blender-to-ComfyUI generation pipeline~~
-
-### Task 2 [HIGH] (feature)
-**Wire MCP server tools into Blender addon — expose ComfyUI generation capabilities as Blender operators via MCP**
-
-1. Read packages/mcp-server/server.py to understand available MCP tools
-2. Read blender/comfyui_mcp_tools/ to see which tools are already exposed
-3. Identify high-value MCP tools not yet accessible from Blender (e.g., generate_image, apply_controlnet)
-4. Add Blender operators that call these MCP tools via HTTP
-5. Add UI panels in Blender for the new operators
-6. Test each new operator manually and document in activity.md
+2 pending task(s), sorted by priority:
 
 ### Task 3 [MEDIUM] (feature)
 **Add Blender-specific parametric workflows — depth-guided generation, normal-map-based texturing, pose-to-render**
@@ -34,4 +21,3 @@
 4. Add test fixtures for sample Blender scenes and expected outputs
 5. Run the full test suite and baseline the count
 6. Update CLAUDE.md with test commands
-

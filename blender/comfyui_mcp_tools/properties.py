@@ -114,6 +114,69 @@ class ComfyMCPExportProps(PropertyGroup):
     include_animation: BoolProperty(name="Include Animation", default=True)
 
 
+class ComfyMCPServerProps(PropertyGroup):
+    """Properties for MCP server integration."""
+
+    # --- Connection state ---
+    mcp_connected: BoolProperty(name="MCP Connected", default=False)
+
+    # --- Last generation result ---
+    mcp_last_asset_id: StringProperty(
+        name="Last Asset ID",
+        default="",
+        description="Asset ID from the last MCP generation",
+    )
+    mcp_job_status: StringProperty(name="MCP Status", default="Idle")
+
+    # --- Workflow selection ---
+    mcp_workflow: StringProperty(
+        name="Workflow",
+        default="generate_image",
+        description="MCP workflow ID to use for generation",
+    )
+
+    # --- Upscale settings ---
+    upscale_factor: IntProperty(
+        name="Scale",
+        default=2,
+        min=2,
+        max=4,
+        description="Upscale factor (2x or 4x)",
+    )
+
+    # --- Variation settings ---
+    variation_count: IntProperty(
+        name="Count",
+        default=4,
+        min=1,
+        max=8,
+        description="Number of variations to generate",
+    )
+    variation_strength: FloatProperty(
+        name="Strength",
+        default=0.7,
+        min=0.0,
+        max=1.0,
+        description="How different variations are from original (0=identical, 1=very different)",
+    )
+
+    # --- Style presets ---
+    selected_style: StringProperty(
+        name="Style",
+        default="",
+        description="Selected style preset ID",
+    )
+    available_styles: StringProperty(
+        name="Styles JSON",
+        default="[]",
+        description="JSON array of available style presets (internal)",
+    )
+
+    # --- Model / workflow cache ---
+    available_models: StringProperty(name="Models JSON", default="[]")
+    available_workflows: StringProperty(name="Workflows JSON", default="[]")
+
+
 class ComfyMCPPipelineProps(PropertyGroup):
     # --- Pipeline mode ---
     pipeline_mode: EnumProperty(

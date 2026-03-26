@@ -1,22 +1,20 @@
 # Recent Activity (auto-generated)
 
-## 2026-03-26 - Task 1: End-to-end Blender-to-ComfyUI generation pipeline
+## 2026-03-26 - Task 2: Wire MCP server tools into Blender addon
 
-**Goal:** Create a complete render-to-AI pipeline in the comfyui_mcp_tools Blender addon
+**Goal:** Expose ComfyUI MCP server generation capabilities as Blender operators via MCP protocol
 
 **Changes Made:**
-- `blender/comfyui_mcp_tools/comfyui_client.py`: New file — lightweight ComfyUI HTTP client (urllib only) with upload_image (multipart), queue_prompt, get_history, get_job_status, download_image, get_checkpoints, extract_output_images
-- `blender/comfyui_mcp_tools/workflows.py`: New file — img2img and txt2img workflow builders targeting SD 1.5 (v1-5-pruned-emaonly.ckpt default)
-- `blender/comfyui_mcp_tools/operators_pipeline.py`: New file — 8 operators: check_comfyui, capture_viewport_mcp, use_render_result_mcp, run_pipeline, monitor_pipeline (modal timer), cancel_pipeline, apply_as_texture, open_output
-- `blender/comfyui_mcp_tools/properties.py`: Added ComfyMCPPipelineProps (mode, prompts, generation params, capture settings, job state) and comfyui_url to preferences
-- `blender/comfyui_mcp_tools/panels.py`: Added COMFY_PT_pipeline_panel with full UI for connection, mode selection, input capture, prompts, generation settings, status, and output actions
-- `blender/comfyui_mcp_tools/__init__.py`: Registered all new classes, bumped version to 1.4.0
-- `tests/test_blender_pipeline.py`: New file — 38 tests covering workflow builders, HTTP client (mock server), output extraction, singleton, and full pipeline round-trip
-- `pyproject.toml`: Added `tests` to testpaths
+- `blender/comfyui_mcp_tools/mcp_client.py`: NEW — Minimal MCP client for streamable-http transport (urllib only). Implements initialize, call_tool, list_tools, close, SSE parsing, session management, singleton pattern, and extract_text_content helper.
+- `blender/comfyui_mcp_tools/operators_mcp.py`: NEW — 8 MCP operators: mcp_connect (health check), mcp_generate (image generation via any MCP workflow), mcp_upscale (AI upscaling), mcp_variations (generate variations), mcp_list_styles / mcp_apply_style (style presets), mcp_list_models, mcp_list_workflows.
+- `blender/comfyui_mcp_tools/properties.py`: Added ComfyMCPServerProps property group (connection state, asset tracking, workflow selection, upscale/variation settings, style presets, model/workflow caches).
+- `blender/comfyui_mcp_tools/panels.py`: Added COMFY_PT_mcp_tools_panel with MCP connection, workflow selection, generation, upscale, variations, style presets, and model listing sections.
+- `blender/comfyui_mcp_tools/__init__.py`: Registered all new classes, added comfy_mcp scene property, bumped version to 1.5.0.
+- `tests/test_mcp_client.py`: NEW — 39 tests covering MCP protocol handling, SSE parsing, singleton management, text content extraction, and full round-trip integration tests with mock MCP server.
 
 **Verification:**
-- `python -c "import py_compile; ..."` — all 5 addon files compile OK
-- `pytest tests/test_blender_pipeline.py -v` — 38 passed, 0 failures
-- `pytest -x --tb=short -q` — 190 passed, 6 skipped, 1 pre-existing failure (mem-20260326-001)
+- `pytest tests/test_mcp_client.py -v` -- 39 passed, 0 failures
+- `pytest -x --tb=short -q` -- 190 passed, 6 skipped, 1 pre-existing failure (test_workflows_directory_exists)
+- `py_compile` on all 5 modified/new addon files -- all OK
 
 **Status:** COMPLETE
