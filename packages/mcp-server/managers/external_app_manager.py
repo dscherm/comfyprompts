@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import shutil
+import socket
 import subprocess
 import tempfile
 from dataclasses import dataclass
@@ -132,6 +133,37 @@ class ExternalAppManager:
             logger.warning(f"Failed to get Blender version: {e}")
             return None
 
+    def check_blender_mcp_available(
+        self,
+        host: str | None = None,
+        port: int | None = None,
+        timeout: float = 2.0
+    ) -> dict[str, Any]:
+        """Check if the blender-mcp socket server is reachable.
+
+        The blender-mcp addon runs a socket server inside Blender that accepts
+        JSON commands. This method probes whether that server is listening.
+
+        Args:
+            host: Blender MCP host (default: BLENDER_HOST env or 'localhost')
+            port: Blender MCP port (default: BLENDER_PORT env or 9876)
+            timeout: Connection timeout in seconds
+
+        Returns:
+            Dict with 'available' bool, 'host', 'port', and optional 'error'
+        """
+        host = host or os.environ.get("BLENDER_HOST", "localhost")
+        port = port or int(os.environ.get("BLENDER_PORT", "9876"))
+
+        try:
+            sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+            sock.settimeout(timeout)
+            sock.connect((host, port))
+            sock.close()
+            return {"available": True, "host": host, "port": port}
+        except (ConnectionRefusedError, TimeoutError, OSError) as e:
+            return {"available": False, "host": host, "port": port, "error": str(e)}
+
     def get_status(self) -> Dict[str, Any]:
         """Get status of all external applications.
 
@@ -152,12 +184,15 @@ class ExternalAppManager:
             version=self._unreal_version
         )
 
+        blender_mcp = self.check_blender_mcp_available()
+
         return {
             "blender": {
                 "available": blender_status.available,
                 "path": blender_status.path,
                 "version": blender_status.version
             },
+            "blender_mcp": blender_mcp,
             "unreal": {
                 "available": unreal_status.available,
                 "path": unreal_status.path,

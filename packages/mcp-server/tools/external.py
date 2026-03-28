@@ -1,6 +1,8 @@
 """External application integration tools for Blender and Unreal Engine"""
 
 import logging
+import os
+import shutil
 from pathlib import Path
 from typing import Optional
 
@@ -8,6 +10,12 @@ import requests
 from mcp.server.fastmcp import FastMCP
 
 logger = logging.getLogger("MCP_Server")
+
+# Default shared directory for cross-server asset handoff
+DEFAULT_SHARED_DIR = Path(os.environ.get(
+    "COMFY_MCP_SHARED_DIR",
+    Path(__file__).resolve().parent.parent.parent.parent / "output" / "shared"
+))
 
 
 def register_external_tools(
@@ -36,6 +44,83 @@ def register_external_tools(
             # Returns: {"blender": {"available": true, "version": "4.2"}, ...}
         """
         return external_app_manager.get_status()
+
+    @mcp.tool()
+    def publish_for_blender(
+        asset_id: str,
+        filename: Optional[str] = None,
+        shared_dir: Optional[str] = None
+    ) -> dict:
+        """Publish an asset to the shared directory for blender-mcp to import.
+
+        Copies a generated asset (3D model, image, texture) to a shared
+        filesystem directory where blender-mcp's execute_blender_code can
+        access it. Use this to hand off ComfyUI-generated assets to a live
+        Blender session controlled via blender-mcp.
+
+        **Workflow:**
+        1. Generate an asset with ComfyUI (generate_image, generate_3d, etc.)
+        2. Call publish_for_blender to copy it to the shared directory
+        3. Use blender-mcp's execute_blender_code to import the file at the returned path
+
+        Args:
+            asset_id: ID of the asset to publish
+            filename: Optional filename override (default: original filename)
+            shared_dir: Optional override for shared directory path
+
+        Returns:
+            Dict with:
+            - success: True if asset was published
+            - path: Absolute path to the published file (use this in blender-mcp)
+            - filename: Name of the published file
+            - size_bytes: File size in bytes
+            - blender_mcp_status: Whether blender-mcp is currently reachable
+
+        Examples:
+            # Generate a 3D model and publish for Blender
+            result = generate_3d(prompt="a wooden chair")
+            pub = publish_for_blender(asset_id=result["asset_id"])
+            # Then in blender-mcp: execute_blender_code(code='bpy.ops.import_scene.gltf(filepath="<pub.path>")')
+        """
+        try:
+            asset = asset_registry.get_asset(asset_id)
+            if not asset:
+                return {"error": f"Asset {asset_id} not found or expired."}
+
+            # Resolve the shared directory
+            out_dir = Path(shared_dir) if shared_dir else DEFAULT_SHARED_DIR
+            out_dir.mkdir(parents=True, exist_ok=True)
+
+            # Determine source file path
+            asset_url = asset.asset_url or asset.get_asset_url(asset_registry.comfyui_base_url)
+            ext = Path(asset.filename).suffix.lower() or ".png"
+            out_name = filename or asset.filename or f"{asset_id[:8]}{ext}"
+            dest_path = out_dir / out_name
+
+            # Download the asset from ComfyUI
+            try:
+                response = requests.get(asset_url, timeout=60)
+                response.raise_for_status()
+                with open(dest_path, "wb") as f:
+                    f.write(response.content)
+            except requests.RequestException as e:
+                return {"error": f"Failed to download asset: {e}"}
+
+            # Check if blender-mcp is reachable
+            blender_mcp = external_app_manager.check_blender_mcp_available()
+
+            return {
+                "success": True,
+                "asset_id": asset_id,
+                "path": str(dest_path),
+                "filename": out_name,
+                "size_bytes": dest_path.stat().st_size,
+                "blender_mcp_status": blender_mcp,
+            }
+
+        except Exception as e:
+            logger.exception(f"Failed to publish asset for Blender: {e}")
+            return {"error": f"Failed to publish: {str(e)}"}
 
     @mcp.tool()
     def export_to_blender(
@@ -936,4 +1021,4 @@ def register_external_tools(
         except ImportError:
             return {"error": "Tripo3D client not available"}
 
-    logger.info("Registered external tools: get_external_app_status, export_to_blender, export_to_unreal, convert_3d_format, auto_rig_model, list_rig_types, animate_model, list_animation_types, import_mocap, smart_rig_model, get_rigging_backends, tripo_rig_and_animate, list_tripo_animations")
+    logger.info("Registered external tools: get_external_app_status, publish_for_blender, export_to_blender, export_to_unreal, convert_3d_format, auto_rig_model, list_rig_types, animate_model, list_animation_types, import_mocap, smart_rig_model, get_rigging_backends, tripo_rig_and_animate, list_tripo_animations")

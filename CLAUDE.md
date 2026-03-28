@@ -105,6 +105,9 @@ The SDK (`packages/sdk/src/comfyui_agent_sdk/`) exports:
 - `COMFY_MCP_ASSET_TTL_HOURS` - Asset cleanup TTL (default: 24)
 - `COMFY_MCP_GENERATION_TIMEOUT` - Generation timeout in seconds (default: 300)
 - `COMFYUI_OUTPUT_ROOT` - Override ComfyUI output directory
+- `BLENDER_HOST` - Blender MCP socket host (default: `localhost`)
+- `BLENDER_PORT` - Blender MCP socket port (default: `9876`)
+- `COMFY_MCP_SHARED_DIR` - Shared directory for cross-server asset handoff (default: `output/shared`)
 
 ### Credentials
 Stored via `keyring` (system credential store):
@@ -148,6 +151,24 @@ Both Blender addons follow strict constraints:
 - Integration tests (live, requires ComfyUI): `pytest tests/integration/ -m integration -v`
 - Integration tests (live + slow generation): `pytest tests/integration/ -m "integration and slow" -v`
 
+## ComfyUI Runtime Environment
+
+- **ComfyUI version**: 0.10.0 at `D:\Projects\ComfyUI\`
+- **Venv**: `D:\Projects\ComfyUI\venv\` — **Python 3.11.9** (NOT system Python 3.13)
+- **PyTorch**: 2.9.1+cu126 (CUDA 12.6 runtime)
+- **CUDA toolkit**: 12.4 (system install at `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4`)
+- **GPU**: NVIDIA GeForce RTX 3070 8GB VRAM
+- **System RAM**: ~16GB
+- **Blender**: 5.0 at `C:\Program Files\Blender Foundation\Blender 5.0\blender.exe`
+- **Blender MCP**: addon.py (v1.4.0) installed in Blender addons, socket server on port 9876. MCP server via `uvx blender-mcp`. Provides `execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`, Poly Haven, Sketchfab, Hunyuan3D tools.
+- **UniRig**: `C:\UniRig` (.venv Python 3.11, CUDA)
+
+### Version Compatibility Notes
+
+- **Python version mismatch**: System Python is 3.13, ComfyUI venv is 3.11. CUDA extensions (.pyd) compiled for 3.11 will NOT work with system Python. Always use `D:/Projects/ComfyUI/venv/Scripts/python.exe` for anything that imports torch/CUDA.
+- **Batch scripts** (`hunyuan3d_batch_convert.py`, `generate_props.py`, etc.) use `urllib.request` to talk to ComfyUI's REST API and do NOT need the venv Python — they work with any Python 3.10+.
+- **Hunyuan3D textured pipeline DLL fix**: The `custom_rasterizer_kernel` CUDA extension requires torch and CUDA DLL directories in the DLL search path on Windows. Fixed via `os.add_dll_directory()` in `ComfyUI-Hunyuan3DWrapper/hy3dgen/texgen/custom_rasterizer/custom_rasterizer/__init__.py`. Without this, nodes 12-24 (texture baking) fail with "DLL load failed".
+
 ## Common Pitfalls
 
 1. **Two `workflow_manager` modules** - MCP server's (`packages/mcp-server/managers/workflow_manager.py`, ~495 LOC) is a parametric template engine that substitutes PARAM_* placeholders. Prompter's (`packages/prompter/workflow_manager.py`, ~916 LOC) is a UI<>API format converter. They serve completely different purposes and should NOT be merged.
@@ -159,6 +180,8 @@ Both Blender addons follow strict constraints:
 4. **SDK imports** - MCP server and Prompter both import from `comfyui_agent_sdk`. In dev mode, install SDK as editable: `pip install -e packages/sdk/`
 
 5. **MCP version** - SDK requires `mcp>=1.0.0`. MCP server previously pinned `mcp>=0.9.0` but should use `>=1.0.0` in the monorepo.
+
+6. **Three Blender integration paths** - (a) `comfyui_tools` addon → Flask API port 5050, (b) `comfyui_mcp_tools` addon → MCP HTTP, (c) `blender-mcp` addon → socket port 9876 with `execute_blender_code`. For agent-driven pipelines, prefer blender-mcp (arbitrary Python in live Blender session). For headless batch processing, use existing `--background` subprocess tools. The `publish_for_blender` MCP tool copies assets to `output/shared/` for cross-server handoff.
 
 ## Agent Team
 
