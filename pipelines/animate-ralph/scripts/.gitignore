@@ -1,0 +1,8 @@
+# Cloned tool repos -- clone locally via:
+#   git clone https://github.com/juanjo4martinez/mixamo-downloader.git
+#   git clone https://github.com/gnuton/mixamo_anims_downloader.git
+mixamo-downloader/
+mixamo_anims_downloader/
+# Also ignore copies from downloads folder
+mixamo-downloader-main/
+mixamo_anims_downloader-master/
