@@ -34,6 +34,7 @@ from tools.batch import register_batch_tools
 from tools.export import register_export_tools
 from tools.prompt_library_tools import register_prompt_library_tools
 from tools.model_management import register_model_management_tools
+from tools.tileset import register_tileset_tools
 from managers.style_presets_manager import StylePresetsManager
 from managers.export_presets_manager import ExportPresetsManager
 from managers.prompt_library import PromptLibrary
@@ -278,6 +279,9 @@ register_prompt_library_tools(mcp, prompt_library)
 
 # Register model management tools (list_loras, list_controlnet_models, list_vae_models, etc.)
 register_model_management_tools(mcp, comfyui_client)
+
+# Register tileset generation tools
+register_tileset_tools(mcp, comfyui_client, defaults_manager, asset_registry, webhook_manager)
 
 if __name__ == "__main__":
     # Check if running as MCP command (stdio) or standalone (streamable-http)

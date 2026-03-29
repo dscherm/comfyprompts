@@ -19,6 +19,8 @@ pipelines/
 ├── upscale-ralph/             ← Batch upscale + multi-format export
 ├── inpaint-ralph/             ← Self-correcting image refinement
 ├── scene-ralph/               ← Text → rendered 3D scene (cross-server: comfyui-mcp + blender-mcp)
+├── autorig-ralph/             ← ML auto-rigging: unrigged mesh → skeleton → weights → IK → export
+├── skeuomorph-ralph/          ← Real-world imagery → PBR-textured 3D (material-faithful)
 ├── validate-ralph/            ← Continuous validation daemon
 ├── cleanup-ralph/             ← Periodic cleanup daemon
 └── hot-reload-ralph/          ← File watcher + rebuild trigger
@@ -44,6 +46,8 @@ These run to completion. Each has a defined end state and outputs a `<promise>` 
 | **upscale-ralph** | Images → analyze → upscale → enhance → export | 4 | `UPSCALE COMPLETE` | 5-15 min |
 | **inpaint-ralph** | Generate → evaluate → fix → loop until quality | 4 | `INPAINT COMPLETE` | 5-20 min |
 | **scene-ralph** | Text → 3D scene via comfyui-mcp + blender-mcp | 6 | `SCENE COMPLETE` | 15-45 min |
+| **autorig-ralph** | Unrigged mesh → ML skeleton + weights + IK + hard-surface attach | 8 | `AUTORIG COMPLETE` | 20-45 min |
+| **skeuomorph-ralph** | Real-world imagery → PBR-textured 3D with faithful materials | 8 | `SKEUOMORPH COMPLETE` | 25-60 min |
 
 ### Daemon Pipelines (Continuous, No End State)
 
@@ -230,11 +234,25 @@ failed (retry >= 3)  → ABORT pipeline
 
 ## Environment Requirements
 
+### MCP Servers (Claude Code)
+
+These MCP servers are the **primary tools** for all pipeline operations. Pipelines should always use MCP tools before falling back to headless scripts.
+
+| MCP Server | Purpose | Required By | Config |
+|------------|---------|-------------|--------|
+| **comfyui-mcp** | AI generation (image, 3D, video, audio), workflow execution | All generation pipelines | `comfyui-mcp` in `.claude.json` |
+| **blender-mcp** | Live Blender control: rigging, animation, scene assembly, mesh ops, visual validation | All Blender-related pipelines (art-to-rig, character, animate, scene, asset-forge, fusion, skeuomorph) | `blender-mcp` in `.claude.json`, requires Blender open with addon on port 9876 |
+| **coplay-mcp** | Unity editor control, Meshy cloud 3D/rigging/animation | Unity integration pipelines | `coplay-mcp` in `.claude.json` |
+
+**Tool priority for Blender operations**: blender-mcp (`execute_blender_code`, `get_viewport_screenshot`) > coplay-mcp (Meshy cloud) > headless Blender (`--background --python`).
+
+### Local Services
+
 | Resource | Path/URL | Used By |
 |----------|----------|---------|
-| ComfyUI | `http://localhost:8188` | All generation pipelines |
-| Blender 5.0 | `C:/Program Files/Blender Foundation/Blender 5.0/blender.exe` | fusion, asset-forge, character |
-| UniRig | `C:/UniRig` | asset-forge, character (rigging) |
+| ComfyUI | `http://localhost:8188` | All generation pipelines (via comfyui-mcp) |
+| Blender 5.0 | `C:/Program Files/Blender Foundation/Blender 5.0/blender.exe` | All 3D pipelines (via blender-mcp primary, headless fallback) |
+| UniRig | `C:/UniRig` | autorig, asset-forge, character (ML skeleton + skin prediction) |
 | Ollama | `http://localhost:11434` | Prompt recommendation (optional) |
 | Python | System Python 3.13 (scripts), ComfyUI venv 3.11 (torch) | All |
 | GPU | RTX 3070 8GB | All generation (VRAM-constrained) |
@@ -252,6 +270,8 @@ failed (retry >= 3)  → ABORT pipeline
 | style-transfer-ralph | 8-10 GB | IP-Adapter + style models |
 | upscale-ralph | 4-6 GB | RealESRGAN |
 | inpaint-ralph | 8-10 GB | Flux inpainting |
+| autorig-ralph | 7-8 GB | UniRig skeleton + skin prediction (near VRAM limit, close ComfyUI first) |
+| skeuomorph-ralph | 8-16 GB | Hunyuan3D v2.5 PBR + SD1.5 ControlNet texturing (sequential, not concurrent) |
 
 **Constraint**: RTX 3070 has 8GB VRAM. Pipelines requiring >8GB will need model offloading or lighter alternatives. Back-pressure should prefer lower-VRAM options when queue is busy.
 

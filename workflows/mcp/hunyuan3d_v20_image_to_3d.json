@@ -9,14 +9,20 @@
   },
   "2": {
     "inputs": {
-      "image": ["1", 0]
+      "image": ["1", 0],
+      "width": 518,
+      "height": 518,
+      "interpolation": "lanczos",
+      "method": "stretch",
+      "condition": "always",
+      "multiple_of": 0
     },
     "class_type": "ImageResize+",
     "_meta": {"title": "Resize to 518x518"}
   },
   "3": {
     "inputs": {
-      "model": "hy3dgen/hunyuan3d-dit-v2-0-fp16.safetensors",
+      "model": "hunyuan3d-dit-v2-0-fp16.safetensors",
       "attention_mode": "sdpa"
     },
     "class_type": "Hy3DModelLoader",
@@ -38,8 +44,8 @@
   },
   "6": {
     "inputs": {
-      "base": "base",
-      "post_processing": true
+      "mode": "base",
+      "use_jit": true
     },
     "class_type": "TransparentBGSession+",
     "_meta": {"title": "Background Removal Session"}
@@ -102,6 +108,9 @@
     "inputs": {
       "destination": ["18", 0],
       "source": ["2", 0],
+      "x": 0,
+      "y": 0,
+      "resize_source": false,
       "mask": ["7", 1]
     },
     "class_type": "ImageCompositeMasked",
@@ -165,19 +174,21 @@
   },
   "18": {
     "inputs": {
-      "value": 0.8,
-      "width": 512,
-      "height": 512
+      "width": 518,
+      "height": 518,
+      "batch_size": 1,
+      "color": 13421772
     },
-    "class_type": "SolidMask",
-    "_meta": {"title": "Background Mask (for delight)"}
+    "class_type": "EmptyImage",
+    "_meta": {"title": "Gray Background Image (for delight)"}
   },
   "19": {
     "inputs": {
       "image": ["17", 0],
       "width": 2048,
       "height": 2048,
-      "method": "lanczos",
+      "interpolation": "lanczos",
+      "method": "stretch",
       "condition": "always",
       "multiple_of": 0
     },
@@ -207,7 +218,7 @@
       "texture": ["21", 0],
       "mask": ["21", 1],
       "inpaint_radius": 3,
-      "method": "ns"
+      "inpaint_method": "ns"
     },
     "class_type": "CV2InpaintTexture",
     "_meta": {"title": "CV2 Inpaint Texture"}

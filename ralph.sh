@@ -35,6 +35,7 @@ resolve_preset() {
     cleanup)         echo "$PIPELINES_DIR/cleanup-ralph/PROMPT.md" ;;
     hot-reload)      echo "$PIPELINES_DIR/hot-reload-ralph/PROMPT.md" ;;
     scene)           echo "$PIPELINES_DIR/scene-ralph/PROMPT.md" ;;
+    autorig)         echo "$PIPELINES_DIR/autorig-ralph/PROMPT.md" ;;
     *)               echo "" ;;
   esac
 }
@@ -59,6 +60,7 @@ resolve_promise() {
     cleanup)         echo "" ;;  # daemon — no completion
     hot-reload)      echo "" ;;  # daemon — no completion
     scene)           echo "SCENE COMPLETE" ;;
+    autorig)         echo "AUTORIG COMPLETE" ;;
     *)               echo "" ;;
   esac
 }
@@ -119,6 +121,7 @@ list_presets() {
   echo "    upscale         Batch upscale + multi-format export"
   echo "    inpaint         Self-correcting image refinement loop"
   echo "    scene           Text -> 3D rendered scene (comfyui-mcp + blender-mcp)"
+  echo "    autorig         ML auto-rigging: mesh -> skeleton -> weights -> IK -> export"
   echo ""
   echo "  Daemon pipelines:"
   echo "    validate        Continuous asset validation sweep"
