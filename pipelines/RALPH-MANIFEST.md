@@ -35,10 +35,10 @@ These run to completion. Each has a defined end state and outputs a `<promise>` 
 | Pipeline | Purpose | Stages | Completion Promise | Typical Runtime |
 |----------|---------|--------|--------------------|-----------------|
 | **animate-ralph** | Rigged 3D → game-ready animation clips via Blender | 6 | `ANIMATE COMPLETE` | 15-45 min |
-| **art-to-rig-ralph** | PRD → 2D art → 3D → rigged for Blender/Unity/Unreal (batch) | 8 | `ART TO RIG COMPLETE` | 20-60 min |
+| **art-to-rig-ralph** | PRD → 2D art → 3D → rigged for Blender/Unity/Unreal (batch), rigging via autorig-ralph | 8 | `ART TO RIG COMPLETE` | 20-60 min |
 | **fusion-ralph** | Text/CAD → 3D print-ready STL for Fusion 360 | 6 | `PIPELINE COMPLETE` | 5-15 min |
 | **asset-forge-ralph** | Text → rigged, animated 3D game asset | 6 | `ASSET FORGE COMPLETE` | 15-30 min |
-| **character-ralph** | Description → full character package (art + 3D) | 6 | `CHARACTER COMPLETE` | 20-40 min |
+| **character-ralph** | Description → full character package (art + 3D), rigging via autorig-ralph | 7 | `CHARACTER COMPLETE` | 20-40 min |
 | **video-ralph** | Script → keyframes → video → audio → composite | 5 | `VIDEO COMPLETE` | 30-60 min |
 | **audio-ralph** | Script → TTS → voice clone → SFX → mix | 5 | `AUDIO COMPLETE` | 10-20 min |
 | **tileset-ralph** | Spec → tiles → transitions → atlas → export | 5 | `TILESET COMPLETE` | 15-30 min |
@@ -146,17 +146,31 @@ Some pipelines can chain together or feed into each other:
 ┌──────────────┐    ┌──────────────┐    ┌──────────────┐
 │character-ralph│───▶│asset-forge-  │───▶│ fusion-ralph │
 │ (art + views) │    │ralph (3D)   │    │ (STL export) │
-└──────────────┘    └──────┬───────┘    └──────────────┘
-                           │ 3D model
-                           ▼
-                    ┌──────────────┐
-                    │ video-ralph  │ (animated scenes)
-                    └──────┬───────┘
-                           │ video clips
-                           ▼
-                    ┌──────────────┐
-                    │ audio-ralph  │ (dialogue + SFX)
-                    └──────────────┘
+└──────┬───────┘    └──────┬───────┘    └──────────────┘
+       │                   │ 3D model
+       │                   ▼
+       │            ┌──────────────┐
+       │            │ video-ralph  │ (animated scenes)
+       │            └──────┬───────┘
+       │                   │ video clips
+       │                   ▼
+       │            ┌──────────────┐
+       │            │ audio-ralph  │ (dialogue + SFX)
+       │            └──────────────┘
+       │
+       │  SUB-PIPELINE DELEGATION (rigging)
+       │
+       ▼            ┌──────────────────┐
+┌──────────────┐    │                  │    ┌──────────────────┐
+│autorig-ralph │◀───│ character-ralph  │───▶│kart-assembly-    │
+│ (ML rigging) │    │ (Stage 5 RIG)   │    │ralph (kart mount)│
+│              │◀───│                  │    └──────────────────┘
+│ UniRig >     │    │ art-to-rig-ralph │
+│ Rigify >     │    │ (Stage 6 RIG)   │
+│ Meshy >      │    │                  │
+│ autorig      │    └──────────────────┘
+│ 50 ref meshes│
+└──────────────┘
 
 ┌──────────────┐    ┌──────────────────┐
 │ tileset-ralph│───▶│style-transfer-   │ (apply consistent style)
@@ -173,6 +187,17 @@ Some pipelines can chain together or feed into each other:
 │ (QA sweep)   │ │ (TTL + dedup)│ │ (watch + rebuild)│
 └──────────────┘ └──────────────┘ └──────────────────┘
 ```
+
+### Sub-Pipeline Delegation
+
+**autorig-ralph** serves as the canonical rigging engine for the pipeline ecosystem. Other pipelines delegate their rigging stages to autorig-ralph via an `invocation.json` contract:
+
+| Caller Pipeline | Rigging Stage | Body Types | Output |
+|---|---|---|---|
+| **character-ralph** | Stage 5 (RIG) | humanoid only | split-mesh rigged GLB for kart-assembly |
+| **art-to-rig-ralph** | Stage 6 (RIG) | all types (humanoid, quadruped, creature, mech, serpentine) | rigged GLB with Blender bone names |
+
+autorig-ralph also runs standalone via `bash ralph.sh --preset autorig` for ad-hoc rigging tasks.
 
 ---
 

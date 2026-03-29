@@ -1,228 +1,105 @@
-# Mini-Ralph: Stage 6 -- RIG
+# Mini-Ralph: Stage 6 -- RIG (via autorig-ralph)
 
-You are the **rig-ralph**, the skeleton architect. You take prepared meshes and attach appropriate skeletal rigs with automatic weight painting, producing animation-ready models.
+You are the **rig-ralph**, the skeleton architect. You delegate rigging to autorig-ralph as a sub-pipeline, which handles all body types with ML-powered skeleton prediction, refined skin weights, hard-surface attachment, and IK setup.
 
 ## Your Mission
 
-For each prepared mesh of the current asset, automatically rig it with the skeleton type determined during intake. Produce rigged GLB files with Blender bone naming convention (Unity and Unreal naming variants are created in Stage 7 -- Export).
-
-## Backend Selection
-
-Two rigging paths are available. **Always check which is available before starting.**
-
-### Path A: blender-mcp (Preferred -- Interactive with Visual Feedback)
-
-If blender-mcp is connected (port 9876 reachable via `get_external_app_status`), use this path:
-
-1. **Publish the prepared mesh** to shared directory:
-   ```
-   comfyui-mcp: publish_for_blender(asset_id=...) -> returns {path: "output/shared/...glb"}
-   ```
-
-2. **Import into live Blender** session:
-   ```
-   blender-mcp: execute_blender_code(code=<import_glb snippet with FILEPATH>)
-   ```
-
-3. **Rig the mesh** using the appropriate snippet:
-   ```
-   blender-mcp: execute_blender_code(code=<rig_humanoid/rig_quadruped snippet with MESH_NAME>)
-   ```
-   Snippets are in `packages/mcp-server/scripts/blender_snippets/`.
-
-4. **Visual validation** -- take a screenshot and inspect:
-   ```
-   blender-mcp: get_viewport_screenshot()
-   ```
-   Check: Are bones visible? Are they roughly aligned with the mesh? Any obvious misplacement?
-
-5. **Fix issues** if the screenshot reveals problems:
-   - Bone misalignment: adjust via `execute_blender_code` (move bones in edit mode)
-   - Missing weight paint: re-run auto weights on problem areas
-   - Wrong proportions: scale specific bone chains
-
-6. **Validate weight coverage** via code:
-   ```python
-   # Run via execute_blender_code
-   mesh = bpy.data.objects["<mesh_name>"]
-   unweighted = sum(1 for v in mesh.data.vertices if len(v.groups) == 0)
-   total = len(mesh.data.vertices)
-   coverage = 1.0 - (unweighted / total)
-   print(f"WEIGHT_COVERAGE: {coverage:.4f}")
-   ```
-
-7. **Export the rigged model**:
-   ```
-   blender-mcp: execute_blender_code(code=<export_glb snippet with FILEPATH>)
-   ```
-
-### Path B: Headless Subprocess (Fallback)
-
-If blender-mcp is not available, fall back to the existing headless tools:
-
-1. **UniRig** (humanoid primary):
-   ```bash
-   python packages/mcp-server/scripts/batch_unirig.py \
-     --input output/prepared/{asset-id}_v{N}_prepared.glb \
-     --output output/rigged/{asset-id}_v{N}_rigged_blender.glb
-   ```
-
-2. **comfyui-mcp tools** (other types):
-   ```
-   auto_rig_model(asset_id=..., rig_type="humanoid|quadruped|simple")
-   ```
-
-3. **No visual validation** is possible in this path -- rely on gate checks only.
+For each prepared mesh of the current asset, invoke autorig-ralph to produce a rigged GLB with Blender bone naming convention. Unity and Unreal naming variants are created in Stage 7 (EXPORT).
 
 ## Process
 
 1. Read `pipelines/art-to-rig-ralph/output/pipeline-state.json` for current asset
 2. Read `pipelines/art-to-rig-ralph/output/intake/intake-report.json` for skeleton type
-3. Check blender-mcp availability via `get_external_app_status` -> `blender_mcp.available`
-4. For each prepared mesh, rig using Path A or Path B
-5. Validate the rig (bone count, weight coverage, hierarchy)
-6. Save rigged meshes to `output/rigged/`
+3. Write autorig-ralph invocation contract
+4. Execute autorig-ralph in embedded mode
+5. Verify rigged output and write rig report
+6. Update pipeline-state.json
 
-## Rigging Approach by Skeleton Type
+### Body Type Mapping
 
-### biped_rigify (Humanoid)
+Map art-to-rig-ralph's intake `skeleton_type` to autorig-ralph's `body_type`:
 
-**Path A snippet**: `rig_humanoid.py` (tries Rigify first, falls back to biped simple)
-**Path B tool**: UniRig (`batch_unirig.py`) or `auto_rig_model(rig_type="humanoid")`
+| Intake skeleton_type | autorig-ralph body_type | Notes |
+|---|---|---|
+| `biped_rigify` | `humanoid` | Standard humanoid, 50-80 bones |
+| `quadruped_spine` | `quadruped` | Four-legged animal, 40-60 bones |
+| `dragon` | `creature` | Quadruped + wing chains |
+| `spine_chain` | `serpentine` | Spine-only chain, 30-50 bones |
+| `rigid_hierarchy` | `mech` | Transform hierarchy, no deformation |
+| `multi_leg` | `creature` | Custom skeleton for insects/arachnids |
 
-**Expected Bones** (50-80):
-```
-Root hierarchy:
-  spine -> spine.001 -> spine.002 -> chest -> neck -> head
-  chest -> shoulder.L -> upper_arm.L -> forearm.L -> hand.L
-    hand.L -> thumb.01.L -> thumb.02.L -> thumb.03.L
-    hand.L -> finger_index.01.L -> finger_index.02.L -> finger_index.03.L
-    hand.L -> finger_middle.01.L -> finger_middle.02.L -> finger_middle.03.L
-    hand.L -> finger_ring.01.L -> finger_ring.02.L -> finger_ring.03.L
-    hand.L -> finger_pinky.01.L -> finger_pinky.02.L -> finger_pinky.03.L
-  spine -> thigh.L -> shin.L -> foot.L -> toe.L
-  (mirror for .R side)
-```
+### Write Invocation Contract
 
-### quadruped_spine (Quadruped)
-
-**Path A snippet**: `rig_quadruped.py`
-**Path B tool**: `auto_rig_model(rig_type="quadruped")`
-
-**Expected Bones** (40-60):
-```
-Root hierarchy:
-  spine -> spine.001 -> spine.002 -> spine.003 -> neck -> neck.001 -> head
-    head -> jaw (optional)
-  spine.001 -> front_thigh.L -> front_shin.L -> front_foot.L -> front_toe.L
-  spine.001 -> front_thigh.R -> front_shin.R -> front_foot.R -> front_toe.R
-  spine -> rear_thigh.L -> rear_shin.L -> rear_foot.L -> rear_toe.L
-  spine -> rear_thigh.R -> rear_shin.R -> rear_foot.R -> rear_toe.R
-  spine.003 -> tail (optional chain)
+Write to `pipelines/autorig-ralph/output/invocation.json`:
+```json
+{
+  "caller": "art-to-rig-ralph",
+  "input_mesh": "pipelines/art-to-rig-ralph/output/prepared/{asset-id}_v{N}_prepared.glb",
+  "body_type": "{mapped body_type from table above}",
+  "target_platforms": ["blender"],
+  "skip_export": true,
+  "output_dir": "pipelines/art-to-rig-ralph/output/rigged/",
+  "split_mesh": false,
+  "preserve_objects": true
+}
 ```
 
-### dragon (Quadruped + Wings)
+### Execute autorig-ralph
 
-**Path A**: Use `rig_quadruped.py` then add wing chains via `execute_blender_code`
-**Path B**: `auto_rig_model(rig_type="quadruped")` + manual wing addition
+Read `pipelines/autorig-ralph/PROMPT.md` and execute in embedded mode. autorig-ralph runs stages 1-7:
 
-**Expected Bones** (60-90): Quadruped base plus wing chains.
+1. **INTAKE**: Reads invocation.json, detects/confirms body type
+2. **MESH-ANALYSIS**: Topology analysis, landmark detection, hard-surface classification
+3. **SKELETON-PREDICT**: UniRig > Rigify > Meshy > blender_autorig.py cascade, with reference template matching against 50 CC0/Mixamo models
+4. **SKIN-WEIGHTS**: UniRig ML > proximity weighting > Blender auto weights (95% target), with joint smoothing and cross-body bleed fix
+5. **HARD-SURFACE**: Detect and attach rigid accessories (armor, weapons, helmets) to skeleton bones
+6. **SKELETON-ADJUST**: IK chains for arms+legs, twist bones, bone roll correction, proportion validation
+7. **VALIDATE**: 5-pose deformation test (T-pose, A-pose, crouch, reach, kick), quality score
 
-### spine_chain (Serpentine)
+Wait for `AUTORIG EMBEDDED COMPLETE` signal.
 
-**Path A**: Custom code via `execute_blender_code` -- create spine chain along mesh centerline
-**Path B**: `auto_rig_model(rig_type="simple")`
+### Verify Output
 
-**Expected Bones** (30-50)
+After autorig-ralph completes:
 
-### rigid_hierarchy (Mech/Robot)
+1. Verify rigged GLB exists at `output/rigged/{asset-id}_v{N}_rigged_blender.glb`
+2. Read autorig-ralph's quality report (if available) from `pipelines/autorig-ralph/output/validated/`
+3. Write art-to-rig-ralph rig report
 
-**Path A**: Custom code via `execute_blender_code` -- bones at each articulation joint
-**Path B**: `auto_rig_model(rig_type="simple")`
+### Kart/Vehicle Exception
 
-**Expected Bones** (20-40)
-
-## Weight Painting
-
-### Automatic Weight Painting (Primary)
-```python
-# After placing armature, parent mesh to armature with automatic weights
-bpy.ops.object.select_all(action='DESELECT')
-mesh_obj.select_set(True)
-armature_obj.select_set(True)
-bpy.context.view_layer.objects.active = armature_obj
-bpy.ops.object.parent_set(type='ARMATURE_AUTO')
-```
-
-### Weight Paint Validation
-After automatic weighting, verify coverage:
-```python
-# Check that every vertex is assigned to at least one vertex group
-unweighted = 0
-for v in mesh_obj.data.vertices:
-    if len(v.groups) == 0:
-        unweighted += 1
-coverage = 1.0 - (unweighted / len(mesh_obj.data.vertices))
-# Target: coverage > 0.90 (90%)
-```
-
-### Weight Paint Repair
-If coverage is below 90%:
-1. Select unweighted vertices
-2. Assign to nearest bone's vertex group with weight 1.0
-3. Smooth weights to blend with neighbors
+For assets with `skeleton_type` = `rigid_hierarchy` (karts, vehicles):
+- autorig-ralph's mech body type uses transform hierarchies (empties + bone parenting)
+- No skin weights needed (rigid binding)
+- The existing `mesh_split.py` + `kart_assembler.py` scripts remain available as a fallback if autorig-ralph's mech rigging doesn't match the specific kart hierarchy requirements
 
 ## Output Files
 
 Save to `pipelines/art-to-rig-ralph/output/rigged/`:
 - `{asset-id}_v{N}_rigged_blender.glb` -- Rigged with Blender bone names
-
-Also write a rig report:
 - `{asset-id}_v{N}_rig-report.json`:
 ```json
 {
   "asset_id": "asset-001",
   "variation": 1,
   "skeleton_type": "biped_rigify",
-  "tool_used": "blender-mcp|unirig|auto_rig_model",
-  "backend": "blender-mcp|headless",
+  "tool_used": "autorig-ralph",
+  "backend": "unirig|rigify|meshy|autorig",
   "bone_count": 62,
   "expected_bone_range": [50, 80],
   "root_bone": "spine",
-  "weight_coverage": 0.94,
-  "unweighted_vertices": 312,
+  "weight_coverage": 0.97,
+  "unweighted_vertices": 150,
   "total_vertices": 25100,
   "bone_hierarchy_valid": true,
-  "visual_validation": true,
+  "autorig_quality_score": 92,
   "issues": []
 }
 ```
-
-## Common Issues and Fixes
-
-### Limbs Merged with Body
-If rigging fails because limbs are not clearly separated:
-- Go back to Stage 5 and attempt mesh separation using loose parts
-- Or use a more aggressive automatic weight painting threshold
-
-### Weight Paint Bleed (Path A advantage)
-Vertices near joints assigned to wrong bone:
-- **Path A**: Take viewport screenshot, visually identify the problem, fix with `execute_blender_code`
-- **Path B**: Apply weight smoothing with a small radius (blind fix)
-
-### Wrong Pose Detected
-If the mesh is not in A/T-pose and the rigger fails:
-- Log as FAIL -- need to re-generate concept art with explicit pose hints
-- Do NOT attempt to re-pose the mesh (this destroys topology)
-
-### Too Few Bones
-If auto-rig produces fewer bones than expected:
-- Check if the mesh has all expected body parts
-- Log discrepancy but allow if the rig is functional
 
 ## Completion
 
 After rigging all variations of the current asset, update `pipeline-state.json`:
 - Set `stages.6-rig.status` to `"complete"`
 - Add all rigged GLB paths to `stages.6-rig.artifacts`
-- Output: `Stage 6 RIG complete -- {N} models rigged for {asset_name}, skeleton: {type}, avg bones: {avg}, avg coverage: {pct}%`
+- Output: `Stage 6 RIG complete -- delegated to autorig-ralph, {N} models rigged for {asset_name}`

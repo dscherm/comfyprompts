@@ -182,8 +182,75 @@ All output artifacts go to `pipelines/autorig-ralph/output/`:
 - Loop-specific memories go to `pipelines/autorig-ralph/memories.md`
 - The main Ralph orchestrator invokes via: `bash ralph.sh --preset autorig`
 
+## Embedded Mode (Sub-Pipeline Invocation)
+
+autorig-ralph can run as a **sub-pipeline** invoked by other pipelines (character-ralph, art-to-rig-ralph). In embedded mode, autorig-ralph reads its configuration from an invocation contract instead of user input.
+
+### Invocation Contract
+
+When another pipeline needs auto-rigging, it writes `pipelines/autorig-ralph/output/invocation.json`:
+```json
+{
+  "caller": "character-ralph|art-to-rig-ralph",
+  "input_mesh": "/absolute/path/to/mesh.glb",
+  "body_type": "humanoid|quadruped|creature|mech|serpentine|auto",
+  "target_platforms": ["blender"],
+  "skip_export": true,
+  "output_dir": "/absolute/path/to/caller/output/rigged/",
+  "split_mesh": false,
+  "preserve_objects": true
+}
+```
+
+### Contract Fields
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `caller` | string | Which pipeline invoked autorig-ralph |
+| `input_mesh` | string | Absolute path to the mesh GLB to rig |
+| `body_type` | string | Body type hint (`auto` for auto-detection) |
+| `target_platforms` | array | Which platforms to export for (if skip_export=false) |
+| `skip_export` | bool | If true, run stages 1-7 only (skip Stage 8 export) |
+| `output_dir` | string | Where to write the final rigged GLB |
+| `split_mesh` | bool | If true, preserve split-mesh body-region objects |
+| `preserve_objects` | bool | If true, keep caller's mesh object structure intact |
+
+### Embedded Mode Behavior
+
+1. **Detection**: If `pipelines/autorig-ralph/output/invocation.json` exists at the start of Stage 1, enter embedded mode
+2. **Stage 1 INTAKE**: Reads `input_mesh` and `body_type` from the contract instead of user input. If `body_type` is `auto`, run normal auto-detection
+3. **Stages 2-7**: Run normally with the contract's input mesh
+4. **Stage 8 EXPORT**:
+   - If `skip_export` is true, skip Stage 8 entirely
+   - If false, export to `output_dir` with specified `target_platforms`
+5. **Output location**: Copy the validated rigged GLB to `output_dir` (in addition to autorig-ralph's own `output/` directory)
+6. **Completion signal**: Emit `<promise>AUTORIG EMBEDDED COMPLETE</promise>` instead of `AUTORIG COMPLETE`
+7. **Cleanup**: Delete `invocation.json` after completion to prevent accidental re-trigger
+
+### Standalone Mode (Default)
+
+When `invocation.json` does NOT exist, autorig-ralph runs in standalone mode exactly as described above. The user provides input mesh paths directly. Completion signal: `<promise>AUTORIG COMPLETE</promise>`.
+
+### Body Type Mapping (Caller Conventions)
+
+Callers may use different body type names. Map to autorig-ralph types:
+
+| Caller Value | autorig-ralph Type |
+|---|---|
+| `biped_rigify` | `humanoid` |
+| `quadruped_spine` | `quadruped` |
+| `dragon` | `creature` |
+| `spine_chain` | `serpentine` |
+| `rigid_hierarchy` | `mech` |
+| `humanoid` | `humanoid` |
+| `quadruped` | `quadruped` |
+| `creature` | `creature` |
+| `mech` | `mech` |
+| `serpentine` | `serpentine` |
+
 ## Completion
 
 When all assets are complete and all gates pass:
 1. Write `output/final/BATCH-MANIFEST.md` with full asset inventory
-2. Output `<promise>AUTORIG COMPLETE</promise>`
+2. If embedded mode: output `<promise>AUTORIG EMBEDDED COMPLETE</promise>`
+3. If standalone mode: output `<promise>AUTORIG COMPLETE</promise>`
