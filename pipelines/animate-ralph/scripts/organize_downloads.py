@@ -48,7 +48,9 @@ CATEGORY_KEYWORDS = {
         "drStrange", "forceLevitation", "magicSnap",
     ],
     "driving": [
-        "drive", "steer", "brake", "seated", "vehicle",
+        "drive", "steer", "brake", "seated", "vehicle", "sitting",
+        "sitdown", "laptop", "sittingtalking", "carcrash", "leaning",
+        "playingcards", "carosel",
     ],
 }
 
