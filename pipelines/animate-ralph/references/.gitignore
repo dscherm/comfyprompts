@@ -1,0 +1,9 @@
+# Animation references are large binary files - download via scripts/download_animation_refs.py
+# Keep small files that are already in the repo
+*.fbx
+*.blend
+
+# Keep existing small GLB/BVH references
+!humanoid/quaternius_ual1.glb
+!humanoid/locomotion/*.glb
+!mocap_raw/cmu_bvh/*.bvh

@@ -199,6 +199,12 @@ Some pipelines can chain together or feed into each other:
 
 autorig-ralph also runs standalone via `bash ralph.sh --preset autorig` for ad-hoc rigging tasks.
 
+### Pipeline Chaining (autorig → animate)
+
+autorig-ralph can chain to animate-ralph after rigging completes. When `chain_to_animate: true` is set in the invocation contract, autorig-ralph writes a `rig-handoff.json` to animate-ralph's intake directory, passing skeleton details (IK chains, twist bones, reference template, quality score). animate-ralph uses this to select and retarget reference animations from its own library (Mixamo, Quaternius, CMU mocap -- 2,700+ reference animations).
+
+Chain usage: `bash ralph.sh --chain autorig animate`
+
 ---
 
 ## How to Run a Pipeline

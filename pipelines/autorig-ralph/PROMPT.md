@@ -248,9 +248,32 @@ Callers may use different body type names. Map to autorig-ralph types:
 | `mech` | `mech` |
 | `serpentine` | `serpentine` |
 
+## Pipeline Chaining (autorig → animate)
+
+autorig-ralph's rigged output is the ideal input for animate-ralph. The invocation contract supports chaining:
+
+```json
+{
+  "chain_to_animate": true,
+  "animation_spec": "path/to/animation-spec.json"
+}
+```
+
+When `chain_to_animate` is true, after autorig-ralph completes:
+1. Write a rig handoff file to `pipelines/animate-ralph/output/intake/rig-handoff.json` containing:
+   - Path to rigged GLB
+   - Bone count, hierarchy type, IK chain info
+   - autorig-ralph quality score
+   - Body type and skeleton type
+2. If `animation_spec` is provided, copy it to `pipelines/animate-ralph/output/intake/animation-spec.json`
+3. Signal: `<promise>AUTORIG COMPLETE -- CHAIN TO ANIMATE</promise>`
+
+animate-ralph Stage 1 (INTAKE) reads `rig-handoff.json` to understand the skeleton before planning animation clips.
+
 ## Completion
 
 When all assets are complete and all gates pass:
 1. Write `output/final/BATCH-MANIFEST.md` with full asset inventory
 2. If embedded mode: output `<promise>AUTORIG EMBEDDED COMPLETE</promise>`
-3. If standalone mode: output `<promise>AUTORIG COMPLETE</promise>`
+3. If standalone mode with chain: output `<promise>AUTORIG COMPLETE -- CHAIN TO ANIMATE</promise>`
+4. If standalone mode without chain: output `<promise>AUTORIG COMPLETE</promise>`
