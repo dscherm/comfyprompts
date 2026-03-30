@@ -1,7 +1,13 @@
 """
 Apply driving pose to a UniRig-skinned character.
-Auto-detects bone roles by analyzing skeleton hierarchy and positions.
-Uses IK for arms (UniRig bone axes are arbitrary) and Euler for legs/spine.
+
+Strategy: Rename UniRig's generic bone_XX names to standard Blender names,
+then apply the proven kart-assembly Euler rotation approach.
+
+The kart-assembly-ralph script (assemble_driver_kart.py) uses simple Euler
+rotations with standard bone names and works correctly. The issue was never
+about bone local axes -- it was that UniRig's bone_XX names don't match
+what posing scripts expect.
 
 Usage:
     blender --background --python apply_driving_pose.py -- input.fbx output.glb
@@ -25,190 +31,149 @@ if len(argv) < 2:
 
 input_path = argv[0]
 output_path = argv[1]
-# Optional: skip mesh bake (export with pose but don't flatten mesh)
-no_bake = "--no-bake" in sys.argv
 
 
-def auto_detect_bones(armature):
-    """Auto-detect bone roles by analyzing hierarchy and world-space positions."""
+def auto_detect_and_rename(armature):
+    """Auto-detect bone roles and rename to standard Blender names."""
     bones = armature.data.bones
     roles = {}
 
-    # Find root (no parent)
+    # Find root
     root = [b for b in bones if b.parent is None]
     if not root:
-        return roles
+        return {}
     roles["root"] = root[0].name
 
-    # Build position map
-    bone_z = {}
-    for b in bones:
-        head = armature.matrix_world @ b.head_local
-        bone_z[b.name] = head.z
+    # Build spine chain (going UP in Z)
+    spine_chain = [root[0]]
+    current = root[0]
+    while True:
+        up = sorted(
+            [c for c in current.children
+             if (armature.matrix_world @ c.head_local).z >
+                (armature.matrix_world @ current.head_local).z],
+            key=lambda c: (armature.matrix_world @ c.head_local).z,
+            reverse=True)
+        if not up:
+            break
+        spine_chain.append(up[0])
+        current = up[0]
 
-    # Find spine chain: root -> children going UP (increasing Z)
-    def find_chain_up(start_bone):
-        chain = [start_bone]
-        current = start_bone
-        while True:
-            up_children = [c for c in current.children
-                          if (armature.matrix_world @ c.head_local).z > (armature.matrix_world @ current.head_local).z]
-            if not up_children:
-                break
-            # Pick the child that goes most straight up
-            best = max(up_children, key=lambda c: (armature.matrix_world @ c.head_local).z)
-            chain.append(best)
-            current = best
-        return chain
+    spine_names = set(b.name for b in spine_chain)
 
-    # Find leg chains: root children going DOWN (decreasing Z)
-    def find_legs_from(parent_bone):
-        """Find leg chains from a parent bone."""
-        legs = []
-        for child in parent_bone.children:
-            child_head = armature.matrix_world @ child.head_local
-            # Leg connector bones are at roughly same Z as parent
-            # Their children go DOWN
-            down_chain = []
-            current = child
-            while current:
-                down_chain.append(current)
-                down_children = [c for c in current.children
-                               if (armature.matrix_world @ c.head_local).z < (armature.matrix_world @ current.head_local).z - 0.05]
-                if down_children:
-                    current = down_children[0]
+    # Find legs (children of spine bones that go DOWN, excluding spine itself)
+    for sp in spine_chain[:3]:
+        for child in sp.children:
+            if child.name in spine_names:
+                continue
+            chain = [child]
+            cur = child
+            while True:
+                down = [c for c in cur.children
+                        if (armature.matrix_world @ c.head_local).z <
+                           (armature.matrix_world @ cur.head_local).z - 0.05]
+                if down:
+                    chain.append(down[0])
+                    cur = down[0]
                 else:
                     break
-            if len(down_chain) >= 3:  # hip + thigh + shin minimum
+            if len(chain) >= 3:
                 x = (armature.matrix_world @ child.head_local).x
                 side = "R" if x > 0 else "L"
-                legs.append((side, down_chain))
-        return legs
-
-    # Spine chain from root
-    root_bone = root[0]
-    spine_chain = find_chain_up(root_bone)
-
-    # The first spine bone with multiple children that go UP is the chest/branch point
-    spine_bone = spine_chain[0] if spine_chain else root_bone
-
-    # Find legs -- search all spine chain bones for children that go DOWN
-    # But EXCLUDE children that are part of the spine chain itself
-    spine_names = set(b.name for b in spine_chain)
-    legs = []
-    for sp_bone in spine_chain[:3]:  # check root, spine1, spine2
-        for child in sp_bone.children:
-            if child.name in spine_names:
-                continue  # skip spine continuation
-            child_head = armature.matrix_world @ child.head_local
-            # Leg candidates: children whose own children go DOWN
-            down_chain = [child]
-            current = child
-            while current:
-                down_children = [c for c in current.children
-                               if (armature.matrix_world @ c.head_local).z < (armature.matrix_world @ current.head_local).z - 0.05]
-                if down_children:
-                    current = down_children[0]
-                    down_chain.append(current)
-                else:
-                    break
-            if len(down_chain) >= 3:  # hip connector + thigh + shin minimum
-                x = child_head.x
-                side = "R" if x > 0 else "L"
-                legs.append((side, down_chain))
-    # Deduplicate by side
-    seen_sides = set()
-    unique_legs = []
-    for side, chain in legs:
-        if side not in seen_sides:
-            seen_sides.add(side)
-            unique_legs.append((side, chain))
-    legs = unique_legs
+                if f"hip_{side}" not in roles:
+                    for i, label in enumerate(["hip", "upperleg", "lowerleg", "foot"]):
+                        if i < len(chain):
+                            roles[f"{label}_{side}"] = chain[i].name
 
     # Assign spine roles
-    if len(spine_chain) >= 2:
-        roles["spine_low"] = spine_chain[1].name
-    if len(spine_chain) >= 3:
-        roles["spine_mid"] = spine_chain[2].name
-    if len(spine_chain) >= 4:
-        # Find head vs arms -- head is the one that keeps going up with no wide branching
-        chest = spine_chain[3]
-        roles["chest"] = chest.name
+    if len(spine_chain) >= 2: roles["spine"] = spine_chain[1].name
+    if len(spine_chain) >= 3: roles["chest"] = spine_chain[2].name
 
-        # From chest, find the child highest up = head chain
-        # Children going sideways = arm chains
-        for child in chest.children:
-            child_head = armature.matrix_world @ child.head_local
-            chest_head = armature.matrix_world @ chest.head_local
-            if child_head.z > chest_head.z + 0.05:
-                # Goes up -- probably head or neck
-                roles["neck"] = child.name
-                head_children = [c for c in child.children if
-                                (armature.matrix_world @ c.head_local).z > child_head.z]
-                if head_children:
-                    roles["head"] = head_children[0].name
+    # Find head and arms from the highest spine bone with multiple children
+    for sp_bone in reversed(spine_chain[2:]):
+        if len(sp_bone.children) >= 2:
+            for child in sp_bone.children:
+                if child.name in spine_names:
+                    continue
+                ch = armature.matrix_world @ child.head_local
+                sp_h = armature.matrix_world @ sp_bone.head_local
+                # Goes up = neck/head
+                if ch.z > sp_h.z + 0.02 and abs(ch.x) < 0.1:
+                    if "neck" not in roles:
+                        roles["neck"] = child.name
+                        for gc in child.children:
+                            if (armature.matrix_world @ gc.head_local).z > ch.z:
+                                roles["head"] = gc.name
+                # Goes sideways = arm
+                elif abs(ch.x - sp_h.x) > 0.02:
+                    side = "R" if ch.x > sp_h.x else "L"
+                    if f"shoulder_{side}" not in roles:
+                        roles[f"shoulder_{side}"] = child.name
+                        arm_chain = []
+                        cur = child
+                        for _ in range(5):
+                            if cur.children:
+                                best = max(cur.children, key=lambda c: len(c.children))
+                                arm_chain.append(best)
+                                cur = best
+                            else:
+                                break
+                        if len(arm_chain) >= 1:
+                            roles[f"upperarm_{side}"] = arm_chain[0].name
+                        if len(arm_chain) >= 2:
+                            roles[f"lowerarm_{side}"] = arm_chain[1].name
+                        if len(arm_chain) >= 3:
+                            roles[f"hand_{side}"] = arm_chain[2].name
+            break  # only process the first branching spine bone
 
-    # Assign leg roles
-    for side, chain in legs:
-        if len(chain) >= 1:
-            roles[f"hip_{side}"] = chain[0].name
-        if len(chain) >= 2:
-            roles[f"thigh_{side}"] = chain[1].name
-        if len(chain) >= 3:
-            roles[f"shin_{side}"] = chain[2].name
-        if len(chain) >= 4:
-            roles[f"foot_{side}"] = chain[3].name
+    # Now rename bones in edit mode
+    bpy.context.view_layer.objects.active = armature
+    armature.select_set(True)
+    bpy.ops.object.mode_set(mode='EDIT')
 
-    # Find hands (deepest bones in arm chains from chest)
-    # Arms branch from chest and go sideways (large X displacement)
-    if "chest" in roles:
-        chest_bone = bones[roles["chest"]]
-        # Also check head: find highest child from chest
-        for child in chest_bone.children:
-            child_head = armature.matrix_world @ child.head_local
-            chest_head = armature.matrix_world @ chest_bone.head_local
-            if child_head.z > chest_head.z + 0.02 and abs(child_head.x) < 0.05:
-                # Goes straight up, near center = head/neck
-                if "neck" not in roles:
-                    roles["neck"] = child.name
-                    for gc in child.children:
-                        gc_head = armature.matrix_world @ gc.head_local
-                        if gc_head.z > child_head.z:
-                            roles["head"] = gc.name
+    rename_map = {
+        "root": "hips",
+        "spine": "spine",
+        "chest": "chest",
+        "neck": "neck",
+        "head": "head",
+    }
 
-        for child in chest_bone.children:
-            child_head = armature.matrix_world @ child.head_local
-            chest_head = armature.matrix_world @ chest_bone.head_local
-            # Arm: goes sideways (X changes significantly)
-            if abs(child_head.x - chest_head.x) > 0.02:
-                side = "R" if child_head.x > chest_head.x else "L"
-                # Walk down to find the hand (3rd bone in arm chain typically)
-                arm_chain = [child]
-                current = child
-                for _ in range(10):
-                    if current.children:
-                        # Pick child with most children (hand has fingers)
-                        best = max(current.children, key=lambda c: len(c.children))
-                        arm_chain.append(best)
-                        current = best
-                    else:
-                        break
-                # Hand is typically the bone with 4-5 finger children
-                for b in arm_chain:
-                    if len(b.children) >= 3:
-                        roles[f"hand_{side}"] = b.name
-                        break
-                if f"hand_{side}" not in roles and len(arm_chain) >= 3:
-                    roles[f"hand_{side}"] = arm_chain[2].name
+    for side_label, side_suffix in [("R", ".r"), ("L", ".l")]:
+        rename_map[f"hip_{side_label}"] = f"hip_connector{side_suffix}"
+        rename_map[f"upperleg_{side_label}"] = f"upperleg{side_suffix}"
+        rename_map[f"lowerleg_{side_label}"] = f"lowerleg{side_suffix}"
+        rename_map[f"foot_{side_label}"] = f"foot{side_suffix}"
+        rename_map[f"shoulder_{side_label}"] = f"shoulder{side_suffix}"
+        rename_map[f"upperarm_{side_label}"] = f"upperarm{side_suffix}"
+        rename_map[f"lowerarm_{side_label}"] = f"lowerarm{side_suffix}"
+        rename_map[f"hand_{side_label}"] = f"hand{side_suffix}"
 
-    return roles
+    renamed = {}
+    for role, old_name in roles.items():
+        new_name = rename_map.get(role)
+        if new_name and old_name in armature.data.edit_bones:
+            eb = armature.data.edit_bones[old_name]
+            eb.name = new_name
+            renamed[role] = (old_name, new_name)
+
+    bpy.ops.object.mode_set(mode='OBJECT')
+
+    # Also rename vertex groups on the mesh to match
+    for obj in bpy.data.objects:
+        if obj.type == 'MESH' and obj.parent == armature:
+            for role, (old_name, new_name) in renamed.items():
+                vg = obj.vertex_groups.get(old_name)
+                if vg:
+                    vg.name = new_name
+
+    return renamed
 
 
 def main():
     print(f"Input:  {input_path}")
     print(f"Output: {output_path}")
 
-    # Clear and import
     bpy.ops.object.select_all(action='SELECT')
     bpy.ops.object.delete()
     bpy.ops.import_scene.fbx(filepath=input_path)
@@ -218,290 +183,106 @@ def main():
         if obj.type == 'ARMATURE':
             armature = obj
             break
-
     if not armature:
-        print("ERROR: No armature found")
+        print("ERROR: No armature")
         return
 
-    print(f"Armature: {armature.name}, {len(armature.data.bones)} bones")
+    print(f"Armature: {len(armature.data.bones)} bones")
 
-    # Auto-detect bone roles
-    roles = auto_detect_bones(armature)
-    print("\n=== Auto-detected bone roles ===")
-    for role, name in sorted(roles.items()):
-        print(f"  {role:15s} -> {name}")
+    # Step 1: Auto-detect and rename bones
+    print("\n=== Renaming bones ===")
+    renamed = auto_detect_and_rename(armature)
+    for role, (old, new) in sorted(renamed.items()):
+        print(f"  {old:10s} -> {new:20s} ({role})")
 
-    # Enter pose mode
+    # Step 2: Apply driving pose using the kart-assembly approach
+    # (proven to work with standard bone names + simple Euler rotation)
+    print("\n=== Applying driving pose ===")
     bpy.context.view_layer.objects.active = armature
     armature.select_set(True)
     bpy.ops.object.mode_set(mode='POSE')
 
-    # === ALL LIMBS USE IK (UniRig bone axes are arbitrary) ===
-    # Euler rotation does NOT work reliably on UniRig skeletons --
-    # bone local axes are based on ML prediction, not standard conventions.
-    # IK with world-space targets is the only reliable posing method.
-
-    print("\n=== Creating IK targets (all limbs) ===")
-    bpy.ops.object.mode_set(mode='OBJECT')
-
-    # Get mesh bounding box for proportional positioning
-    mesh_obj_tmp = None
-    for obj in bpy.data.objects:
-        if obj.type == 'MESH' and obj.parent == armature:
-            mesh_obj_tmp = obj
-            break
-
-    # Compute IK targets from ACTUAL bone rest positions (not mesh bounding box)
-    # This ensures targets are proportional to the specific skeleton
-    bones = armature.data.bones
-
-    def bone_head(name):
-        b = bones.get(name)
-        return armature.matrix_world @ b.head_local if b else Vector((0, 0, 0))
-
-    def bone_tail(name):
-        b = bones.get(name)
-        return armature.matrix_world @ b.tail_local if b else Vector((0, 0, 0))
-
-    # Get actual thigh positions for each leg
-    thigh_r = roles.get("thigh_R", "")
-    thigh_l = roles.get("thigh_L", "")
-    foot_r = roles.get("foot_R", "")
-    foot_l = roles.get("foot_L", "")
-
-    # For 90-degree seated driving pose:
-    # - Thighs horizontal (pointing forward from hip)
-    # - Shins vertical (hanging down from knees)
-    # - Feet directly below knees at pedal level
-    #
-    # Target placement:
-    #   knee position = thigh_head + forward * thigh_length
-    #   foot position = knee + down * shin_length
-
-    def compute_foot_target(side):
-        hip_name = roles.get(f"hip_{side}")
-        thigh_name = roles.get(f"thigh_{side}")
-        shin_name = roles.get(f"shin_{side}")
-        foot_name = roles.get(f"foot_{side}")
-        if not thigh_name:
-            x = 0.2 if side == "R" else -0.2
-            return Vector((x, -0.4, -0.4))
-
-        # Use hip connector head as the seat point (where the leg originates)
-        hip_head = bone_head(hip_name) if hip_name else bone_head(thigh_name)
-        thigh_len = (bone_tail(thigh_name) - bone_head(thigh_name)).length
-        shin_len = (bone_tail(shin_name) - bone_head(shin_name)).length if shin_name else thigh_len * 0.8
-
-        # 90-degree seated pose:
-        # The thigh goes FORWARD from hip (in -Y direction, same Z as hip)
-        # The shin hangs DOWN from the knee (same X,Y as knee, lower Z)
-        #
-        # Hip connector bone goes straight down in rest pose.
-        # For seated: rotate hip so thigh points forward.
-        # Foot target = hip position + forward(thigh_len) + down(shin_len)
-
-        foot_x = hip_head.x                    # same X as hip (no crossing)
-        foot_y = hip_head.y - shin_len * 0.8    # forward (gentle, not extreme)
-        foot_z = hip_head.z - thigh_len         # down by full thigh length (shin hangs vertical)
-
-        print(f"  {side}: hip=({hip_head.x:.3f},{hip_head.y:.3f},{hip_head.z:.3f})"
-              f" thigh={thigh_len:.3f} shin={shin_len:.3f}")
-        print(f"  {side}: foot target=({foot_x:.3f},{foot_y:.3f},{foot_z:.3f})")
-
-        return Vector((foot_x, foot_y, foot_z))
-
-    ik_foot_r = compute_foot_target("R")
-    ik_foot_l = compute_foot_target("L")
-
-    # Hands: forward at chest height, shoulder width apart
-    hand_r_bone = roles.get("hand_R", "")
-    hand_l_bone = roles.get("hand_L", "")
-    chest_name = roles.get("chest", "")
-
-    if chest_name:
-        chest_pos = bone_head(chest_name)
-        thigh_r_name = roles.get("thigh_R", "")
-        hand_spread = abs(bone_head(thigh_r_name).x) * 1.2 if thigh_r_name else 0.15
-        # Hands at chest height but forward -- NOT at knee level
-        hand_z = chest_pos.z * 0.7  # below chest but well above knees
-        ik_hand_r = Vector((hand_spread, chest_pos.y - 0.35, hand_z))
-        ik_hand_l = Vector((-hand_spread, chest_pos.y - 0.35, hand_z))
-    else:
-        ik_hand_r = Vector((0.15, -0.6, 0.14))
-        ik_hand_l = Vector((-0.15, -0.6, 0.14))
-
-    ik_positions = {
-        "IK_Foot_R": ik_foot_r,
-        "IK_Foot_L": ik_foot_l,
-        "IK_Hand_R": ik_hand_r,
-        "IK_Hand_L": ik_hand_l,
-    }
-
-    targets = {}
-    for name, pos in ik_positions.items():
-        bpy.ops.object.empty_add(type='PLAIN_AXES', radius=0.02, location=pos)
-        targets[name] = bpy.context.active_object
-        targets[name].name = name
-        print(f"  {name} at ({pos.x:.3f}, {pos.y:.3f}, {pos.z:.3f})")
-
-    # Apply IK constraints
-    bpy.context.view_layer.objects.active = armature
-    armature.select_set(True)
-    bpy.ops.object.mode_set(mode='POSE')
-
-    # Legs IK
-    print("\n=== Legs (IK) ===")
-    foot_r_name = roles.get("foot_R")
-    foot_l_name = roles.get("foot_L")
-
-    # Create knee pole targets (force knees to point FORWARD, not outward)
-    bpy.ops.object.mode_set(mode='OBJECT')
-    for side, foot_target in [("R", ik_foot_r), ("L", ik_foot_l)]:
-        hip_name = roles.get(f"hip_{side}")
-        if hip_name:
-            hip_pos = bone_head(hip_name)
-            # Pole target: in front of knee, at knee height
-            pole_pos = Vector((hip_pos.x, hip_pos.y - 1.0, (hip_pos.z + foot_target.z) / 2))
-            bpy.ops.object.empty_add(type='PLAIN_AXES', radius=0.02, location=pole_pos)
-            pole = bpy.context.active_object
-            pole.name = f"Pole_Knee_{side}"
-            targets[f"Pole_Knee_{side}"] = pole
-            print(f"  Pole_Knee_{side} at ({pole_pos.x:.3f}, {pole_pos.y:.3f}, {pole_pos.z:.3f})")
-
-    bpy.context.view_layer.objects.active = armature
-    armature.select_set(True)
-    bpy.ops.object.mode_set(mode='POSE')
-
-    for foot_name, target_name, side in [(foot_r_name, "IK_Foot_R", "R"), (foot_l_name, "IK_Foot_L", "L")]:
-        if foot_name:
-            pb = armature.pose.bones.get(foot_name)
-            if pb:
-                ik = pb.constraints.new(type='IK')
-                ik.target = targets[target_name]
-                ik.chain_count = 4  # foot -> shin -> thigh -> hip_connector
-                ik.iterations = 200
-                # Add pole target to force knees forward
-                pole_name = f"Pole_Knee_{side}"
-                if pole_name in targets:
-                    ik.pole_target = targets[pole_name]
-                    ik.pole_angle = 0
-                print(f"  IK on {foot_name} -> {target_name} (chain=4, pole={pole_name})")
-
-    # Arms IK
-    print("\n=== Arms (IK) ===")
-    hand_r_name = roles.get("hand_R")
-    hand_l_name = roles.get("hand_L")
-
-    for hand_name, target_name in [(hand_r_name, "IK_Hand_R"), (hand_l_name, "IK_Hand_L")]:
-        if hand_name:
-            pb = armature.pose.bones.get(hand_name)
-            if pb:
-                ik = pb.constraints.new(type='IK')
-                ik.target = targets[target_name]
-                ik.chain_count = 3  # hand -> forearm -> upper_arm
-                ik.iterations = 200
-                print(f"  IK on {hand_name} -> {target_name} (chain=3)")
-
-    # Spine still uses Euler (spine bones are roughly Z-aligned, Euler works)
-    print("\n=== Spine (Euler -- Z-aligned, Euler safe) ===")
-    for role, x_deg in [("spine_low", -10), ("spine_mid", -5), ("neck", 3), ("head", 8)]:
-        bone_name = roles.get(role)
-        if bone_name:
-            pb = armature.pose.bones.get(bone_name)
-            if pb:
+    def pose_bone(name_contains, rot_degrees, axis='X'):
+        """Find and rotate a pose bone by name substring (case-insensitive)."""
+        for pb in armature.pose.bones:
+            if name_contains.lower() in pb.name.lower():
                 pb.rotation_mode = 'XYZ'
-                pb.rotation_euler = (math.radians(x_deg), 0, 0)
-                print(f"  {role:15s} ({bone_name}): {x_deg} deg X")
+                rad = math.radians(rot_degrees)
+                if axis == 'X':
+                    pb.rotation_euler.x = rad
+                elif axis == 'Y':
+                    pb.rotation_euler.y = rad
+                elif axis == 'Z':
+                    pb.rotation_euler.z = rad
+                print(f"  {pb.name}: {rot_degrees}° {axis}")
+                return pb
+        print(f"  SKIP: '{name_contains}' not found")
+        return None
 
-    # Update scene so IK solves
-    bpy.context.view_layer.update()
+    # Driving pose (from kart-assembly-ralph proven values)
+    pose_bone("upperleg.l", -90)
+    pose_bone("upperleg.r", -90)
+    pose_bone("lowerleg.l", 90)
+    pose_bone("lowerleg.r", 90)
+    pose_bone("foot.l", -20)
+    pose_bone("foot.r", -20)
+    pose_bone("spine", -10)
+    pose_bone("chest", -5)
+    pose_bone("upperarm.l", -60)
+    pose_bone("upperarm.r", -60)
+    pose_bone("lowerarm.l", -30)
+    pose_bone("lowerarm.r", -30)
+    pose_bone("hand.l", -10)
+    pose_bone("hand.r", -10)
+    pose_bone("head", 15)
+    pose_bone("neck", 5)
 
-    # === BAKE IK INTO KEYFRAMES ===
-    # Strategy: Keep the original rest pose (T-pose). Bake the IK-solved
-    # driving pose as keyframes on frame 1. Export with animation.
-    # The GLTF exporter will include both the bind-pose mesh AND the
-    # driving pose animation. Viewers/engines show the posed result.
-    print("\n=== Baking IK into keyframes ===")
+    bpy.ops.object.mode_set(mode='OBJECT')
+    print("Driving pose applied")
 
-    # Update depsgraph so IK fully solves
-    bpy.context.view_layer.update()
-    bpy.context.evaluated_depsgraph_get()
-
-    # Bake visual transforms to keyframes (captures IK solution)
-    bpy.context.scene.frame_set(1)
+    # Step 3: Keyframe for export
+    print("\n=== Keyframing ===")
+    bpy.context.view_layer.objects.active = armature
     bpy.ops.object.mode_set(mode='POSE')
-    bpy.ops.pose.select_all(action='SELECT')
-
-    # Use visual keying to bake the IK-solved transforms
-    bpy.context.scene.tool_settings.use_keyframe_insert_auto = False
+    bpy.context.scene.frame_set(1)
     for pb in armature.pose.bones:
-        # Insert keyframes using the visual transform (includes IK)
-        pb.keyframe_insert(data_path="location", frame=1, options={'INSERTKEY_VISUAL'})
-        pb.keyframe_insert(data_path="rotation_quaternion", frame=1, options={'INSERTKEY_VISUAL'})
-        pb.keyframe_insert(data_path="rotation_euler", frame=1, options={'INSERTKEY_VISUAL'})
-        pb.keyframe_insert(data_path="scale", frame=1, options={'INSERTKEY_VISUAL'})
-    print("  Keyframed all bones at frame 1 (visual transform)")
-
-    # Remove IK constraints (keyframes now hold the pose)
-    for bone_name in [hand_r_name, hand_l_name, foot_r_name, foot_l_name]:
-        if bone_name:
-            pb = armature.pose.bones.get(bone_name)
-            if pb:
-                for c in list(pb.constraints):
-                    pb.constraints.remove(c)
-    print("  Removed IK constraints (keyframes preserve pose)")
-
-    # Name the action
+        pb.keyframe_insert(data_path="rotation_euler", frame=1)
+        pb.keyframe_insert(data_path="location", frame=1)
     if armature.animation_data and armature.animation_data.action:
         armature.animation_data.action.name = "DrivingPose"
-
     bpy.ops.object.mode_set(mode='OBJECT')
 
-    # Cleanup empties and strays
+    # Step 4: Clean up strays
     mesh_obj = None
     for obj in bpy.data.objects:
         if obj.type == 'MESH' and obj.parent == armature:
             mesh_obj = obj
-            break
-
     for obj in list(bpy.data.objects):
         if obj.type not in ('MESH', 'ARMATURE'):
             bpy.data.objects.remove(obj, do_unlink=True)
         elif obj.type == 'MESH' and obj.parent is None and obj != mesh_obj:
             bpy.data.objects.remove(obj, do_unlink=True)
-    print("  Cleaned up")
 
-    # === EXPORT ===
+    # Step 5: Export
     print(f"\n=== Exporting ===")
     os.makedirs(os.path.dirname(os.path.abspath(output_path)), exist_ok=True)
-
     bpy.ops.object.select_all(action='DESELECT')
     for obj in bpy.data.objects:
         if obj.type in ('MESH', 'ARMATURE'):
             obj.select_set(True)
 
-    # Set frame to 1 so the posed state is active during export
     bpy.context.scene.frame_set(1)
-
     if output_path.endswith('.glb') or output_path.endswith('.gltf'):
         bpy.ops.export_scene.gltf(
-            filepath=output_path,
-            export_format='GLB',
-            use_selection=True,
-            export_animations=True,
-            export_skins=True,
-            export_current_frame=True,
-        )
+            filepath=output_path, export_format='GLB',
+            use_selection=True, export_animations=True,
+            export_skins=True, export_current_frame=True)
     elif output_path.endswith('.fbx'):
         bpy.ops.export_scene.fbx(
-            filepath=output_path,
-            use_selection=True,
-            use_armature_deform_only=True,
-            add_leaf_bones=False,
-        )
+            filepath=output_path, use_selection=True,
+            use_armature_deform_only=True, add_leaf_bones=False, bake_anim=True)
 
-    size = os.path.getsize(output_path)
-    print(f"Exported: {output_path} ({size:,} bytes)")
+    print(f"Exported: {output_path} ({os.path.getsize(output_path):,} bytes)")
     print("DONE")
 
 
