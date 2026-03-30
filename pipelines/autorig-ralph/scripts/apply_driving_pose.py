@@ -216,64 +216,104 @@ def main():
     armature.select_set(True)
     bpy.ops.object.mode_set(mode='POSE')
 
-    def pose_euler(role, x=0, y=0, z=0):
-        bone_name = roles.get(role)
-        if not bone_name:
-            print(f"  SKIP {role}: not detected")
-            return
-        pb = armature.pose.bones.get(bone_name)
-        if not pb:
-            print(f"  SKIP {role}: bone '{bone_name}' not in pose")
-            return
-        pb.rotation_mode = 'XYZ'
-        pb.rotation_euler = (math.radians(x), math.radians(y), math.radians(z))
-        print(f"  {role:15s} ({bone_name}): ({x}, {y}, {z}) deg")
+    # === ALL LIMBS USE IK (UniRig bone axes are arbitrary) ===
+    # Euler rotation does NOT work reliably on UniRig skeletons --
+    # bone local axes are based on ML prediction, not standard conventions.
+    # IK with world-space targets is the only reliable posing method.
 
-    # === LEGS ===
-    print("\n=== Legs (Euler) ===")
-    pose_euler("thigh_R", x=-90)
-    pose_euler("shin_R", x=90)
-    pose_euler("foot_R", x=-30)
-    pose_euler("thigh_L", x=-90)
-    pose_euler("shin_L", x=90)
-    pose_euler("foot_L", x=-30)
-
-    # === SPINE ===
-    print("\n=== Spine (Euler) ===")
-    pose_euler("spine_low", x=-15)
-    pose_euler("spine_mid", x=-10)
-    pose_euler("neck", x=5)
-    pose_euler("head", x=15)
-
-    # === ARMS (IK) ===
-    print("\n=== Arms (IK) ===")
-    hand_r_name = roles.get("hand_R")
-    hand_l_name = roles.get("hand_L")
-
+    print("\n=== Creating IK targets (all limbs) ===")
     bpy.ops.object.mode_set(mode='OBJECT')
 
-    # Create IK targets
+    # Get mesh bounding box for proportional positioning
+    mesh_obj_tmp = None
+    for obj in bpy.data.objects:
+        if obj.type == 'MESH' and obj.parent == armature:
+            mesh_obj_tmp = obj
+            break
+
+    if mesh_obj_tmp:
+        bb = [mesh_obj_tmp.matrix_world @ Vector(c) for c in mesh_obj_tmp.bound_box]
+        mesh_min_z = min(v.z for v in bb)
+        mesh_max_z = max(v.z for v in bb)
+        mesh_height = mesh_max_z - mesh_min_z
+        mesh_center_x = (min(v.x for v in bb) + max(v.x for v in bb)) / 2
+        hip_z = mesh_min_z + mesh_height * 0.42
+        print(f"  Mesh height: {mesh_height:.3f}m, hip_z: {hip_z:.3f}")
+    else:
+        mesh_height = 2.0
+        hip_z = 0.0
+        mesh_min_z = -1.0
+
+    # IK target positions for driving pose:
+    # Feet: forward and slightly down from hip level (seated, legs bent ~90°)
+    # Hands: forward at steering wheel height
+    foot_y = -mesh_height * 0.25   # forward
+    foot_z = mesh_min_z + 0.02     # near ground
+    hip_x = mesh_height * 0.08     # hip width
+
+    hand_y = -mesh_height * 0.30   # forward (steering wheel)
+    hand_z = hip_z + mesh_height * 0.15  # chest height
+    hand_x = mesh_height * 0.08    # shoulder width
+
+    ik_positions = {
+        "IK_Foot_R": Vector((hip_x, foot_y, foot_z)),
+        "IK_Foot_L": Vector((-hip_x, foot_y, foot_z)),
+        "IK_Hand_R": Vector((hand_x, hand_y, hand_z)),
+        "IK_Hand_L": Vector((-hand_x, hand_y, hand_z)),
+    }
+
     targets = {}
-    for name, pos in [("IK_R", Vector((0.15, -0.6, 0.45))),
-                       ("IK_L", Vector((-0.15, -0.6, 0.45)))]:
+    for name, pos in ik_positions.items():
         bpy.ops.object.empty_add(type='PLAIN_AXES', radius=0.02, location=pos)
         targets[name] = bpy.context.active_object
         targets[name].name = name
-        print(f"  Target {name} at {pos}")
+        print(f"  {name} at ({pos.x:.3f}, {pos.y:.3f}, {pos.z:.3f})")
 
+    # Apply IK constraints
     bpy.context.view_layer.objects.active = armature
     armature.select_set(True)
     bpy.ops.object.mode_set(mode='POSE')
 
-    for hand_name, target_name in [(hand_r_name, "IK_R"), (hand_l_name, "IK_L")]:
+    # Legs IK
+    print("\n=== Legs (IK) ===")
+    foot_r_name = roles.get("foot_R")
+    foot_l_name = roles.get("foot_L")
+
+    for foot_name, target_name in [(foot_r_name, "IK_Foot_R"), (foot_l_name, "IK_Foot_L")]:
+        if foot_name:
+            pb = armature.pose.bones.get(foot_name)
+            if pb:
+                ik = pb.constraints.new(type='IK')
+                ik.target = targets[target_name]
+                ik.chain_count = 3  # foot -> shin -> thigh
+                ik.iterations = 200
+                print(f"  IK on {foot_name} -> {target_name} (chain=3)")
+
+    # Arms IK
+    print("\n=== Arms (IK) ===")
+    hand_r_name = roles.get("hand_R")
+    hand_l_name = roles.get("hand_L")
+
+    for hand_name, target_name in [(hand_r_name, "IK_Hand_R"), (hand_l_name, "IK_Hand_L")]:
         if hand_name:
             pb = armature.pose.bones.get(hand_name)
             if pb:
                 ik = pb.constraints.new(type='IK')
                 ik.target = targets[target_name]
-                ik.chain_count = 3
+                ik.chain_count = 3  # hand -> forearm -> upper_arm
                 ik.iterations = 200
-                print(f"  IK on {hand_name} -> {target_name}")
+                print(f"  IK on {hand_name} -> {target_name} (chain=3)")
+
+    # Spine still uses Euler (spine bones are roughly Z-aligned, Euler works)
+    print("\n=== Spine (Euler -- Z-aligned, Euler safe) ===")
+    for role, x_deg in [("spine_low", -10), ("spine_mid", -5), ("neck", 3), ("head", 8)]:
+        bone_name = roles.get(role)
+        if bone_name:
+            pb = armature.pose.bones.get(bone_name)
+            if pb:
+                pb.rotation_mode = 'XYZ'
+                pb.rotation_euler = (math.radians(x_deg), 0, 0)
+                print(f"  {role:15s} ({bone_name}): {x_deg} deg X")
 
     # Update scene so IK solves
     bpy.context.view_layer.update()
@@ -289,14 +329,21 @@ def main():
             break
 
     if mesh_obj and not no_bake:
+        # Bake deformed positions INTO the original mesh (preserves topology)
         depsgraph = bpy.context.evaluated_depsgraph_get()
         eval_obj = mesh_obj.evaluated_get(depsgraph)
-        eval_mesh = bpy.data.meshes.new_from_object(eval_obj)
-        old_mesh = mesh_obj.data
-        mesh_obj.data = eval_mesh
-        eval_mesh.name = old_mesh.name
-        bpy.data.meshes.remove(old_mesh)
-        print(f"  Baked deformed mesh: {len(eval_mesh.vertices)} verts")
+        eval_mesh = eval_obj.data  # evaluated mesh with same vert count
+
+        # Copy deformed vertex positions back to original mesh
+        orig_mesh = mesh_obj.data
+        if len(eval_mesh.vertices) == len(orig_mesh.vertices):
+            for i, v in enumerate(eval_mesh.vertices):
+                orig_mesh.vertices[i].co = v.co
+            orig_mesh.update()
+            print(f"  Baked {len(orig_mesh.vertices)} vertex positions in-place (topology preserved)")
+        else:
+            print(f"  WARN: vert count mismatch orig={len(orig_mesh.vertices)} eval={len(eval_mesh.vertices)}")
+            print(f"  Falling back to armature_apply only (no mesh deform bake)")
 
     # Apply armature rest pose
     bpy.context.view_layer.objects.active = armature
@@ -305,10 +352,10 @@ def main():
     bpy.ops.pose.armature_apply(selected=False)
     print("  Applied skeleton rest pose")
 
-    # Remove IK constraints
-    for hand_name in [hand_r_name, hand_l_name]:
-        if hand_name:
-            pb = armature.pose.bones.get(hand_name)
+    # Remove all IK constraints (arms + legs)
+    for bone_name in [hand_r_name, hand_l_name, foot_r_name, foot_l_name]:
+        if bone_name:
+            pb = armature.pose.bones.get(bone_name)
             if pb:
                 for c in list(pb.constraints):
                     pb.constraints.remove(c)
