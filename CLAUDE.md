@@ -196,3 +196,16 @@ Seven specialized agents in `.claude/agents/`:
 | `test-engineer` | All `tests/` dirs | Writing tests, fixtures, CI test configuration |
 | `blender-addon-dev` | `blender/` | Blender operators, panels, properties, addon packaging |
 | `setup-engineer` | Root configs, setup, docs | pyproject.toml, setup wizard, CI/CD, documentation |
+
+## Ralph Loop
+
+This project uses the Universal Ralph Loop at `~/ralph-universal/` (GitHub: dscherm/ralph-universal).
+
+```bash
+~/ralph-universal/ralph.sh 20           # Run 20 iterations
+~/ralph-universal/ralph.sh --dry-run    # Validate setup
+~/ralph-universal/ralph-plan.sh         # Discover work (read-only analysis)
+python ~/ralph-universal/tools/bootstrap.py  # Bootstrap a new project
+```
+
+Tasks go in `plan.md` (JSON blocks) or `fix_plan.md` (checkbox format). Configuration in `ralph.config.json`.
