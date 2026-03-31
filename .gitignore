@@ -58,3 +58,7 @@ temp/
 .ralph/metrics.jsonl
 .ralph/logs/
 .ralph/lock
+.ralph/pending_tasks.md
+.ralph/recent_activity.md
+.ralph/alerts.log
+.ralph/manager_reviews/
