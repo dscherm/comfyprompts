@@ -1,0 +1,41 @@
+{
+  "_comment": "Retarget map: Rokoko/Mixamo HumanIK bone names -> UniRig auto-detected role names. UniRig bones are named bone_XX by default; the auto_detect_and_rename() function in apply_driving_pose.py maps them to these standard names. This map is used to retarget Rokoko mocap animations onto UniRig skeletons.",
+  "_source_skeleton": "Rokoko/Mixamo (Character1_* prefix, 52 bones with fingers)",
+  "_target_skeleton": "UniRig (bone_XX, ~30-60 bones, auto-renamed)",
+  "bone_map": {
+    "Character1_Hips": "hips",
+    "Character1_Spine": "spine",
+    "Character1_Spine1": "chest",
+    "Character1_Spine2": "chest",
+    "Character1_Neck": "neck",
+    "Character1_Head": "head",
+    "Character1_LeftShoulder": "shoulder.l",
+    "Character1_LeftArm": "upperarm.l",
+    "Character1_LeftForeArm": "lowerarm.l",
+    "Character1_LeftHand": "hand.l",
+    "Character1_RightShoulder": "shoulder.r",
+    "Character1_RightArm": "upperarm.r",
+    "Character1_RightForeArm": "lowerarm.r",
+    "Character1_RightHand": "hand.r",
+    "Character1_LeftUpLeg": "upperleg.l",
+    "Character1_LeftLeg": "lowerleg.l",
+    "Character1_LeftFoot": "foot.l",
+    "Character1_RightUpLeg": "upperleg.r",
+    "Character1_RightLeg": "lowerleg.r",
+    "Character1_RightFoot": "foot.r"
+  },
+  "ignored_source_bones": [
+    "Character1_LeftToeBase",
+    "Character1_RightToeBase",
+    "Character1_LeftHandIndex1", "Character1_LeftHandIndex2", "Character1_LeftHandIndex3",
+    "Character1_LeftHandMiddle1", "Character1_LeftHandMiddle2", "Character1_LeftHandMiddle3",
+    "Character1_LeftHandRing1", "Character1_LeftHandRing2", "Character1_LeftHandRing3",
+    "Character1_LeftHandPinky1", "Character1_LeftHandPinky2", "Character1_LeftHandPinky3",
+    "Character1_LeftHandThumb1", "Character1_LeftHandThumb2", "Character1_LeftHandThumb3",
+    "Character1_RightHandIndex1", "Character1_RightHandIndex2", "Character1_RightHandIndex3",
+    "Character1_RightHandMiddle1", "Character1_RightHandMiddle2", "Character1_RightHandMiddle3",
+    "Character1_RightHandRing1", "Character1_RightHandRing2", "Character1_RightHandRing3",
+    "Character1_RightHandPinky1", "Character1_RightHandPinky2", "Character1_RightHandPinky3",
+    "Character1_RightHandThumb1", "Character1_RightHandThumb2", "Character1_RightHandThumb3"
+  ]
+}

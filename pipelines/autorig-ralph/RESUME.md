@@ -1,135 +1,66 @@
-# AutoRig Ralph -- Resume Point (2026-03-29)
+# AutoRig Ralph -- Resume Point (2026-03-31)
 
-## What Was Done This Session
+## Session Summary
 
-### Pipeline Created (4 commits)
-1. **autorig-ralph pipeline** -- 8-stage ML auto-rigging with 50 reference meshes
-2. **Integration** -- character-ralph (7 stages) + art-to-rig-ralph delegate rigging to autorig-ralph
-3. **animate-ralph** -- animation reference library (2,937 files) + autorig→animate handoff
-4. **Batch script** -- `batch_generate_characters.py` for all 10 Soapbox Sabotage characters
+### Complete Pipeline: 2D Art → 3D Mesh → Rigged → Kart Posed
+8 of 10 characters fully processed through the entire pipeline:
 
-### UniRig Run Completed
-- Skeleton prediction: 29 min, output at `pipelines/autorig-ralph/output/skeleton/player_skeleton.fbx`
-- Skin weights: 4 sec, output at `pipelines/autorig-ralph/output/weighted/player_skinned.fbx`
-- Quality score: 100/100 (51 bones, 100% weight coverage)
+| Character | 2D Art | 3D Mesh | Merged | UniRig | Weights | Boot Clean | Kart Pose | Bones |
+|-----------|--------|---------|--------|--------|---------|------------|-----------|-------|
+| **player** | YES | YES | YES | YES | GOOD | YES | YES | 52 |
+| **bones** | YES | YES | YES | YES | GOOD | YES | YES | 52 |
+| **crank** | YES | YES | YES | YES | BAD | YES | SKIP | 52 |
+| **grit** | YES | YES | YES | YES | GOOD | YES | YES | 28 |
+| **pip** | YES | YES | YES | YES | GOOD | YES | YES | 52 |
+| **punk_king** | YES | YES | YES | YES | GOOD | YES | YES | 58 |
+| **rust** | YES | YES | YES | YES | GOOD | YES | YES | 46 |
+| **smog** | YES | YES | YES | YES | GOOD | YES | YES | 58 |
+| **sparks** | YES | YES | YES | YES | GOOD | YES | YES | 57 |
+| **soup_box** | YES | — | — | — | — | — | HOLD | — |
 
-### Current Blocker: Driving Pose Distortion
-The character mesh from Hunyuan3D has **49,000 disconnected triangle islands** (every face is a separate island). This causes tearing and distortion when posing. Multiple approaches tried (IK, Euler, DAMPED_TRACK, matrix manipulation) -- all produce leg distortion because the mesh topology is broken.
+### Key Learnings
 
-## What Needs To Happen Next
+1. **FBX throughout** — GLB export loses weight data. Use FBX from UniRig output through kart assembly.
+2. **UniRig bone counts vary** — 28, 46, 52, 57, 58 bones depending on character mesh complexity. Each has different bone numbering.
+3. **Arm posing must be manual** — UniRig bone local axes are arbitrary. Euler rotations produce unpredictable results. Each character needs a manual Blender posing session.
+4. **Boot sole cleanup needed for all** — Hunyuan3D generates ground shadow artifacts. Delete downward-facing faces in bottom 8%, flat cut bottom 4%, and fill holes.
+5. **Weight cleanup** — Remove arm bone weights from below-hip vertices to prevent pants moving with arms.
+6. **Crank failed** — Stocky body shape confused UniRig's ML skinning. Needs re-run or manual weight painting.
+7. **Kart front = +Y** in Blender. Characters face +Y from Hunyuan3D. No rotation needed.
+8. **Blender top view: +Y = top of screen** (standard math convention).
+9. **`transform_apply(rotation=True)` doesn't work on armatures** — apply manually.
 
-### 1. Fix the mesh FIRST (before posing)
-The `character-clean.glb` has 147k verts but all disconnected. Need to:
-```python
-# In Blender (via blender-mcp):
-import bpy, bmesh
+### What Needs To Happen Next
 
-# Import the clean mesh
-bpy.ops.import_scene.gltf(filepath='D:/Projects/comfyui-toolchain/pipelines/character-ralph/output/3d/character-clean.glb')
+#### 1. Hand Off to Soapbox Unity
+All kart pose data is captured in `kart-assembly-ralph/scripts/batch_assemble.py`.
+Export assembled FBX files and copy to `soapbox-unity/Assets/Models/Characters/`.
+This should be done inside the soapbox-unity project folder.
 
-# Select the mesh
-obj = [o for o in bpy.data.objects if o.type == 'MESH'][0]
-bpy.context.view_layer.objects.active = obj
+#### 2. Fix Unity Integration
+- Kart FBX orientation (facing sky) — pre-existing issue
+- Driver GLB not visible — AttachDriverModel() needs debugging
+- No textures on geometry-only meshes — need materials in Unity
 
-# Enter edit mode and merge vertices
-bpy.ops.object.mode_set(mode='EDIT')
-bpy.ops.mesh.select_all(action='SELECT')
-bpy.ops.mesh.remove_doubles(threshold=0.001)  # merge close verts
-bpy.ops.mesh.normals_make_consistent(inside=False)  # fix normals
-bpy.ops.object.mode_set(mode='OBJECT')
+#### 3. Crank Weight Fix
+Re-run UniRig on cleaner mesh or manual weight paint. Stocky body shape confused ML skinning.
 
-# Check: should go from 49k islands to 1-5 islands
-```
+#### 4. Soup Box
+Barrel body needs special handling — skip standard humanoid rigging pipeline.
 
-### 2. Re-run UniRig on the cleaned mesh
-After merge, export cleaned mesh as GLB and re-run:
-```bash
-# Extract
-cd C:/UniRig && .venv/Scripts/python.exe -m src.data.extract \
-  --config=configs/data/quick_inference.yaml --require_suffix=glb \
-  --force_override=true --num_runs=1 --id=0 --time=0 \
-  --faces_target_count=20000 --input=<cleaned.glb> --output_dir=tmp
+#### 5. Pipeline Improvements
+- Switch to FBX throughout (not GLB) to preserve weight data
+- Add boot cleanup to batch_unirig.py as automated step
+- Add weight cleanup (arm weights from pants) as automated step
 
-# Skeleton (~30 min)
-cd C:/UniRig && .venv/Scripts/python.exe run.py \
-  --task=configs/task/quick_inference_skeleton_articulationxl_ar_256.yaml \
-  --seed=12345 --input=<cleaned.glb> \
-  --output=<skeleton.fbx> --npz_dir=tmp
-
-# Skin weights (~4 sec)
-cd C:/UniRig && .venv/Scripts/python.exe run.py \
-  --task=configs/task/quick_inference_unirig_skin.yaml \
-  --seed=12345 --input=<cleaned.glb> \
-  --output=<skinned.fbx> --npz_dir=tmp
-```
-
-### 3. Apply driving pose
-Use `pipelines/autorig-ralph/scripts/apply_driving_pose.py` which:
-- Auto-detects bone roles from hierarchy
-- Renames UniRig bone_XX to standard names (upperleg.l, lowerleg.l, etc.)
-- Applies the proven kart-assembly Euler rotations (-90/+90 for legs)
-- Keyframes as "DrivingPose" animation
-
-### 4. Use blender-mcp for visual validation
-With blender-mcp connected, import the GLB and take screenshots:
-```
-blender-mcp: execute_blender_code(code="bpy.ops.import_scene.gltf(filepath='...')")
-blender-mcp: get_viewport_screenshot()
-```
-
-## Key File Locations
+### Key File Locations
 
 | File | Purpose |
 |------|---------|
-| `pipelines/character-ralph/output/3d/character-clean.glb` | Original Hunyuan3D mesh (147k verts, BROKEN - 49k islands) |
-| `pipelines/character-ralph/output/3d/character-for-unirig.glb` | Joined mesh sent to UniRig |
-| `pipelines/autorig-ralph/output/skeleton/player_skeleton.fbx` | UniRig skeleton (51 bones) |
-| `pipelines/autorig-ralph/output/weighted/player_skinned.fbx` | UniRig skinned mesh (10.5k verts, ML weights) |
-| `pipelines/character-ralph/output/rigged/character-driving-pose.glb` | Current (BROKEN) driving pose attempt |
-| `pipelines/autorig-ralph/scripts/apply_driving_pose.py` | Driving pose script (rename bones + Euler) |
-| `pipelines/character-ralph/scripts/resplit_mesh.py` | Mesh split script (may not be needed if mesh is fixed) |
-| `pipelines/character-ralph/scripts/batch_generate_characters.py` | Batch gen for all 10 characters |
-| `C:/Users/scher/Downloads/animation references/` | Downloaded animation packs (Rokoko, Quaternius, RancidMilk CMU) |
-| `C:/Users/scher/Downloads/downloaded rigged models/` | Downloaded rigged reference meshes |
-
-## Pipeline State
-
-```
-character-ralph: Stages 1-5 complete, Stage 6 (ANIMATE) pending
-autorig-ralph: Embedded run complete (score 100/100)
-kart-assembly-ralph: Waiting for fixed character-rigged-split.glb
-```
-
-## Prompt To Resume
-
-```
-Read pipelines/autorig-ralph/RESUME.md for context. We left off trying to fix
-the driving pose on The Rookie character. The root problem is the Hunyuan3D mesh
-has 49,000 disconnected triangle islands causing tearing when posed.
-
-Use blender-mcp to:
-1. Import character-clean.glb and merge vertices (remove_doubles threshold=0.001)
-2. Verify mesh is now 1-5 connected islands (not 49k)
-3. Re-export as cleaned GLB
-4. Re-run UniRig skeleton + skin prediction on the cleaned mesh
-5. Apply driving pose using apply_driving_pose.py
-6. Take viewport screenshots to validate
-
-The blender-mcp tools (execute_blender_code, get_viewport_screenshot) should
-be available. Check with get_external_app_status first.
-```
-
-## Session Commits (10 total)
-
-| Commit | Description |
-|--------|-------------|
-| `6856dd6` | autorig-ralph pipeline + 50 reference meshes |
-| `35d72f3` | Integration into character-ralph (7 stages) + art-to-rig-ralph |
-| `59d4b44` | Animation reference library + autorig→animate handoff |
-| `3e2292d` | Animation organizer script + gitignores |
-| `889bd09` | Driving animation keyword fix |
-| `f1051dc` | Mesh resplit, driving pose, batch character scripts |
-| `292144e` | Auto-detect bone roles (fixed left leg detection) |
-| `8e21b4c` | IK for all limbs (fixed leg bowing) |
-| `14ef4a2` | Keyframe-based bake (fixed mesh tearing from new_from_object) |
-| Currently unstaged | Latest apply_driving_pose.py (rename bones + Euler approach) |
+| `kart-assembly-ralph/scripts/batch_assemble.py` | All 8 character pose data + batch assembly script |
+| `autorig-ralph/output/{id}/weighted/{id}_skinned.fbx` | UniRig skinned FBX per character (USE THIS, not GLB) |
+| `autorig-ralph/output/{id}/rigged/{id}-rigged-tpose.glb` | Exported rigged GLB (weight data may be incomplete) |
+| `art-to-rig-ralph/output/final/{id}_kart/{id}_kart_blender.glb` | Kart models |
+| `character-ralph/output/{id}/fullbody/fullbody.png` | 2D T-pose art per character |
+| `character-ralph/output/{id}/3d/character-raw.glb` | Raw Hunyuan3D mesh |
+| `kart-assembly-ralph/output/player_in_kart_v3.glb` | Player assembled in kart |
