@@ -1,0 +1,93 @@
+{
+  "version": "2.0",
+  "project": {
+    "name": "comfyprompts",
+    "expertise": [
+      "creative-tools",
+      "backend"
+    ]
+  },
+  "stack": {
+    "languages": [
+      "python"
+    ],
+    "test_runner": {
+      "python": {
+        "command": "python -m pytest",
+        "test_dir": "packages/",
+        "targeted_flags": [
+          "-v",
+          "--tb=short"
+        ],
+        "full_flags": [
+          "-x",
+          "--tb=short",
+          "-q"
+        ],
+        "ignore": []
+      }
+    },
+    "type_checker": "mypy",
+    "linter": null
+  },
+  "gate": {
+    "test_map": {},
+    "shared_files": [],
+    "secrets_scan": true,
+    "denylist": [
+      "\\.env",
+      ".*\\.pem$",
+      ".*\\.key$",
+      "credentials\\.",
+      "id_rsa",
+      "id_ed25519"
+    ],
+    "manager_review": {
+      "enabled": true,
+      "model": "sonnet",
+      "trigger": "always",
+      "auto_approve_threshold": 3,
+      "escalation_patterns": [
+        "security",
+        "database",
+        "breaking-change"
+      ]
+    }
+  },
+  "harness": {
+    "max_iterations": 20,
+    "gate_mode": "warn",
+    "timeout_seconds": 1800,
+    "max_files_per_iteration": 20,
+    "consecutive_fail_threshold": 3,
+    "agent_model": {
+      "default": "sonnet",
+      "critical_tasks": "opus"
+    },
+    "pause_on_signals": [
+      "NEEDS_REVIEW",
+      "SPAWN_REQUESTED"
+    ]
+  },
+  "context": {
+    "recent_activity_count": 5,
+    "max_context_lines": 600,
+    "plan_file": "plan.md",
+    "activity_file": "activity.md",
+    "prompt_file": "PROMPT.md"
+  },
+  "alerts": {
+    "enabled": true,
+    "methods": [
+      "file"
+    ],
+    "alert_on": [
+      "gate_fail_3x",
+      "blocked",
+      "complete",
+      "timeout",
+      "needs_human"
+    ],
+    "alert_file": ".ralph/alerts.log"
+  }
+}
