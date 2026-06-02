@@ -2,15 +2,26 @@
 
 ## Project Goal
 
-This project is used in conjunction with:
-- **Blender MCP** — installed as a Claude Code MCP server for direct Blender control
-- **ComfyUI** — local installation at `C:\Users\Teacher\ComfyUI`
+This project is built on **two primary MCP servers** that Claude uses directly:
 
-The goal is to build a seamless AI-powered creative pipeline:
-Blender (3D scene) -> ComfyUI (AI generation/processing) -> Blender (result integration)
+- **comfyui-mcp** — AI generation backend (image, video, audio, 3D mesh generation) via ComfyUI at `http://localhost:8188`
+- **blender-mcp** — Live Blender control via socket (port 9876). Provides `execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`, Poly Haven, Sketchfab, and Hunyuan3D tools
 
-The Blender MCP addon enables Claude to directly manipulate Blender scenes, while ComfyUI
-provides the AI generation backend (image, video, audio, 3D). This project bridges them.
+Additionally:
+- **coplay-mcp** — Unity editor control for game integration (Meshy 3D, rigging, animations)
+- **ComfyUI** — local installation at `D:\Projects\ComfyUI`
+
+The goal is a seamless AI-powered creative pipeline for 3D modeling and game design:
+ComfyUI (AI generation) -> Blender (3D assembly/rigging/animation) -> Unity (game integration)
+
+### MCP Server Priority for 3D/Game Pipelines
+
+Any pipeline involving Blender operations (rigging, animation, scene assembly, mesh operations, export) **MUST use blender-mcp as the primary tool**. This means:
+1. **Always try blender-mcp first** — `execute_blender_code` for arbitrary Blender Python, `get_viewport_screenshot` for visual validation
+2. **comfyui-mcp for generation** — image generation, 3D mesh generation (Hunyuan3D), background removal, style transfer
+3. **coplay-mcp for Unity** — auto-rigging (Meshy), animations, Unity scene setup
+4. **Headless Blender (`--background`) is the fallback**, not the default — only use when blender-mcp is unreachable
+5. Check blender-mcp availability via `get_external_app_status` → `blender_mcp.available` at the start of any Blender-related stage
 
 ## Key Commands
 
@@ -44,7 +55,7 @@ curl http://localhost:8188/system_stats
 
 Three packages in `packages/` directory:
 - **packages/sdk/** (`comfyui-agent-sdk`) - Shared Python SDK providing ComfyUIClient, AssetRegistry, DefaultsManager, and credential management
-- **packages/mcp-server/** (`comfyui-mcp-server`) - FastMCP server with 40+ tools for AI image/video/audio/3D generation
+- **packages/mcp-server/** (`comfyui-mcp-server`) - FastMCP server with 80+ tools for AI image/video/audio/3D generation
 - **packages/prompter/** (`comfyui-prompter`) - Tkinter GUI + Flask REST API for workflow recommendation and generation
 
 Dependency graph: `prompter → SDK ← mcp-server` (both prompter and mcp-server depend on the SDK)
@@ -160,7 +171,7 @@ Both Blender addons follow strict constraints:
 - **GPU**: NVIDIA GeForce RTX 3070 8GB VRAM
 - **System RAM**: ~16GB
 - **Blender**: 5.0 at `C:\Program Files\Blender Foundation\Blender 5.0\blender.exe`
-- **Blender MCP**: addon.py (v1.4.0) installed in Blender addons, socket server on port 9876. MCP server via `uvx blender-mcp`. Provides `execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`, Poly Haven, Sketchfab, Hunyuan3D tools.
+- **Blender MCP**: addon.py (v1.4.0) installed in Blender addons, socket server on port 9876. MCP server configured in `.claude.json` from `C:\Users\scher\Downloads\blender-mcp-main\blender-mcp-main`. Provides `execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`, Poly Haven asset search/download, Sketchfab search/download, and Hunyuan3D cloud generation tools. **This is the primary interface for all Blender operations in pipelines.**
 - **UniRig**: `C:\UniRig` (.venv Python 3.11, CUDA)
 
 ### Version Compatibility Notes
@@ -181,7 +192,7 @@ Both Blender addons follow strict constraints:
 
 5. **MCP version** - SDK requires `mcp>=1.0.0`. MCP server previously pinned `mcp>=0.9.0` but should use `>=1.0.0` in the monorepo.
 
-6. **Three Blender integration paths** - (a) `comfyui_tools` addon → Flask API port 5050, (b) `comfyui_mcp_tools` addon → MCP HTTP, (c) `blender-mcp` addon → socket port 9876 with `execute_blender_code`. For agent-driven pipelines, prefer blender-mcp (arbitrary Python in live Blender session). For headless batch processing, use existing `--background` subprocess tools. The `publish_for_blender` MCP tool copies assets to `output/shared/` for cross-server handoff.
+6. **Blender-MCP is the primary Blender interface** - For all pipeline stages that touch Blender (rigging, animation, mesh prep, scene assembly, export), use `blender-mcp` tools (`execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`) as the **first choice**. The `publish_for_blender` comfyui-mcp tool copies assets to `output/shared/` for cross-server handoff. Headless Blender (`--background --python`) is the fallback path only when blender-mcp is unreachable. Legacy addon paths: (a) `comfyui_tools` addon → Flask API port 5050, (b) `comfyui_mcp_tools` addon → MCP HTTP — these are secondary to blender-mcp for pipeline work.
 
 ## Agent Team
 
@@ -209,3 +220,83 @@ python ~/ralph-universal/tools/bootstrap.py  # Bootstrap a new project
 ```
 
 Tasks go in `plan.md` (JSON blocks) or `fix_plan.md` (checkbox format). Configuration in `ralph.config.json`.
+
+<!-- unpossible-ralph: auto-injected context -->
+@.claude/.ralph-lessons.md
+@.claude/.ralph-spec.md
+@.claude/.ralph-pending-reviews.md
+@.claude/.ralph-handoff.md
+@.claude/.ralph-bridge-resume.md
+@.claude/.ralph-bootstrap-needed.md
+
+
+<!-- unpossible-ralph: auto-injected context -->
+@.claude/.ralph-precompact.md
+@.claude/.ralph-human-requests.md
+@.claude/.ralph-scope.md
+
+---
+
+## Lesson tagging discipline
+
+<!-- ralph-discipline: lesson_applied_tagging -->
+
+This project is enrolled in ralph-universal's cross-project learning
+system. The dashboard's `applied_count` metric depends on accurate
+`<lesson_applied>` tags in commit bodies. A Day-1 audit (2026-06-02)
+across enrolled projects found that ~70% of tags didn't reflect the
+actual diff — agents were defaulting to familiar stem names rather
+than tagging what the diff actually applied. This section sets the
+rule going forward.
+
+### When to emit `<lesson_applied>`
+
+Emit `<lesson_applied stem='X' note='...'/>` in commit bodies **only
+when the diff actually contains the pattern, fix, or behavior the
+lesson documents**. The test:
+
+> Would this commit's code be measurably different if the lesson
+> didn't exist?
+
+If yes → tag it. If no → do not tag.
+
+### When NOT to tag
+
+- **Read but didn't apply** — that is consultation, not application.
+  Do not emit `<lesson_applied>`. The day-30 audit explicitly filters
+  "consulted but not applicable" out as noise.
+- **Familiar-stem default** — never emit a tag just because the stem
+  is the one you remember from a prior session. Re-check
+  `.claude/.ralph-lessons.md` for the currently-injected set and
+  cross-reference against the diff.
+- **Stale stems** — only stems with both `lessons/<stem>.md` present
+  AND a recent injection record for this project should be tagged.
+- **Same tag-block on every commit** — if two consecutive unrelated
+  commits emit the same tag set, the second one is almost certainly
+  ritual stamping. Stop.
+
+### Optional: track consultations in the audit channel
+
+If you want a paper trail for "I read this lesson and decided it
+didn't apply", use the dedicated verb instead of polluting the
+application metric:
+
+```bash
+python $RALPH_HOME/tools/tag_lesson.py consulted <stem> \
+  --source preflight \
+  --reason "<one-line reason>"
+```
+
+This appends a `consulted` event to `.ralph/lesson-events.jsonl` —
+honest audit signal that doesn't inflate the application count.
+
+### Short version
+
+- Diff reflects the lesson → `<lesson_applied stem='X' note='...'/>` ✓
+- Read but didn't apply → say nothing, OR use `tag_lesson consulted` ✓
+- Same tag-block on every commit → ✗ (ritual stamping; stop)
+- "Consulted, decided not applicable" as a `<lesson_applied>` note → ✗
+
+When in doubt, skip the tag. Under-tagging is correctable (the
+auto-stamp mechanism catches some real applications via keyword
+matching); over-tagging is harder to clean up after.
