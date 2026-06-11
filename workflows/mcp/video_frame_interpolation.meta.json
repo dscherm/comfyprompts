@@ -25,21 +25,15 @@
     },
     "optional_install": "ComfyUI-Rife-Tensorrt (for NVIDIA TensorRT accelerated RIFE, ultra-fast)"
   },
-  "requires_download": {
-    "nodes": [
-      {
-        "pack": "ComfyUI-VideoHelperSuite",
-        "source": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
-      },
-      {
-        "pack": "ComfyUI-Frame-Interpolation",
-        "source": "https://github.com/Fannovel16/ComfyUI-Frame-Interpolation"
-      }
-    ],
-    "reason": "ComfyUI-VideoHelperSuite and ComfyUI-Frame-Interpolation (RIFE) custom nodes not installed; note: core LoadVideo + FL_RIFE (if installed) could be a rebuild alternative"
-  },
   "category": "video_postprocessing",
-  "tags": ["video", "frame-interpolation", "rife", "fps-boost", "smooth-motion", "post-processing"],
+  "tags": [
+    "video",
+    "frame-interpolation",
+    "rife",
+    "fps-boost",
+    "smooth-motion",
+    "post-processing"
+  ],
   "parameters": {
     "PARAM_STR_VIDEO_PATH": {
       "type": "string",
@@ -49,13 +43,30 @@
       "type": "string",
       "description": "RIFE model checkpoint to use",
       "default": "rife47.pth",
-      "options": ["rife40.pth", "rife41.pth", "rife42.pth", "rife43.pth", "rife44.pth", "rife45.pth", "rife46.pth", "rife47.pth", "rife48.pth", "rife49.pth"]
+      "options": [
+        "rife40.pth",
+        "rife41.pth",
+        "rife42.pth",
+        "rife43.pth",
+        "rife44.pth",
+        "rife45.pth",
+        "rife46.pth",
+        "rife47.pth",
+        "rife48.pth",
+        "rife49.pth"
+      ]
     },
     "PARAM_INT_MULTIPLIER": {
       "type": "integer",
       "description": "Frame rate multiplier (2 = double FPS, 4 = quadruple FPS)",
       "default": 2,
-      "options": [2, 3, 4, 6, 8]
+      "options": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ]
     },
     "PARAM_INT_OUTPUT_FPS": {
       "type": "integer",

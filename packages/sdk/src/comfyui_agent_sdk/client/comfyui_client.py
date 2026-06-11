@@ -346,9 +346,29 @@ class ComfyUIClient:
             history = {}
 
         if history and prompt_id in history:
+            entry = history[prompt_id]
+            status_info = entry.get("status", {})
+            # A history entry is not automatically success — failed executions
+            # land here too, with status_str == "error"
+            if status_info.get("status_str") == "error" or (
+                "completed" in status_info and not status_info.get("completed")
+            ):
+                result["status"] = "error"
+                messages = status_info.get("messages", [])
+                for msg in messages:
+                    if msg and msg[0] == "execution_error" and len(msg) > 1:
+                        detail = msg[1]
+                        result["error"] = (
+                            f"node {detail.get('node_id')} ({detail.get('node_type')}): "
+                            f"{detail.get('exception_message', 'execution error')}"
+                        )
+                        break
+                else:
+                    result["error"] = "execution failed"
+                return result
             result["status"] = "completed"
             result["progress"] = 100.0
-            outputs = history[prompt_id].get("outputs", {})
+            outputs = entry.get("outputs", {})
             result["outputs"] = self._extract_output_paths(outputs)
             return result
 
@@ -360,28 +380,39 @@ class ComfyUIClient:
             return result
 
         for item in qs.get("queue_running", []):
-            if len(item) > 1 and item[1] == prompt_id:
+            if len(item) > 1 and str(item[1]) == str(prompt_id):
                 result["status"] = "running"
                 result["progress"] = 50.0
                 return result
 
         for item in qs.get("queue_pending", []):
-            if len(item) > 1 and item[1] == prompt_id:
+            if len(item) > 1 and str(item[1]) == str(prompt_id):
                 result["status"] = "pending"
                 return result
 
-        result["status"] = "error"
-        result["error"] = "Job not found in queue or history"
+        # Neither queue nor history: usually the transition window between
+        # dequeue and history write, or an id this server never saw. Report
+        # "unknown" so callers can keep polling briefly instead of failing.
+        result["status"] = "unknown"
+        result["error"] = "Job not found in queue or history (may be transitioning)"
         return result
 
     def wait_for_completion(self, prompt_id: str, timeout: int = 300) -> bool:
         start = time.time()
+        unknown_since: float | None = None
         while time.time() - start < timeout:
             status = self.get_job_status(prompt_id)
             if status["status"] == "completed":
                 return True
             if status["status"] == "error":
                 return False
+            if status["status"] == "unknown":
+                # tolerate the dequeue->history transition window briefly
+                unknown_since = unknown_since or time.time()
+                if time.time() - unknown_since > 30:
+                    return False
+            else:
+                unknown_since = None
             time.sleep(2)
         return False
 
