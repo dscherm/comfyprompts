@@ -62,3 +62,6 @@ temp/
 .ralph/recent_activity.md
 .ralph/alerts.log
 .ralph/manager_reviews/
+
+# workflow validator object_info cache (machine-specific, refetchable)
+scripts/cache/
