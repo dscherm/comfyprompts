@@ -1,0 +1,242 @@
+"""Blender headless kart rigging script.
+
+Creates a 17-bone mechanical skeleton for soapbox karts with:
+- Chassis as main body
+- Front/rear axle bones
+- 4 wheel mount bones (for spin animation)
+- Detachable panels, bumpers, hood, spoiler
+- Seat and exhaust anchor bones
+
+Usage:
+    blender --background --python rig_kart.py -- \
+        --input path/to/prepared.glb \
+        --output path/to/rigged.glb
+"""
+
+import bpy
+import bmesh
+import sys
+import os
+import json
+from mathutils import Vector, Matrix
+
+argv = sys.argv
+if "--" in argv:
+    argv = argv[argv.index("--") + 1:]
+else:
+    argv = []
+
+import argparse
+parser = argparse.ArgumentParser()
+parser.add_argument("--input", required=True)
+parser.add_argument("--output", required=True)
+parser.add_argument("--report", default=None)
+args = parser.parse_args(argv)
+
+# Clear and import
+bpy.ops.wm.read_factory_settings(use_empty=True)
+bpy.ops.import_scene.gltf(filepath=args.input)
+
+# Find mesh
+mesh_objects = [o for o in bpy.data.objects if o.type == "MESH"]
+if not mesh_objects:
+    print("ERROR: No mesh objects")
+    sys.exit(1)
+
+# Join if multiple
+bpy.ops.object.select_all(action="DESELECT")
+mesh_obj = mesh_objects[0]
+bpy.context.view_layer.objects.active = mesh_obj
+mesh_obj.select_set(True)
+if len(mesh_objects) > 1:
+    for o in mesh_objects:
+        o.select_set(True)
+    bpy.ops.object.join()
+    mesh_obj = bpy.context.active_object
+
+# Get mesh bounds
+bbox = mesh_obj.bound_box
+min_co = Vector((min(v[0] for v in bbox), min(v[1] for v in bbox), min(v[2] for v in bbox)))
+max_co = Vector((max(v[0] for v in bbox), max(v[1] for v in bbox), max(v[2] for v in bbox)))
+center = (min_co + max_co) / 2
+dims = max_co - min_co
+
+print(f"Mesh: {len(mesh_obj.data.vertices)} verts, dims={[round(d, 3) for d in dims]}")
+print(f"Bounds: min={[round(v, 3) for v in min_co]}, max={[round(v, 3) for v in max_co]}")
+
+# Determine orientation — longest axis is the length of the kart
+axes = [(dims.x, 0, "X"), (dims.y, 1, "Y"), (dims.z, 2, "Z")]
+axes.sort(key=lambda a: a[0], reverse=True)
+length_axis = axes[0][1]  # longest = kart length
+width_axis = axes[1][1]   # second = kart width
+height_axis = axes[2][1]  # shortest = kart height
+
+print(f"Axes: length={axes[0][2]}, width={axes[1][2]}, height={axes[2][2]}")
+
+# Helper to get position along each axis
+def pos(length_frac, width_frac, height_frac):
+    """Get a position as fractions of the bounding box (0=min, 1=max)."""
+    p = [0, 0, 0]
+    p[length_axis] = min_co[length_axis] + dims[length_axis] * length_frac
+    p[width_axis] = min_co[width_axis] + dims[width_axis] * width_frac
+    p[height_axis] = min_co[height_axis] + dims[height_axis] * height_frac
+    return Vector(p)
+
+# Create armature
+bpy.ops.object.select_all(action="DESELECT")
+bpy.ops.object.armature_add(enter_editmode=True)
+armature_obj = bpy.context.active_object
+armature_obj.name = "KartArmature"
+armature = armature_obj.data
+armature.name = "KartRig"
+
+# Remove default bone
+for bone in armature.edit_bones:
+    armature.edit_bones.remove(bone)
+
+def add_bone(name, head, tail, parent=None):
+    """Add a bone to the armature."""
+    bone = armature.edit_bones.new(name)
+    bone.head = head
+    bone.tail = tail
+    if parent:
+        bone.parent = armature.edit_bones.get(parent)
+    return bone
+
+# Bone length helper (small offset along height axis for bone direction)
+bone_len = dims[height_axis] * 0.15
+
+def offset_up(p, amount=None):
+    """Offset a position upward by bone_len."""
+    v = list(p)
+    v[height_axis] += amount or bone_len
+    return Vector(v)
+
+# === CREATE SKELETON ===
+# Kart_Root at center bottom
+root_pos = pos(0.5, 0.5, 0.0)
+add_bone("Kart_Root", root_pos, offset_up(root_pos))
+
+# Chassis at center
+chassis_pos = pos(0.5, 0.5, 0.4)
+add_bone("Chassis", chassis_pos, offset_up(chassis_pos), parent="Kart_Root")
+
+# Hood at front
+hood_pos = pos(0.8, 0.5, 0.5)
+add_bone("Hood", hood_pos, offset_up(hood_pos), parent="Chassis")
+
+# Front bumper
+bumper_f_pos = pos(0.95, 0.5, 0.3)
+add_bone("Bumper_Front", bumper_f_pos, offset_up(bumper_f_pos), parent="Chassis")
+
+# Rear bumper
+bumper_r_pos = pos(0.05, 0.5, 0.3)
+add_bone("Bumper_Rear", bumper_r_pos, offset_up(bumper_r_pos), parent="Chassis")
+
+# Left panel
+panel_l_pos = pos(0.5, 0.1, 0.4)
+add_bone("Panel_L", panel_l_pos, offset_up(panel_l_pos), parent="Chassis")
+
+# Right panel
+panel_r_pos = pos(0.5, 0.9, 0.4)
+add_bone("Panel_R", panel_r_pos, offset_up(panel_r_pos), parent="Chassis")
+
+# Spoiler at rear top
+spoiler_pos = pos(0.1, 0.5, 0.8)
+add_bone("Spoiler", spoiler_pos, offset_up(spoiler_pos), parent="Chassis")
+
+# Seat at center (empty attachment for driver)
+seat_pos = pos(0.45, 0.5, 0.5)
+add_bone("Seat", seat_pos, offset_up(seat_pos), parent="Chassis")
+
+# EngineBay at rear (particle anchor)
+engine_pos = pos(0.15, 0.5, 0.35)
+add_bone("EngineBay", engine_pos, offset_up(engine_pos), parent="Chassis")
+
+# Front axle
+axle_f_pos = pos(0.8, 0.5, 0.15)
+add_bone("Axle_Front", axle_f_pos, offset_up(axle_f_pos), parent="Kart_Root")
+
+# Steering column
+steer_pos = pos(0.75, 0.5, 0.5)
+add_bone("SteeringColumn", steer_pos, offset_up(steer_pos), parent="Axle_Front")
+
+# Front wheel mounts
+wm_fl_pos = pos(0.8, 0.05, 0.15)
+add_bone("WheelMount_FL", wm_fl_pos, offset_up(wm_fl_pos), parent="Axle_Front")
+
+wm_fr_pos = pos(0.8, 0.95, 0.15)
+add_bone("WheelMount_FR", wm_fr_pos, offset_up(wm_fr_pos), parent="Axle_Front")
+
+# Rear axle
+axle_r_pos = pos(0.15, 0.5, 0.15)
+add_bone("Axle_Rear", axle_r_pos, offset_up(axle_r_pos), parent="Kart_Root")
+
+# Rear wheel mounts
+wm_rl_pos = pos(0.15, 0.05, 0.15)
+add_bone("WheelMount_RL", wm_rl_pos, offset_up(wm_rl_pos), parent="Axle_Rear")
+
+wm_rr_pos = pos(0.15, 0.95, 0.15)
+add_bone("WheelMount_RR", wm_rr_pos, offset_up(wm_rr_pos), parent="Axle_Rear")
+
+# Exhaust anchors
+exh_l_pos = pos(0.05, 0.2, 0.25)
+add_bone("Exhaust_L", exh_l_pos, offset_up(exh_l_pos), parent="Axle_Rear")
+
+exh_r_pos = pos(0.05, 0.8, 0.25)
+add_bone("Exhaust_R", exh_r_pos, offset_up(exh_r_pos), parent="Axle_Rear")
+
+bone_count = len(armature.edit_bones)
+print(f"Created {bone_count} bones")
+
+# Exit edit mode
+bpy.ops.object.mode_set(mode="OBJECT")
+
+# Parent mesh to armature with automatic weights
+bpy.ops.object.select_all(action="DESELECT")
+mesh_obj.select_set(True)
+armature_obj.select_set(True)
+bpy.context.view_layer.objects.active = armature_obj
+bpy.ops.object.parent_set(type="ARMATURE_AUTO")
+
+# Check weight coverage
+unweighted = 0
+for v in mesh_obj.data.vertices:
+    if len(v.groups) == 0:
+        unweighted += 1
+total_verts = len(mesh_obj.data.vertices)
+coverage = 1.0 - (unweighted / total_verts) if total_verts > 0 else 0
+print(f"Weight coverage: {coverage*100:.1f}% ({total_verts - unweighted}/{total_verts} weighted)")
+
+# If coverage is low, assign unweighted verts to Chassis
+if coverage < 0.9 and unweighted > 0:
+    chassis_group = mesh_obj.vertex_groups.get("Chassis")
+    if not chassis_group:
+        chassis_group = mesh_obj.vertex_groups.new(name="Chassis")
+    unweighted_indices = [v.index for v in mesh_obj.data.vertices if len(v.groups) == 0]
+    chassis_group.add(unweighted_indices, 1.0, "ADD")
+    print(f"Assigned {len(unweighted_indices)} unweighted verts to Chassis")
+
+# Export
+os.makedirs(os.path.dirname(os.path.abspath(args.output)), exist_ok=True)
+bpy.ops.export_scene.gltf(
+    filepath=args.output,
+    export_format="GLB",
+    export_materials="EXPORT",
+)
+print(f"Exported rigged kart to {args.output}")
+
+# Write report
+report = {
+    "source": args.input,
+    "output": args.output,
+    "bone_count": bone_count,
+    "weight_coverage": round(coverage, 3),
+    "unweighted_verts": unweighted,
+    "total_verts": total_verts,
+    "mesh_dims": [round(d, 3) for d in dims],
+}
+report_path = args.report or args.output.replace(".glb", "_report.json")
+with open(report_path, "w") as f:
+    json.dump(report, f, indent=2)
+print(f"Report: {report_path}")

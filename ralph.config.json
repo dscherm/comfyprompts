@@ -1,10 +1,9 @@
 {
   "version": "2.0",
   "project": {
-    "name": "comfyprompts",
+    "name": "comfyui-toolchain",
     "expertise": [
-      "creative-tools",
-      "backend"
+      "full-stack"
     ]
   },
   "stack": {
@@ -14,7 +13,7 @@
     "test_runner": {
       "python": {
         "command": "python -m pytest",
-        "test_dir": "packages/",
+        "test_dir": "tests/",
         "targeted_flags": [
           "-v",
           "--tb=short"
@@ -75,6 +74,16 @@
     "plan_file": "plan.md",
     "activity_file": "activity.md",
     "prompt_file": "PROMPT.md"
+  },
+  "memories": {
+    "enabled": true,
+    "max_entries": 15,
+    "max_bytes": 2048,
+    "staleness_threshold": 10
+  },
+  "observations": {
+    "enabled": true,
+    "sync_to_global": true
   },
   "alerts": {
     "enabled": true,

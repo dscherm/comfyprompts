@@ -69,3 +69,6 @@ scripts/cache/
 # stray per-directory session state
 workflows/mcp/.claude/
 workflows/mcp/.omc/
+
+# OMC session state (machine-local)
+.omc/

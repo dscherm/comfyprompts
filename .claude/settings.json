@@ -1,0 +1,157 @@
+{
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/inject_lessons_interactive.py\" --project-dir ."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/parse_claude_sessions.py\" --project-dir ."
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/compact_memories.py\" --check-only"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/compact_memories.py\" --check-only"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/cost_by_phase.py\" --project-dir . --format jsonl"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/pre_commit_gate.py\" --project-dir ."
+          }
+        ]
+      },
+      {
+        "matcher": "Read|Grep|Glob|Edit|Write|NotebookEdit|NotebookRead",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/blind_tdd_path_guard.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Edit|Write|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/phase_permission_guard.py\""
+          }
+        ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/bash_telemetry.py\""
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/blind_tdd_audit.py\""
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/synthesize_memories.py\" --source post-commit"
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/unpossible-ralph/tools/write_handoff.py\""
+          }
+        ]
+      }
+    ],
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/precompact_handoff.py\" --project-dir ."
+          }
+        ]
+      }
+    ],
+    "CwdChanged": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/scoped_context.py\" refresh"
+          }
+        ]
+      }
+    ]
+  }
+}

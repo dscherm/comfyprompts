@@ -1,6 +1,6 @@
 # ComfyUI Toolchain
 
-Unified toolkit for AI media generation via ComfyUI. Three integrated packages — a shared SDK, an MCP server with 40+ tools, and a GUI/API — plus Blender addons for 3D pipeline integration.
+Unified toolkit for AI media generation via ComfyUI. Three integrated packages — a shared SDK, an MCP server with 80+ tools, and a GUI/API — plus Blender addons for 3D pipeline integration.
 
 ## Quick Start
 
@@ -19,7 +19,7 @@ python setup_wizard.py
 │          │              │                       │
 │  SDK     │  MCP Server  │  Prompter             │
 │          │              │                       │
-│  Client  │  40+ Tools   │  Tkinter GUI          │
+│  Client  │  80+ Tools   │  Tkinter GUI          │
 │  Assets  │  Managers    │  Flask API (:5050)    │
 │  Config  │  Workflows   │  Ollama Recommender   │
 │  Creds   │              │  Model Registry       │
@@ -48,7 +48,7 @@ Shared Python SDK providing the foundation for all ComfyUI interactions:
 - **Credentials** - Keyring-based secret storage (HuggingFace, CivitAI)
 
 ### MCP Server (`packages/mcp-server/`)
-[Model Context Protocol](https://modelcontextprotocol.io/) server exposing 40+ tools for AI-powered generation:
+[Model Context Protocol](https://modelcontextprotocol.io/) server exposing 80+ tools for AI-powered generation:
 - Image generation (Stable Diffusion, FLUX, SDXL)
 - Video generation (AnimateDiff, SVD, Wan)
 - Audio generation

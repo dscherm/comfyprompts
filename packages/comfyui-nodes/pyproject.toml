@@ -1,0 +1,14 @@
+[project]
+name = "comfyui-tileset-nodes"
+version = "0.1.0"
+description = "ComfyUI nodes for non-manifold diffusion tileset generation"
+requires-python = ">=3.10"
+# torch and numpy are provided by ComfyUI runtime
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7.0"]
+
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.backends._legacy:_Backend"

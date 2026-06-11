@@ -1,0 +1,24 @@
+{
+  "schema_version": "1",
+  "generated_at": "2026-06-11T01:29:07.794178+00:00",
+  "scope": {
+    "plan_path": "plan.md",
+    "public_api_path": "public_api.md",
+    "test_dirs": [
+      "tests"
+    ],
+    "tasks_audited": 0,
+    "tasks_with_ac": 0
+  },
+  "summary": {
+    "total": 0,
+    "suppressed": 0,
+    "by_severity": {
+      "high": 0,
+      "medium": 0,
+      "low": 0
+    },
+    "by_category": {}
+  },
+  "drift_records": []
+}

@@ -1,0 +1,1229 @@
+{
+  "meta": {
+    "project": "berserkr",
+    "description": "Structured Stable Diffusion prompts for all Berserkr game equipment, weapons, armor, and items",
+    "art_style": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era",
+    "negative_base": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items",
+    "generated": "2026-02-11",
+    "total_items": 64,
+    "categories": ["weapons_melee", "weapons_ranged", "armor", "shields", "accessories", "quest_items", "consumables", "adventuring_gear"]
+  },
+  "equipment": [
+    {
+      "name": "Great Axe",
+      "type": "weapon",
+      "id": "great_axe",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, massive two-handed viking battle axe, broad crescent-shaped iron blade with sharpened edge catching cold light, long ash-wood haft wrapped in dark leather grip, iron rivets securing blade to shaft, deep hammer marks from forging, edge nicked from heavy use, blood groove along blade spine, pommel capped with iron ring, weapon stands vertically against pure black background, dramatic side-lighting emphasizing deadly edge, dark steel with faint blue-grey sheen",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, fantasy ornate decoration, gold trim, jewels, clean pristine appearance",
+      "identity_features": [
+        "broad crescent iron blade",
+        "long ash-wood haft",
+        "leather-wrapped grip",
+        "iron rivets and ring pommel",
+        "battle-worn edge"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "in-use action silhouette"],
+      "color_palette": ["dark iron grey", "ash wood brown", "leather black", "cold steel blue-grey", "blood rust accent"],
+      "material": "iron and ash wood",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d10", "properties": ["two-handed", "heavy"]}
+    },
+    {
+      "name": "Sword",
+      "type": "weapon",
+      "id": "sword",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, norse iron sword, straight double-edged blade with fuller channel running center, crossguard of simple iron, wooden grip wrapped tightly in dark leather cord, lobed pommel of iron, blade shows fine forge pattern from folded steel, balanced for both cutting and thrusting, weapon floats against pure black background, dramatic lighting reflecting off polished edge, subtle blood-red accent on leather wrapping",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, katana, rapier, medieval longsword, ornate fantasy sword",
+      "identity_features": [
+        "straight double-edged blade",
+        "simple iron crossguard",
+        "leather cord wrapped grip",
+        "lobed iron pommel",
+        "fuller channel down blade center"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "in-use action silhouette"],
+      "color_palette": ["polished steel silver", "dark leather brown", "iron grey crossguard", "blood-red leather accent"],
+      "material": "iron and leather",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d6", "properties": ["versatile"]}
+    },
+    {
+      "name": "Battle Axe",
+      "type": "weapon",
+      "id": "axe",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, single-headed norse war axe, wedge-shaped iron head with bearded blade profile, curved cutting edge, short to medium ash haft with leather grip, iron collar securing head to shaft, practical brutal weapon with forging marks visible, weapon displayed against pure black background, dramatic rim lighting on blade edge, warm amber accent on wood grain",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, double-headed axe, ornate fantasy axe, gold decoration",
+      "identity_features": [
+        "single bearded blade profile",
+        "wedge-shaped iron head",
+        "medium ash haft",
+        "leather grip",
+        "iron collar at head junction"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "in-use action silhouette"],
+      "color_palette": ["dark iron", "warm ash wood", "leather brown", "amber grain accent"],
+      "material": "iron and ash wood",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d8", "properties": ["heavy"]}
+    },
+    {
+      "name": "Spear",
+      "type": "weapon",
+      "id": "spear",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, norse war spear, long leaf-shaped iron spearhead with central ridge, wide socket riveted to long straight ash shaft, shaft smooth and worn from use, iron butt-spike at base, weapon displayed vertically against pure black background, dramatic side-lighting catching the spearhead edge, cold silver-blue light on iron tip",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, trident, halberd, ornate ceremonial spear",
+      "identity_features": [
+        "leaf-shaped iron spearhead",
+        "central ridge on blade",
+        "long straight ash shaft",
+        "riveted socket",
+        "iron butt-spike"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed vertical", "in-use action silhouette"],
+      "color_palette": ["cold iron silver", "pale ash wood", "dark socket iron", "silver-blue tip accent"],
+      "material": "iron and ash wood",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d8", "properties": ["reach", "thrown"]}
+    },
+    {
+      "name": "Seax",
+      "type": "weapon",
+      "id": "seax",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, norse seax knife, single-edged iron blade with angled back edge, distinctive broken-back profile, bone handle with iron rivets, simple leather sheath nearby, blade shows pattern-welded lines, short practical weapon for close combat and utility, displayed against pure black background, dramatic lighting on the cutting edge, warm bone-white accent on handle",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, curved blade, dagger, stiletto, ornate knife",
+      "identity_features": [
+        "single-edged blade",
+        "broken-back profile",
+        "bone handle with iron rivets",
+        "pattern-welded steel",
+        "compact practical design"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "paired with sheath"],
+      "color_palette": ["dark iron blade", "bone white handle", "rivet grey", "leather sheath brown"],
+      "material": "iron and bone",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d4", "properties": ["light", "finesse"]}
+    },
+    {
+      "name": "Hunting Knife",
+      "type": "weapon",
+      "id": "hunting_knife",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, sturdy norse hunting knife, short curved iron blade honed razor-sharp, antler handle with leather wrapping at grip, iron pommel cap, blade stained dark from skinning use, worn leather belt sheath with simple toggle closure, practical outdoorsman tool, displayed against pure black background, dramatic lighting on blade edge, warm amber-brown accent on antler",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, bowie knife, modern hunting knife, serrated edge",
+      "identity_features": [
+        "short curved blade",
+        "antler handle",
+        "leather wrapping at grip",
+        "well-worn from use",
+        "belt sheath with toggle"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "in-use action silhouette"],
+      "color_palette": ["dark stained iron", "antler amber-brown", "leather wrap dark", "worn steel grey"],
+      "material": "iron and antler",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d4", "properties": ["light", "finesse", "thrown"]}
+    },
+    {
+      "name": "Staff",
+      "type": "weapon",
+      "id": "staff",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, gnarled wooden staff of dark oak, carved with norse rune inscriptions along its length, natural knots and whorls in the grain, iron-shod tip at base, top curved into a natural hook shape, worn smooth where hands grip, staff standing vertically against pure black background, faint arcane blue glow emanating from carved runes, dramatic lighting on wood texture",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, wizard hat, crystal ball on top, generic fantasy staff, smooth polished wood",
+      "identity_features": [
+        "gnarled dark oak wood",
+        "norse rune carvings",
+        "natural knots and whorls",
+        "iron-shod base tip",
+        "curved hook top"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed vertical", "in-use action with rune glow"],
+      "color_palette": ["dark oak brown", "iron grey base", "arcane blue rune glow", "aged wood grain"],
+      "material": "oak wood and iron",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d6", "properties": ["two-handed", "reach"]}
+    },
+    {
+      "name": "Sickle",
+      "type": "weapon",
+      "id": "sickle",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, curved iron sickle blade, crescent moon shape sharpened on inner edge, short wooden handle darkened with age, iron tang visible through worn handle, tool used for both harvest ritual and combat, druidic nicks along the spine from ceremonial use, displayed against pure black background, cold moonlight accent on curved blade edge, dark green mistletoe accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, scythe, grim reaper weapon, modern garden tool",
+      "identity_features": [
+        "crescent curved blade",
+        "inner-edge sharpened",
+        "short darkened wooden handle",
+        "ceremonial nicks on spine",
+        "practical ritual tool"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "ritual composition with herbs"],
+      "color_palette": ["cold iron crescent", "aged wood dark", "moonlight silver accent", "dark green herb accent"],
+      "material": "iron and wood",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d4", "properties": ["light"]}
+    },
+    {
+      "name": "Hammer",
+      "type": "weapon",
+      "id": "hammer",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, norse war hammer, heavy iron head with flat striking face and back spike, short sturdy oak haft reinforced with iron bands, leather wrap at grip, weapon shows dents and battle damage on striking face, tool of war inspired by Thor's Mjolnir, displayed against pure black background, dramatic orange-forge glow accent on iron head, sparks implied in composition",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, Mjolnir exact copy, modern hammer, sledgehammer, ornate fantasy hammer",
+      "identity_features": [
+        "heavy iron head with flat face",
+        "back spike on head",
+        "iron-banded oak haft",
+        "leather grip wrap",
+        "battle-dented striking face"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "in-use action smashing"],
+      "color_palette": ["dark iron head", "warm oak haft", "orange forge glow accent", "leather brown grip"],
+      "material": "iron and oak",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d8", "properties": ["heavy", "thrown"]}
+    },
+    {
+      "name": "Great Sword",
+      "type": "weapon",
+      "id": "great_sword",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, massive two-handed norse greatsword, broad blade with shallow fuller, long ricasso section for half-swording, wide crossguard of dark iron, extended grip wrapped in braided leather for two hands, heavy wheel pommel, blade shows grinding marks from maintenance, weapon displayed diagonally against pure black background, dramatic cold white light along blade edge, steel blue accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, claymore, zweihander with parrying hooks, anime oversized sword, ornate engraving",
+      "identity_features": [
+        "broad two-handed blade",
+        "long ricasso for half-swording",
+        "wide iron crossguard",
+        "braided leather two-hand grip",
+        "heavy wheel pommel"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed diagonal", "in-use action sweeping cut"],
+      "color_palette": ["bright steel edge", "dark iron crossguard", "braided leather brown", "steel blue accent"],
+      "material": "steel and leather",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d10", "properties": ["two-handed", "heavy"]}
+    },
+    {
+      "name": "Club",
+      "type": "weapon",
+      "id": "club",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, crude wooden club, thick knotted oak branch roughly shaped into a bludgeon, bark still partially attached, heavy end bulges with natural wood knots, grip end whittled smooth, simple brutal weapon of desperation, displayed against pure black background, dramatic shadow play on rough wood texture, dark earth-brown tone",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, baseball bat, smooth polished club, studded mace",
+      "identity_features": [
+        "rough knotted oak branch",
+        "partially bark-covered",
+        "bulging natural knots",
+        "whittled grip end",
+        "crude brutal shape"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled"],
+      "color_palette": ["dark oak brown", "bark grey-brown", "shadow black", "earth tone accent"],
+      "material": "oak wood",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d4", "properties": []}
+    },
+    {
+      "name": "Flail",
+      "type": "weapon",
+      "id": "flail",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, iron flail weapon, spiked iron ball connected by short chain to dark wooden haft, spikes protrude viciously from the head, chain links heavy and dark, wooden handle reinforced with iron collar, cruel weapon that defies parrying, displayed against pure black background, dramatic highlight on individual spikes, blood-red rust accent on spike tips",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, morning star, nunchaku, multiple chains, ornate decoration",
+      "identity_features": [
+        "spiked iron ball head",
+        "short heavy chain link",
+        "dark wooden haft",
+        "iron collar reinforcement",
+        "vicious spike protrusions"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed with chain drooping", "in-use action mid-swing"],
+      "color_palette": ["dark iron spikes", "chain link grey", "wood haft brown", "blood-red rust accent"],
+      "material": "iron and wood",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d8", "properties": ["heavy"]}
+    },
+    {
+      "name": "Rune-Forged Hammer",
+      "type": "weapon",
+      "id": "rune_forged_hammer",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, masterwork rune-forged war hammer, heavy star-iron head inscribed with glowing norse runes, dark iron with metallic blue-black sheen of meteoric metal, sturdy oak haft wrapped in rune-inscribed leather, runes glow faint arcane blue, hammer face shows precision forge marks, crafted by master runesmith Thorvald, displayed against pure black background, dramatic arcane blue glow from rune inscriptions, forge-orange ember accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, Mjolnir exact copy, lightning effects, overly ornate fantasy hammer",
+      "identity_features": [
+        "star-iron head with blue-black sheen",
+        "glowing norse rune inscriptions",
+        "precision forge marks",
+        "rune-inscribed leather wrap",
+        "master runesmith craftsmanship"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed with rune glow", "in-use action rune-strike"],
+      "color_palette": ["star-iron blue-black", "arcane blue rune glow", "forge-orange ember", "dark oak haft"],
+      "material": "star-iron and oak",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d6", "properties": ["rune-forged", "+d4 buff ability"]}
+    },
+    {
+      "name": "Sacred Staff",
+      "type": "weapon",
+      "id": "sacred_staff",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, sacred temple staff, pale birch wood carved with prayers to Freyja, silver wire inlaid in spiral pattern up the shaft, top adorned with small silver Freyja pendant hanging from leather cord, base capped with polished white stone, wood has been ritually purified and bleached near-white, faint warm golden glow around the pendant, displayed vertically against pure black background, dramatic warm gold divine light accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, wizard staff, crystal orb on top, christian cross, modern religious item",
+      "identity_features": [
+        "pale birch wood ritually bleached",
+        "silver wire spiral inlay",
+        "silver Freyja pendant at top",
+        "prayer carvings along shaft",
+        "polished white stone base cap"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed vertical", "in-use divine blessing scene"],
+      "color_palette": ["pale birch white", "silver wire", "warm gold divine glow", "white stone base"],
+      "material": "birch wood and silver",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d4", "properties": ["sacred", "divine focus"]}
+    },
+    {
+      "name": "Broken Chains",
+      "type": "weapon",
+      "id": "broken_chains",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, broken iron slave chains repurposed as weapons, heavy links of dark corroded iron, shackle cuffs still attached at one end with jagged broken edges, chain extends several feet for swinging, rust and old blood darken the metal, crude but deadly improvised weapon of rebellion, displayed coiled against pure black background, dramatic rust-red and blood-orange accents on corroded iron, defiant symbolism",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, clean polished chains, decorative chain, necklace chain, shiny metal",
+      "identity_features": [
+        "heavy corroded iron links",
+        "broken shackle cuffs at ends",
+        "jagged broken edges",
+        "rust and old blood stains",
+        "improvised weapon of defiance"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed coiled", "in-use action swinging arc"],
+      "color_palette": ["corroded dark iron", "rust red-brown", "blood-orange accent", "shadow black"],
+      "material": "corroded iron",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d4-d6", "properties": ["improvised", "reach", "grapple"]}
+    },
+    {
+      "name": "Improvised Weapon",
+      "type": "weapon",
+      "id": "improvised_weapon",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, collection of improvised weapons, broken table leg with iron nails protruding, a sharp rock lashed to a stick with cord, a broken bottle, a heavy iron pot, desperate weapons of the enslaved, crude but lethal, displayed scattered against pure black background, dramatic harsh shadow from single light source, blood-red accent on sharp edges",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, modern weapons, professional weapons, clean crafted items",
+      "identity_features": [
+        "broken and repurposed objects",
+        "protruding nails and sharp edges",
+        "crude lashing and binding",
+        "desperate resourcefulness",
+        "raw brutal effectiveness"
+      ],
+      "suggested_compositions": ["icon view square", "showcase collection arrangement", "in-use desperate combat"],
+      "color_palette": ["splintered wood pale", "iron nail grey", "blood-red sharp edge", "crude rope brown"],
+      "material": "mixed salvaged materials",
+      "item_category": "weapons_melee",
+      "game_stats": {"damage": "d6", "properties": ["improvised"]}
+    },
+    {
+      "name": "Longbow",
+      "type": "weapon",
+      "id": "longbow",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, tall norse longbow of dark yew wood, elegant D-profile curved limbs, sinew-backed for extra power, nocked arrow with grey goose fletching, braided linen bowstring taut, wood shows natural grain and careful tillering, leather grip wrap at center, quiver of arrows beside it with iron broadhead tips visible, displayed against pure black background, dramatic highlight along the taut bowstring, forest green accent on fletching",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, compound bow, crossbow, modern archery equipment, recurve bow",
+      "identity_features": [
+        "tall yew wood D-profile",
+        "sinew-backed limbs",
+        "braided linen bowstring",
+        "leather center grip",
+        "grey goose fletching on arrows"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed with arrow nocked", "in-use drawing and aiming"],
+      "color_palette": ["dark yew wood", "linen string off-white", "iron broadhead grey", "forest green fletching accent"],
+      "material": "yew wood and sinew",
+      "item_category": "weapons_ranged",
+      "game_stats": {"damage": "d8", "range": 150, "properties": ["two-handed", "ammunition"]}
+    },
+    {
+      "name": "Shortbow",
+      "type": "weapon",
+      "id": "shortbow",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, compact norse shortbow, shorter curved limbs of elm wood, practical hunting weapon, sinew-backed, leather-wrapped grip section, small belt quiver with bone-tipped arrows, bow shows wear from heavy use in forests, displayed against pure black background, natural warm wood tones against deep black, amber-brown accent on elm grain",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, compound bow, crossbow, longbow",
+      "identity_features": [
+        "compact curved elm limbs",
+        "sinew-backed construction",
+        "leather-wrapped grip",
+        "practical hunting design",
+        "belt quiver with bone-tipped arrows"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed", "in-use hunting scene"],
+      "color_palette": ["warm elm wood", "sinew backing off-white", "leather grip dark", "amber-brown accent"],
+      "material": "elm wood and sinew",
+      "item_category": "weapons_ranged",
+      "game_stats": {"damage": "d6", "range": 80, "properties": ["two-handed", "ammunition"]}
+    },
+    {
+      "name": "Throwing Axe",
+      "type": "weapon",
+      "id": "throwing_axe",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, balanced norse throwing axe, compact iron head with thin sharp blade designed for rotation in flight, short haft carved for aerodynamic release, iron head lighter than war axe, three throwing axes displayed in a fan arrangement, leather baldric belt holder shown nearby, displayed against pure black background, dramatic motion blur accent implying spinning flight, cold steel silver accent on blade edges",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, tomahawk, modern throwing axe, ornate decoration",
+      "identity_features": [
+        "compact thin blade for flight",
+        "short aerodynamic haft",
+        "lightweight iron head",
+        "balanced for throwing rotation",
+        "leather baldric holder"
+      ],
+      "suggested_compositions": ["icon view square", "triple fan arrangement", "in-use mid-flight spinning"],
+      "color_palette": ["thin blade silver", "short haft light wood", "baldric leather brown", "cold steel accent"],
+      "material": "iron and wood",
+      "item_category": "weapons_ranged",
+      "game_stats": {"damage": "d6", "range": 20, "properties": ["thrown"]}
+    },
+    {
+      "name": "Javelin",
+      "type": "weapon",
+      "id": "javelin",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, norse javelin throwing spear, light iron point with narrow profile for penetration, thin ash shaft designed for distance throwing, no crossguard, wrapped cord grip at balance point, several javelins shown bundled together, weapon of skirmish and first volley, displayed against pure black background, dramatic trajectory line implied, iron point catching cold light",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, pilum, heavy spear, ornate lance",
+      "identity_features": [
+        "narrow iron point for penetration",
+        "thin light ash shaft",
+        "cord grip at balance point",
+        "skirmish weapon design",
+        "bundled for carrying"
+      ],
+      "suggested_compositions": ["icon view square", "bundled group display", "in-use mid-throw trajectory"],
+      "color_palette": ["narrow iron point silver", "thin ash shaft pale", "cord grip brown", "cold light accent"],
+      "material": "iron and ash wood",
+      "item_category": "weapons_ranged",
+      "game_stats": {"damage": "d6", "range": 30, "properties": ["thrown"]}
+    },
+    {
+      "name": "Sling",
+      "type": "weapon",
+      "id": "sling",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, simple leather sling weapon, braided leather cords with wider pouch in center for stone, smooth river stones piled nearby, humble weapon of shepherds and the poor, well-worn leather darkened from use, displayed coiled against pure black background, one stone in the pouch ready to throw, dramatic simplicity of design, worn leather brown accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, slingshot, rubber band sling, modern weapon",
+      "identity_features": [
+        "braided leather cords",
+        "wider center pouch",
+        "smooth river stones",
+        "humble practical design",
+        "well-worn darkened leather"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with stones", "in-use spinning above head"],
+      "color_palette": ["worn leather brown", "river stone grey", "braided cord dark", "shadow black"],
+      "material": "braided leather",
+      "item_category": "weapons_ranged",
+      "game_stats": {"damage": "d4", "range": 40, "properties": ["ammunition"]}
+    },
+    {
+      "name": "Leather Armor",
+      "type": "armor",
+      "id": "leather_armor",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, hardened norse leather armor, cuirass of thick boiled leather shaped to torso, reinforced with iron studs at shoulders and chest, laced up the sides with leather cord, matching leather vambraces, worn and battle-scarred surface showing cuts and scrapes, dark brown leather with lighter wear marks, displayed on invisible form against pure black background, dramatic side-lighting showing texture and battle damage, warm leather brown accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern tactical vest, pristine new armor, full plate elements, medieval European style",
+      "identity_features": [
+        "boiled leather cuirass",
+        "iron stud reinforcement",
+        "side-laced construction",
+        "matching vambraces",
+        "battle-scarred worn surface"
+      ],
+      "suggested_compositions": ["icon view square", "showcase on form front view", "detail study of texture and studs"],
+      "color_palette": ["dark brown leather", "iron stud grey", "lighter wear marks", "lacing cord tan"],
+      "material": "hardened leather and iron studs",
+      "item_category": "armor",
+      "game_stats": {"armor_value": 1}
+    },
+    {
+      "name": "Chainmail",
+      "type": "armor",
+      "id": "chainmail",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, norse chainmail hauberk, thousands of interlocking iron rings riveted together, knee-length with short sleeves, split at front and back for riding, leather backing visible beneath the rings, heavy iron links showing masterful craftsmanship, oil-maintained to prevent rust, chain links catch light in cascading pattern, displayed on form against pure black background, dramatic silvery cascade of reflected light across the rings, cold steel blue accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, plate armor, scale mail, modern chainmail shirt, butted rings",
+      "identity_features": [
+        "interlocking riveted iron rings",
+        "knee-length hauberk",
+        "short sleeves",
+        "split front and back",
+        "cascading light reflection on rings"
+      ],
+      "suggested_compositions": ["icon view square", "showcase on form full view", "detail macro of ring pattern"],
+      "color_palette": ["iron ring silver", "cold steel blue", "leather backing brown", "shadow black depths"],
+      "material": "riveted iron rings over leather",
+      "item_category": "armor",
+      "game_stats": {"armor_value": 2}
+    },
+    {
+      "name": "Scale Mail",
+      "type": "armor",
+      "id": "scale_mail",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, norse scale mail armor, overlapping iron scales sewn to thick leather backing, fish-scale pattern rows from neck to thigh, each scale individually riveted, leather straps at shoulders and waist, heavier than chainmail with distinct layered appearance, scales show varied patina from weathering, displayed on form against pure black background, dramatic light playing across overlapping scale edges creating serpentine texture, steel grey-green patina accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, dragon scales, lamellar armor, plastic scales, uniform shiny scales",
+      "identity_features": [
+        "overlapping iron scales in rows",
+        "sewn to leather backing",
+        "individually riveted scales",
+        "fish-scale pattern",
+        "varied patina on scales"
+      ],
+      "suggested_compositions": ["icon view square", "showcase on form", "detail macro of scale pattern"],
+      "color_palette": ["iron scale grey", "patina grey-green", "leather backing brown", "rivet dark iron"],
+      "material": "iron scales on leather",
+      "item_category": "armor",
+      "game_stats": {"armor_value": 2}
+    },
+    {
+      "name": "Plate Armor",
+      "type": "armor",
+      "id": "plate_armor",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, rare norse plate armor, hammered steel breastplate and backplate, segmented pauldrons on shoulders, articulated arm protection, leather and mail at joints for flexibility, every plate hammer-finished with visible forge marks, norse knotwork etched along edges, chainmail skirt beneath plate, extremely rare and valuable, displayed on form against pure black background, dramatic reflections across hammered steel surfaces, cold bright steel accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, full medieval plate, gothic plate, power armor, mirror-polished surface, ornate gold trim",
+      "identity_features": [
+        "hammered steel breastplate",
+        "segmented pauldrons",
+        "norse knotwork etching",
+        "chainmail at joints",
+        "visible forge marks on plates"
+      ],
+      "suggested_compositions": ["icon view square", "showcase on form full view", "detail study of forge marks and knotwork"],
+      "color_palette": ["bright hammered steel", "dark joint chainmail", "leather strap brown", "knotwork etch dark"],
+      "material": "hammered steel with chainmail and leather",
+      "item_category": "armor",
+      "game_stats": {"armor_value": 3}
+    },
+    {
+      "name": "Bear Pelt Armor",
+      "type": "armor",
+      "id": "bear_pelt",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, thick bear pelt worn as armor, massive brown bear skin with the head still attached as a hood, heavy fur drapes over shoulders and down the back, claws still on the forepaws hanging at chest, secured with leather straps and bone toggles, fierce primal warrior garment of berserkers, fur thick and wild, displayed on form against pure black background, dramatic warm brown-amber tones against black, bear claw ivory accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, fake fur, modern coat, clean trimmed fur, taxidermy mount",
+      "identity_features": [
+        "full bear skin with head as hood",
+        "claws hanging at chest",
+        "thick wild fur",
+        "leather straps and bone toggles",
+        "primal berserker garment"
+      ],
+      "suggested_compositions": ["icon view square", "showcase on form with hood up", "detail of bear head hood and claws"],
+      "color_palette": ["deep brown bear fur", "bone toggle ivory", "leather strap dark", "amber fur accent", "claw ivory"],
+      "material": "bear hide, leather, and bone",
+      "item_category": "armor",
+      "game_stats": {"armor_value": 1}
+    },
+    {
+      "name": "Seer's Robes",
+      "type": "armor",
+      "id": "seer_robes",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, dark flowing seer robes, layered black and deep purple-grey fabric, wide sleeves for ritual gestures, hood deep enough to shadow the face, silver thread embroidery of rune symbols along hems and cuffs, bone clasps at throat, subtle spirit-world shimmer in the fabric weave, ancient garment of the volva tradition, displayed on form against pure black background, dramatic deep purple accent barely visible against black, silver thread catching moonlight",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, wizard robe, monk habit, bright colored robes, modern gown",
+      "identity_features": [
+        "layered black and deep purple fabric",
+        "wide ritual sleeves",
+        "deep face-shadowing hood",
+        "silver thread rune embroidery",
+        "bone clasps at throat"
+      ],
+      "suggested_compositions": ["icon view square", "showcase on form with hood", "detail of silver thread rune embroidery"],
+      "color_palette": ["deep black fabric", "barely visible purple-grey", "silver thread moonlight", "bone clasp ivory"],
+      "material": "layered wool and linen with silver thread",
+      "item_category": "armor",
+      "game_stats": {"armor_value": 0, "properties": ["ritual garment"]}
+    },
+    {
+      "name": "Round Shield",
+      "type": "shield",
+      "id": "round_shield",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, traditional norse round shield, circular planked construction of linden wood, iron boss at center protruding forward, leather-wrapped rim reinforced with iron strips, rawhide face covering painted with simple clan symbol, iron grip handle behind the boss, shield shows sword cuts and arrow impacts on face, practical battlefield equipment, displayed face-forward against pure black background, dramatic bold red clan symbol accent against dark shield face",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, kite shield, tower shield, buckler, modern riot shield, ornate heraldry",
+      "identity_features": [
+        "circular planked linden construction",
+        "central iron boss",
+        "leather-wrapped iron rim",
+        "painted clan symbol on face",
+        "battle-damaged surface"
+      ],
+      "suggested_compositions": ["icon view square face-on", "showcase angled three-quarter", "in-use shield wall formation"],
+      "color_palette": ["linden wood natural", "iron boss dark grey", "bold red clan symbol", "leather rim brown"],
+      "material": "linden wood, iron, and leather",
+      "item_category": "shields",
+      "game_stats": {"armor_bonus": 1}
+    },
+    {
+      "name": "Large Shield",
+      "type": "shield",
+      "id": "large_shield",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, large norse kite shield, tall elongated shield tapering to a point at bottom, oak planks reinforced with iron bands crossing the face, large iron boss at center, leather-covered face painted with jarl clan sigil, heavy shield for defensive warriors, iron rim around entire edge, arm straps and grip visible on back, displayed angled against pure black background, dramatic gold-amber accent on clan sigil, imposing defensive presence",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, tower shield, roman scutum, buckler, modern riot shield, ornate heraldic shield",
+      "identity_features": [
+        "tall kite shape tapering to point",
+        "oak planks with iron band reinforcement",
+        "large central iron boss",
+        "clan sigil painted on face",
+        "iron rim around full edge"
+      ],
+      "suggested_compositions": ["icon view square", "showcase angled three-quarter", "in-use defensive stance"],
+      "color_palette": ["dark oak wood", "iron band grey", "gold-amber clan sigil", "leather face brown"],
+      "material": "oak, iron bands, and leather",
+      "item_category": "shields",
+      "game_stats": {"armor_bonus": 2}
+    },
+    {
+      "name": "Swan-Feather Cloak",
+      "type": "accessory",
+      "id": "swan_feather_cloak",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, magical swan-feather cloak of the valkyrie, hundreds of white swan feathers layered and sewn to silver-grey wool backing, feathers shimmer with faint ethereal light, silver brooch clasp shaped as a swan in flight, cloak falls to ankle length, edges flutter as if in perpetual breeze, otherworldly garment associated with Odin's choosers of the slain, displayed draped on form against pure black background, dramatic luminous white feather glow against deep black, ethereal silver-white accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, angel wings, fairy wings, modern feather boa, fake feathers, chicken feathers",
+      "identity_features": [
+        "hundreds of layered white swan feathers",
+        "silver-grey wool backing",
+        "ethereal shimmer and faint glow",
+        "silver swan-shaped brooch clasp",
+        "perpetual breeze flutter"
+      ],
+      "suggested_compositions": ["icon view square", "showcase draped flowing", "in-use flight scene silhouette"],
+      "color_palette": ["luminous white feathers", "silver-grey wool", "ethereal pale glow", "silver brooch accent"],
+      "material": "swan feathers, wool, and silver",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["magical", "flight 1 min/day"]}
+    },
+    {
+      "name": "Camouflage Cloak",
+      "type": "accessory",
+      "id": "camouflage_cloak",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, hunter's camouflage cloak, heavy wool dyed in mottled patches of green and brown and grey, strips of cloth sewn on to break silhouette, hood with face veil, dried leaves and bark fragments woven into the fabric, ghillie-suit ancestor, practical concealment for forest stalking, cloak edges frayed and ragged intentionally, displayed against pure black background, muted forest green-brown tones blending into shadow, dark green accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern military camo, digital camo pattern, bright colors, clean uniform edges",
+      "identity_features": [
+        "mottled green-brown-grey dye",
+        "silhouette-breaking cloth strips",
+        "hood with face veil",
+        "woven leaves and bark fragments",
+        "intentionally ragged frayed edges"
+      ],
+      "suggested_compositions": ["icon view square", "showcase draped showing camo", "in-use blending into forest"],
+      "color_palette": ["mottled forest green", "bark brown", "shadow grey", "dried leaf amber"],
+      "material": "heavy dyed wool with natural elements",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["stealth advantage in wilderness"]}
+    },
+    {
+      "name": "Oath Ring",
+      "type": "accessory",
+      "id": "oath_ring",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, sacred norse oath ring, thick silver arm-ring with twisted rope pattern, open-ended design that spirals around the forearm, terminals shaped as wolf heads facing each other, surface inscribed with tiny norse runes binding oaths, weight and substance of the metal conveys solemnity, object of sacred legal and spiritual power, displayed against pure black background with dramatic light catching silver surface, bright silver accent against absolute black",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, finger ring, modern bracelet, gold ring, ornate jeweled bracelet",
+      "identity_features": [
+        "thick silver twisted rope pattern",
+        "open-ended spiral design",
+        "wolf head terminals facing each other",
+        "tiny norse rune inscriptions",
+        "substantial weight and presence"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed on dark velvet", "in-use sworn on with hands clasped"],
+      "color_palette": ["bright silver", "wolf head detail dark", "rune inscription shadow", "absolute black background"],
+      "material": "silver",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["sacred oath binding"]}
+    },
+    {
+      "name": "Rune Stones",
+      "type": "accessory",
+      "id": "rune_stones",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, set of 24 elder futhark rune stones, flat river stones each carved with a single rune symbol and stained with red ochre, stones scattered in a casting pattern on dark surface, leather drawstring pouch nearby, each rune distinctly carved with clean angular lines, some stones faintly glow with arcane power, tools of divination and magic, displayed against pure black background, dramatic arcane blue glow from select runes, red ochre accent on carved symbols",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, dice, tarot cards, crystal stones, polished gemstones, modern rune set",
+      "identity_features": [
+        "24 flat river stones",
+        "elder futhark rune carvings",
+        "red ochre stained symbols",
+        "leather drawstring pouch",
+        "faint arcane glow on some stones"
+      ],
+      "suggested_compositions": ["icon view square", "showcase scattered casting pattern", "detail of individual rune close-up"],
+      "color_palette": ["river stone grey", "red ochre rune symbols", "arcane blue glow", "leather pouch brown"],
+      "material": "river stone and red ochre",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["divination", "rune casting focus"]}
+    },
+    {
+      "name": "Crystal Ball",
+      "type": "accessory",
+      "id": "crystal_ball",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, seer's crystal sphere, smooth polished quartz orb with natural inclusions and fractures inside, cloudy depths that seem to swirl with spirit energy, sits in a cradle of twisted antler bone, size of a large apple, surface reflects and refracts surrounding light, tool of volva divination and scrying, displayed against pure black background, dramatic inner glow of ghostly pale blue-white from crystal depths, ethereal spirit energy accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, fortune teller cliche, snow globe, glass marble, perfectly clear crystal, ornate metal stand",
+      "identity_features": [
+        "polished quartz orb with inclusions",
+        "swirling spirit energy inside",
+        "antler bone cradle",
+        "natural fractures refracting light",
+        "volva divination tool"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with inner glow", "in-use scrying scene with mist"],
+      "color_palette": ["quartz cloudy white", "pale blue-white inner glow", "antler bone ivory", "spirit energy ethereal"],
+      "material": "polished quartz and antler bone",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["scrying", "fortune-telling"]}
+    },
+    {
+      "name": "Lyre",
+      "type": "accessory",
+      "id": "lyre",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, norse skald's lyre, carved dark birch wood frame with gentle curves, six gut strings stretched taut between yoke and bridge, frame decorated with simple carved knotwork patterns, tuning pegs of bone, leather carrying strap attached, well-worn from constant playing, instrument of skalds and poets, displayed against pure black background, warm golden accent on the gut strings catching light, wood grain warmth",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern guitar, harp, electric instrument, ornate gold lyre, greek style lyre",
+      "identity_features": [
+        "dark birch wood curved frame",
+        "six taut gut strings",
+        "carved knotwork decoration",
+        "bone tuning pegs",
+        "well-worn from playing"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed angled", "in-use performance scene"],
+      "color_palette": ["dark birch wood", "golden gut string", "bone peg ivory", "knotwork shadow"],
+      "material": "birch wood, gut strings, and bone",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["bardic focus", "inspire courage"]}
+    },
+    {
+      "name": "Mead Horn",
+      "type": "accessory",
+      "id": "mead_horn",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, decorated norse drinking horn, large curved ox horn polished to a dark sheen, silver rim band etched with norse knotwork, iron stand holder shaped like a serpent, interior sealed with beeswax, horn surface shows natural growth rings, tip capped with silver end-piece, vessel of fellowship and feasting, displayed against pure black background, warm amber mead glow implied inside, silver knotwork catching dramatic light",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern cup, tankard, goblet, plastic horn, small horn",
+      "identity_features": [
+        "large curved polished ox horn",
+        "silver rim band with knotwork",
+        "serpent-shaped iron stand",
+        "silver tip end-piece",
+        "natural growth ring texture"
+      ],
+      "suggested_compositions": ["icon view square", "showcase on serpent stand", "in-use raised in toast"],
+      "color_palette": ["dark polished horn", "silver rim knotwork", "amber mead glow", "iron stand dark"],
+      "material": "ox horn, silver, and iron",
+      "item_category": "accessories",
+      "game_stats": {}
+    },
+    {
+      "name": "Herb Pouch",
+      "type": "accessory",
+      "id": "herb_pouch",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, vanir warden herb pouch, soft leather drawstring pouch with embossed leaf pattern, dried herbs and flowers spilling from open top, small bone vials and tied herb bundles visible inside, leather darkened from handling oils and herb stains, healing and magical plants of the north, green moss accent color on dried herbs, displayed against pure black background, dramatic natural green accent from herb contents against dark leather",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern medicine bag, plastic container, pharmacy items, bright flower arrangement",
+      "identity_features": [
+        "soft leather with embossed leaf pattern",
+        "dried herbs spilling from top",
+        "bone vials inside",
+        "herb-stained darkened leather",
+        "drawstring closure"
+      ],
+      "suggested_compositions": ["icon view square", "showcase open with contents spilling", "detail of herb bundles and vials"],
+      "color_palette": ["herb-stained dark leather", "dried herb green", "bone vial ivory", "flower accent purple-yellow"],
+      "material": "soft leather and bone",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["medicinal and magical herbs"]}
+    },
+    {
+      "name": "Mistletoe Sprig",
+      "type": "accessory",
+      "id": "mistletoe_sprig",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, sacred mistletoe sprig, small branch of fresh green mistletoe with white berries, bound with red thread in ritual pattern, leaves waxy and vivid even in Fimbulwinter, sacred to the Vanir gods and druids, the plant that killed Baldur, symbol of both death and rebirth, displayed against pure black background, dramatic vivid green accent of living plant against absolute darkness, white berry luminescence",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, christmas decoration, modern holiday mistletoe, plastic plant, large tree branch",
+      "identity_features": [
+        "fresh green mistletoe leaves",
+        "white berries in clusters",
+        "red ritual thread binding",
+        "waxy vivid leaf texture",
+        "small sacred sprig"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed close-up", "ritual use with green energy"],
+      "color_palette": ["vivid sacred green", "white berry luminescence", "red ritual thread", "dark stem brown"],
+      "material": "fresh mistletoe and red thread",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["sacred", "ritual component"]}
+    },
+    {
+      "name": "Grappling Hook",
+      "type": "accessory",
+      "id": "grappling_hook",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, iron grappling hook, three-pronged iron hook forged from a single piece, each prong curved and sharpened to bite into wood and stone, heavy hemp rope knotted securely through the eye ring, rope coiled neatly beside the hook, raider's essential climbing tool, iron shows hammer marks from forging, displayed against pure black background, dramatic cold iron grey against black, rope tan-hemp accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern climbing gear, carabiner, modern rope, anchor, boat hook",
+      "identity_features": [
+        "three-pronged iron hook",
+        "forged from single piece",
+        "curved sharpened prongs",
+        "heavy hemp rope through eye ring",
+        "hammer marks from forging"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with coiled rope", "in-use hooking over wall"],
+      "color_palette": ["cold forged iron", "hemp rope tan", "shadow black", "sharp prong silver edge"],
+      "material": "forged iron and hemp rope",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["climbing tool", "raider equipment"]}
+    },
+    {
+      "name": "Hidden Lockpicks",
+      "type": "accessory",
+      "id": "lockpicks",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, set of concealed lockpicks, thin iron picks and tension wrenches of various shapes, wrapped in oiled leather roll for silent carrying, some picks bent at unusual angles for norse-era locks, one pick has a rake pattern, tools of the escaped thrall and the cunning, small enough to hide in a boot or sleeve, displayed unrolled against pure black background, dramatic fine metalwork detail, cold steel gleam accent on pick tips",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern lockpick gun, electronic tool, key set, modern security tools",
+      "identity_features": [
+        "thin iron picks various shapes",
+        "tension wrenches",
+        "oiled leather roll case",
+        "unusual angles for period locks",
+        "concealable small size"
+      ],
+      "suggested_compositions": ["icon view square", "showcase unrolled set display", "detail of individual pick shapes"],
+      "color_palette": ["thin iron dark grey", "oiled leather dark brown", "pick tip steel gleam", "shadow black"],
+      "material": "thin iron and oiled leather",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["guile check required", "concealed"]}
+    },
+    {
+      "name": "Dream Journal",
+      "type": "accessory",
+      "id": "dream_journal",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, seer's dream journal, bound in soft dark leather with embossed Freyja symbol on cover, pages of thick vellum covered in cramped handwriting and strange sketches, ink drawings of prophetic visions -- serpents, flames, rune symbols, spirit faces, edges of pages darkened from handling, leather bookmark cord, quill resting across open pages, displayed against pure black background, warm amber-parchment accent from open pages, mysterious ink sketch details",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern notebook, printed book, tablet, clean new journal",
+      "identity_features": [
+        "soft dark leather binding",
+        "embossed Freyja symbol on cover",
+        "vellum pages with cramped writing",
+        "ink sketches of visions",
+        "darkened edges from handling"
+      ],
+      "suggested_compositions": ["icon view square", "showcase open with visible sketches", "detail of prophetic ink drawings"],
+      "color_palette": ["dark leather binding", "amber-parchment pages", "ink black writing", "vision sketch grey"],
+      "material": "leather and vellum",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["seer focus", "record of prophecies"]}
+    },
+    {
+      "name": "Ritual Knife",
+      "type": "accessory",
+      "id": "ritual_knife",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, ornate norse ritual knife, short broad blade of polished iron with rune inscriptions along both sides, handle of carved dark antler depicting intertwined serpents, brass pommel cap, blade kept mirror-bright for ceremonial use, not a weapon of war but of sacrifice and offering, leather sheath with bronze fittings, displayed against pure black background, dramatic reflection on mirror-bright blade, brass-gold accent on pommel and fittings",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, athame, modern ceremonial knife, dagger, combat knife, jeweled blade",
+      "identity_features": [
+        "short broad polished blade",
+        "rune inscriptions both sides",
+        "carved antler serpent handle",
+        "brass pommel cap",
+        "mirror-bright ceremonial finish"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with sheath", "ritual use scene with blood offering"],
+      "color_palette": ["mirror-bright iron", "dark carved antler", "brass-gold pommel accent", "bronze fitting warm"],
+      "material": "polished iron, antler, and brass",
+      "item_category": "accessories",
+      "game_stats": {"properties": ["ritual", "sacrifice", "offering"]}
+    },
+    {
+      "name": "Star-Iron Ore",
+      "type": "quest_item",
+      "id": "star_iron_ore",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, chunk of star-iron meteorite ore, dark metallic mass with fusion crust and regmaglypts from atmospheric entry, interior surface where broken shows bright silvery-blue crystalline metal unlike any earthly iron, surprisingly heavy for its size, faint otherworldly shimmer on the exposed metal, essential material for runic smithing, rare beyond measure, displayed against pure black background, dramatic silvery-blue metallic glow from exposed interior, cosmic otherworldly accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, regular iron ore, gold nugget, gemstone, clean polished metal bar, meteorite display in museum",
+      "identity_features": [
+        "dark fusion crust exterior",
+        "regmaglypts from atmospheric entry",
+        "bright silvery-blue crystalline interior",
+        "otherworldly shimmer",
+        "deceptively heavy mass"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed with broken face visible", "forge scene being worked"],
+      "color_palette": ["dark fusion crust", "silvery-blue crystalline interior", "cosmic shimmer accent", "shadow black"],
+      "material": "meteoric iron",
+      "item_category": "quest_items",
+      "game_stats": {"properties": ["quest item", "runic smithing material"]}
+    },
+    {
+      "name": "Family Heirloom Arm-Ring",
+      "type": "quest_item",
+      "id": "family_heirloom",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, silver arm-ring family heirloom, thick silver band with protective runes engraved along its entire surface, old patina showing generations of wear, terminal ends shaped as small dragon heads, rune inscriptions glow faintly with residual ward magic, belonged to a vanished farm family, weight of history and loss, displayed against pure black background, dramatic warm silver glow from rune inscriptions, protective magic accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern bracelet, new jewelry, gold band, ornate jeweled bracelet",
+      "identity_features": [
+        "thick silver band with protective runes",
+        "old patina from generations of wear",
+        "dragon head terminals",
+        "faintly glowing ward runes",
+        "weight of family history"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed with rune glow", "narrative scene of discovery"],
+      "color_palette": ["aged silver patina", "warm rune glow", "dragon head dark detail", "shadow black"],
+      "material": "aged silver",
+      "item_category": "quest_items",
+      "game_stats": {"properties": ["quest item", "protective rune ward"]}
+    },
+    {
+      "name": "Farmer's Journal",
+      "type": "quest_item",
+      "id": "old_journal",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, weathered farmer's journal, thin bound pages of rough vellum, cover of cracked stained leather, water-damaged pages with ink running in places, entries describe strange events in increasingly frantic handwriting, final pages have desperate rune-like scratches, leather cord binding coming loose, pages yellowed and brittle, displayed against pure black background, dramatic warm amber light on aged pages, desperate ink scratch accent on final page",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern diary, printed book, clean new notebook, ornate tome",
+      "identity_features": [
+        "cracked stained leather cover",
+        "water-damaged running ink",
+        "increasingly frantic handwriting",
+        "desperate rune scratches on final pages",
+        "loose leather cord binding"
+      ],
+      "suggested_compositions": ["icon view square", "showcase open to frantic final page", "detail of desperate rune scratches"],
+      "color_palette": ["cracked leather brown", "aged yellowed vellum", "running ink black", "amber page-glow accent"],
+      "material": "leather and vellum",
+      "item_category": "quest_items",
+      "game_stats": {"properties": ["quest item", "clue to barrow events"]}
+    },
+    {
+      "name": "Rune Blade",
+      "type": "quest_item",
+      "id": "rune_blade",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, ancient rune-inscribed blade found in barrow, norse sword with fuller groove glowing with blue rune light, blade of pattern-welded steel showing wavy forge pattern, crossguard carved with serpent motifs, grip wrapped in aged dark leather over silver wire, pommel inscribed with the rune Tiwaz for victory, blade emanates faint cold blue light from its runes, weapon from the age of heroes, displayed against pure black background, dramatic blue rune glow along the fuller, ancient power accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, lightsaber, laser sword, modern sword replica, overly ornate fantasy sword, clean new weapon",
+      "identity_features": [
+        "blue glowing runes along fuller",
+        "pattern-welded wavy forge pattern",
+        "serpent motif crossguard",
+        "Tiwaz rune on pommel",
+        "ancient heroic craftsmanship"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed with rune glow", "in-use against undead silhouette"],
+      "color_palette": ["ancient steel grey", "cold blue rune glow", "dark aged leather", "serpent crossguard iron"],
+      "material": "pattern-welded steel and silver",
+      "item_category": "quest_items",
+      "game_stats": {"properties": ["quest reward", "+4 damage vs undead", "rune-inscribed"]}
+    },
+    {
+      "name": "Golden Arm-Ring",
+      "type": "quest_item",
+      "id": "golden_arm_ring",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, ancient golden arm-ring from barrow hoard, thick twisted gold band with intricate filigree terminals, heavy with centuries-old craftsmanship, each terminal shaped as a coiled dragon biting its tail, surface shows minute knotwork engraving, burial patina of green-black around crevices, treasure of an ancient chieftain, displayed against pure black background, dramatic warm gold glow accent, rich treasure gleam against absolute darkness",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern gold bracelet, simple gold ring, clean museum piece, jeweled bracelet",
+      "identity_features": [
+        "thick twisted gold band",
+        "filigree dragon terminals",
+        "minute knotwork engraving",
+        "burial patina in crevices",
+        "ancient chieftain craftsmanship"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed on dark surface", "discovered in barrow hoard scene"],
+      "color_palette": ["warm ancient gold", "burial patina green-black", "dragon terminal detail", "treasure gleam accent"],
+      "material": "ancient gold",
+      "item_category": "quest_items",
+      "game_stats": {"properties": ["quest reward", "valuable treasure"]}
+    },
+    {
+      "name": "Frost Wolf Pelt",
+      "type": "quest_item",
+      "id": "frost_wolf_pelt",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, frost wolf pelt trophy, thick silver-white fur with ice-blue undertones, still rimed with frost that never melts, larger than any normal wolf skin, cold emanates from the fur even cured, head still attached showing massive fangs and empty eye sockets, magical beast trophy, displayed spread against pure black background, dramatic ice-blue frost shimmer accent across the silver-white fur, cold emanation visible",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, normal wolf fur, dog skin, fake fur, modern fur coat, warm looking fur",
+      "identity_features": [
+        "silver-white fur with ice-blue undertones",
+        "perpetual frost rim on fur",
+        "oversized wolf dimensions",
+        "massive fangs on attached head",
+        "cold emanation visible"
+      ],
+      "suggested_compositions": ["icon view square", "showcase spread with frost detail", "trophy display on wall"],
+      "color_palette": ["silver-white fur", "ice-blue frost shimmer", "fang ivory", "cold shadow blue"],
+      "material": "magical frost wolf hide",
+      "item_category": "quest_items",
+      "game_stats": {"properties": ["quest reward", "trophy"]}
+    },
+    {
+      "name": "Ragna's Amulet",
+      "type": "quest_item",
+      "id": "ragna_amulet",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, worn bronze amulet from the barrow hills, circular bronze disc with rune inscriptions that faintly glow an unsettling green, found near disturbed barrows, chain is simple dark iron links, surface corroded with age showing verdigris patina, the rune inscriptions are of an ancient and dangerous style, object radiates subtle wrongness, may have awakened the dead, displayed against pure black background, dramatic sickly green rune glow accent, ominous aura",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern necklace, bright gemstone pendant, clean gold amulet, christian cross, happy looking jewelry",
+      "identity_features": [
+        "circular bronze disc",
+        "sickly green glowing rune inscriptions",
+        "dark iron chain links",
+        "verdigris corrosion patina",
+        "ancient dangerous rune style"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with ominous green glow", "in-use clutched desperately"],
+      "color_palette": ["corroded bronze", "sickly green rune glow", "dark iron chain", "verdigris patina accent"],
+      "material": "ancient bronze and iron",
+      "item_category": "quest_items",
+      "game_stats": {"properties": ["quest item", "cursed", "barrow connection"]}
+    },
+    {
+      "name": "Healing Potion",
+      "type": "consumable",
+      "id": "healing_potion",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, norse healing potion, small ceramic flask sealed with beeswax and stamped with the rune Berkana for healing, deep red liquid visible through the partly translucent clay, cork stopper wrapped in linen, flask shape is round-bottomed and practical, made by vanir herbalists, displayed against pure black background, dramatic deep red luminous glow from the healing liquid within, warm life-giving red accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, glass potion bottle, RPG video game potion, modern medicine bottle, bright neon liquid",
+      "identity_features": [
+        "small round ceramic flask",
+        "beeswax seal with Berkana rune stamp",
+        "deep red liquid visible through clay",
+        "linen-wrapped cork stopper",
+        "vanir herbalist craftsmanship"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with inner glow", "in-use drinking scene"],
+      "color_palette": ["clay ceramic warm brown", "deep red healing liquid", "beeswax seal golden", "linen cork white"],
+      "material": "ceramic and beeswax",
+      "item_category": "consumables",
+      "game_stats": {"effect": "Heals 2d6 HP"}
+    },
+    {
+      "name": "Antidote",
+      "type": "consumable",
+      "id": "antidote",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, norse antidote remedy, small bone vial carved from a single piece of cattle bone, sealed with a plug of dried herb paste, bitter green-brown liquid inside, tied with a leather cord for wearing around the neck, bone surface carved with tiny protective runes, emergency cure for poisons, displayed against pure black background, dramatic bitter green accent from contents, carved bone detail against dark",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern antidote syringe, pill bottle, bright green liquid, glass vial",
+      "identity_features": [
+        "carved bone vial single piece",
+        "dried herb paste seal",
+        "bitter green-brown liquid",
+        "leather neck cord",
+        "tiny protective rune carvings"
+      ],
+      "suggested_compositions": ["icon view square", "showcase detailed with rune carvings", "emergency use scene"],
+      "color_palette": ["carved bone ivory", "bitter green-brown liquid", "leather cord dark", "rune carving shadow"],
+      "material": "carved bone and herbs",
+      "item_category": "consumables",
+      "game_stats": {"effect": "Cures poison"}
+    },
+    {
+      "name": "Mead of Courage",
+      "type": "consumable",
+      "id": "mead_of_courage",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, enchanted mead of courage, small iron-banded wooden flask, honey-golden liquid faintly glowing with warm magical light, the mead bubbles gently even when still, branded with the rune Tiwaz for bravery on the side, leather cap secured with iron wire, blessed by skalds and warriors alike, displayed against pure black background, dramatic warm golden glow from enchanted mead, courage fire accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern flask, beer bottle, wine bottle, energy drink, bright neon liquid",
+      "identity_features": [
+        "iron-banded wooden flask",
+        "honey-golden glowing liquid",
+        "gentle magical bubbling",
+        "Tiwaz rune brand on side",
+        "leather cap with iron wire"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with warm glow", "in-use drinking before battle"],
+      "color_palette": ["dark wood flask", "iron band grey", "honey-golden mead glow", "Tiwaz brand dark"],
+      "material": "wood, iron, and enchanted mead",
+      "item_category": "consumables",
+      "game_stats": {"effect": "Immune to fear for 1 hour"}
+    },
+    {
+      "name": "Berserker Mushroom",
+      "type": "consumable",
+      "id": "berserker_mushroom",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, psychoactive berserker mushroom, cluster of small red-capped mushrooms with white spots growing from a piece of dark bark, caps are vivid blood-red even in noir style, stems pale and fibrous, amanita muscaria type, dangerous psychoactive fungus used by berserker warriors to induce battle rage, mushrooms give off faint spore wisps, displayed against pure black background, dramatic vivid blood-red cap accent the sole color in the composition, dangerous allure",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, normal cooking mushroom, cartoon mushroom, super mario mushroom, blue mushroom, modern drugs",
+      "identity_features": [
+        "blood-red caps with white spots",
+        "pale fibrous stems",
+        "growing from dark bark",
+        "amanita muscaria form",
+        "faint spore wisps"
+      ],
+      "suggested_compositions": ["icon view square", "showcase cluster growing from bark", "detail of caps with spore wisps"],
+      "color_palette": ["vivid blood-red caps", "white spots", "pale stem", "dark bark base", "spore wisp grey"],
+      "material": "psychoactive fungus",
+      "item_category": "consumables",
+      "game_stats": {"effect": "+2 Might, -2 Wits for 1 hour"}
+    },
+    {
+      "name": "Healer's Kit",
+      "type": "consumable",
+      "id": "healers_kit",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, norse healer's kit, leather roll case that unfolds to reveal compartments, clean linen bandage strips, bone needle and sinew thread for stitching, small clay pots of herbal salve, a thin iron cauterizing blade, dried moss for packing wounds, practical field medicine kit, displayed unrolled against pure black background, warm linen-white accent of clean bandages against dark leather, organized healer's precision",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern first aid kit, red cross, plastic bandages, modern medical equipment",
+      "identity_features": [
+        "leather roll case with compartments",
+        "linen bandage strips",
+        "bone needle and sinew thread",
+        "herbal salve clay pots",
+        "iron cauterizing blade"
+      ],
+      "suggested_compositions": ["icon view square", "showcase unrolled displaying contents", "in-use field medicine scene"],
+      "color_palette": ["dark leather case", "clean linen white", "bone needle ivory", "salve pot clay brown"],
+      "material": "leather, linen, bone, and clay",
+      "item_category": "consumables",
+      "game_stats": {"effect": "10 uses, heals 1d4 HP each"}
+    },
+    {
+      "name": "Torch",
+      "type": "adventuring_gear",
+      "id": "torch",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, burning viking torch, thick branch wrapped in oil-soaked linen and pitch at the top, flame burning fiercely casting dramatic light, wooden shaft rough and practical, fire illuminates in a warm orange circle against the consuming darkness, essential tool for barrow exploration and troll-repelling, displayed against pure black background, dramatic warm orange-yellow fire accent the sole bright element, fire vs darkness contrast",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern flashlight, lantern, electric light, candle",
+      "identity_features": [
+        "thick branch shaft",
+        "oil-soaked linen and pitch head",
+        "fierce burning flame",
+        "warm orange light circle",
+        "rough practical construction"
+      ],
+      "suggested_compositions": ["icon view square", "showcase burning with light pool", "in-use barrow exploration scene"],
+      "color_palette": ["warm orange-yellow flame", "pitch-black shaft", "fire light amber pool", "absolute darkness beyond"],
+      "material": "wood, linen, and pitch",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["illuminates 20 feet", "burns 1 hour"]}
+    },
+    {
+      "name": "Lantern",
+      "type": "adventuring_gear",
+      "id": "lantern",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, iron oil lantern, simple cage-like iron frame with horn panels that are translucent, oil reservoir at bottom, iron loop handle on top for carrying or hanging, wick visible through the horn window, steady warm flame within, practical reliable light source, iron shows forge marks and dark patina, displayed against pure black background, warm amber glow through translucent horn panels, steady flame accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern lantern, glass lantern, LED light, jack-o-lantern, ornate decorative lantern",
+      "identity_features": [
+        "iron cage frame",
+        "translucent horn panels",
+        "oil reservoir at base",
+        "iron loop carry handle",
+        "steady flame visible within"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with warm glow", "in-use carried in dark passage"],
+      "color_palette": ["dark iron frame", "amber horn panel glow", "warm flame yellow", "oil dark base"],
+      "material": "iron and horn",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["illuminates 30 feet", "burns 6 hours"]}
+    },
+    {
+      "name": "Rope",
+      "type": "adventuring_gear",
+      "id": "rope_50ft",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, coil of strong hemp rope fifty feet long, thick braided hemp fibers tightly wound, neatly coiled for carrying, ends whipped with thin cord to prevent fraying, practical essential adventuring tool, rope shows use-wear but remains strong, displayed coiled against pure black background, dramatic texture of braided hemp fibers, warm hemp-tan accent against black",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern climbing rope, nylon cord, thin string, chain, wire",
+      "identity_features": [
+        "thick braided hemp fibers",
+        "neatly coiled for carrying",
+        "whipped ends preventing fray",
+        "use-wear visible but strong",
+        "fifty-foot length"
+      ],
+      "suggested_compositions": ["icon view square", "showcase coiled", "in-use climbing scene"],
+      "color_palette": ["warm hemp tan", "braided fiber texture", "whipped end cord dark", "shadow black"],
+      "material": "braided hemp",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["50 feet", "climbing and binding"]}
+    },
+    {
+      "name": "Flint and Steel",
+      "type": "adventuring_gear",
+      "id": "flint_and_steel",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, flint and steel fire-starting set, C-shaped iron striker with worn grip, sharp-edged dark flint stone, small leather pouch containing charcloth and dry tinder, iron striker shows wear marks from thousands of strikes, essential survival tool, spark implied between flint and steel, displayed against pure black background, dramatic orange spark accent between the two pieces, fundamental tool of survival",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern lighter, matches, fire extinguisher, gas stove",
+      "identity_features": [
+        "C-shaped iron striker",
+        "sharp-edged dark flint",
+        "charcloth and tinder pouch",
+        "wear marks from use",
+        "spark between pieces"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with implied spark", "in-use striking fire"],
+      "color_palette": ["dark iron striker", "flint stone dark grey", "orange spark accent", "leather pouch brown"],
+      "material": "iron, flint, and leather",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["fire starting"]}
+    },
+    {
+      "name": "Waterskin",
+      "type": "adventuring_gear",
+      "id": "waterskin",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, leather waterskin, goatskin bag sewn with sinew thread and sealed with pine pitch, wooden stopper plug on leather cord, bag shape slightly bulging when full, carrying strap of braided leather, water-stained and well-used, essential survival item in Fimbulwinter, displayed against pure black background, subtle cool blue-grey water accent showing through leather, practical worn appearance",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern water bottle, canteen, thermos, plastic bottle, glass bottle",
+      "identity_features": [
+        "goatskin bag construction",
+        "sinew thread stitching",
+        "wooden stopper on cord",
+        "braided leather carry strap",
+        "water-stained well-used surface"
+      ],
+      "suggested_compositions": ["icon view square", "showcase hanging from strap", "in-use drinking scene"],
+      "color_palette": ["water-stained leather tan", "sinew stitch line", "wooden stopper light", "braided strap dark"],
+      "material": "goatskin leather and pine pitch",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["holds 1 day water"]}
+    },
+    {
+      "name": "Backpack",
+      "type": "adventuring_gear",
+      "id": "backpack",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, norse leather backpack, large single-compartment pack of thick oxhide leather, drawstring top with leather flap cover, wide leather shoulder straps, iron buckle closures, side loops for hanging tools and gear, worn and patched from long use on the road, traveler's essential carry-all, displayed against pure black background, warm leather brown accent, practical well-traveled appearance",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern backpack, school bag, hiking pack with frame, nylon bag",
+      "identity_features": [
+        "thick oxhide leather construction",
+        "drawstring top with flap cover",
+        "wide leather shoulder straps",
+        "iron buckle closures",
+        "side loops for gear"
+      ],
+      "suggested_compositions": ["icon view square", "showcase with gear attached", "on-back travel scene silhouette"],
+      "color_palette": ["thick oxhide brown", "iron buckle dark grey", "strap leather darker", "patched repair lighter"],
+      "material": "oxhide leather and iron",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["carry gear"]}
+    },
+    {
+      "name": "Bedroll",
+      "type": "adventuring_gear",
+      "id": "bedroll",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, norse bedroll, thick wool blankets rolled tightly and bound with leather straps, oiled leather outer layer for waterproofing, sheep's wool interior for warmth, essential for survival camping in Fimbulwinter, rolled compact for travel, displayed against pure black background, warm wool texture accent, practical compact survival gear",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern sleeping bag, inflatable mattress, modern camping gear, pillow",
+      "identity_features": [
+        "thick wool blankets tightly rolled",
+        "leather binding straps",
+        "oiled leather outer waterproofing",
+        "sheep's wool interior visible",
+        "compact travel-ready shape"
+      ],
+      "suggested_compositions": ["icon view square", "showcase rolled and strapped", "in-use campfire scene"],
+      "color_palette": ["warm wool grey-brown", "oiled leather dark", "binding strap tan", "wool interior cream"],
+      "material": "wool and oiled leather",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["outdoor sleeping"]}
+    },
+    {
+      "name": "Manacles",
+      "type": "adventuring_gear",
+      "id": "manacles",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, iron prisoner manacles, heavy hinged iron shackles connected by short chain, simple pin-lock mechanism, rough iron construction with visible forge marks, designed to restrain, dark corroded iron with use-wear at contact points, chain links thick and unyielding, displayed open against pure black background, dramatic cold iron harshness, oppressive heavy metal accent",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern handcuffs, zip ties, rope, novelty handcuffs, polished chrome",
+      "identity_features": [
+        "heavy hinged iron shackles",
+        "short connecting chain",
+        "pin-lock mechanism",
+        "rough forge marks",
+        "corroded use-wear at contact points"
+      ],
+      "suggested_compositions": ["icon view square", "showcase open and menacing", "narrative scene of imprisonment"],
+      "color_palette": ["dark corroded iron", "chain link grey", "forge mark texture", "cold harsh metal accent"],
+      "material": "heavy forged iron",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["restrain prisoners"]}
+    },
+    {
+      "name": "Ink and Quill",
+      "type": "adventuring_gear",
+      "id": "ink_and_quill",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, norse viking era, skald's writing implements, goose feather quill with trimmed nib, small clay inkwell sealed with wax, ink is deep iron-gall black, several rolled parchment sheets nearby, quill tip shows ink stain from use, tools of the word-weaver and scholar, displayed against pure black background, dramatic ink-black accent of the liquid against clay pot, feather white contrast",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern pen, fountain pen, ballpoint, printer, computer, typewriter",
+      "identity_features": [
+        "goose feather quill trimmed nib",
+        "small clay inkwell",
+        "iron-gall black ink",
+        "rolled parchment sheets",
+        "ink-stained quill tip"
+      ],
+      "suggested_compositions": ["icon view square", "showcase arranged writing set", "in-use composing scene"],
+      "color_palette": ["goose feather white", "ink-black liquid", "clay pot warm brown", "parchment amber"],
+      "material": "goose feather, clay, and iron-gall ink",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["writing", "record keeping"]}
+    },
+    {
+      "name": "Steel Mirror",
+      "type": "adventuring_gear",
+      "id": "mirror",
+      "positive_prompt": "ink noir illustration, heavy black ink, extreme contrast, bold linework, Frank Miller Sin City style, Frank Frazetta dark fantasy, selective bold color accents on dark background, isolated item study, detailed metalwork, norse viking era, polished steel mirror, small circular disc of hammered steel polished to reflective surface, leather-wrapped handle on back, edge decorated with simple punched dot pattern, surface shows subtle warp and imperfection of hand-polished metal, utility tool for signaling and vanity, displayed against pure black background, dramatic bright reflection accent on polished surface, mirror catching light",
+      "negative_prompt": "modern items, sci-fi, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, bright cheerful colors, flat shading, photorealistic, plain white background, cluttered background, multiple items, modern glass mirror, hand mirror with frame, ornate vanity mirror, broken mirror",
+      "identity_features": [
+        "small circular polished steel disc",
+        "leather-wrapped back handle",
+        "punched dot edge decoration",
+        "subtle warp imperfections",
+        "hand-polished reflective surface"
+      ],
+      "suggested_compositions": ["icon view square", "showcase reflecting light", "in-use signaling scene"],
+      "color_palette": ["polished steel bright", "leather back dark brown", "dot punch pattern shadow", "reflected light accent"],
+      "material": "polished steel and leather",
+      "item_category": "adventuring_gear",
+      "game_stats": {"properties": ["signaling", "utility"]}
+    }
+  ]
+}

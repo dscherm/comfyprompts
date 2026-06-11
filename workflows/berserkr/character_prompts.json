@@ -1,0 +1,564 @@
+{
+  "meta": {
+    "project": "berserkr",
+    "description": "Structured Stable Diffusion prompts for all Berserkr game characters",
+    "art_style": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face",
+    "negative_base": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame",
+    "generated": "2026-02-11",
+    "total_characters": 24
+  },
+  "characters": [
+    {
+      "name": "Berserkr",
+      "type": "class",
+      "id": "berserkr",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, fierce male viking berserker warrior, wild bloodshot eyes, long tangled dark hair, thick battle scars across face and chest, massive muscular build, bare-chested with bear pelt draped over shoulders, wolf-tooth necklace, warpaint streaked across cheeks, great axe gripped in calloused hands, feral snarling expression, veins visible on forearms, leather bracers, fur-lined boots, primal rage embodied, blood-spattered, forest battlefield background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, clean appearance, calm expression, plate armor, ornate decoration",
+      "identity_features": [
+        "wild tangled dark hair",
+        "heavy battle scars on face and chest",
+        "massive muscular build",
+        "bear pelt over shoulders",
+        "warpaint on cheeks",
+        "feral bloodshot eyes"
+      ],
+      "suggested_poses": [
+        "front portrait snarling with axe raised",
+        "3/4 view mid-battle rage",
+        "action pose charging forward",
+        "side profile screaming war cry"
+      ],
+      "color_palette": ["dark brown", "crimson red", "charcoal black", "bone white", "bear-fur tan"],
+      "equipment": ["great axe", "bear pelt", "hunting knife", "leather bracers", "wolf-tooth necklace"]
+    },
+    {
+      "name": "Valkyrie",
+      "type": "class",
+      "id": "valkyrie",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, regal female valkyrie warrior maiden, flowing golden blonde hair with braids and silver clasps, piercing ice-blue eyes, high cheekbones, polished chainmail armor over white tunic, round shield with raven emblem, gleaming spear in hand, swan-feather cloak flowing behind her, gold circlet on brow, noble determined expression, ethereal glow, snow falling around her, misty battlefield background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, angel wings, feathered wings, overly sexualized, revealing armor",
+      "identity_features": [
+        "golden blonde braided hair with silver clasps",
+        "ice-blue eyes",
+        "polished chainmail armor",
+        "swan-feather cloak",
+        "gold circlet on brow",
+        "noble regal bearing"
+      ],
+      "suggested_poses": [
+        "front portrait holding spear and shield",
+        "3/4 view looking skyward with cloak flowing",
+        "action pose thrusting spear forward",
+        "standing regal with shield at side"
+      ],
+      "color_palette": ["silver", "white", "gold", "ice blue", "swan feather gray"],
+      "equipment": ["spear", "round shield with raven emblem", "chainmail", "swan-feather cloak", "mead horn"]
+    },
+    {
+      "name": "Vanir Warden",
+      "type": "class",
+      "id": "vanir_warden",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, nature guardian druid figure, androgynous features, long auburn hair woven with ivy and small flowers, gentle green eyes, weathered tanned skin, leather armor adorned with leaves and bark, wooden staff with living vines curling around it, sickle at belt, mistletoe crown, antler bone pendant, moss-stained hands, calm wise expression, ancient forest background with dappled light",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, urban setting, metal heavy armor",
+      "identity_features": [
+        "long auburn hair woven with ivy",
+        "gentle green eyes",
+        "leather armor with leaf motifs",
+        "wooden staff with living vines",
+        "mistletoe crown",
+        "moss-stained hands"
+      ],
+      "suggested_poses": [
+        "front portrait with staff and animal companion",
+        "3/4 view communing with nature spirits",
+        "standing in forest clearing arms spread",
+        "kneeling touching the earth with green energy"
+      ],
+      "color_palette": ["forest green", "bark brown", "autumn auburn", "moss green", "earthy tan"],
+      "equipment": ["wooden staff with vines", "sickle", "leather armor", "herb pouch", "mistletoe sprig"]
+    },
+    {
+      "name": "Skald",
+      "type": "class",
+      "id": "skald",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, charismatic male norse poet-warrior, handsome angular features, medium-length copper-red hair swept back, bright intelligent hazel eyes, neatly trimmed beard, fine embroidered tunic over leather armor, ornate lyre strung across back, sword at hip, ink-stained fingers, confident charming smile, silver tongue-shaped brooch, saga book tucked in belt, warm torchlit mead hall background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, heavy armor, plain clothing, guitar",
+      "identity_features": [
+        "copper-red swept-back hair",
+        "bright hazel eyes",
+        "neatly trimmed beard",
+        "fine embroidered tunic",
+        "ink-stained fingers",
+        "charming confident expression"
+      ],
+      "suggested_poses": [
+        "front portrait playing lyre with dramatic expression",
+        "3/4 view performing in a mead hall",
+        "action pose drawing sword mid-song",
+        "seated composing with quill and parchment"
+      ],
+      "color_palette": ["copper red", "deep blue", "silver embroidery", "warm gold", "leather brown"],
+      "equipment": ["lyre", "sword", "fine clothes", "leather armor", "saga book", "ink and quill"]
+    },
+    {
+      "name": "Runecaster",
+      "type": "class",
+      "id": "runecaster",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, elderly male norse mage, long white beard, deeply lined face, one milky eye one sharp grey eye, gaunt angular features, dark blue robes with silver rune embroidery, gnarled oak staff with glowing rune stones embedded, rune stones floating around hands, arcane blue glow emanating from fingertips, rune-inscribed leather bandoleer, hunched scholar posture, mysterious knowing expression, dark stone chamber with runic carvings background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, wizard hat, bright colorful robes, DnD style, Gandalf copy",
+      "identity_features": [
+        "long white beard",
+        "one milky eye one sharp grey eye",
+        "gaunt angular features",
+        "dark blue robes with silver rune embroidery",
+        "gnarled oak staff with rune stones",
+        "arcane blue glow from hands"
+      ],
+      "suggested_poses": [
+        "front portrait casting runes with glowing hands",
+        "3/4 view studying rune stones by candlelight",
+        "action pose channeling runic energy through staff",
+        "close-up examining a rune stone with intense focus"
+      ],
+      "color_palette": ["midnight blue", "silver", "arcane blue glow", "stone grey", "parchment tan"],
+      "equipment": ["gnarled oak staff", "rune stones set of 24", "robes", "spellbook", "ritual components"]
+    },
+    {
+      "name": "Shield Thane",
+      "type": "class",
+      "id": "shield_thane",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, stalwart male viking defender, square jaw, short cropped brown hair, stern resolute brown eyes, thick neck, broad shoulders, heavy chainmail armor polished and well-maintained, large kite shield with clan sigil, sword at hip, gold oath-ring on right arm, fur-lined cloak pinned with bronze brooch, stoic unwavering expression, scarred knuckles, shield wall formation background with snow falling",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, ornate plate armor, roman style, tower shield",
+      "identity_features": [
+        "square jaw",
+        "short cropped brown hair",
+        "stern resolute brown eyes",
+        "heavy polished chainmail",
+        "large kite shield with clan sigil",
+        "gold oath-ring on arm"
+      ],
+      "suggested_poses": [
+        "front portrait behind raised shield",
+        "3/4 view in shield wall formation",
+        "action pose blocking with shield braced",
+        "standing guard at a doorway"
+      ],
+      "color_palette": ["iron grey", "brown leather", "bronze", "gold oath-ring", "dark fur"],
+      "equipment": ["large shield with clan sigil", "sword", "chainmail", "oath ring", "fur-lined cloak"]
+    },
+    {
+      "name": "Raider",
+      "type": "class",
+      "id": "raider",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, agile male viking raider, lean muscular build, short spiky black hair with shaved sides, fierce dark eyes with kohl-lined eyelids, sharp angular face, leather armor over bare arms covered in tribal tattoos, hand axe in right hand seax in left, round shield on back, grappling hook and rope coiled at belt, predatory confident grin, sea-spray wet, longship prow and stormy ocean background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, heavy armor, pirate style, tricorn hat",
+      "identity_features": [
+        "lean muscular build",
+        "short spiky black hair with shaved sides",
+        "fierce dark eyes with kohl lining",
+        "tribal tattoos on bare arms",
+        "dual-wielding axe and seax",
+        "predatory grin"
+      ],
+      "suggested_poses": [
+        "front portrait dual-wielding with fierce grin",
+        "3/4 view leaping from longship",
+        "action pose mid-swing with both weapons",
+        "crouching ready to strike from shadow"
+      ],
+      "color_palette": ["black leather", "sea grey", "blood red tattoos", "storm blue", "rope tan"],
+      "equipment": ["hand axe", "seax", "round shield", "leather armor", "grappling hook", "rope"]
+    },
+    {
+      "name": "Hunter",
+      "type": "class",
+      "id": "hunter",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, lithe female norse huntress, lean athletic build, long dark brown hair in practical braid, sharp amber eyes like a hawk, tanned weathered skin, camouflage cloak of mottled green and brown over leather armor, longbow drawn with arrow nocked, quiver on back, hunting knife at thigh, wolf companion at side, focused predatory stare, crouching in snowy pine forest background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, elf ears, revealing clothing, clean pristine appearance",
+      "identity_features": [
+        "long dark brown hair in practical braid",
+        "sharp amber hawk-like eyes",
+        "lean athletic build",
+        "camouflage cloak mottled green and brown",
+        "longbow always in hand",
+        "wolf companion at side"
+      ],
+      "suggested_poses": [
+        "front portrait drawing longbow aimed at viewer",
+        "3/4 view crouching in forest with wolf",
+        "action pose releasing arrow in mid-leap",
+        "standing on rocky outcrop surveying terrain"
+      ],
+      "color_palette": ["forest green", "earth brown", "amber gold", "pine needle green", "wolf grey"],
+      "equipment": ["longbow", "quiver with arrows", "hunting knife", "leather armor", "camouflage cloak", "trapping kit"]
+    },
+    {
+      "name": "Seer",
+      "type": "class",
+      "id": "seer",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, mystical female norse seer, thin frail build, very long silver-white hair loose and flowing, pale luminous skin, milky white blind eyes that glow faintly, gaunt high cheekbones, dark purple and black seer robes, bone and amber jewelry, staff topped with a crystal sphere, ritual knife at belt, third-eye rune painted on forehead in blue woad, ethereal otherworldly expression, wisps of spirit energy around her, misty moonlit standing stones background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, witch hat, broomstick, crystal ball on table, fortune teller cliche",
+      "identity_features": [
+        "very long silver-white flowing hair",
+        "milky white glowing blind eyes",
+        "thin frail build",
+        "dark purple and black robes",
+        "bone and amber jewelry",
+        "third-eye rune on forehead in blue woad"
+      ],
+      "suggested_poses": [
+        "front portrait with glowing eyes and spirit wisps",
+        "3/4 view in trance with arms raised",
+        "action pose channeling vision energy",
+        "seated cross-legged casting bone runes"
+      ],
+      "color_palette": ["deep purple", "silver white", "moonlight blue", "bone ivory", "amber gold"],
+      "equipment": ["crystal-topped staff", "bone and amber jewelry", "seer robes", "ritual knife", "dream journal", "incense"]
+    },
+    {
+      "name": "Thrall Risen",
+      "type": "class",
+      "id": "thrall_risen",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, defiant former slave warrior, wiry tough build, shaved head with stubble growing back, intense burning dark eyes full of rage and determination, brand scar on left cheek, whip scars across back visible through torn tunic, broken iron shackles still hanging from wrists used as weapons, tattered dirty clothing, stolen knife tucked in rope belt, bare feet calloused and scarred, clenched fists, fierce unbowed expression, smoky burning longhouse background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, clean clothing, well-fed appearance, fine armor, happy expression",
+      "identity_features": [
+        "shaved head with stubble",
+        "brand scar on left cheek",
+        "whip scars on back",
+        "broken iron shackles on wrists",
+        "tattered clothing",
+        "intense burning dark eyes"
+      ],
+      "suggested_poses": [
+        "front portrait with broken chains raised defiantly",
+        "3/4 view snarling with stolen knife",
+        "action pose swinging chains as weapon",
+        "standing amid freed prisoners fist raised"
+      ],
+      "color_palette": ["rust iron", "blood brown", "ash grey", "bruise purple", "fire orange"],
+      "equipment": ["broken chains as weapons", "improvised weapon", "stolen knife", "tattered clothes", "hidden lockpicks"]
+    },
+    {
+      "name": "Helga One-Eye",
+      "type": "npc",
+      "id": "innkeeper_helga",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, middle-aged female innkeeper and former shield-maiden, muscular build with forearms like tree trunks, missing left eye covered by leather eye patch, gray-streaked red hair in thick braids, weathered ruddy face with laugh lines, one sharp hazel eye, stained linen apron over practical wool dress, sleeves rolled up showing old battle scars on arms, standing behind a wooden bar, mead mugs and barrels in background, warm firelit tavern interior, authoritative maternal expression",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, both eyes visible, thin frail build, young appearance",
+      "identity_features": [
+        "missing left eye with leather patch",
+        "gray-streaked red hair in thick braids",
+        "muscular build with powerful forearms",
+        "weathered ruddy face with laugh lines",
+        "stained linen apron",
+        "old battle scars on arms"
+      ],
+      "suggested_poses": [
+        "front portrait behind tavern bar arms crossed",
+        "3/4 view serving mead with knowing smile",
+        "action pose reaching under bar for hidden axe",
+        "leaning forward on bar speaking confidentially"
+      ],
+      "color_palette": ["warm red hair", "leather brown", "linen cream", "tavern amber", "iron grey eye patch"],
+      "equipment": ["leather eye patch", "linen apron", "mead mugs", "hidden axe under bar"]
+    },
+    {
+      "name": "Grimr",
+      "type": "npc",
+      "id": "mysterious_stranger",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, elderly mysterious wanderer, tall and lean, deep hooded dark blue cloak concealing most of face, one piercing bright blue eye visible beneath hood, other eye socket empty and shadowed, long grey beard reaching chest, gnarled ash-wood staff held in weathered hand, two black ravens perched on shoulders, drinking horn at belt that gleams with inner light, ancient ageless face with deep wisdom lines, knowing enigmatic half-smile, dark tavern corner with shadows background, candlelight catching his single eye",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, both eyes visible, wizard hat, Gandalf copy, bright robes, young face",
+      "identity_features": [
+        "deep hooded dark blue cloak",
+        "one piercing bright blue eye",
+        "empty eye socket beneath hood",
+        "long grey beard",
+        "gnarled ash-wood staff",
+        "two black ravens on shoulders"
+      ],
+      "suggested_poses": [
+        "front portrait in shadow with one eye gleaming",
+        "3/4 view with ravens and staff in tavern corner",
+        "standing on road at crossroads with ravens circling",
+        "close-up of face half-hidden by hood single eye intense"
+      ],
+      "color_palette": ["midnight blue cloak", "raven black", "ash grey beard", "single eye bright blue", "dark shadow"],
+      "equipment": ["gnarled ash-wood staff", "dark blue hooded cloak", "drinking horn", "two ravens"]
+    },
+    {
+      "name": "Bjorn Ironsides",
+      "type": "npc",
+      "id": "drunk_warrior",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, middle-aged male warrior fallen from glory, broad powerful build gone slightly soft, heavily scarred face with a long diagonal scar from brow to jaw, unkempt brown beard streaked with grey, bloodshot haunted blue eyes with dark circles, dented and tarnished chainmail armor worn constantly, mead horn in one hand, matted shoulder-length brown hair, slumped posture, expression of deep grief and self-loathing, tavern bench with empty mead cups scattered around, dim smoky tavern background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, happy expression, clean polished armor, well-groomed, heroic pose",
+      "identity_features": [
+        "long diagonal scar from brow to jaw",
+        "unkempt brown beard streaked with grey",
+        "bloodshot haunted blue eyes",
+        "dented tarnished chainmail",
+        "broad build gone slightly soft",
+        "slumped defeated posture"
+      ],
+      "suggested_poses": [
+        "front portrait slumped over mead at tavern table",
+        "3/4 view staring into mead horn with haunted eyes",
+        "action pose gripping old axe with sudden ferocity",
+        "standing straight for once with warrior dignity restored"
+      ],
+      "color_palette": ["tarnished iron", "mead amber", "bruise purple under eyes", "grey-brown beard", "smoky tavern haze"],
+      "equipment": ["dented chainmail", "mead horn", "old battle axe nearby", "giant tooth hidden in pouch"]
+    },
+    {
+      "name": "Leif Steady-Hand",
+      "type": "npc",
+      "id": "gate_guard",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, young male gate guard, fresh earnest face with peach fuzz beard, bright eager green eyes, sandy blonde hair poking from iron helm, warm furs draped over leather armor, spear held upright at attention, round wooden shield on arm, slight nervous smile trying to look official, breath visible in cold air, standing at wooden palisade gate, snow-covered village entrance background, torchlight and fading daylight",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, battle-hardened appearance, old face, heavy plate armor, grizzled veteran look",
+      "identity_features": [
+        "young earnest face",
+        "bright eager green eyes",
+        "sandy blonde hair under iron helm",
+        "warm furs over leather armor",
+        "spear held at attention",
+        "slight nervous smile"
+      ],
+      "suggested_poses": [
+        "front portrait at gate with spear and shield",
+        "3/4 view peering down road at approaching traveler",
+        "standing at attention trying to look imposing",
+        "off-duty relaxed with friendly smile"
+      ],
+      "color_palette": ["sandy blonde", "leather brown", "warm fur grey", "iron helm", "snow white"],
+      "equipment": ["spear", "round shield", "leather armor", "iron helm", "warm furs"]
+    },
+    {
+      "name": "Frey Silvertongue",
+      "type": "npc",
+      "id": "merchant",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, middle-aged male traveling merchant, lean build, shrewd calculating dark brown eyes, well-trimmed dark beard with grey at temples, smooth tanned face, slightly oily smile that never reaches his eyes, fine wool merchant tunic dyed deep green with fur-trimmed collar, leather merchant pack bulging with goods, coin purse at belt, jeweled rings on fingers, rubbing hands together, marketplace stall with exotic wares background, winter market square",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, trustworthy appearance, warrior build, armor, weapons prominent",
+      "identity_features": [
+        "calculating dark brown eyes",
+        "well-trimmed dark beard grey at temples",
+        "oily smile that never reaches eyes",
+        "fine green merchant tunic with fur collar",
+        "jeweled rings on fingers",
+        "hands rubbing together"
+      ],
+      "suggested_poses": [
+        "front portrait presenting exotic wares with spread hands",
+        "3/4 view leaning close with conspiratorial whisper",
+        "standing at market stall gesturing grandly",
+        "counting coins with shrewd expression"
+      ],
+      "color_palette": ["deep merchant green", "gold coins", "fur brown", "jewel tones", "leather tan"],
+      "equipment": ["merchant pack", "coin purse", "jeweled rings", "fine tunic", "exotic trade goods"]
+    },
+    {
+      "name": "Jarl Erik Raven-Friend",
+      "type": "npc",
+      "id": "jarl_erik",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, elderly male norse jarl ruler, silver-white hair to shoulders, close-cropped silver beard, deep-set weary blue-grey eyes, lined face bearing weight of rule, dignified despite exhaustion, fur-trimmed heavy cloak of deep crimson over chainmail, gold arm-rings on both forearms, gold brooch pinning cloak, seated on a carved wooden high seat, raven perched on the chair arm, great hall with fire pit and tapestries background, somber regal bearing",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, crown, throne room, young vigorous appearance, happy expression",
+      "identity_features": [
+        "silver-white shoulder-length hair",
+        "close-cropped silver beard",
+        "weary deep-set blue-grey eyes",
+        "fur-trimmed crimson cloak",
+        "gold arm-rings on forearms",
+        "dignified exhausted bearing"
+      ],
+      "suggested_poses": [
+        "front portrait seated on high seat with raven",
+        "3/4 view standing overlooking his village",
+        "close-up face weary but resolute in firelight",
+        "standing with arms crossed addressing his people"
+      ],
+      "color_palette": ["silver white hair", "deep crimson cloak", "gold arm-rings", "chainmail grey", "raven black"],
+      "equipment": ["fur-trimmed crimson cloak", "gold arm-rings", "gold brooch", "chainmail"]
+    },
+    {
+      "name": "Thorvald Rune-Hammer",
+      "type": "npc",
+      "id": "thorvald_smith",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, elderly male master blacksmith, massively muscled arms disproportionate to age, extensive burn scars on hands and forearms, rune tattoos covering both hands and wrists in blue-black ink, short grey hair singed at edges, thick grey eyebrows, squinting appraising dark eyes, heavy leather apron over soot-stained tunic, smith hammer in one hand, tongs holding glowing rune-inscribed blade in other, intense focused expression, forge with anvil and roaring fire background, sparks and orange glow",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, clean hands, thin arms, modern forge, young appearance",
+      "identity_features": [
+        "massively muscled arms",
+        "extensive burn scars on hands and forearms",
+        "rune tattoos on hands in blue-black ink",
+        "short grey singed hair",
+        "heavy leather apron",
+        "squinting appraising expression"
+      ],
+      "suggested_poses": [
+        "front portrait at anvil hammer raised mid-strike",
+        "3/4 view examining a rune-inscribed blade",
+        "action pose inscribing glowing rune onto metal",
+        "close-up of rune-tattooed hands holding finished weapon"
+      ],
+      "color_palette": ["forge orange", "soot black", "iron grey", "blue-black rune tattoo", "leather brown"],
+      "equipment": ["smith hammer", "tongs", "leather apron", "rune-inscribed blades", "forge tools"]
+    },
+    {
+      "name": "Sigrid the Volva",
+      "type": "npc",
+      "id": "volva_sigrid",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, ancient female seeress, impossibly old with deeply wrinkled parchment-like skin, completely white blind eyes with no pupils, wild white hair like cobwebs, bone-thin frame wrapped in layered dark robes of black and deep grey, staff topped with a raven skull and hanging bone charms, necklaces of carved bone and amber beads, gnarled hands with long fingers, serene all-knowing expression, standing in a dark temple with eternal flame burning behind her, spirit wisps in the air",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, normal eyes, young face, witch cliche, pointed hat, bright clothing",
+      "identity_features": [
+        "completely white blind eyes no pupils",
+        "wild white cobweb-like hair",
+        "impossibly ancient wrinkled face",
+        "staff with raven skull and bone charms",
+        "layered black and grey robes",
+        "bone and amber necklaces"
+      ],
+      "suggested_poses": [
+        "front portrait with blind eyes and raven skull staff",
+        "3/4 view casting bones in divination",
+        "standing before eternal flame arms raised",
+        "close-up of blind eyes with spirit energy reflected"
+      ],
+      "color_palette": ["bone white", "charcoal black", "deep grey robes", "amber bead gold", "spirit blue wisps"],
+      "equipment": ["staff with raven skull", "bone and amber jewelry", "dark robes", "divination bones"]
+    },
+    {
+      "name": "Knut Word-Weaver",
+      "type": "npc",
+      "id": "skald_npc",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, young male skald poet, bright excited brown eyes wide with wonder, messy light brown hair falling in face, ink-stained fingers and smudged cheek, eager boyish expression, simple traveler clothing with a colorful embroidered vest, lyre strung across back, leather satchel overflowing with parchment scrolls, quill tucked behind ear, animated hand gestures, warm mead hall with audience in background, firelight illuminating his enthusiastic face",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, old face, warrior build, armor, stern expression",
+      "identity_features": [
+        "bright excited brown eyes",
+        "messy light brown hair falling in face",
+        "ink-stained fingers and smudged cheek",
+        "eager boyish expression",
+        "lyre strung across back",
+        "parchment scrolls spilling from satchel"
+      ],
+      "suggested_poses": [
+        "front portrait gesturing excitedly while telling a tale",
+        "3/4 view playing lyre in mead hall",
+        "scribbling notes frantically with wide eyes",
+        "standing reciting saga with dramatic pose"
+      ],
+      "color_palette": ["warm brown hair", "ink black stains", "parchment cream", "colorful vest embroidery", "firelight amber"],
+      "equipment": ["lyre", "leather satchel", "parchment scrolls", "quill and ink", "embroidered vest"]
+    },
+    {
+      "name": "Ulf the Silent",
+      "type": "npc",
+      "id": "hirdman_guard",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, tall imposing male bodyguard, middle-aged, heavily muscled, long jagged scar across throat from ear to ear, close-cropped dark hair, cold evaluating steel-grey eyes, square jaw clenched tight, fine well-maintained chainmail and leather armor, great axe strapped to back, arms crossed over chest, looming protective stance, positioned near a doorway in a jarl's longhouse, shadows and firelight, intimidating silent presence",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, speaking or mouth open, friendly expression, thin build, poor quality armor",
+      "identity_features": [
+        "long jagged throat scar ear to ear",
+        "tall imposing muscular build",
+        "cold steel-grey evaluating eyes",
+        "close-cropped dark hair",
+        "fine chainmail and leather armor",
+        "great axe on back"
+      ],
+      "suggested_poses": [
+        "front portrait arms crossed blocking doorway",
+        "3/4 view hand on axe scanning for threats",
+        "standing behind jarl with vigilant expression",
+        "close-up of scarred throat and clenched jaw"
+      ],
+      "color_palette": ["steel grey", "dark leather", "chainmail silver", "shadow black", "scar pink"],
+      "equipment": ["great axe", "fine chainmail", "leather armor"]
+    },
+    {
+      "name": "Astrid Helgasdottir",
+      "type": "npc",
+      "id": "astrid_missing",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, young female captive, bright red hair like her mother tangled and dirty, defiant green eyes despite fear, freckled pale face smudged with dirt, torn green herb-gathering dress, scratches and bruises on arms, bare feet, crouching in a dark cave, faint torchlight from deeper in cave, determined expression despite desperate situation, clutching a sharp rock as improvised weapon, damp stone walls and troll-carved passages background",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, clean appearance, comfortable setting, giving up, damsel cliche",
+      "identity_features": [
+        "bright red hair like her mother",
+        "defiant green eyes",
+        "freckled pale face",
+        "torn green dress",
+        "scratches and bruises",
+        "determined expression despite captivity"
+      ],
+      "suggested_poses": [
+        "front portrait crouching in cave with defiant stare",
+        "3/4 view pressing against cave wall hiding",
+        "reaching toward rescuer with desperate hope",
+        "clutching sharp rock ready to fight"
+      ],
+      "color_palette": ["bright red hair", "cave shadow black", "torn green dress", "pale skin", "dirt brown"],
+      "equipment": ["torn dress", "improvised sharp rock", "worn amulet from mother"]
+    },
+    {
+      "name": "Sigrun Thorvaldsdottir",
+      "type": "npc",
+      "id": "smithy_apprentice",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, young female blacksmith apprentice, strong toned arms from forge work, dark braided hair pulled back practically, warm brown eyes, soot-smudged face with natural beauty beneath, steady confident hands, leather apron over simple wool tunic, holding a glowing rune-inscribed piece of metal with tongs, small hammer in other hand, slight proud smile, forge background with anvil and glowing coals, orange firelight highlighting her face, sparks in the air",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, clean pristine appearance, delicate build, ornate clothing, weak arms",
+      "identity_features": [
+        "strong toned arms from forge work",
+        "dark braided hair pulled back",
+        "warm brown eyes",
+        "soot-smudged face",
+        "leather apron",
+        "steady confident hands"
+      ],
+      "suggested_poses": [
+        "front portrait at anvil inscribing rune",
+        "3/4 view examining a weapon with professional eye",
+        "action pose hammering glowing metal on anvil",
+        "holding up finished rune-blade with pride"
+      ],
+      "color_palette": ["dark hair", "forge orange glow", "soot black", "leather brown apron", "rune blue glow"],
+      "equipment": ["smith hammer", "tongs", "leather apron", "rune-inscribed metalwork"]
+    },
+    {
+      "name": "Dalla Frost-Born",
+      "type": "npc",
+      "id": "temple_acolyte",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, young female temple acolyte, pale porcelain complexion, dark circles under luminous grey eyes, straight ash-blonde hair to waist, trembling delicate hands, simple white linen robe with silver thread embroidery, small silver pendant of Freyja, thin frame, nervous uncertain expression mixed with hidden inner strength, standing before a burning eternal flame on stone altar, dark temple interior with god statues in background, warm flame-glow on her face contrasting cold stone",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, confident expression, warrior build, dark robes, old face, christian imagery",
+      "identity_features": [
+        "pale porcelain complexion",
+        "dark circles under luminous grey eyes",
+        "straight ash-blonde hair to waist",
+        "trembling delicate hands",
+        "simple white robe with silver thread",
+        "nervous uncertain expression"
+      ],
+      "suggested_poses": [
+        "front portrait tending eternal flame with reverent expression",
+        "3/4 view eyes unfocused mid-vision",
+        "kneeling in prayer before god statue",
+        "standing in doorway of temple looking out at approaching storm"
+      ],
+      "color_palette": ["white linen", "silver thread", "flame warm gold", "ash blonde", "cold stone grey"],
+      "equipment": ["white linen robe", "silver Freyja pendant", "temple candles", "blessing herbs"]
+    },
+    {
+      "name": "Ragna Ketilsdottir",
+      "type": "npc",
+      "id": "farm_survivor",
+      "positive_prompt": "norse fantasy, viking era, painterly style, dark fantasy, detailed character portrait, medieval scandinavian, dramatic lighting, high quality, detailed face, middle-aged haggard female farmwoman, gaunt hollow face from sleepless nights, wild frightened eyes darting constantly, disheveled brown hair escaping a torn headscarf, torn and mud-stained farm clothes patched many times, clutching a worn bronze amulet to chest with white knuckles, thin frame from not eating, wrapped arms around herself, expression of desperate grief and fear, standing at village outskirts looking toward distant barrow hills, overcast grey sky, cold wind blowing her tattered clothes",
+      "negative_prompt": "modern clothing, contemporary, anime, cartoon, deformed, blurry, low quality, watermark, text, signature, extra limbs, mutated hands, poorly drawn face, out of frame, calm expression, well-fed appearance, clean clothes, indoor setting, peaceful look",
+      "identity_features": [
+        "gaunt hollow haunted face",
+        "wild frightened darting eyes",
+        "disheveled brown hair under torn headscarf",
+        "torn mud-stained patched farm clothes",
+        "clutching worn bronze amulet",
+        "thin frame wrapped around herself"
+      ],
+      "suggested_poses": [
+        "front portrait clutching amulet with desperate pleading eyes",
+        "3/4 view looking over shoulder at barrow hills",
+        "kneeling in temple praying with tear-streaked face",
+        "standing at village edge staring into the distance"
+      ],
+      "color_palette": ["mud brown", "torn grey cloth", "bronze amulet", "overcast grey sky", "barrow hill green"],
+      "equipment": ["worn bronze amulet", "torn farm clothes", "headscarf"]
+    }
+  ]
+}

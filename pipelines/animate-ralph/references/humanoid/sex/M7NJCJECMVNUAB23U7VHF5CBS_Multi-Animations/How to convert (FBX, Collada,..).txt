@@ -1,0 +1,5 @@
+You can convert models (with animations) using the below tool :
+
+https://rigmodels.com/convert3d
+
+400+ formats supported, including FBX DAE Collada,...etc

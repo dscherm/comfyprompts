@@ -1,0 +1,481 @@
+{
+  "meta": {
+    "project": "berserkr",
+    "description": "Structured Stable Diffusion prompts for all Berserkr game creatures and monsters",
+    "art_style": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents",
+    "negative_base": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI",
+    "generated": "2026-02-11",
+    "source_data": "berserkr-godot/data/creatures.json, npcs.json lorebook entries, locations.json, quests.json, gods.json",
+    "total_creatures": 18
+  },
+  "creatures": [
+    {
+      "name": "Wolf",
+      "type": "creature",
+      "id": "wolf",
+      "realm": "midgard",
+      "creature_type": "beast",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, snarling northern wolf in deep snow, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of amber yellow eyes, lean starving wolf baring fangs, ribs visible through mangy winter fur, hunched aggressive posture, ears flattened back, hackles raised along spine, frost clinging to muzzle, saliva dripping from exposed teeth, paw prints in deep snow, dark pine forest background, Fimbulwinter desperation in its eyes, pack hunter cornered and dangerous, heavy crosshatching on fur texture, deep black shadows consuming the treeline, moonlight catching the edge of fangs",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, friendly dog, domesticated, colorful, bright daylight, happy expression, puppy",
+      "identity_features": [
+        "lean starving frame with visible ribs",
+        "amber yellow eyes glinting in darkness",
+        "frost-crusted grey-brown fur",
+        "bared fangs with dripping saliva",
+        "hunched aggressive pack hunter posture",
+        "heavy paw prints in snow"
+      ],
+      "suggested_poses": [
+        "front view snarling with hackles raised",
+        "pack of three wolves emerging from dark treeline",
+        "mid-leap lunging at viewer with jaws open",
+        "crouching low in snow stalking prey"
+      ],
+      "color_palette": ["ink black", "snow white", "amber yellow eyes", "grey-brown fur", "blood red gums"],
+      "size_category": "medium",
+      "threat_level": "low"
+    },
+    {
+      "name": "Frost Wolf",
+      "type": "creature",
+      "id": "frost_wolf",
+      "realm": "midgard",
+      "creature_type": "beast",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, massive supernatural frost wolf, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of ice blue, larger than natural wolf with fur rimed in crystalline frost, breath visible as a plume of ice vapor, pale white-blue fur with icicles hanging from jaw and chest, unnaturally intelligent pale blue glowing eyes, frost spreading on the ground beneath its paws, coordinated predator with unnatural cunning, frozen bite marks on a shattered shield in foreground, blizzard winds swirling around its form, heavy ink shadows with ice-blue accent glow, winter forest consumed by Fimbulwinter magic background",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, fire elements, warm colors, friendly, small wolf, normal wolf",
+      "identity_features": [
+        "fur rimed with crystalline frost and icicles",
+        "pale ice-blue glowing eyes with unnatural intelligence",
+        "visible ice-vapor breath plume",
+        "larger than natural wolf",
+        "frost spreading from paw prints on ground",
+        "icicles hanging from jaw and chest fur"
+      ],
+      "suggested_poses": [
+        "front view howling with ice breath visible",
+        "pack formation three frost wolves advancing through blizzard",
+        "mid-attack with frost spreading from open jaws",
+        "standing on frozen rock outcrop silhouetted against storm"
+      ],
+      "color_palette": ["ink black", "frost white", "ice blue glow", "pale silver fur", "blizzard grey"],
+      "size_category": "medium",
+      "threat_level": "low"
+    },
+    {
+      "name": "Trollkin",
+      "type": "creature",
+      "id": "trollkin",
+      "realm": "midgard",
+      "creature_type": "giant",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, stunted vicious trollkin creature, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of sickly yellow-green, small troll relative about four feet tall, disproportionately long arms with sharp claws, warty thick grey-green skin, beady malicious eyes glowing faintly, jagged broken teeth in a too-wide mouth, crude loincloth of animal hide, scavenged bone jewelry around neck, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, forest and mountain pass background with heavy shadows",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, large troll, friendly, clean, well-dressed, bright colors, heroic pose",
+      "identity_features": [
+        "stunted about four feet tall with hunched posture",
+        "disproportionately long arms with sharp claws",
+        "warty thick grey-green skin",
+        "beady malicious glowing eyes",
+        "jagged broken teeth in too-wide mouth",
+        "crude bone jewelry and animal hide loincloth"
+      ],
+      "suggested_poses": [
+        "crouching behind boulder in ambush position",
+        "group of three trollkin swarming from shadows",
+        "mid-attack with claws extended snarling",
+        "scavenging through wreckage of a camp at night"
+      ],
+      "color_palette": ["ink black", "sickly yellow-green", "warty grey", "bone white", "shadow dark"],
+      "size_category": "small",
+      "threat_level": "low"
+    },
+    {
+      "name": "Corrupted Nisse",
+      "type": "creature",
+      "id": "corrupted_nisse",
+      "realm": "midgard",
+      "creature_type": "spirit",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, malevolent corrupted household spirit, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of sickly purple-black, tiny wizened creature about one foot tall, once-red cap now turned pitch black, long white beard now stringy and filthy, eyes glowing with hateful purple spite-light, sharp claws crackling with dark farm-magic energy, twisted snarling expression of pure malice, semi-transparent flickering between visible and invisible, dark hex-bolt energy gathering in one clawed hand, abandoned snow-covered farmstead background, overturned butter churn and spoiled porridge bowl nearby, heavy shadows consuming the farmhouse interior",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, friendly, red cap, helpful, jolly, garden gnome, Santa helper, bright cheerful colors",
+      "identity_features": [
+        "tiny one-foot-tall wizened body",
+        "pitch black cap replacing original red",
+        "eyes glowing with hateful purple spite-light",
+        "stringy filthy white beard",
+        "sharp claws crackling with dark hex energy",
+        "semi-transparent flickering form"
+      ],
+      "suggested_poses": [
+        "perched on farmhouse rafter with glowing spite eyes",
+        "casting hex bolt with dark energy in clawed hand",
+        "flickering between visible and invisible mid-cackle",
+        "standing on overturned butter churn in ruined kitchen snarling"
+      ],
+      "color_palette": ["ink black", "sickly purple glow", "dirty white beard", "hex energy violet", "shadow black cap"],
+      "size_category": "tiny",
+      "threat_level": "low"
+    },
+    {
+      "name": "Draugr",
+      "type": "creature",
+      "id": "draugr",
+      "realm": "midgard",
+      "creature_type": "undead",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, undead Norse warrior draugr, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of cold blue corpse-light, rotting viking warrior in corroded chainmail and rusted helm, desiccated grey-blue skin stretched over bones, eyes burning with cold blue supernatural light, burial earth and grave dirt clinging to armor and flesh, terrible unnatural strength visible in its frame, grave chill frost emanating from its body, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, barrow hill burial mound background with other graves visible, blue corpse-lights flickering between the mounds at night, heavy ink shadows with blue death-glow accents",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, skeleton only, zombie cliche, green skin, modern zombie, clean armor, warm colors, daylight",
+      "identity_features": [
+        "desiccated grey-blue skin stretched taut over bones",
+        "eyes burning with cold blue supernatural light",
+        "corroded chainmail and rusted viking helm",
+        "rusted ancient sword still gripped with terrible strength",
+        "burial earth and grave dirt clinging to form",
+        "frost emanating from body as grave chill"
+      ],
+      "suggested_poses": [
+        "climbing out of burial mound earth clinging to body",
+        "standing guard before barrow entrance sword raised",
+        "group of three draugr advancing through blue corpse-light",
+        "reaching toward viewer with frost-covered skeletal hand"
+      ],
+      "color_palette": ["ink black", "cold blue corpse-light", "rusted iron brown", "grave dirt grey", "desiccated blue-grey skin"],
+      "size_category": "medium",
+      "threat_level": "medium"
+    },
+    {
+      "name": "Barrow Wight",
+      "type": "creature",
+      "id": "barrow_wight",
+      "realm": "midgard",
+      "creature_type": "undead",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, ancient undead chieftain barrow wight, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of deathly green and cold blue, towering undead king in corroded bronze armor with verdigris patina, eyes blazing with malevolent green-blue intelligence far greater than common draugr, desiccated face bearing a crown of tarnished gold, commanding terrifying regal presence even in undeath, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, barrow tomb interior with gold treasure and ancient weapons scattered around, heavy shadows with death-energy glow illuminating carved stone walls",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, skeleton king cliche, lich, mindless zombie, warm colors, daylight, friendly",
+      "identity_features": [
+        "corroded bronze armor with green verdigris patina",
+        "ancient bronze sword crackling with death-energy",
+        "eyes blazing with malevolent green-blue intelligence",
+        "tarnished gold crown on desiccated skull",
+        "spectral hand draining visible life-force",
+        "commanding regal undead presence"
+      ],
+      "suggested_poses": [
+        "seated on stone throne in barrow tomb surrounded by treasure",
+        "standing commanding lesser draugr with raised sword",
+        "reaching forward with spectral life-drain hand glowing",
+        "emerging from barrow entrance with death-gaze eyes blazing"
+      ],
+      "color_palette": ["ink black", "deathly green glow", "cold blue eyes", "corroded bronze", "tarnished gold crown", "tomb stone grey"],
+      "size_category": "medium",
+      "threat_level": "high"
+    },
+    {
+      "name": "Dire Wolf",
+      "type": "creature",
+      "id": "dire_wolf",
+      "realm": "midgard",
+      "creature_type": "beast",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, massive dire wolf sacred to Odin, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of burning amber-gold, enormous wolf large enough to ride standing shoulder-height to a man, thick dark fur bristling with primal power, intelligent amber-gold eyes with ancient knowing, massive crushing jaws capable of dragging prey, heavy muscled frame of an apex predator, scars from countless battles across muzzle and flank, breath steaming in freezing air, standing atop a snow-covered ridge silhouetted against a pale moon, Fimbulwinter storm clouds behind, heavy crosshatching on dense fur, deep black shadows with amber eye-glow piercing the darkness",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, small wolf, friendly dog, werewolf, bright daylight, colorful",
+      "identity_features": [
+        "enormous size large enough to ride",
+        "intelligent amber-gold eyes with ancient knowing",
+        "thick dark fur bristling with primal power",
+        "massive crushing jaws",
+        "heavy muscled apex predator frame",
+        "battle scars across muzzle and flank"
+      ],
+      "suggested_poses": [
+        "standing on ridge silhouetted against pale moon howling",
+        "mid-charge with jaws open crushing power visible",
+        "pack of dire wolves surrounding prey in snow",
+        "standing beside a fallen warrior as guardian sacred beast"
+      ],
+      "color_palette": ["ink black", "dark fur black", "amber-gold eyes", "moonlight silver", "snow white"],
+      "size_category": "large",
+      "threat_level": "medium"
+    },
+    {
+      "name": "Bear",
+      "type": "creature",
+      "id": "bear",
+      "realm": "midgard",
+      "creature_type": "beast",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, massive desperate Fimbulwinter bear, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of dark blood red, enormous brown bear made lean and savage by endless winter, standing on hind legs at full terrifying height towering over viewer, massive paws with long curved claws extended, open mouth roaring with crushing teeth visible, gaunt ribs showing through thick matted winter fur, small rage-filled dark eyes, saliva and blood on muzzle from recent kill, pine trees splintered and broken behind it, deep snow churned by its charge, heavy ink rendering of dense fur texture, raw primal Frazetta-style animal power and fury",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, teddy bear, friendly, small bear, well-fed, calm, bright colors, zoo setting",
+      "identity_features": [
+        "enormous size standing taller than a man on hind legs",
+        "gaunt ribs visible through thick matted winter fur",
+        "massive paws with long curved claws",
+        "small rage-filled dark eyes",
+        "open roaring mouth with crushing teeth",
+        "lean savage frame made desperate by Fimbulwinter"
+      ],
+      "suggested_poses": [
+        "rearing on hind legs roaring at full towering height",
+        "mid-maul with both claws swiping at once",
+        "charging through deep snow pine trees breaking behind",
+        "standing over a fresh kill blood on muzzle in moonlight"
+      ],
+      "color_palette": ["ink black", "dark brown fur", "blood red", "snow white", "claw bone white"],
+      "size_category": "large",
+      "threat_level": "medium"
+    },
+    {
+      "name": "Huldra",
+      "type": "creature",
+      "id": "huldra",
+      "realm": "midgard",
+      "creature_type": "spirit",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, seductive and deadly huldra forest spirit, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of enchanting emerald green, hauntingly beautiful woman with flowing dark hair in a moonlit forest, glamour partially failing revealing her true nature, a cow tail partially visible trailing behind her, her back hollow like a rotted-out tree trunk glimpsed in shadow, luminous predatory green eyes, bare feet hovering slightly above the forest floor, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, ancient trees bending toward her as if drawn to her presence, heavy noir shadows in the forest with ethereal green glow from her form, Frazetta-style sensual danger beauty as weapon",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, fully monstrous, ugly, fully nude explicit, fairy wings, elf ears, bright daylight, cheerful, wholesome",
+      "identity_features": [
+        "hauntingly beautiful woman with flowing dark hair",
+        "cow tail partially visible behind her",
+        "hollow back like a rotted-out tree trunk",
+        "luminous predatory green eyes",
+        "enchanting gesture with green magical energy",
+        "feet hovering slightly above forest floor"
+      ],
+      "suggested_poses": [
+        "beckoning from between dark trees with enchanting green glow",
+        "glamour failing showing hollow back and cow tail in moonlight",
+        "luring a shadowed traveler deeper into dark forest",
+        "standing at forest edge half-beautiful half-revealed true form"
+      ],
+      "color_palette": ["ink black", "moonlight silver", "enchanting emerald green", "dark hair black", "pale skin white", "forest shadow"],
+      "size_category": "medium",
+      "threat_level": "medium"
+    },
+    {
+      "name": "Frost Giant",
+      "type": "creature",
+      "id": "frost_giant",
+      "realm": "jotunheim",
+      "creature_type": "giant",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, towering frost giant jotun, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of glacial ice blue, colossal being of ice and hatred standing tall as a longhouse, blue-white skin covered in frost patterns like cracked glacial ice, cold hateful pale blue eyes burning with contempt for mortals, breath a visible blizzard-force cone of freezing air, crude frost-covered furs and chains as armor, icicle beard hanging from a cruel angular jaw, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, Fimbulwinter spreading as the ground freezes beneath his steps, heavy ink shadows with ice-blue glow, Frazetta-style towering mythic scale and power",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, small giant, friendly, warm colors, fire elements, human-sized, modern fantasy generic giant",
+      "identity_features": [
+        "colossal height tall as a longhouse",
+        "blue-white skin with frost crack patterns like glacial ice",
+        "massive ancient ice club weapon",
+        "cold hateful pale blue eyes",
+        "icicle beard hanging from cruel angular jaw",
+        "ground freezing beneath his footsteps"
+      ],
+      "suggested_poses": [
+        "striding forward through blizzard with ice club raised destroying settlement",
+        "hurling boulder at tiny viking warriors for scale",
+        "breathing cone of frost breath freezing everything before him",
+        "standing on mountain pass silhouetted against storm looking down at Midgard"
+      ],
+      "color_palette": ["ink black", "glacial ice blue", "frost white", "blue-white skin", "storm grey", "frozen chain silver"],
+      "size_category": "colossal",
+      "threat_level": "deadly"
+    },
+    {
+      "name": "Ice Troll",
+      "type": "creature",
+      "id": "ice_troll",
+      "realm": "jotunheim",
+      "creature_type": "giant",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, massive ice troll of the frozen wastes, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of frostbite blue-purple, hulking troll adapted to Jotunheim standing twice the height of a man, thick hide covered in ice crystals and frost, massive hands with ice-encrusted talons, small cunning eyes deep-set beneath a heavy brow ridge, regenerating flesh visibly knitting together on a wound with sickly blue glow, mouth full of jagged ice-shard teeth, powerful frame built for the frozen wastes, chunks of ice and snow clinging to matted white-blue fur, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, frozen wasteland of Jotunheim background with howling wind, heavy ink shadows with frost-blue regeneration glow",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, small troll, green troll, forest troll, warm colors, fire, friendly, DnD style generic troll",
+      "identity_features": [
+        "hulking frame twice the height of a man",
+        "thick hide covered in ice crystals and frost",
+        "ice-encrusted talons on massive hands",
+        "small cunning deep-set eyes beneath heavy brow ridge",
+        "regenerating flesh knitting with sickly blue glow",
+        "jagged ice-shard teeth"
+      ],
+      "suggested_poses": [
+        "mid-attack with ice-encrusted talons slashing forward",
+        "regenerating a wound with visible sickly blue glow",
+        "emerging from ice cave in frozen Jotunheim wastes",
+        "looming over a fallen warrior in blizzard conditions"
+      ],
+      "color_palette": ["ink black", "frostbite blue-purple", "ice crystal white", "frozen blood dark red", "matted white-blue fur"],
+      "size_category": "large",
+      "threat_level": "high"
+    },
+    {
+      "name": "Hel-Walker",
+      "type": "creature",
+      "id": "hel_walker",
+      "realm": "helheim",
+      "creature_type": "undead",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, spectral hel-walker wandering soul of the dishonored dead, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of sickly pale green, incorporeal ghostly figure of a dishonored warrior forever between worlds, translucent form with tattered remnants of burial shroud visible through the body, face contorted in eternal anguish and shame, no legs below the knees fading into mist, hollow dark eye sockets with faint green glow deep within, chains of dishonor wrapped around wrists and ankles trailing into nothing, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to where legs fade into mist, NOT cropped NOT cut off, character design reference sheet style, drifting above barren ground between realms, background of grey liminal space between life and death, heavy ink shadows with spectral green transparency effects",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, solid physical body, skeleton, zombie, friendly ghost, white sheet ghost, Casper, bright colors, peaceful",
+      "identity_features": [
+        "incorporeal translucent ghostly warrior form",
+        "face contorted in eternal anguish and shame",
+        "spectral hand draining visible life-force energy",
+        "no legs below knees fading into mist",
+        "hollow eye sockets with faint green glow",
+        "chains of dishonor on wrists trailing into nothing"
+      ],
+      "suggested_poses": [
+        "drifting forward with soul-drain hand extended",
+        "multiple hel-walkers wandering grey wasteland between worlds",
+        "emerging from the ground reaching upward in anguish",
+        "hovering over a sleeping traveler draining life as green mist"
+      ],
+      "color_palette": ["ink black", "sickly pale green", "spectral translucent white", "mist grey", "chain dark iron"],
+      "size_category": "medium",
+      "threat_level": "medium"
+    },
+    {
+      "name": "Helheim Hound",
+      "type": "creature",
+      "id": "helheim_hound",
+      "realm": "helheim",
+      "creature_type": "undead",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, spectral helheim hound hunting escaped souls, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of ghostly red-orange, massive spectral hound with translucent smoky black form, burning red-orange eyes tracking prey with supernatural focus, ghostly fangs bared and glowing with spectral energy, body phasing partially through a stone wall showing its pass-through ability, muscular hunting hound build but made of shadow and death-energy, spectral hackles raised as smoke-like wisps, paw prints leaving scorch marks on the ground, nose to the ground tracking a soul-trail visible as faint light, boundary between worlds visible as a thin veil in background, heavy ink shadows with red-orange eye-glow piercing absolute darkness",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, friendly dog, solid physical body, hellhound fire cliche, Cerberus, three heads, bright colors, daylight",
+      "identity_features": [
+        "massive spectral hound with translucent smoky black form",
+        "burning red-orange eyes with supernatural tracking focus",
+        "ghostly fangs glowing with spectral energy",
+        "body phasing partially through solid objects",
+        "smoke-like wisps rising from spectral hackles",
+        "scorch-mark paw prints on ground"
+      ],
+      "suggested_poses": [
+        "phasing through a stone wall mid-hunt fangs bared",
+        "nose to ground tracking a visible soul-trail",
+        "pack of spectral hounds bounding across barren hellscape",
+        "standing at edge of running water unable to cross snarling"
+      ],
+      "color_palette": ["ink black", "ghostly red-orange eyes", "spectral smoke black", "soul-trail pale white", "scorch mark dark"],
+      "size_category": "large",
+      "threat_level": "medium"
+    },
+    {
+      "name": "Frost Wraith",
+      "type": "creature",
+      "id": "frost_wraith",
+      "realm": "niflheim",
+      "creature_type": "undead",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, frost wraith spirit of one who froze to death, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of deathly ice blue, incorporeal figure formed of swirling frost and frozen mist, the suggestion of a human form in agony within the ice cloud, reaching hands of pure cold that freeze everything they touch, face frozen in the moment of death mouth open in a silent scream, ice crystals forming in the air around its body, frost spreading outward from its form across the ground and walls, the faint outline of frozen clothing and frost-covered hair, heat visibly being drained from the air as condensation and frost, Niflheim frozen wasteland background of eternal ice, heavy ink shadows with ice-blue glow and frost crystal effects",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, solid body, warm colors, fire, friendly ghost, ice queen, Elsa, bright colors, living person",
+      "identity_features": [
+        "incorporeal form of swirling frost and frozen mist",
+        "suggestion of agonized human figure within ice cloud",
+        "reaching hands of pure cold freezing everything touched",
+        "face frozen in moment of death silent scream",
+        "ice crystals forming in air around body",
+        "frost spreading outward from form across surfaces"
+      ],
+      "suggested_poses": [
+        "reaching toward viewer with freezing hands frost spreading",
+        "hovering over frozen corpse draining last warmth",
+        "swirling into form from a Niflheim ice storm",
+        "multiple wraiths drifting through a frozen village at night"
+      ],
+      "color_palette": ["ink black", "deathly ice blue", "frost crystal white", "frozen mist grey", "condensation silver"],
+      "size_category": "medium",
+      "threat_level": "high"
+    },
+    {
+      "name": "Fire Giant",
+      "type": "creature",
+      "id": "fire_giant",
+      "realm": "muspelheim",
+      "creature_type": "giant",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, apocalyptic fire giant son of Surtr, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of infernal orange-red and molten gold, colossal being of living flame and blackened volcanic rock skin, skin cracked like cooling lava with molten fire visible beneath, eyes of pure white-hot flame, burning aura setting adjacent air on fire with heat distortion, obsidian-black armor fused to volcanic body, molten gold dripping from cracks in its form, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, ash and embers swirling upward in convection currents, Muspelheim realm of eternal fire background, Ragnarok world-burner destined to end all things, Frazetta-style apocalyptic mythic power and doom",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, small, friendly, ice elements, cool colors, human-sized, generic fantasy fire demon, Balrog copy",
+      "identity_features": [
+        "colossal height rivaling frost giants",
+        "skin of blackened volcanic rock cracked with molten fire beneath",
+        "blade of living white-hot flame",
+        "eyes of pure white-hot fire",
+        "burning aura setting surrounding air on fire",
+        "molten gold dripping from body cracks"
+      ],
+      "suggested_poses": [
+        "striding through a burning landscape sword of flame raised high",
+        "standing in Muspelheim with world-ending fire behind",
+        "swinging flaming sword downward with burning aura igniting everything",
+        "emerging from volcanic fissure molten rock dripping from body"
+      ],
+      "color_palette": ["ink black", "infernal orange-red", "molten gold", "white-hot flame", "volcanic rock black", "ash grey"],
+      "size_category": "colossal",
+      "threat_level": "deadly"
+    },
+    {
+      "name": "Fire Elemental",
+      "type": "creature",
+      "id": "fire_elemental",
+      "realm": "muspelheim",
+      "creature_type": "elemental",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, living fire elemental from Muspelheim, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of brilliant orange and white-hot yellow, a vaguely humanoid shape formed entirely of living flame, no solid body just pure fire given will and malice, tendrils of flame extending outward like reaching arms, a face-like formation in the flame with two bright white-hot eyes, everything it touches catching fire instantly, flammable objects in its path already burning, heat distortion warping the air around its entire form, sparks and embers trailing behind it like a comet, the ground beneath it charred black and smoking, ink-black smoke rising from its crown, heavy contrast between absolute black char and brilliant flame light",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, solid body, cool colors, ice, water, friendly, torch or campfire, contained flame, small flame",
+      "identity_features": [
+        "vaguely humanoid shape formed entirely of living flame",
+        "no solid body just pure fire given will",
+        "tendrils of flame extending like reaching arms",
+        "face-like formation with white-hot eyes in flames",
+        "everything touched catching fire instantly",
+        "heat distortion warping surrounding air"
+      ],
+      "suggested_poses": [
+        "towering column of flame with humanoid face forming",
+        "reaching flame tendril arms toward viewer igniting ground",
+        "swirling vortex of fire consuming a wooden structure",
+        "two flame tendrils extending from a central fire mass"
+      ],
+      "color_palette": ["ink black", "brilliant orange", "white-hot yellow", "charred black", "ember red", "smoke grey"],
+      "size_category": "medium",
+      "threat_level": "high"
+    },
+    {
+      "name": "Dark Elf (Dokkalfar)",
+      "type": "creature",
+      "id": "dark_elf",
+      "realm": "svartalfheim",
+      "creature_type": "humanoid",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, cunning dark elf dokkalfar from the deep places, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of venomous green, lithe sinister figure with ash-grey skin and angular sharp features, long pointed ears swept back, completely black eyes reflecting no light, intricate dark armor of impossibly fine craftsmanship, cruel intelligent smile revealing slightly pointed teeth, elaborate braided white hair pulled back tight, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, the suggestion of a vast underground forge-city behind in shadow, heavy noir shadows absolutely dominant with only the poison-green as accent",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, bright daylight, Tolkien elf, beautiful elf, friendly, colorful, Drow cliche, purple skin, spider motifs",
+      "identity_features": [
+        "ash-grey skin with angular sharp features",
+        "completely black eyes reflecting no light",
+        "long pointed ears swept back",
+        "intricate dark armor of impossibly fine craft",
+        "poisoned blade dripping with green venom",
+        "cruel intelligent smile with pointed teeth"
+      ],
+      "suggested_poses": [
+        "emerging from absolute darkness poisoned blade in reverse grip",
+        "crouching in underground forge-city shadow watching with black eyes",
+        "flinching from shaft of bright light arm raised to shield",
+        "standing before a dark forge crafting with sinister precision"
+      ],
+      "color_palette": ["ink black", "venomous green", "ash grey skin", "white hair", "dark armor charcoal", "black void eyes"],
+      "size_category": "medium",
+      "threat_level": "medium"
+    },
+    {
+      "name": "Duergar",
+      "type": "creature",
+      "id": "duergar",
+      "realm": "svartalfheim",
+      "creature_type": "humanoid",
+      "positive_prompt": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, corrupted grey dwarf duergar from the deep places, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of dull iron grey and faint purple, stocky powerfully built grey-skinned dwarf, ashen complexion with deep-set suspicious eyes that glow faintly, thick dark iron armor covered in mining dust, bald head with a short bristly iron-grey beard, an expression of bitter resentment and paranoid hostility, stocky powerful frame built for both mining and killing, standing in T-pose arms extended straight out to sides at shoulder height palms facing down, legs slightly apart, hands open and empty, no weapons in hands, symmetrical front-facing view, full body visible from head to feet, NOT cropped NOT cut off, character design reference sheet style, deep underground mining tunnel background with ore veins glinting in the walls, heavy shadows of the underdark with only faint fungal light",
+      "negative_prompt": "modern elements, anime, cartoon, cute, chibi, deformed, blurry, low quality, watermark, text, signature, extra limbs, poorly drawn, out of frame, photorealistic, 3D render, CGI, Tolkien dwarf, jolly, friendly, red beard, bright colors, above ground, daylight, small and weak",
+      "identity_features": [
+        "stocky powerfully built grey-skinned frame",
+        "ashen complexion with deep-set suspicious glowing eyes",
+        "heavy war pick weapon",
+        "thick dark iron armor covered in mining dust",
+        "bald head with short bristly iron-grey beard",
+        "expression of bitter resentment and paranoid hostility"
+      ],
+      "suggested_poses": [
+        "enlarged to twice size with purple energy war pick raised",
+        "emerging from mining tunnel shadows war pick ready",
+        "fading invisible with only faint outline visible",
+        "standing guard in underground forge suspicious eyes glowing"
+      ],
+      "color_palette": ["ink black", "dull iron grey", "faint purple energy", "ashen grey skin", "mining dust brown", "dark iron armor"],
+      "size_category": "small",
+      "threat_level": "medium"
+    }
+  ]
+}
