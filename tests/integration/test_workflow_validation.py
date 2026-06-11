@@ -38,7 +38,7 @@ BLENDER_WORKFLOWS = {
             "EmptyLatentImage", "CLIPTextEncode", "ControlNetApply",
             "KSampler", "VAEDecode", "SaveImage",
         ],
-        "controlnet_model": "control_v11p_sd15_openpose.pth",
+        "controlnet_model": "OpenPoseXL2.safetensors",
     },
 }
 
@@ -258,12 +258,18 @@ class TestCrossPipelineConsistency:
     """Verify consistency between the direct client and MCP-based pipelines."""
 
     def test_both_pipelines_use_same_checkpoint(self, workflow_manager):
-        """Direct and MCP pipelines should both target SD1.5."""
+        """Direct and MCP pipelines should both target the default checkpoint.
+
+        Workflows with a requires_download block are pinned to a not-yet-
+        installed model stack on purpose — they are exempt.
+        """
         from workflows import DEFAULT_CHECKPOINT
 
         for name in BLENDER_WORKFLOWS:
             with open(WORKFLOWS_DIR / f"{name}.meta.json") as f:
                 meta = json.load(f)
+            if meta.get("requires_download"):
+                continue
             assert meta["requirements"]["models"]["checkpoint"] == DEFAULT_CHECKPOINT, (
                 f"{name} uses different checkpoint than direct pipeline default"
             )

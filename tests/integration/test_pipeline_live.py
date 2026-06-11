@@ -21,11 +21,11 @@ class TestLiveComfyUIConnection:
         assert ok
         assert "system" in info
 
-    def test_has_sd15_checkpoint(self, live_comfyui_client):
+    def test_has_default_checkpoint(self, live_comfyui_client):
         ok, checkpoints = live_comfyui_client.get_checkpoints()
         assert ok, f"Failed to get checkpoints: {checkpoints}"
-        assert "v1-5-pruned-emaonly.ckpt" in checkpoints, (
-            f"SD1.5 checkpoint not found. Available: {checkpoints}"
+        assert "sd_xl_base_1.0.safetensors" in checkpoints, (
+            f"default SDXL checkpoint not found. Available: {checkpoints}"
         )
 
     def test_has_samplers(self, live_comfyui_client):
@@ -66,7 +66,7 @@ class TestLiveTxt2ImgGeneration:
         wf = build_txt2img_workflow(
             "a red circle on white background, simple",
             width=256, height=256, steps=8, seed=42,
-            checkpoint="v1-5-pruned-emaonly.ckpt",
+            checkpoint="sd_xl_base_1.0.safetensors",
         )
 
         ok, queue = live_comfyui_client.queue_prompt(wf)
@@ -116,7 +116,7 @@ class TestLiveImg2ImgGeneration:
             upload["name"],
             "a colorful abstract painting",
             steps=8, denoise=0.7, seed=42,
-            checkpoint="v1-5-pruned-emaonly.ckpt",
+            checkpoint="sd_xl_base_1.0.safetensors",
         )
 
         ok, queue = live_comfyui_client.queue_prompt(wf)

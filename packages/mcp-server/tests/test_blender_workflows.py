@@ -67,12 +67,17 @@ class TestBlenderWorkflowFiles:
         assert len(custom) == 0, f"Blender workflow should not require custom nodes: {custom}"
 
     @pytest.mark.parametrize("name", BLENDER_WORKFLOWS)
-    def test_uses_sd15_checkpoint(self, name):
-        """Blender workflows target SD1.5 (available locally)."""
+    def test_uses_locally_available_checkpoint(self, name):
+        """Blender workflows target an installed checkpoint — unless the meta
+        documents a pending download (requires_download), in which case the
+        documented SD1.5 stack is expected."""
         with open(WORKFLOWS_DIR / f"{name}.meta.json") as f:
             meta = json.load(f)
         checkpoint = meta["requirements"]["models"]["checkpoint"]
-        assert "v1-5" in checkpoint or "sd15" in checkpoint.lower()
+        if meta.get("requires_download"):
+            assert "v1-5" in checkpoint or "sd15" in checkpoint.lower()
+        else:
+            assert checkpoint == "sd_xl_base_1.0.safetensors"
 
     @pytest.mark.parametrize("name", BLENDER_WORKFLOWS)
     def test_has_blender_category(self, name):

@@ -21,9 +21,15 @@ def comfyui_client():
 
 @pytest.fixture
 def workflow_manager():
-    """Create workflow manager."""
+    """Create workflow manager pointing at the repo-root workflow library."""
+    import os
     from managers.workflow_manager import WorkflowManager
-    workflows_dir = Path(__file__).parent.parent / "workflows"
+    workflows_dir = Path(
+        os.environ.get(
+            "COMFY_MCP_WORKFLOW_DIR",
+            Path(__file__).resolve().parents[3] / "workflows" / "mcp",
+        )
+    )
     return WorkflowManager(workflows_dir)
 
 

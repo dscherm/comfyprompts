@@ -350,26 +350,34 @@ def workflow_manager():
 # ---------------------------------------------------------------------------
 @pytest.fixture
 def sample_render_png(tmp_path):
-    """Create a minimal fake PNG file simulating a Blender render."""
+    """Create a small but real PNG file simulating a Blender render.
+
+    Must be PIL-decodable: live tests feed it through ComfyUI's LoadImage.
+    """
+    from PIL import Image
+
     png_path = tmp_path / "blender_render.png"
-    # Minimal PNG header + IHDR chunk (1x1 pixel)
-    png_path.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+    Image.new("RGB", (64, 64), (128, 90, 60)).save(png_path)
     return str(png_path)
 
 
 @pytest.fixture
 def sample_depth_png(tmp_path):
-    """Create a minimal fake PNG file simulating a Blender depth pass."""
+    """Create a small but real PNG file simulating a Blender depth pass."""
+    from PIL import Image
+
     png_path = tmp_path / "blender_depth.png"
-    png_path.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+    Image.new("L", (64, 64), 128).save(png_path)
     return str(png_path)
 
 
 @pytest.fixture
 def sample_normal_png(tmp_path):
-    """Create a minimal fake PNG file simulating a Blender normal pass."""
+    """Create a small but real PNG file simulating a Blender normal pass."""
+    from PIL import Image
+
     png_path = tmp_path / "blender_normal.png"
-    png_path.write_bytes(b"\x89PNG\r\n\x1a\n" + b"\x00" * 100)
+    Image.new("RGB", (64, 64), (128, 128, 255)).save(png_path)
     return str(png_path)
 
 

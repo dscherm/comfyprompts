@@ -7,8 +7,8 @@ returns a ComfyUI API-format workflow dict ready for queue_prompt().
 
 import random
 
-# Default checkpoint — SD 1.5 model known to be installed
-DEFAULT_CHECKPOINT = "v1-5-pruned-emaonly.ckpt"
+# Default checkpoint — SDXL base, installed on this machine (SD 1.5 is not)
+DEFAULT_CHECKPOINT = "sd_xl_base_1.0.safetensors"
 DEFAULT_SAMPLER = "euler"
 DEFAULT_SCHEDULER = "normal"
 

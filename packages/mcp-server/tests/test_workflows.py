@@ -1,16 +1,25 @@
 """Tests for workflow validation and parsing"""
 
 import json
+import os
 import pytest
 from pathlib import Path
 from managers.workflow_manager import WorkflowManager
+
+# Parametric workflows live at the monorepo root (workflows/mcp), not inside
+# the package; COMFY_MCP_WORKFLOW_DIR overrides, matching server behavior
+WORKFLOWS_DIR = Path(
+    os.environ.get(
+        "COMFY_MCP_WORKFLOW_DIR",
+        Path(__file__).resolve().parents[3] / "workflows" / "mcp",
+    )
+)
 
 
 @pytest.fixture
 def workflow_manager():
     """Create a WorkflowManager with the actual workflows directory."""
-    workflows_dir = Path(__file__).parent.parent / "workflows"
-    return WorkflowManager(workflows_dir)
+    return WorkflowManager(WORKFLOWS_DIR)
 
 
 class TestWorkflowDiscovery:
@@ -108,7 +117,7 @@ class TestWorkflowJSON:
 
     def test_all_workflow_files_valid_json(self):
         """Verify all workflow files are valid JSON."""
-        workflows_dir = Path(__file__).parent.parent / "workflows"
+        workflows_dir = WORKFLOWS_DIR
         for json_file in workflows_dir.glob("*.json"):
             try:
                 with open(json_file, "r") as f:
@@ -119,7 +128,7 @@ class TestWorkflowJSON:
 
     def test_workflow_nodes_have_class_type(self):
         """Verify all workflow nodes have class_type."""
-        workflows_dir = Path(__file__).parent.parent / "workflows"
+        workflows_dir = WORKFLOWS_DIR
         for json_file in workflows_dir.glob("*.json"):
             with open(json_file, "r") as f:
                 data = json.load(f)
@@ -130,7 +139,7 @@ class TestWorkflowJSON:
 
     def test_param_placeholders_valid(self):
         """Verify PARAM_* placeholders have valid formats."""
-        workflows_dir = Path(__file__).parent.parent / "workflows"
+        workflows_dir = WORKFLOWS_DIR
         valid_prefixes = ["PARAM_", "PARAM_INT_", "PARAM_FLOAT_", "PARAM_STR_"]
 
         for json_file in workflows_dir.glob("*.json"):
