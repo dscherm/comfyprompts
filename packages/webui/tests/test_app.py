@@ -419,3 +419,19 @@ class TestAuthorRequest:
         resp = client.get("/api/author/requests")
         assert resp.status_code == 200
         assert resp.get_json() == []
+
+
+class TestEnumOptions:
+    def test_catalog_exposes_meta_options_as_dropdown(self, client):
+        """Params whose .meta.json declares options[] surface them in the catalog."""
+        resp = client.get("/api/workflows")
+        assert resp.status_code == 200
+        wf = next(
+            (w for w in resp.get_json() if w["id"] == "multiview_full_body_profile"), None
+        )
+        assert wf is not None, "multiview_full_body_profile missing from catalog"
+        style = next(p for p in wf["parameters"] if p["name"] == "style")
+        assert isinstance(style.get("options"), list) and len(style["options"]) >= 4
+        assert style["default"] in style["options"]
+        prompt = next(p for p in wf["parameters"] if p["name"] == "prompt")
+        assert "options" not in prompt

@@ -156,15 +156,20 @@ def api_workflows():
     items = []
     for defn in manager.tool_definitions:
         meta = read_meta(defn.workflow_id)
+        meta_params = meta.get("parameters", {}) if isinstance(meta.get("parameters"), dict) else {}
         params = []
         for name, p in defn.parameters.items():
-            params.append({
+            mp = meta_params.get(name, {}) if isinstance(meta_params.get(name), dict) else {}
+            entry = {
                 "name": name,
                 "type": p.annotation.__name__,
                 "required": p.required,
-                "default": meta.get("defaults", {}).get(name, p.default),
-                "description": p.description,
-            })
+                "default": meta.get("defaults", {}).get(name, mp.get("default", p.default)),
+                "description": mp.get("description", p.description),
+            }
+            if isinstance(mp.get("options"), list) and mp["options"]:
+                entry["options"] = mp["options"]  # frontend renders a dropdown
+            params.append(entry)
         items.append({
             "id": defn.workflow_id,
             "tool_name": defn.tool_name,

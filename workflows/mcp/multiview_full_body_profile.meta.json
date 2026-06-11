@@ -1,0 +1,58 @@
+{
+  "name": "Multiview Full Body Profile",
+  "description": "Generates a character turnaround reference sheet: full-body front, left profile, right profile, and back views of the same character in one image, rendered in a selectable artistic style. Describe the character in 'prompt' and pick a 'style' from the list.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "StringConcatenate", "CLIPTextEncode", "EmptySD3LatentImage", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "required": true,
+      "description": "Character description (e.g. 'a young elf ranger with braided silver hair, green hooded cloak, leather armor, longbow on back')."
+    },
+    "style": {
+      "type": "string",
+      "required": true,
+      "description": "Artistic style for the illustration.",
+      "options": [
+        "heavy black ink illustration, high contrast noir comic style",
+        "soft watercolor storybook illustration",
+        "clean cel-shaded anime style",
+        "retro 16-bit pixel art sprite style",
+        "painterly fantasy concept art, oil texture",
+        "western comic book style, bold inks and halftone shading",
+        "pastel children's book illustration, gentle colors",
+        "dark gritty graphic novel style, muted palette"
+      ],
+      "default": "painterly fantasy concept art, oil texture"
+    },
+    "negative_prompt": {
+      "type": "string",
+      "required": false,
+      "description": "Elements to avoid (default: 'text, watermark, blurry, inconsistent character, different characters')."
+    },
+    "width": {"type": "int", "required": false, "description": "Image width in pixels (default: 1408 — wide enough for four figures)."},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels (default: 704)."},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps (default: 24)."},
+    "cfg": {"type": "float", "required": false, "description": "Guidance scale — keep 1.0 for Flux (default: 1.0)."},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility."}
+  },
+  "defaults": {
+    "negative_prompt": "text, watermark, blurry, inconsistent character, different characters",
+    "width": 1408,
+    "height": 704,
+    "steps": 24,
+    "cfg": 1.0
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux", "character", "turnaround", "multiview", "reference-sheet", "chargen"]
+}

@@ -394,6 +394,22 @@
 
       if (isImageParam) {
         field.appendChild(buildUploadWidget(p));
+      } else if (Array.isArray(p.options) && p.options.length) {
+        // enum param — render a dropdown
+        const sel = document.createElement("select");
+        sel.className = "form-input";
+        sel.name = p.name;
+        sel.id = `param-${p.name}`;
+        sel.dataset.paramName = p.name;
+        sel.dataset.paramType = p.type || "str";
+        p.options.forEach(opt => {
+          const o = document.createElement("option");
+          o.value = opt;
+          o.textContent = opt;
+          if (p.default !== undefined && String(opt) === String(p.default)) o.selected = true;
+          sel.appendChild(o);
+        });
+        field.appendChild(sel);
       } else if (p.type === "bool") {
         const wrap = document.createElement("div");
         wrap.className = "checkbox-wrap";
