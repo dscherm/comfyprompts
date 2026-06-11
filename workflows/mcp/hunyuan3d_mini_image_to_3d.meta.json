@@ -2,24 +2,28 @@
   "name": "Hunyuan3D Mini Image to 3D",
   "description": "Lightweight 3D mesh generation using Hunyuan3D Mini (0.6B parameters). Geometry-only output without texturing. Designed for lower VRAM GPUs (~6GB). Good for quick geometry previews.",
   "requirements": {
-    "nodes": ["Hy3DModelLoader", "Hy3DGenerateMesh", "Hy3DVAEDecode", "Hy3DPostprocessMesh", "Hy3DExportMesh", "TransparentBGSession+", "ImageRemoveBackground+", "ImageResize+"],
+    "nodes": [
+      "Hy3DModelLoader",
+      "Hy3DGenerateMesh",
+      "Hy3DVAEDecode",
+      "Hy3DPostprocessMesh",
+      "Hy3DExportMesh",
+      "TransparentBGSession+",
+      "ImageRemoveBackground+",
+      "ImageResize+"
+    ],
     "models": {
-      "diffusion_models": ["hy3dgen/hunyuan3d-dit-v2-mini-fp16.safetensors"]
+      "diffusion_models": [
+        "hy3dgen/hunyuan3d-dit-v2-mini-fp16.safetensors"
+      ]
     },
-    "custom_nodes": ["ComfyUI-Hunyuan3DWrapper", "ComfyUI_essentials", "comfyui-inspyrenet-rembg"],
+    "custom_nodes": [
+      "ComfyUI-Hunyuan3DWrapper",
+      "ComfyUI_essentials",
+      "comfyui-inspyrenet-rembg"
+    ],
     "vram_minimum_gb": 6,
     "vram_recommended_gb": 8
-  },
-  "requires_download": {
-    "models": [
-      {
-        "file": "hy3dgen/hunyuan3d-dit-v2-mini-fp16.safetensors",
-        "folder": "diffusion_models",
-        "source": "https://huggingface.co/tencent/Hunyuan3D-2",
-        "approx_size_gb": 1.5
-      }
-    ],
-    "reason": "Only hunyuan3d-dit-v2-0-fp16 installed; mini variant (v2-mini) not present in models/diffusion_models/hy3dgen/"
   },
   "parameters": {
     "PARAM_STR_IMAGE_PATH": {
@@ -65,7 +69,16 @@
     "geometry_glb": "3D/Hy3D_mini_*.glb"
   },
   "category": "3d_generation",
-  "tags": ["3d", "mesh", "hunyuan3d", "mini", "lightweight", "low-vram", "geometry", "image-to-3d"],
+  "tags": [
+    "3d",
+    "mesh",
+    "hunyuan3d",
+    "mini",
+    "lightweight",
+    "low-vram",
+    "geometry",
+    "image-to-3d"
+  ],
   "estimated_time_seconds": 90,
   "notes": "Mini model (0.6B params) produces geometry-only output. No texturing pipeline included to keep VRAM low. For textured output, use the v2.0 or v2.5 workflows instead. Can be chained with external texturing solutions."
 }
