@@ -65,3 +65,7 @@ temp/
 
 # workflow validator object_info cache (machine-specific, refetchable)
 scripts/cache/
+
+# stray per-directory session state
+workflows/mcp/.claude/
+workflows/mcp/.omc/
