@@ -5,40 +5,72 @@
       "upload": "image"
     },
     "class_type": "LoadImage",
-    "_meta": {"title": "Load Image"}
+    "_meta": {
+      "title": "Load Image"
+    }
   },
   "2": {
-    "inputs": {},
+    "inputs": {
+      "model_path": "D:/Projects/ComfyUI/models/diffusers/TripoSG"
+    },
     "class_type": "TripoSGModelLoader",
-    "_meta": {"title": "Load TripoSG Model"}
+    "_meta": {
+      "title": "Load TripoSG Model"
+    }
   },
   "3": {
     "inputs": {
-      "model": ["2", 0],
-      "image": ["1", 0],
+      "triposg_model": [
+        "2",
+        0
+      ],
+      "image": [
+        "1",
+        0
+      ],
       "seed": 0,
-      "num_steps": 50,
-      "cfg_scale": 7.5,
-      "resolution": "PARAM_INT_RESOLUTION"
+      "steps": 50,
+      "guidance_scale": 7.5
     },
     "class_type": "TripoSGImageToMesh",
-    "_meta": {"title": "TripoSG Image to Mesh"}
+    "_meta": {
+      "title": "TripoSG Image to Mesh"
+    }
   },
   "4": {
     "inputs": {
-      "model": ["2", 0],
-      "latents": ["3", 0]
+      "triposg_vae": [
+        "2",
+        1
+      ],
+      "latents": [
+        "3",
+        0
+      ],
+      "octree_resolution": "PARAM_INT_RESOLUTION",
+      "bound_value": 1.005,
+      "extra_depth_level": 1,
+      "chunk_size": 128000,
+      "mc_algo": "mc",
+      "use_flashvdm": true
     },
     "class_type": "TripoSGVAEDecoder",
-    "_meta": {"title": "Decode Mesh"}
+    "_meta": {
+      "title": "Decode Mesh"
+    }
   },
   "5": {
     "inputs": {
-      "mesh": ["4", 0],
+      "trimesh": [
+        "4",
+        0
+      ],
       "filename_prefix": "triposg_mesh",
       "file_format": "glb"
     },
     "class_type": "TripoSGExportMesh",
-    "_meta": {"title": "Export Mesh"}
+    "_meta": {
+      "title": "Export Mesh"
+    }
   }
 }

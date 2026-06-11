@@ -4,10 +4,10 @@
   "requirements": {
     "nodes": ["CheckpointLoaderSimple", "ControlNetLoader", "LoadImage", "EmptyLatentImage", "CLIPTextEncode", "ControlNetApply", "KSampler", "VAEDecode", "SaveImage"],
     "models": {
-      "checkpoint": "v1-5-pruned-emaonly.ckpt",
-      "controlnet": "control_v11p_sd15_openpose.pth"
+      "checkpoint": "sd_xl_base_1.0.safetensors",
+      "controlnet": "OpenPoseXL2.safetensors"
     },
-    "minimum_vram_gb": 6
+    "minimum_vram_gb": 8
   },
   "parameters": {
     "pose_image": {"type": "string", "required": true, "description": "Filename of the Blender pose visualization (OpenPose-style stick figure on black background)"},
@@ -25,8 +25,8 @@
   },
   "defaults": {
     "controlnet_strength": 0.8,
-    "width": 512,
-    "height": 768,
+    "width": 1024,
+    "height": 1024,
     "steps": 25,
     "cfg": 7.5,
     "sampler_name": "dpmpp_2m",
@@ -43,9 +43,9 @@
     "node": "SaveImage"
   },
   "category": "blender",
-  "tags": ["blender", "pose", "openpose", "controlnet", "character", "sd15", "armature"],
+  "tags": ["blender", "pose", "openpose", "controlnet", "character", "sdxl", "armature"],
   "notes": {
     "blender_setup": "Render a stick-figure visualization of your Blender armature: use a Freestyle line render or a simple script to draw colored lines for each bone on a black background. Follow OpenPose joint color conventions for best results.",
-    "model_download": "Download control_v11p_sd15_openpose.pth from https://huggingface.co/lllyasviel/ControlNet-v1-1 and place in ComfyUI/models/controlnet/"
+    "sdxl_upgrade": "Re-pointed from SD1.5 + control_v11p_sd15_openpose.pth to SDXL + OpenPoseXL2.safetensors (both installed). Native SDXL resolution is 1024x1024."
   }
 }

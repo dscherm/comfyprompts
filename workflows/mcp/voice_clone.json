@@ -1,30 +1,17 @@
 {
-  "_comment": "TTS-Audio-Suite: Voice cloning with RVC post-processing. Generates speech with F5-TTS then applies RVC voice model for higher quality cloning. Requires TTS-Audio-Suite custom node.",
-  "10": {
-    "inputs": {
-      "tts_engine": [
-        "20",
-        0
-      ],
-      "text": "PARAM_TEXT",
-      "character_voice": [
-        "30",
-        0
-      ]
-    },
-    "class_type": "TTS Text",
-    "_meta": {
-      "title": "TTS Text"
-    }
-  },
+  "_comment": "TTS-Audio-Suite: Voice cloning. Stage 1 generates base speech with F5-TTS (F5TTSEngineNode -> UnifiedTTSTextNode). Stage 2 converts it toward a target voice with the RVC engine (RVCEngineNode -> UnifiedVoiceChangerNode). The target voice is supplied as a reference via CharacterVoicesNode (narrator_target). NOTE: this TTS-Audio-Suite version exposes no input that consumes LoadRVCModelNode's RVC_MODEL output, so a pretrained RVC .pth is selected on the engine/auto-download path rather than wired in; PARAM_STR_RVC_MODEL names the target reference voice. Requires TTS-Audio-Suite custom node.",
   "20": {
     "inputs": {
-      "model": "PARAM_STR_MODEL",
+      "language": "PARAM_STR_MODEL",
       "device": "auto",
-      "unload_model_after_generate": true,
-      "precision": "bf16"
+      "temperature": 0.8,
+      "speed": 1.0,
+      "target_rms": 0.1,
+      "cross_fade_duration": 0.15,
+      "nfe_step": 32,
+      "cfg_strength": 2.0
     },
-    "class_type": "F5 TTS Engine",
+    "class_type": "F5TTSEngineNode",
     "_meta": {
       "title": "F5 TTS Engine"
     }
@@ -32,45 +19,81 @@
   "30": {
     "inputs": {
       "voice_name": "PARAM_STR_VOICE_REFERENCE",
-      "voices_dir": "default"
+      "reference_text": ""
     },
-    "class_type": "Character Voices",
+    "class_type": "CharacterVoicesNode",
     "_meta": {
-      "title": "Character Voices"
+      "title": "Source Voice"
     }
   },
-  "40": {
+  "10": {
     "inputs": {
-      "rvc_model": [
-        "50",
+      "TTS_engine": [
+        "20",
         0
       ],
-      "audio": [
-        "10",
+      "text": "PARAM_TEXT",
+      "narrator_voice": "none",
+      "seed": 1,
+      "opt_narrator": [
+        "30",
         0
-      ],
-      "pitch_shift": "PARAM_INT_PITCH_SHIFT",
-      "index_rate": 0.75
+      ]
     },
-    "class_type": "Voice Changer",
+    "class_type": "UnifiedTTSTextNode",
     "_meta": {
-      "title": "Voice Changer (RVC)"
+      "title": "TTS Text"
+    }
+  },
+  "45": {
+    "inputs": {
+      "pitch": "PARAM_INT_PITCH_SHIFT",
+      "index_ratio": 0.75,
+      "consonant_protection": 0.25,
+      "volume_envelope": 0.25
+    },
+    "class_type": "RVCEngineNode",
+    "_meta": {
+      "title": "RVC Engine"
     }
   },
   "50": {
     "inputs": {
-      "model_name": "PARAM_STR_RVC_MODEL"
+      "voice_name": "PARAM_STR_RVC_MODEL",
+      "reference_text": ""
     },
-    "class_type": "Load RVC Character Model",
+    "class_type": "CharacterVoicesNode",
     "_meta": {
-      "title": "Load RVC Character Model"
+      "title": "RVC Target Voice"
+    }
+  },
+  "40": {
+    "inputs": {
+      "TTS_engine": [
+        "45",
+        0
+      ],
+      "source_audio": [
+        "10",
+        0
+      ],
+      "narrator_target": [
+        "50",
+        0
+      ],
+      "refinement_passes": 1,
+      "max_chunk_duration": 30,
+      "chunk_method": "smart"
+    },
+    "class_type": "UnifiedVoiceChangerNode",
+    "_meta": {
+      "title": "Voice Changer (RVC)"
     }
   },
   "60": {
     "inputs": {
       "filename_prefix": "audio/voice_clone",
       "quality": "V0",
-      "audioUI": "",
       "audio": [
         "40",
         0

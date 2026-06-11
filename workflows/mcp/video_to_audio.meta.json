@@ -18,6 +18,27 @@
     },
     "estimated_vram": "4-6GB (video < 1 min recommended for 8GB GPU)"
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "mmaudio_44k.safetensors",
+        "folder": "mmaudio",
+        "source": "https://huggingface.co/kijai/MMAudio_weights",
+        "approx_size_gb": 1.5
+      }
+    ],
+    "nodes": [
+      {
+        "pack": "ComfyUI-MMAudio",
+        "source": "https://github.com/kijai/ComfyUI-MMAudio"
+      },
+      {
+        "pack": "ComfyUI-VideoHelperSuite",
+        "source": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
+      }
+    ],
+    "reason": "MMAudio custom nodes and model weights not installed"
+  },
   "category": "audio_generation",
   "tags": ["video-to-audio", "mmaudio", "sound-effects", "audio-sync", "foley"],
   "defaults": {

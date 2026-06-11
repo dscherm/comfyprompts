@@ -25,6 +25,19 @@
     },
     "optional_install": "ComfyUI-Rife-Tensorrt (for NVIDIA TensorRT accelerated RIFE, ultra-fast)"
   },
+  "requires_download": {
+    "nodes": [
+      {
+        "pack": "ComfyUI-VideoHelperSuite",
+        "source": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
+      },
+      {
+        "pack": "ComfyUI-Frame-Interpolation",
+        "source": "https://github.com/Fannovel16/ComfyUI-Frame-Interpolation"
+      }
+    ],
+    "reason": "ComfyUI-VideoHelperSuite and ComfyUI-Frame-Interpolation (RIFE) custom nodes not installed; note: core LoadVideo + FL_RIFE (if installed) could be a rebuild alternative"
+  },
   "category": "video_postprocessing",
   "tags": ["video", "frame-interpolation", "rife", "fps-boost", "smooth-motion", "post-processing"],
   "parameters": {

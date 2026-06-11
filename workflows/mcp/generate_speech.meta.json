@@ -2,7 +2,7 @@
   "name": "Generate Speech (TTS)",
   "description": "Generates speech audio from text using TTS-Audio-Suite F5-TTS engine. Supports voice cloning from reference audio files. Models auto-download on first use (~1.2GB per language).",
   "requirements": {
-    "nodes": ["TTS Text", "F5 TTS Engine", "Character Voices"],
+    "nodes": ["F5TTSEngineNode", "UnifiedTTSTextNode", "CharacterVoicesNode", "SaveAudioMP3"],
     "install": "TTS-Audio-Suite",
     "install_url": "https://github.com/diodiogod/TTS-Audio-Suite",
     "models_auto_download": true,
@@ -11,12 +11,12 @@
   "category": "audio_tts",
   "tags": ["speech", "tts", "text-to-speech", "voice", "f5-tts", "voice-cloning"],
   "defaults": {
-    "model": "F5-TTS",
-    "voice_reference": "default"
+    "model": "F5TTS_v1_Base",
+    "voice_reference": "none"
   },
   "parameter_notes": {
-    "text": "The text to convert to speech. Supports [CharacterName] syntax for multi-speaker. Unlimited length with smart chunking.",
-    "model": "TTS model variant. Default: F5-TTS base model. Auto-downloads from HuggingFace.",
-    "voice_reference": "Name of a voice reference file (without extension) in ComfyUI/input/ or voices directory. Place a .wav file + matching .txt transcript. Use 'default' for the engine's default voice."
+    "text": "The text to convert to speech. Supports [CharacterName] syntax for multi-speaker. Unlimited length with smart chunking. Maps to UnifiedTTSTextNode.text.",
+    "model": "F5-TTS model/language variant for F5TTSEngineNode.language. One of: F5TTS_Base, F5TTS_v1_Base (default), E2TTS_Base, F5-DE, F5-ES, F5-FR, F5-JP, F5-IT, F5-TH, F5-PT-BR, F5-Polish, F5-Hindi-Small. Auto-downloads from HuggingFace.",
+    "voice_reference": "CharacterVoicesNode.voice_name — a voice file under models/voices/ or voices_examples/ (e.g. 'voices_examples/male/male_01.wav'), each requiring a matching .txt transcript for F5-TTS cloning. Use 'none' for the engine default."
   }
 }

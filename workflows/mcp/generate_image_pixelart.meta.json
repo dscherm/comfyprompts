@@ -9,6 +9,17 @@
     },
     "minimum_vram_gb": 12
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "style/PixelArtV3Flux.safetensors",
+        "folder": "loras",
+        "source": "https://civitai.com/models/pixel-art-xl-flux",
+        "approx_size_gb": 0.4
+      }
+    ],
+    "reason": "PixelArtV3Flux LoRA not installed; style/ subfolder does not exist in models/loras/"
+  },
   "parameters": {
     "prompt": {"type": "string", "required": true, "description": "Description of pixel art to generate (e.g., 'pixel art, a medieval knight with sword and shield')"},
     "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid"},

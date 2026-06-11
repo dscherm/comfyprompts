@@ -1,0 +1,41 @@
+{
+  "name": "Berserkr Character Portrait",
+  "description": "Generates dialogue portrait art for Berserkr game characters in the Frank Miller Sin City meets Frank Frazetta ink-noir style. Produces 512x512 bust portraits suitable for dialogue UI panels. Use 'character_name' and 'character_description' to specify the character — the Berserkr style prompt is prepended automatically.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "character_name": {"type": "string", "required": true, "description": "Character name (e.g. 'Helga One-Eye', 'Bjorn Ironsides'). Used in the prompt for identity."},
+    "character_description": {"type": "string", "required": true, "description": "Visual description of the character (e.g. 'female, middle-aged, muscular build, missing left eye, gray-streaked red hair in braids'). Maps to the visual_description field in npcs.json."},
+    "color_accent": {"type": "string", "required": false, "description": "Selective color accent to bleed through the ink darkness (default: 'deep crimson red and burning amber orange')"},
+    "expression": {"type": "string", "required": false, "description": "Facial expression or mood (default: 'neutral determined expression')"},
+    "prompt": {"type": "string", "required": false, "description": "Full prompt override. If provided, replaces the auto-generated style+character prompt entirely."},
+    "filename_prefix": {"type": "string", "required": false, "description": "Output filename prefix (default: 'Berserkr_Portrait')"},
+    "width": {"type": "int", "required": false, "description": "Image width in pixels (default: 512)"},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels (default: 512)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"}
+  },
+  "prompt_template": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, portrait of {character_name}, {character_description}, bust portrait facing viewer, {expression}, Norse fantasy setting, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of {color_accent}, stark dramatic noir shadows and silhouettes, thick aggressive ink brushstrokes and splatter, Frank Miller comic panel composition, pulp magazine cover art, deep chiaroscuro with pools of pure black shadow, gritty noir atmosphere, psychedelic lurid color bleeding through the black ink darkness, raw expressive linework, graphic novel aesthetic, visible ink texture and cross-hatching, romanticism meets noir, epic swords-and-sorcery mood, NOT photorealistic NOT smooth NOT digital NOT 3d render",
+  "defaults": {
+    "color_accent": "deep crimson red and burning amber orange",
+    "expression": "neutral determined expression",
+    "filename_prefix": "Berserkr_Portrait",
+    "width": 512,
+    "height": 512,
+    "steps": 25,
+    "cfg": 1.0,
+    "sampler_name": "euler",
+    "scheduler": "simple"
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux", "t2i", "fantasy", "portrait", "character", "dialogue", "berserkr", "chargen"]
+}

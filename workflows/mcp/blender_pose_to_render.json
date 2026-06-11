@@ -1,17 +1,17 @@
 {
   "1": {
     "inputs": {
-      "ckpt_name": "v1-5-pruned-emaonly.ckpt"
+      "ckpt_name": "sd_xl_base_1.0.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
-    "_meta": {"title": "Load SD1.5 Checkpoint"}
+    "_meta": {"title": "Load SDXL Checkpoint"}
   },
   "2": {
     "inputs": {
-      "control_net_name": "control_v11p_sd15_openpose.pth"
+      "control_net_name": "OpenPoseXL2.safetensors"
     },
     "class_type": "ControlNetLoader",
-    "_meta": {"title": "Load OpenPose ControlNet"}
+    "_meta": {"title": "Load OpenPose XL ControlNet"}
   },
   "3": {
     "inputs": {

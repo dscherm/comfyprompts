@@ -14,6 +14,23 @@
     "minimum_vram_gb": 7,
     "status": "BROKEN - AceStep nodes and model not installed. Install ComfyUI-AceStepAudio via ComfyUI-Manager and download ace_step_v1_3.5b.safetensors from HuggingFace (ACE-Step/ACE-Step-v1-3.5B)"
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "ace_step_v1_3.5b.safetensors",
+        "folder": "checkpoints",
+        "source": "https://huggingface.co/ACE-Step/ACE-Step-v1-3.5B",
+        "approx_size_gb": 7.0
+      }
+    ],
+    "nodes": [
+      {
+        "pack": "ComfyUI-AceStepAudio",
+        "source": "https://github.com/ACE-Step/ComfyUI-AceStepAudio"
+      }
+    ],
+    "reason": "ACE-Step 3.5B checkpoint and ComfyUI-AceStepAudio custom nodes not installed"
+  },
   "parameters": {
     "tags": {"type": "string", "required": true, "description": "Music style tags (e.g., 'rock, guitar, energetic')"},
     "lyrics": {"type": "string", "required": true, "description": "Song lyrics text"},

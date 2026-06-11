@@ -19,6 +19,29 @@
     "recommended_vram_gb": 16,
     "comfyui_minimum_version": "0.3.30"
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "flux1-fill-dev.safetensors",
+        "folder": "unet",
+        "source": "https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev",
+        "approx_size_gb": 23.8
+      },
+      {
+        "file": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+        "folder": "clip",
+        "source": "https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev",
+        "approx_size_gb": 4.9
+      },
+      {
+        "file": "clip_l.safetensors",
+        "folder": "clip",
+        "source": "https://huggingface.co/black-forest-labs/FLUX.1-Fill-dev",
+        "approx_size_gb": 0.2
+      }
+    ],
+    "reason": "Flux Fill Dev unet and CLIP encoders not downloaded"
+  },
   "parameters": {
     "image_path": {"type": "string", "required": true, "description": "Filename of the source image to inpaint"},
     "mask_path": {"type": "string", "required": true, "description": "Filename of the mask image. White areas will be inpainted/filled."},

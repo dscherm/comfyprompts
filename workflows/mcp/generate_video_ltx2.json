@@ -1,43 +1,66 @@
 {
   "1": {
     "inputs": {
-      "ckpt_name": "ltx-2-19b-distilled-fp8.safetensors",
-      "weight_dtype": "fp8_e4m3fn"
+      "ckpt_name": "ltx-2-19b-distilled-fp8.safetensors"
     },
     "class_type": "CheckpointLoaderSimple",
-    "_meta": {"title": "Load LTX-2 Model"}
+    "_meta": {
+      "title": "Load LTX-2 Model"
+    }
   },
   "2": {
     "inputs": {
-      "text_encoder_name": "gemma_3_12B_it_fp8_scaled.safetensors"
+      "text_encoder": "gemma_3_12B_it_fp8_scaled.safetensors",
+      "ckpt_name": "ltx-2-19b-distilled-fp8.safetensors",
+      "device": "default"
     },
     "class_type": "LTXAVTextEncoderLoader",
-    "_meta": {"title": "Load Gemma Text Encoder"}
+    "_meta": {
+      "title": "Load Gemma Text Encoder"
+    }
   },
   "3": {
     "inputs": {
       "text": "PARAM_PROMPT",
-      "clip": ["2", 0]
+      "clip": [
+        "2",
+        0
+      ]
     },
     "class_type": "CLIPTextEncode",
-    "_meta": {"title": "Positive Prompt"}
+    "_meta": {
+      "title": "Positive Prompt"
+    }
   },
   "4": {
     "inputs": {
       "text": "PARAM_NEGATIVE_PROMPT",
-      "clip": ["2", 0]
+      "clip": [
+        "2",
+        0
+      ]
     },
     "class_type": "CLIPTextEncode",
-    "_meta": {"title": "Negative Prompt"}
+    "_meta": {
+      "title": "Negative Prompt"
+    }
   },
   "5": {
     "inputs": {
-      "positive": ["3", 0],
-      "negative": ["4", 0],
+      "positive": [
+        "3",
+        0
+      ],
+      "negative": [
+        "4",
+        0
+      ],
       "frame_rate": "PARAM_INT_FPS"
     },
     "class_type": "LTXVConditioning",
-    "_meta": {"title": "LTX-2 Conditioning"}
+    "_meta": {
+      "title": "LTX-2 Conditioning"
+    }
   },
   "6": {
     "inputs": {
@@ -47,7 +70,9 @@
       "batch_size": 1
     },
     "class_type": "EmptyLTXVLatentVideo",
-    "_meta": {"title": "Empty LTX-2 Latent Video"}
+    "_meta": {
+      "title": "Empty LTX-2 Latent Video"
+    }
   },
   "7": {
     "inputs": {
@@ -55,74 +80,129 @@
       "control_after_generate": "fixed"
     },
     "class_type": "RandomNoise",
-    "_meta": {"title": "Random Noise"}
+    "_meta": {
+      "title": "Random Noise"
+    }
   },
   "8": {
     "inputs": {
       "sampler_name": "euler"
     },
     "class_type": "KSamplerSelect",
-    "_meta": {"title": "Sampler Select"}
+    "_meta": {
+      "title": "Sampler Select"
+    }
   },
   "9": {
     "inputs": {
-      "model": ["1", 0],
-      "positive": ["5", 0],
-      "negative": ["5", 1],
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "5",
+        1
+      ],
       "cfg": "PARAM_FLOAT_CFG"
     },
     "class_type": "CFGGuider",
-    "_meta": {"title": "CFG Guider"}
+    "_meta": {
+      "title": "CFG Guider"
+    }
   },
   "10": {
     "inputs": {
-      "model": ["1", 0],
+      "model": [
+        "1",
+        0
+      ],
       "scheduler": "simple",
       "steps": "PARAM_INT_STEPS",
       "denoise": 1.0
     },
     "class_type": "BasicScheduler",
-    "_meta": {"title": "Basic Scheduler"}
+    "_meta": {
+      "title": "Basic Scheduler"
+    }
   },
   "11": {
     "inputs": {
-      "noise": ["7", 0],
-      "guider": ["9", 0],
-      "sampler": ["8", 0],
-      "sigmas": ["10", 0],
-      "latent_image": ["6", 0]
+      "noise": [
+        "7",
+        0
+      ],
+      "guider": [
+        "9",
+        0
+      ],
+      "sampler": [
+        "8",
+        0
+      ],
+      "sigmas": [
+        "10",
+        0
+      ],
+      "latent_image": [
+        "6",
+        0
+      ]
     },
     "class_type": "SamplerCustomAdvanced",
-    "_meta": {"title": "Advanced Sampler"}
+    "_meta": {
+      "title": "Advanced Sampler"
+    }
   },
   "12": {
     "inputs": {
-      "samples": ["11", 0],
-      "vae": ["1", 2],
+      "samples": [
+        "11",
+        0
+      ],
+      "vae": [
+        "1",
+        2
+      ],
       "tile_size": 512,
       "overlap": 64,
       "temporal_size": 64,
       "temporal_overlap": 8
     },
     "class_type": "VAEDecodeTiled",
-    "_meta": {"title": "VAE Decode (Tiled)"}
+    "_meta": {
+      "title": "VAE Decode (Tiled)"
+    }
   },
   "13": {
     "inputs": {
-      "images": ["12", 0],
+      "images": [
+        "12",
+        0
+      ],
       "fps": "PARAM_INT_FPS"
     },
     "class_type": "CreateVideo",
-    "_meta": {"title": "Create Video"}
+    "_meta": {
+      "title": "Create Video"
+    }
   },
   "14": {
     "inputs": {
-      "video": ["13", 0],
+      "video": [
+        "13",
+        0
+      ],
       "filename_prefix": "ComfyUI_LTX2_T2V",
       "format": "mp4",
       "codec": "h264"
     },
     "class_type": "SaveVideo",
-    "_meta": {"title": "Save Video"}
+    "_meta": {
+      "title": "Save Video"
+    }
   }
 }

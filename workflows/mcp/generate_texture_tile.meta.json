@@ -1,0 +1,31 @@
+{
+  "name": "Generate Seamless Texture Tile",
+  "description": "Generates seamless tileable textures for game terrain using SDXL with optional style LoRA (SomeTile or PreAlphaWoW). Best for creating individual terrain tiles like grass, stone, water, sand, etc.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "LoraLoader", "EmptyLatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "juggernautXL_v9Rundiffusion.safetensors",
+      "lora": "style/SomeTile.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "Terrain description (e.g., 'sometile, grass terrain, top-down RPG tileset, seamless texture')"},
+    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid (default: 'blurry, text, watermark, 3d render, photo')"},
+    "checkpoint": {"type": "string", "required": false, "description": "SDXL checkpoint model (default: juggernautXL_v9Rundiffusion.safetensors)"},
+    "lora_name": {"type": "string", "required": false, "description": "LoRA model name (default: style/SomeTile.safetensors)"},
+    "lora_strength": {"type": "float", "required": false, "description": "LoRA strength (default 0.85)"},
+    "width": {"type": "int", "required": false, "description": "Tile width in pixels (default 512)"},
+    "height": {"type": "int", "required": false, "description": "Tile height in pixels (default 512)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed"},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps (default 25)"},
+    "cfg": {"type": "float", "required": false, "description": "CFG scale (default 7.0)"}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["tileset", "seamless", "texture", "game-assets", "terrain", "SDXL", "LoRA"]
+}

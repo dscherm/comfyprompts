@@ -1,30 +1,17 @@
 {
-  "_comment": "TTS-Audio-Suite: Text-to-Speech generation using F5-TTS engine with optional voice cloning. Requires TTS-Audio-Suite custom node (install via ComfyUI Manager). Models auto-download on first use.",
-  "10": {
-    "inputs": {
-      "tts_engine": [
-        "20",
-        0
-      ],
-      "text": "PARAM_TEXT",
-      "character_voice": [
-        "30",
-        0
-      ]
-    },
-    "class_type": "TTS Text",
-    "_meta": {
-      "title": "TTS Text"
-    }
-  },
+  "_comment": "TTS-Audio-Suite: Text-to-Speech using the F5-TTS engine with optional voice cloning from a reference voice. Real class names: F5TTSEngineNode -> UnifiedTTSTextNode -> SaveAudioMP3, with CharacterVoicesNode providing the reference voice. Requires TTS-Audio-Suite custom node. Models auto-download on first use.",
   "20": {
     "inputs": {
-      "model": "PARAM_STR_MODEL",
+      "language": "PARAM_STR_MODEL",
       "device": "auto",
-      "unload_model_after_generate": true,
-      "precision": "bf16"
+      "temperature": 0.8,
+      "speed": 1.0,
+      "target_rms": 0.1,
+      "cross_fade_duration": 0.15,
+      "nfe_step": 32,
+      "cfg_strength": 2.0
     },
-    "class_type": "F5 TTS Engine",
+    "class_type": "F5TTSEngineNode",
     "_meta": {
       "title": "F5 TTS Engine"
     }
@@ -32,18 +19,36 @@
   "30": {
     "inputs": {
       "voice_name": "PARAM_STR_VOICE_REFERENCE",
-      "voices_dir": "default"
+      "reference_text": ""
     },
-    "class_type": "Character Voices",
+    "class_type": "CharacterVoicesNode",
     "_meta": {
       "title": "Character Voices"
+    }
+  },
+  "10": {
+    "inputs": {
+      "TTS_engine": [
+        "20",
+        0
+      ],
+      "text": "PARAM_TEXT",
+      "narrator_voice": "none",
+      "seed": 1,
+      "opt_narrator": [
+        "30",
+        0
+      ]
+    },
+    "class_type": "UnifiedTTSTextNode",
+    "_meta": {
+      "title": "TTS Text"
     }
   },
   "40": {
     "inputs": {
       "filename_prefix": "audio/speech",
       "quality": "V0",
-      "audioUI": "",
       "audio": [
         "10",
         0

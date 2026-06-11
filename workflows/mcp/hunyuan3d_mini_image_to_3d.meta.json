@@ -10,6 +10,17 @@
     "vram_minimum_gb": 6,
     "vram_recommended_gb": 8
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "hy3dgen/hunyuan3d-dit-v2-mini-fp16.safetensors",
+        "folder": "diffusion_models",
+        "source": "https://huggingface.co/tencent/Hunyuan3D-2",
+        "approx_size_gb": 1.5
+      }
+    ],
+    "reason": "Only hunyuan3d-dit-v2-0-fp16 installed; mini variant (v2-mini) not present in models/diffusion_models/hy3dgen/"
+  },
   "parameters": {
     "PARAM_STR_IMAGE_PATH": {
       "type": "string",

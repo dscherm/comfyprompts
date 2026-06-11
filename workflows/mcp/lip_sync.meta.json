@@ -14,6 +14,27 @@
     },
     "estimated_vram": "2-4GB"
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "wav2lip.pth",
+        "folder": "custom_nodes/ComfyUI_wav2lip/Wav2Lip/checkpoints",
+        "source": "https://github.com/Rudrabha/Wav2Lip",
+        "approx_size_gb": 0.4
+      }
+    ],
+    "nodes": [
+      {
+        "pack": "ComfyUI-VideoHelperSuite",
+        "source": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
+      },
+      {
+        "pack": "ComfyUI_wav2lip",
+        "source": "https://github.com/ShmuelRonen/ComfyUI_wav2lip"
+      }
+    ],
+    "reason": "Wav2Lip checkpoint and required custom nodes not installed"
+  },
   "category": "lip_sync",
   "tags": ["lip-sync", "wav2lip", "talking-head", "audio-visual", "face-animation"],
   "defaults": {

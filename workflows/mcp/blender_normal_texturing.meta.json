@@ -9,6 +9,23 @@
     },
     "minimum_vram_gb": 6
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "v1-5-pruned-emaonly.ckpt",
+        "folder": "checkpoints",
+        "source": "https://huggingface.co/runwayml/stable-diffusion-v1-5",
+        "approx_size_gb": 4.0
+      },
+      {
+        "file": "control_v11p_sd15_normalbae.pth",
+        "folder": "controlnet",
+        "source": "https://huggingface.co/lllyasviel/ControlNet-v1-1",
+        "approx_size_gb": 1.5
+      }
+    ],
+    "reason": "No SD1.5 normal-bae ControlNet installed; no SDXL/Flux normal ControlNet alternative available"
+  },
   "parameters": {
     "normal_image": {"type": "string", "required": true, "description": "Filename of the Blender normal pass render (RGB normal map)"},
     "prompt": {"type": "string", "required": true, "description": "Text description of desired texture (e.g., 'weathered stone texture, mossy cracks, photorealistic')"},

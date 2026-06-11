@@ -1,0 +1,7 @@
+{
+  "tool_name": "PowerShell",
+  "tool_input_preview": "{\"command\":\"python -c \\\"\\nimport json\\nbase = r'D:\\\\Projects\\\\comfyui-toolchain\\\\workflows\\\\mcp'\\n# face_id_portrait: declare sampler_name + scheduler\\np = base + r'\\\\face_id_portrait.meta.json'\\nm = ...",
+  "error": "Exit code 1\ndefault: : The term 'default:' is not recognized as the name of a cmdlet, function, script file, or \r\noperable program. Check the spelling of the name, or if a path was included, verify that the path is \r\ncorrect and try again.\r\nAt line:10 char:111\r\n+ ... 'required': False, 'description': \\\"Sampling method (default: 'dpmpp_ ...\r\n+                                                          ~~~~~~~~\r\n    + CategoryInfo          : ObjectNotFound: (default::String) [], CommandNotFoundExcep...",
+  "timestamp": "2026-06-11T00:34:28.370Z",
+  "retry_count": 1
+}

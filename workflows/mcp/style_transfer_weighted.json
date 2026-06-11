@@ -92,6 +92,7 @@
       "end_at": 1.0,
       "embeds_scaling": "V only",
       "model": ["6", 0],
+      "ipadapter": ["6", 1],
       "pos_embed": ["18", 0]
     },
     "_defaults": {

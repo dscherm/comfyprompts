@@ -19,6 +19,29 @@
     "recommended_vram_gb": 16,
     "comfyui_minimum_version": "0.3.42"
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "flux1-dev-kontext_fp8_scaled.safetensors",
+        "folder": "unet",
+        "source": "https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI",
+        "approx_size_gb": 12.0
+      },
+      {
+        "file": "t5xxl_fp8_e4m3fn_scaled.safetensors",
+        "folder": "clip",
+        "source": "https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI",
+        "approx_size_gb": 4.9
+      },
+      {
+        "file": "clip_l.safetensors",
+        "folder": "clip",
+        "source": "https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI",
+        "approx_size_gb": 0.2
+      }
+    ],
+    "reason": "Flux Kontext Dev unet and CLIP encoders not downloaded"
+  },
   "parameters": {
     "image_path": {"type": "string", "required": true, "description": "Filename of the source image to edit"},
     "prompt": {"type": "string", "required": true, "description": "Natural language editing instruction (e.g. 'change the background to a forest', 'make the person wear a red hat', 'add snow to the scene'). English only."},

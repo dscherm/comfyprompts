@@ -1,25 +1,32 @@
 {
   "1": {
     "inputs": {
-      "unet_name": "flux2_dev_fp8mixed.safetensors"
+      "unet_name": "flux2_dev_fp8mixed.safetensors",
+      "weight_dtype": "default"
     },
     "class_type": "UNETLoader",
-    "_meta": {"title": "Load Flux 2 Dev Diffusion Model"}
+    "_meta": {
+      "title": "Load Flux 2 Dev Diffusion Model"
+    }
   },
   "2": {
     "inputs": {
       "clip_name": "mistral_3_small_flux2_fp8.safetensors",
-      "type": "flux"
+      "type": "flux2"
     },
     "class_type": "CLIPLoader",
-    "_meta": {"title": "Load Mistral Text Encoder"}
+    "_meta": {
+      "title": "Load Mistral Text Encoder"
+    }
   },
   "3": {
     "inputs": {
       "vae_name": "flux2-vae.safetensors"
     },
     "class_type": "VAELoader",
-    "_meta": {"title": "Load Flux 2 VAE"}
+    "_meta": {
+      "title": "Load Flux 2 VAE"
+    }
   },
   "4": {
     "inputs": {
@@ -28,7 +35,9 @@
       "batch_size": 1
     },
     "class_type": "EmptySD3LatentImage",
-    "_meta": {"title": "Empty Latent Image"},
+    "_meta": {
+      "title": "Empty Latent Image"
+    },
     "_defaults": {
       "PARAM_INT_WIDTH": 1024,
       "PARAM_INT_HEIGHT": 1024
@@ -37,18 +46,28 @@
   "5": {
     "inputs": {
       "text": "PARAM_PROMPT",
-      "clip": ["2", 0]
+      "clip": [
+        "2",
+        0
+      ]
     },
     "class_type": "CLIPTextEncode",
-    "_meta": {"title": "Positive Prompt"}
+    "_meta": {
+      "title": "Positive Prompt"
+    }
   },
   "6": {
     "inputs": {
       "text": "PARAM_NEGATIVE_PROMPT",
-      "clip": ["2", 0]
+      "clip": [
+        "2",
+        0
+      ]
     },
     "class_type": "CLIPTextEncode",
-    "_meta": {"title": "Negative Prompt"},
+    "_meta": {
+      "title": "Negative Prompt"
+    },
     "_defaults": {
       "PARAM_NEGATIVE_PROMPT": ""
     }
@@ -61,13 +80,27 @@
       "sampler_name": "PARAM_STR_SAMPLER_NAME",
       "scheduler": "PARAM_STR_SCHEDULER",
       "denoise": "PARAM_FLOAT_DENOISE",
-      "model": ["1", 0],
-      "positive": ["5", 0],
-      "negative": ["6", 0],
-      "latent_image": ["4", 0]
+      "model": [
+        "1",
+        0
+      ],
+      "positive": [
+        "5",
+        0
+      ],
+      "negative": [
+        "6",
+        0
+      ],
+      "latent_image": [
+        "4",
+        0
+      ]
     },
     "class_type": "KSampler",
-    "_meta": {"title": "KSampler"},
+    "_meta": {
+      "title": "KSampler"
+    },
     "_defaults": {
       "PARAM_INT_STEPS": 25,
       "PARAM_FLOAT_CFG": 3.5,
@@ -78,18 +111,31 @@
   },
   "8": {
     "inputs": {
-      "samples": ["7", 0],
-      "vae": ["3", 0]
+      "samples": [
+        "7",
+        0
+      ],
+      "vae": [
+        "3",
+        0
+      ]
     },
     "class_type": "VAEDecode",
-    "_meta": {"title": "VAE Decode"}
+    "_meta": {
+      "title": "VAE Decode"
+    }
   },
   "9": {
     "inputs": {
       "filename_prefix": "ComfyUI_Flux2",
-      "images": ["8", 0]
+      "images": [
+        "8",
+        0
+      ]
     },
     "class_type": "SaveImage",
-    "_meta": {"title": "Save Image"}
+    "_meta": {
+      "title": "Save Image"
+    }
   }
 }

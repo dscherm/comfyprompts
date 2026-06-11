@@ -1,0 +1,41 @@
+{
+  "name": "Berserkr Class Selection Card",
+  "description": "Generates class selection card art for the Berserkr character creation screen. Produces 528x528 illustrations with ornate Norse knotwork framing in the Frank Miller Sin City meets Frank Frazetta ink-noir style. Use 'class_name', 'class_description', and 'equipment' to describe the class archetype.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "class_name": {"type": "string", "required": true, "description": "Class name (e.g. 'Berserkr', 'Valkyrie', 'Runecaster')."},
+    "class_description": {"type": "string", "required": true, "description": "Class archetype description (e.g. 'Fierce warriors who enter a battle rage, gaining supernatural strength')."},
+    "equipment": {"type": "string", "required": false, "description": "Signature equipment and gear (e.g. 'great axe, bear pelt, hunting knife'). Default: empty."},
+    "color_accent": {"type": "string", "required": false, "description": "Selective color accent (default: 'deep crimson red and burning amber orange')"},
+    "prompt": {"type": "string", "required": false, "description": "Full prompt override. If provided, replaces the auto-generated style+class prompt entirely."},
+    "filename_prefix": {"type": "string", "required": false, "description": "Output filename prefix (default: 'Berserkr_Card')"},
+    "width": {"type": "int", "required": false, "description": "Image width in pixels (default: 528)"},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels (default: 528)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"}
+  },
+  "prompt_template": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, character card illustration of a {class_name}, {class_description}, wielding {equipment}, ornate Norse knotwork border frame, rune inscriptions along the edges, tarot card composition, three-quarter body view heroic pose, Norse fantasy setting, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of {color_accent}, stark dramatic noir shadows and silhouettes, thick aggressive ink brushstrokes and splatter, Frank Miller comic panel composition, pulp magazine cover art, exaggerated heroic muscular anatomy like Frazetta, deep chiaroscuro with pools of pure black shadow, gritty noir atmosphere, psychedelic lurid color bleeding through the black ink darkness, raw expressive linework, graphic novel aesthetic, visible ink texture and cross-hatching, romanticism meets noir, epic swords-and-sorcery mood, NOT photorealistic NOT smooth NOT digital NOT 3d render",
+  "defaults": {
+    "equipment": "their signature weapons",
+    "color_accent": "deep crimson red and burning amber orange",
+    "filename_prefix": "Berserkr_Card",
+    "width": 528,
+    "height": 528,
+    "steps": 25,
+    "cfg": 1.0,
+    "sampler_name": "euler",
+    "scheduler": "simple"
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux", "t2i", "fantasy", "card", "class-selection", "character", "berserkr", "chargen"]
+}

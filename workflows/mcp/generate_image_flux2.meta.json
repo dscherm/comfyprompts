@@ -17,6 +17,29 @@
     "recommended_vram_gb": 16,
     "comfyui_minimum_version": "0.3.39"
   },
+  "requires_download": {
+    "models": [
+      {
+        "file": "flux2_dev_fp8mixed.safetensors",
+        "folder": "unet",
+        "source": "https://huggingface.co/Comfy-Org/flux2-dev",
+        "approx_size_gb": 12.0
+      },
+      {
+        "file": "mistral_3_small_flux2_fp8.safetensors",
+        "folder": "clip",
+        "source": "https://huggingface.co/Comfy-Org/flux2-dev",
+        "approx_size_gb": 4.5
+      },
+      {
+        "file": "flux2-vae.safetensors",
+        "folder": "vae",
+        "source": "https://huggingface.co/Comfy-Org/flux2-dev",
+        "approx_size_gb": 0.3
+      }
+    ],
+    "reason": "Flux 2 Dev unet, Mistral 3 Small text encoder, and Flux 2 VAE not downloaded"
+  },
   "parameters": {
     "prompt": {"type": "string", "required": true, "description": "Text description of desired image. Flux 2 supports complex multi-part prompts, hex color codes, and typography instructions."},
     "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in the image"},

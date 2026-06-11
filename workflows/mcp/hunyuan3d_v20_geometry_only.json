@@ -5,98 +5,61 @@
       "upload": "image"
     },
     "class_type": "LoadImage",
-    "_meta": {
-      "title": "Load Image"
-    }
+    "_meta": {"title": "Load Image"}
   },
   "2": {
     "inputs": {
-      "image": [
-        "1",
-        0
-      ],
+      "image": ["1", 0],
+      "width": 518,
+      "height": 518,
       "interpolation": "lanczos",
       "method": "stretch",
       "condition": "always",
-      "width": 512,
-      "height": 512,
       "multiple_of": 0
     },
     "class_type": "ImageResize+",
-    "_meta": {
-      "title": "Resize to 518x518"
-    }
+    "_meta": {"title": "Resize to 518x518"}
   },
   "3": {
     "inputs": {
-      "model": "hy3dgen/hunyuan3d-dit-v2-mini-fp16.safetensors",
+      "model": "hunyuan3d-dit-v2-0-fp16.safetensors",
       "attention_mode": "sdpa"
     },
     "class_type": "Hy3DModelLoader",
-    "_meta": {
-      "title": "Load Hunyuan3D Mini Model (0.6B)"
-    }
+    "_meta": {"title": "Load Hunyuan3D v2.0 Model"}
   },
-  "4": {
+  "6": {
     "inputs": {
-      "post_processing": true,
       "mode": "base",
       "use_jit": true
     },
     "class_type": "TransparentBGSession+",
-    "_meta": {
-      "title": "Background Removal Session"
-    }
+    "_meta": {"title": "Background Removal Session"}
   },
-  "5": {
+  "7": {
     "inputs": {
-      "rembg_session": [
-        "4",
-        0
-      ],
-      "image": [
-        "2",
-        0
-      ]
+      "rembg_session": ["6", 0],
+      "image": ["2", 0]
     },
     "class_type": "ImageRemoveBackground+",
-    "_meta": {
-      "title": "Remove Background"
-    }
+    "_meta": {"title": "Remove Background"}
   },
-  "6": {
+  "8": {
     "inputs": {
-      "pipeline": [
-        "3",
-        0
-      ],
-      "image": [
-        "2",
-        0
-      ],
-      "mask": [
-        "5",
-        1
-      ],
+      "pipeline": ["3", 0],
+      "image": ["2", 0],
+      "mask": ["7", 1],
       "guidance_scale": "PARAM_FLOAT_GUIDANCE_SCALE",
       "steps": "PARAM_INT_STEPS",
       "seed": "PARAM_INT_SEED"
     },
     "class_type": "Hy3DGenerateMesh",
-    "_meta": {
-      "title": "Generate Mesh Latents (Mini)"
-    }
+    "_meta": {"title": "Generate Mesh Latents"}
   },
-  "7": {
+  "9": {
     "inputs": {
-      "vae": [
-        "3",
-        1
-      ],
-      "latents": [
-        "6",
-        0
-      ],
+      "vae": ["3", 1],
+      "latents": ["8", 0],
       "box_v": 1.01,
       "octree_resolution": "PARAM_INT_OCTREE_RESOLUTION",
       "num_chunks": 32000,
@@ -104,16 +67,11 @@
       "mc_algo": "mc"
     },
     "class_type": "Hy3DVAEDecode",
-    "_meta": {
-      "title": "VAE Decode to Mesh"
-    }
+    "_meta": {"title": "VAE Decode to Mesh"}
   },
-  "8": {
+  "10": {
     "inputs": {
-      "trimesh": [
-        "7",
-        0
-      ],
+      "trimesh": ["9", 0],
       "remove_floaters": true,
       "remove_degenerate_faces": true,
       "reduce_faces": true,
@@ -121,22 +79,15 @@
       "smooth_normals": false
     },
     "class_type": "Hy3DPostprocessMesh",
-    "_meta": {
-      "title": "Postprocess Mesh"
-    }
+    "_meta": {"title": "Postprocess Mesh"}
   },
-  "9": {
+  "11": {
     "inputs": {
-      "trimesh": [
-        "8",
-        0
-      ],
-      "filename_prefix": "3D/Hy3D_mini",
+      "trimesh": ["10", 0],
+      "filename_prefix": "3D/ground_tile",
       "file_format": "glb"
     },
     "class_type": "Hy3DExportMesh",
-    "_meta": {
-      "title": "Export Mesh"
-    }
+    "_meta": {"title": "Export Geometry GLB"}
   }
 }

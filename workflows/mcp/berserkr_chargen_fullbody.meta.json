@@ -1,0 +1,43 @@
+{
+  "name": "Berserkr Character Full Body",
+  "description": "Generates full-body character concept art for Berserkr game characters in the Frank Miller Sin City meets Frank Frazetta ink-noir style. Produces 528x528 full-body standing poses suitable as reference for sprite creation. Use 'character_name' and 'character_description' for the character, plus 'equipment' for visible gear.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "EmptySD3LatentImage", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "character_name": {"type": "string", "required": true, "description": "Character name (e.g. 'Berserkr Warrior', 'Helga One-Eye')."},
+    "character_description": {"type": "string", "required": true, "description": "Visual description of the character including build, clothing, distinctive features."},
+    "equipment": {"type": "string", "required": false, "description": "Visible weapons and gear (e.g. 'carrying a great axe and wearing a bear pelt'). Default: empty."},
+    "pose": {"type": "string", "required": false, "description": "Character pose (default: 'standing in T-pose, arms extended straight out to sides at shoulder height, palms facing down, legs slightly apart, hands open and empty')"},
+    "color_accent": {"type": "string", "required": false, "description": "Selective color accent (default: 'deep crimson red and burning amber orange')"},
+    "prompt": {"type": "string", "required": false, "description": "Full prompt override. If provided, replaces the auto-generated style+character prompt entirely."},
+    "filename_prefix": {"type": "string", "required": false, "description": "Output filename prefix (default: 'Berserkr_Fullbody')"},
+    "width": {"type": "int", "required": false, "description": "Image width in pixels (default: 528)"},
+    "height": {"type": "int", "required": false, "description": "Image height in pixels (default: 528)"},
+    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"}
+  },
+  "prompt_template": "Frank Miller Sin City meets Frank Frazetta 1970s fantasy art, full body character illustration of {character_name}, {character_description}, {equipment}, {pose}, full body visible head to feet, Norse fantasy setting, character design reference sheet style, HEAVY BLACK INK illustration style, extreme high contrast black and white with selective bold color accents of {color_accent}, stark dramatic noir shadows and silhouettes, thick aggressive ink brushstrokes and splatter, Frank Miller comic panel composition, pulp magazine cover art, exaggerated heroic muscular anatomy like Frazetta, deep chiaroscuro with pools of pure black shadow, gritty noir atmosphere, psychedelic lurid color bleeding through the black ink darkness, raw expressive linework, graphic novel aesthetic, visible ink texture and cross-hatching, romanticism meets noir, epic swords-and-sorcery mood, NOT photorealistic NOT smooth NOT digital NOT 3d render",
+  "defaults": {
+    "equipment": "",
+    "pose": "standing in T-pose, arms extended straight out to sides at shoulder height, palms facing down, legs slightly apart, hands open and empty",
+    "color_accent": "deep crimson red and burning amber orange",
+    "filename_prefix": "Berserkr_Fullbody",
+    "width": 528,
+    "height": 528,
+    "steps": 25,
+    "cfg": 1.0,
+    "sampler_name": "euler",
+    "scheduler": "simple"
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux", "t2i", "fantasy", "full-body", "character", "concept-art", "berserkr", "chargen"]
+}

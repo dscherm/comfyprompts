@@ -1,16 +1,15 @@
 {
   "name": "Image to 3D",
-  "description": "Converts a single image to a 3D mesh using TripoSR. Automatically removes the background before 3D reconstruction.",
+  "description": "Converts a single image to a 3D mesh (.glb) using TripoSR. Automatically removes the background with Inspyrenet rembg before 3D reconstruction.",
   "requirements": {
-    "nodes": ["LoadImage", "TripoSRModelLoader", "ImageRemoveBackground", "TripoSRSampler", "SaveTripoSRMesh"],
+    "nodes": ["LoadImage", "TripoSRModelLoader", "InspyrenetRembg", "TripoSRSampler", "SaveGLB"],
     "custom_nodes": {
       "TripoSRModelLoader": {"install": "ComfyUI-TripoSR"},
       "TripoSRSampler": {"install": "ComfyUI-TripoSR"},
-      "SaveTripoSRMesh": {"install": "ComfyUI-TripoSR"},
-      "ImageRemoveBackground": {"install": "ComfyUI-BRIA-AI-RMBG or ComfyUI-rembg"}
+      "InspyrenetRembg": {"install": "ComfyUI-Inspyrenet-Rembg"}
     },
     "models": {
-      "triposr": "TripoSR"
+      "triposr": "tripoSR.ckpt"
     },
     "minimum_vram_gb": 6
   },
@@ -21,7 +20,7 @@
   "output": {
     "type": "3d_mesh",
     "format": "glb",
-    "node": "SaveTripoSRMesh"
+    "node": "SaveGLB"
   },
   "category": "conversion",
   "tags": ["image-to-3d", "triposr", "3d", "mesh", "reconstruction"]

@@ -1,28 +1,28 @@
 {
   "name": "Voice Clone (TTS + RVC)",
-  "description": "Generates speech with F5-TTS and applies RVC voice conversion for high-fidelity voice cloning. Two-stage pipeline: TTS generates base speech, then RVC converts to target voice. Requires TTS-Audio-Suite with RVC support.",
+  "description": "Generates speech with F5-TTS and applies RVC voice conversion for high-fidelity voice cloning. Two-stage pipeline: F5TTSEngineNode+UnifiedTTSTextNode generate base speech, then RVCEngineNode+UnifiedVoiceChangerNode convert it toward a target reference voice. Requires TTS-Audio-Suite with RVC support.",
   "requirements": {
-    "nodes": ["TTS Text", "F5 TTS Engine", "Character Voices", "Voice Changer", "Load RVC Character Model"],
+    "nodes": ["F5TTSEngineNode", "UnifiedTTSTextNode", "CharacterVoicesNode", "RVCEngineNode", "UnifiedVoiceChangerNode", "SaveAudioMP3"],
     "install": "TTS-Audio-Suite",
     "install_url": "https://github.com/diodiogod/TTS-Audio-Suite",
     "models": {
       "tts": "Auto-downloaded F5-TTS models (~1.2GB per language)",
-      "rvc": "User-provided RVC .pth model files (100-300MB each, place in models/TTS/RVC/)"
+      "rvc": "RVC voice handled via a target reference voice (CharacterVoicesNode). This TTS-Audio-Suite build exposes no input that consumes LoadRVCModelNode's RVC_MODEL output, so pretrained .pth selection is on the engine auto-download path, not wired into the graph."
     },
     "estimated_vram": "4-6GB"
   },
   "category": "audio_tts",
   "tags": ["voice-cloning", "rvc", "tts", "voice-conversion", "f5-tts"],
   "defaults": {
-    "model": "F5-TTS",
-    "voice_reference": "default",
+    "model": "F5TTS_v1_Base",
+    "voice_reference": "none",
     "pitch_shift": 0
   },
   "parameter_notes": {
-    "text": "Text to speak. Supports unlimited length with smart chunking.",
-    "model": "TTS model variant for base speech generation.",
-    "voice_reference": "Reference voice for F5-TTS zero-shot cloning. Name of .wav + .txt pair in voices directory.",
-    "rvc_model": "RVC model filename (.pth) for voice conversion. Must be pre-trained on target voice.",
-    "pitch_shift": "Pitch adjustment in semitones. 0 = no change, +12 = one octave up, -12 = one octave down. Use for gender/age adjustment."
+    "text": "Text to speak. Supports unlimited length with smart chunking. Maps to UnifiedTTSTextNode.text.",
+    "model": "F5-TTS language/model variant for base speech (F5TTSEngineNode.language). Default F5TTS_v1_Base.",
+    "voice_reference": "Source voice for F5-TTS base generation (CharacterVoicesNode.voice_name). A voice file under voices_examples/ or models/voices/ with a matching .txt transcript.",
+    "rvc_model": "RVC target voice (CharacterVoicesNode.voice_name feeding UnifiedVoiceChangerNode.narrator_target). The converted speech is steered toward this reference voice. NOTE: this suite build has no input consuming LoadRVCModelNode's RVC_MODEL output, so a pretrained .pth is not wired in; pass a target reference voice name here instead.",
+    "pitch_shift": "Pitch adjustment in semitones for RVCEngineNode.pitch (range -14..14). 0 = no change, +12 = one octave up, -12 = one octave down."
   }
 }
