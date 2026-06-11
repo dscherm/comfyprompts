@@ -38,15 +38,12 @@ May mean the custom_node pack failed to import at boot (check
 
 ## C. Node spec drift (newer node versions added required inputs)
 
-- [ ] `UNETLoader` — add `weight_dtype` everywhere it's used.
-- [ ] `ImageResize+` — add `interpolation`, `method`, `condition` (hunyuan3d mini/turbo workflows).
-- [ ] `TransparentBGSession+` — add `mode`.
+- [x] `UNETLoader` — `weight_dtype` added in edit_image_kontext, generate_image_flux2, inpaint_flux_fill (values from object_info enum).
+- [x] `ImageResize+` — `interpolation`, `method`, `condition` (+ `width`/`height`/`multiple_of` required by ComfyUI API despite spec defaults) added in hunyuan3d mini/turbo/v25 workflows.
+- [x] `TransparentBGSession+` — `mode` (+ `use_jit`) added wherever used. Also fixed in the same pass: LTXAVTextEncoderLoader input restructure (ltx2 x2), TripoSGVAEDecoder decode params, ImageCompositeMasked x/y/resize_source, CV2InpaintTexture inpaint_method.
 
 ## D. Hygiene (warnings, not failures)
 
-- [ ] Align meta.json parameter names with workflow placeholders where the
-      validator warns (type-hint prefix mismatches are auto-normalized, but
-      genuinely undeclared placeholders should be added to sidecars).
-- [ ] Add `scripts/cache/` to .gitignore if object_info.json shouldn't be committed.
-- [ ] Add validator to test suite: a pytest that runs structural validation on
-      all of `workflows/mcp/` (object_info check as `@pytest.mark.integration`).
+- [x] Sidecar/workflow placeholder alignment: validator normalizes type-hint prefixes and understands `prompt_template`-composed params (berserkr false positives); genuinely missing declarations added to face_id_portrait and hunyuan3d_v20_geometry_only sidecars. Zero sidecar warnings remain.
+- [x] `scripts/cache/` added to .gitignore.
+- [x] `tests/test_workflow_validation.py` added: structural validation of all workflows/mcp always; live object_info check under `@pytest.mark.integration`. Also revived the long-dead `test_workflows.py`/`test_smoke.py` fixtures (wrong workflows dir since initial monorepo commit). Full suite: 460 passed.
