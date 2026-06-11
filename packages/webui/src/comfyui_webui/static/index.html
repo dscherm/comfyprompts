@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>comfyui-toolchain</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+
+<!-- ── Top bar ──────────────────────────────────────────── -->
+<header id="topbar" role="banner">
+  <div id="app-wordmark"><span>comfyui</span>-toolchain</div>
+
+  <button class="tab-btn active" data-tab="generate" aria-controls="tab-generate">Generate</button>
+  <button class="tab-btn"        data-tab="create"   aria-controls="tab-create">Create</button>
+
+  <div id="status-pill" aria-live="polite" aria-label="ComfyUI connection status">
+    <span class="pill-dot disconnected" id="pill-dot"></span>
+    <span id="pill-text">connecting…</span>
+    <span class="pill-queue hidden" id="pill-queue"></span>
+  </div>
+</header>
+
+<!-- ── App ──────────────────────────────────────────────── -->
+<main id="app">
+
+  <!-- ─────────────── TAB 1: Generate ──────────────────── -->
+  <section id="tab-generate" class="tab-panel active" role="tabpanel" aria-label="Generate">
+
+    <!-- Sidebar -->
+    <nav id="sidebar" aria-label="Workflow list">
+      <div id="sidebar-search-wrap">
+        <input
+          type="search"
+          id="workflow-search"
+          placeholder="Search workflows…"
+          autocomplete="off"
+          aria-label="Search workflows"
+        />
+      </div>
+
+      <div id="cat-chips" role="group" aria-label="Filter by category">
+        <!-- Rendered by JS -->
+      </div>
+
+      <div id="workflow-list" role="listbox" aria-label="Available workflows">
+        <!-- Rendered by JS -->
+      </div>
+    </nav>
+
+    <!-- Main pane -->
+    <div id="generate-main">
+      <div id="generate-scroll">
+
+        <!-- Empty state (shown until a workflow is selected) -->
+        <div id="wf-empty" aria-live="polite">
+          <div>Select a workflow from the sidebar to begin.</div>
+        </div>
+
+        <!-- Workflow header (hidden until selected) -->
+        <div id="wf-header" class="hidden">
+          <div id="wf-name"></div>
+          <div id="wf-desc"></div>
+        </div>
+
+        <!-- Download notice (shown when requires_download) -->
+        <div id="wf-dl-notice" role="alert"></div>
+
+        <!-- Dynamic parameter form -->
+        <form id="param-form" novalidate aria-label="Workflow parameters">
+          <!-- Fields injected by JS -->
+        </form>
+
+        <!-- Generate button + progress -->
+        <div id="gen-actions" class="hidden">
+          <button id="btn-generate" class="btn-primary" type="button">
+            Generate
+          </button>
+        </div>
+
+        <!-- Inline error banner -->
+        <div id="gen-error" role="alert" aria-live="assertive"></div>
+
+        <!-- Progress strip -->
+        <div id="progress-strip" aria-live="polite" aria-label="Generation progress">
+          <div class="progress-header">
+            <span class="progress-status" id="progress-status">Queued…</span>
+            <span class="progress-pct"    id="progress-pct">…</span>
+          </div>
+          <div class="progress-bar-track" role="progressbar" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-bar-fill indeterminate" id="progress-fill"></div>
+          </div>
+        </div>
+
+        <!-- Current-job outputs -->
+        <div id="outputs-section" aria-live="polite">
+          <div class="section-label">Output</div>
+          <div id="output-cards" class="output-cards"></div>
+        </div>
+
+        <!-- Session gallery -->
+        <div id="gallery-section" aria-label="Session gallery">
+          <div class="section-label" style="margin-top:28px;">Session gallery</div>
+          <div id="gallery-grid" class="gallery-grid"></div>
+        </div>
+
+      </div><!-- /generate-scroll -->
+    </div><!-- /generate-main -->
+
+  </section><!-- /tab-generate -->
+
+
+  <!-- ─────────────── TAB 2: Create ────────────────────── -->
+  <section id="tab-create" class="tab-panel" role="tabpanel" aria-label="Create">
+    <div class="create-inner">
+
+      <!-- Step 1: Source -->
+      <div class="create-section">
+        <div class="create-section-header">
+          <div class="step-num" aria-hidden="true">1</div>
+          <div class="create-section-title">Start from</div>
+        </div>
+        <div class="create-section-body">
+          <div class="row">
+            <select id="wf-source-select" aria-label="Select a workflow to clone, or start blank">
+              <option value="">-- blank --</option>
+              <!-- Populated by JS -->
+            </select>
+            <button id="btn-load-source" class="btn btn-secondary" type="button">Load</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Edit + validate -->
+      <div class="create-section">
+        <div class="create-section-header">
+          <div class="step-num" aria-hidden="true">2</div>
+          <div class="create-section-title">Edit &amp; validate</div>
+        </div>
+        <div class="create-section-body">
+
+          <!-- Workflow ID -->
+          <div class="author-id-row">
+            <label for="author-id">Workflow ID</label>
+            <input
+              type="text"
+              id="author-id"
+              placeholder="my_workflow_name"
+              pattern="[a-z0-9_]{3,64}"
+              autocomplete="off"
+              aria-describedby="id-hint"
+            />
+            <span class="id-hint" id="id-hint">snake_case, 3–64 chars</span>
+          </div>
+
+          <!-- Side-by-side code editors -->
+          <div class="editor-row">
+            <div class="editor-col">
+              <div class="editor-col-label">Workflow JSON (API format)</div>
+              <textarea
+                id="wf-json-editor"
+                class="code-editor"
+                spellcheck="false"
+                autocomplete="off"
+                aria-label="Workflow JSON"
+              ></textarea>
+            </div>
+            <div class="editor-col">
+              <div class="editor-col-label">Meta JSON (sidecar)</div>
+              <textarea
+                id="wf-meta-editor"
+                class="code-editor"
+                spellcheck="false"
+                autocomplete="off"
+                aria-label="Meta JSON"
+              ></textarea>
+            </div>
+          </div>
+
+          <!-- Actions -->
+          <div class="author-actions">
+            <button id="btn-validate" class="btn btn-secondary" type="button">Validate</button>
+            <button id="btn-save"     class="btn btn-primary"   type="button" disabled>Save &amp; Register</button>
+          </div>
+
+          <!-- Validate results -->
+          <div id="validate-results" role="region" aria-label="Validation results">
+            <div id="validate-summary" class="validate-summary"></div>
+            <ul id="validate-list" class="validate-list" aria-label="Validation messages"></ul>
+            <div id="params-list" class="params-found hidden"></div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Step 3: Bridge (ask Claude) -->
+      <div class="create-section">
+        <div class="create-section-header">
+          <div class="step-num" aria-hidden="true">3</div>
+          <div class="create-section-title">Or ask Claude to build it</div>
+        </div>
+        <div class="create-section-body">
+
+          <div class="bridge-form">
+            <input
+              type="text"
+              id="bridge-title"
+              placeholder="Workflow title (short, descriptive)"
+              autocomplete="off"
+              aria-label="Request title"
+            />
+            <textarea
+              id="bridge-spec"
+              placeholder="Describe the workflow you want: inputs, outputs, models, any specific nodes or techniques…"
+              aria-label="Workflow specification"
+            ></textarea>
+            <div>
+              <button id="btn-queue-request" class="btn btn-primary" type="button">
+                Queue request
+              </button>
+            </div>
+          </div>
+
+          <!-- Pending requests list -->
+          <div id="requests-list" class="requests-list" aria-live="polite" aria-label="Pending requests">
+            <!-- Rendered by JS -->
+          </div>
+
+          <!-- Hint for Claude Code -->
+          <div class="requests-hint" aria-label="How to fulfill requests in Claude Code">
+            Process in Claude Code: ask it to build the workflow in .omc/webui-requests/&lt;file&gt;
+          </div>
+
+        </div>
+      </div>
+
+    </div><!-- /create-inner -->
+  </section><!-- /tab-create -->
+
+</main>
+
+<!-- ── Lightbox ──────────────────────────────────────────── -->
+<div
+  id="lightbox"
+  role="dialog"
+  aria-modal="true"
+  aria-label="Full-size image preview"
+>
+  <img id="lightbox-img" src="" alt="Full-size preview" />
+</div>
+
+<!-- ── Toast container ───────────────────────────────────── -->
+<div id="toast-container" role="status" aria-live="polite" aria-label="Notifications"></div>
+
+<!-- ── Footer ────────────────────────────────────────────── -->
+<footer id="footer">comfyui-toolchain &middot; local only</footer>
+
+<script src="/static/app.js"></script>
+</body>
+</html>
