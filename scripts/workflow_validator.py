@@ -325,19 +325,18 @@ def _check_against_object_info(workflow: dict, object_info: dict, report: Report
         for in_name, (type_spec, required) in spec.items():
             if required and in_name not in inputs:
                 hint = ""
-                if has_default(type_spec) and isinstance(type_spec, (list, tuple)):
+                if isinstance(type_spec, (list, tuple)) and has_default(type_spec):
                     hint = f" (spec default: {type_spec[1]['default']!r})"
                 report.error(f"{prefix}: missing required input '{in_name}'{hint}")
 
         # Value/type/enum checks and link output validation
-        outputs_by_node = {nid: n_info for nid, n_info in workflow.items()}
         for in_name, value in inputs.items():
             if in_name not in spec:
                 continue
             type_spec, _ = spec[in_name]
             if is_link(value):
                 src_id, out_idx = str(value[0]), value[1]
-                src_class = outputs_by_node[src_id]["class_type"]
+                src_class = workflow[src_id]["class_type"]
                 src_info = object_info.get(src_class)
                 if src_info is None:
                     continue  # already reported above
