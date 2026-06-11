@@ -283,17 +283,18 @@ register_model_management_tools(mcp, comfyui_client)
 # Register tileset generation tools
 register_tileset_tools(mcp, comfyui_client, defaults_manager, asset_registry, webhook_manager)
 
-if __name__ == "__main__":
+def main():
     # Check if running as MCP command (stdio) or standalone (streamable-http)
     # When run as command by MCP client (like Cursor), use stdio transport
     # When run standalone, use streamable-http for HTTP access
     if len(sys.argv) > 1 and sys.argv[1] == "--stdio":
-        print("\n" + "=" * 70)
-        print("[+] Server Ready".center(70))
-        print("=" * 70)
-        print(f"  Transport: stdio (for MCP clients)")
-        print(f"[+] ComfyUI verified at: {COMFYUI_URL}")
-        print("=" * 70 + "\n")
+        # stdio transport: stdout belongs to the JSON-RPC stream — banner goes to stderr
+        print("\n" + "=" * 70, file=sys.stderr)
+        print("[+] Server Ready".center(70), file=sys.stderr)
+        print("=" * 70, file=sys.stderr)
+        print("  Transport: stdio (for MCP clients)", file=sys.stderr)
+        print(f"[+] ComfyUI verified at: {COMFYUI_URL}", file=sys.stderr)
+        print("=" * 70 + "\n", file=sys.stderr)
         logger.info("Starting MCP server with stdio transport (for MCP clients)")
         logger.info(f"ComfyUI verified at: {COMFYUI_URL}")
         mcp.run(transport="stdio")
@@ -308,3 +309,7 @@ if __name__ == "__main__":
         logger.info("Starting MCP server with streamable-http transport on http://127.0.0.1:9000/mcp")
         logger.info(f"ComfyUI verified at: {COMFYUI_URL}")
         mcp.run(transport="streamable-http")
+
+
+if __name__ == "__main__":
+    main()

@@ -196,14 +196,15 @@ Both Blender addons follow strict constraints:
 
 ## Agent Team
 
-Seven specialized agents in `.claude/agents/`:
+Eight specialized agents in `.claude/agents/`:
 
 | Agent | Scope | Use When |
 |-------|-------|----------|
 | `sdk-developer` | `packages/sdk/` | Modifying SDK client, assets, defaults, config, credentials |
 | `mcp-tools-dev` | `packages/mcp-server/` | Adding/modifying MCP tools, managers, server config |
 | `prompter-dev` | `packages/prompter/` | GUI changes, Flask API, Ollama recommender, model registry |
-| `workflow-engineer` | `workflows/` | Creating/modifying parametric workflows and meta files |
+| `workflow-architect` | `workflows/mcp/` | Creating NEW workflows from scratch (introspect → draft → validate → smoke-test → register) |
+| `workflow-engineer` | `workflows/` | Modifying/debugging EXISTING parametric workflows and meta files |
 | `test-engineer` | All `tests/` dirs | Writing tests, fixtures, CI test configuration |
 | `blender-addon-dev` | `blender/` | Blender operators, panels, properties, addon packaging |
 | `setup-engineer` | Root configs, setup, docs | pyproject.toml, setup wizard, CI/CD, documentation |
