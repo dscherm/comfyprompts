@@ -63,6 +63,9 @@ TEST_VALUES: dict[str, object] = {
     "NUM_VARIATIONS": 1,
     "TEXT": "Smoke test of the speech pipeline.",
     "VOICE_REFERENCE": "default",
+    "TAGS": "acoustic folk, warm, gentle guitar",
+    "LYRICS": "[verse] the river runs beside the pines, and carries every song of mine",
+    "LYRICS_STRENGTH": 0.99,
     "FILENAME_PREFIX": "smoke_test",
 }
 
