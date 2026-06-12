@@ -63,18 +63,18 @@
     }
   },
   "requires_download": {
-    "models": [
-      {
-        "file": "ltx-2-19b-distilled-fp8.safetensors",
-        "folder": "checkpoints",
-        "source": "https://huggingface.co/Lightricks/LTX-2",
-        "approx_size_gb": 27.1
-      }
-    ],
-    "reason": "LTX-2 19B checkpoint not downloaded; requires ~27GB disk and ~16GB VRAM"
+    "models": [],
+    "reason": "LTX-2 model (25GB) is on disk in models/checkpoints but needs the 64GB RAM upgrade to load. Clear this block after the upgrade."
   },
   "category": "video_generation",
-  "tags": ["video", "text-to-video", "ltx-2", "lightricks", "4k", "audio"],
+  "tags": [
+    "video",
+    "text-to-video",
+    "ltx-2",
+    "lightricks",
+    "4k",
+    "audio"
+  ],
   "parameters": {
     "PARAM_PROMPT": {
       "type": "string",
@@ -89,13 +89,27 @@
       "type": "integer",
       "description": "Video width in pixels (must be divisible by 32)",
       "default": 768,
-      "options": [512, 640, 768, 960, 1280, 1920]
+      "options": [
+        512,
+        640,
+        768,
+        960,
+        1280,
+        1920
+      ]
     },
     "PARAM_INT_HEIGHT": {
       "type": "integer",
       "description": "Video height in pixels (must be divisible by 32)",
       "default": 512,
-      "options": [384, 480, 512, 640, 720, 1080]
+      "options": [
+        384,
+        480,
+        512,
+        640,
+        720,
+        1080
+      ]
     },
     "PARAM_INT_FRAMES": {
       "type": "integer",
@@ -106,7 +120,12 @@
       "type": "integer",
       "description": "Frames per second for output video",
       "default": 24,
-      "options": [16, 24, 30, 50]
+      "options": [
+        16,
+        24,
+        30,
+        50
+      ]
     },
     "PARAM_INT_SEED": {
       "type": "integer",
@@ -131,13 +150,37 @@
     "4k": "~32 GB+ (3840x2160, requires tiled decode)"
   },
   "resolution_presets": {
-    "480p_landscape": {"width": 832, "height": 480},
-    "480p_portrait": {"width": 480, "height": 832},
-    "480p_square": {"width": 640, "height": 640},
-    "720p_landscape": {"width": 1280, "height": 720},
-    "720p_portrait": {"width": 720, "height": 1280},
-    "720p_square": {"width": 960, "height": 960},
-    "1080p_landscape": {"width": 1920, "height": 1080},
-    "1080p_portrait": {"width": 1080, "height": 1920}
+    "480p_landscape": {
+      "width": 832,
+      "height": 480
+    },
+    "480p_portrait": {
+      "width": 480,
+      "height": 832
+    },
+    "480p_square": {
+      "width": 640,
+      "height": 640
+    },
+    "720p_landscape": {
+      "width": 1280,
+      "height": 720
+    },
+    "720p_portrait": {
+      "width": 720,
+      "height": 1280
+    },
+    "720p_square": {
+      "width": 960,
+      "height": 960
+    },
+    "1080p_landscape": {
+      "width": 1920,
+      "height": 1080
+    },
+    "1080p_portrait": {
+      "width": 1080,
+      "height": 1920
+    }
   }
 }

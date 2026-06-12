@@ -2,8 +2,16 @@
   "name": "Lip Sync (Wav2Lip)",
   "description": "Generates lip-synced video by matching mouth movements to audio input. Uses Wav2Lip model for local processing (no API key needed). Takes input video + audio and produces synced output.",
   "requirements": {
-    "nodes": ["Wav2Lip", "VHS_LoadVideo", "VHS_VideoCombine", "LoadAudio"],
-    "install": ["ComfyUI_wav2lip", "ComfyUI-VideoHelperSuite"],
+    "nodes": [
+      "Wav2Lip",
+      "VHS_LoadVideo",
+      "VHS_VideoCombine",
+      "LoadAudio"
+    ],
+    "install": [
+      "ComfyUI_wav2lip",
+      "ComfyUI-VideoHelperSuite"
+    ],
     "install_urls": {
       "wav2lip": "https://github.com/ShmuelRonen/ComfyUI_wav2lip",
       "video_helper": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
@@ -14,29 +22,14 @@
     },
     "estimated_vram": "2-4GB"
   },
-  "requires_download": {
-    "models": [
-      {
-        "file": "wav2lip.pth",
-        "folder": "custom_nodes/ComfyUI_wav2lip/Wav2Lip/checkpoints",
-        "source": "https://github.com/Rudrabha/Wav2Lip",
-        "approx_size_gb": 0.4
-      }
-    ],
-    "nodes": [
-      {
-        "pack": "ComfyUI-VideoHelperSuite",
-        "source": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
-      },
-      {
-        "pack": "ComfyUI_wav2lip",
-        "source": "https://github.com/ShmuelRonen/ComfyUI_wav2lip"
-      }
-    ],
-    "reason": "Wav2Lip checkpoint and required custom nodes not installed"
-  },
   "category": "lip_sync",
-  "tags": ["lip-sync", "wav2lip", "talking-head", "audio-visual", "face-animation"],
+  "tags": [
+    "lip-sync",
+    "wav2lip",
+    "talking-head",
+    "audio-visual",
+    "face-animation"
+  ],
   "defaults": {
     "face_detect_batch": 8
   },

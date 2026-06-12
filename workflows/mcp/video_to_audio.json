@@ -2,25 +2,19 @@
   "_comment": "MMAudio: Generate matching audio/sound effects from video content. Requires ComfyUI-MMAudio custom node. Models go in models/mmaudio/.",
   "10": {
     "inputs": {
-      "model": "mmaudio_44k.safetensors",
-      "precision": "fp16"
+      "mmaudio_model": "mmaudio_large_44k_v2_fp16.safetensors",
+      "base_precision": "fp16"
     },
     "class_type": "MMAudioModelLoader",
     "_meta": {
       "title": "MMAudio Model Loader"
     }
   },
-  "15": {
-    "inputs": {},
-    "class_type": "MMAudioVoCoderLoader",
-    "_meta": {
-      "title": "MMAudio VoCoder Loader"
-    }
-  },
   "20": {
     "inputs": {
-      "mode": "44k",
-      "precision": "fp16"
+      "vae_model": "mmaudio_vae_44k_fp16.safetensors",
+      "synchformer_model": "mmaudio_synchformer_fp16.safetensors",
+      "clip_model": "apple_DFN5B-CLIP-ViT-H-14-384_fp16.safetensors"
     },
     "class_type": "MMAudioFeatureUtilsLoader",
     "_meta": {
@@ -48,10 +42,6 @@
         "10",
         0
       ],
-      "vocoder": [
-        "15",
-        0
-      ],
       "feature_utils": [
         "20",
         0
@@ -64,7 +54,10 @@
       "duration": "PARAM_FLOAT_DURATION",
       "steps": "PARAM_INT_STEPS",
       "cfg": "PARAM_FLOAT_CFG",
-      "seed": "PARAM_INT_SEED"
+      "seed": "PARAM_INT_SEED",
+      "negative_prompt": "",
+      "mask_away_clip": false,
+      "force_offload": true
     },
     "class_type": "MMAudioSampler",
     "_meta": {

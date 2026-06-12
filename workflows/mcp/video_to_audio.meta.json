@@ -2,8 +2,17 @@
   "name": "Video to Audio (MMAudio)",
   "description": "Generates contextually matching audio/sound effects from video content using MMAudio. Analyzes video frames via CLIP and Synchformer to produce synchronized audio. Optional text prompt for guidance. Output at 44.1kHz.",
   "requirements": {
-    "nodes": ["MMAudioModelLoader", "MMAudioVoCoderLoader", "MMAudioFeatureUtilsLoader", "MMAudioSampler", "VHS_LoadVideo"],
-    "install": ["ComfyUI-MMAudio", "ComfyUI-VideoHelperSuite"],
+    "nodes": [
+      "MMAudioModelLoader",
+      "MMAudioVoCoderLoader",
+      "MMAudioFeatureUtilsLoader",
+      "MMAudioSampler",
+      "VHS_LoadVideo"
+    ],
+    "install": [
+      "ComfyUI-MMAudio",
+      "ComfyUI-VideoHelperSuite"
+    ],
     "install_urls": {
       "mmaudio": "https://github.com/kijai/ComfyUI-MMAudio",
       "video_helper": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
@@ -18,29 +27,14 @@
     },
     "estimated_vram": "4-6GB (video < 1 min recommended for 8GB GPU)"
   },
-  "requires_download": {
-    "models": [
-      {
-        "file": "mmaudio_44k.safetensors",
-        "folder": "mmaudio",
-        "source": "https://huggingface.co/kijai/MMAudio_weights",
-        "approx_size_gb": 1.5
-      }
-    ],
-    "nodes": [
-      {
-        "pack": "ComfyUI-MMAudio",
-        "source": "https://github.com/kijai/ComfyUI-MMAudio"
-      },
-      {
-        "pack": "ComfyUI-VideoHelperSuite",
-        "source": "https://github.com/Kosinkadink/ComfyUI-VideoHelperSuite"
-      }
-    ],
-    "reason": "MMAudio custom nodes and model weights not installed"
-  },
   "category": "audio_generation",
-  "tags": ["video-to-audio", "mmaudio", "sound-effects", "audio-sync", "foley"],
+  "tags": [
+    "video-to-audio",
+    "mmaudio",
+    "sound-effects",
+    "audio-sync",
+    "foley"
+  ],
   "defaults": {
     "duration": 8.0,
     "steps": 25,

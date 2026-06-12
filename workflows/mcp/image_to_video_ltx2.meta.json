@@ -30,18 +30,18 @@
     }
   },
   "requires_download": {
-    "models": [
-      {
-        "file": "ltx-2-19b-distilled-fp8.safetensors",
-        "folder": "checkpoints",
-        "source": "https://huggingface.co/Lightricks/LTX-2",
-        "approx_size_gb": 27.1
-      }
-    ],
-    "reason": "LTX-2 19B checkpoint not downloaded; requires ~27GB disk and ~16GB VRAM"
+    "models": [],
+    "reason": "LTX-2 model (25GB) is on disk in models/checkpoints but needs the 64GB RAM upgrade to load. Clear this block after the upgrade."
   },
   "category": "video_generation",
-  "tags": ["video", "image-to-video", "ltx-2", "lightricks", "animation", "i2v"],
+  "tags": [
+    "video",
+    "image-to-video",
+    "ltx-2",
+    "lightricks",
+    "animation",
+    "i2v"
+  ],
   "parameters": {
     "PARAM_STR_IMAGE_PATH": {
       "type": "string",
