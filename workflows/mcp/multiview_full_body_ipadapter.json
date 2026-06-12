@@ -1,0 +1,222 @@
+{
+  "1": {
+    "inputs": {
+      "ckpt_name": "sd_xl_base_1.0.safetensors"
+    },
+    "class_type": "CheckpointLoaderSimple",
+    "_meta": {"title": "Load Checkpoint"}
+  },
+  "2": {
+    "inputs": {
+      "string_a": "PARAM_STR_STYLE",
+      "string_b": "full body character illustration, single character, standing neutral pose, plain neutral background, centered, consistent character design",
+      "delimiter": ", "
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {"title": "Style + Base Directive"}
+  },
+  "3": {
+    "inputs": {
+      "string_a": ["2", 0],
+      "string_b": "PARAM_PROMPT",
+      "delimiter": ", "
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {"title": "+ Character Description"}
+  },
+  "4": {
+    "inputs": {
+      "string_a": ["3", 0],
+      "string_b": "front view, facing the viewer directly",
+      "delimiter": ", "
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {"title": "Front View Prompt"}
+  },
+  "5": {
+    "inputs": {
+      "string_a": ["3", 0],
+      "string_b": "left side profile view, character facing left",
+      "delimiter": ", "
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {"title": "Left View Prompt"}
+  },
+  "6": {
+    "inputs": {
+      "string_a": ["3", 0],
+      "string_b": "right side profile view, character facing right",
+      "delimiter": ", "
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {"title": "Right View Prompt"}
+  },
+  "7": {
+    "inputs": {
+      "string_a": ["3", 0],
+      "string_b": "back view, character facing away from the viewer",
+      "delimiter": ", "
+    },
+    "class_type": "StringConcatenate",
+    "_meta": {"title": "Back View Prompt"}
+  },
+  "8": {
+    "inputs": {"text": ["4", 0], "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Front Positive"}
+  },
+  "9": {
+    "inputs": {"text": ["5", 0], "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Left Positive"}
+  },
+  "10": {
+    "inputs": {"text": ["6", 0], "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Right Positive"}
+  },
+  "11": {
+    "inputs": {"text": ["7", 0], "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Back Positive"}
+  },
+  "12": {
+    "inputs": {"text": "PARAM_STR_NEGATIVE_PROMPT", "clip": ["1", 1]},
+    "class_type": "CLIPTextEncode",
+    "_meta": {"title": "Negative"}
+  },
+  "13": {
+    "inputs": {
+      "width": "PARAM_INT_WIDTH",
+      "height": "PARAM_INT_HEIGHT",
+      "batch_size": 1
+    },
+    "class_type": "EmptyLatentImage",
+    "_meta": {"title": "Empty Latent"}
+  },
+  "14": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1.0,
+      "model": ["1", 0],
+      "positive": ["8", 0],
+      "negative": ["12", 0],
+      "latent_image": ["13", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "Front Pass (reference)"}
+  },
+  "15": {
+    "inputs": {"samples": ["14", 0], "vae": ["1", 2]},
+    "class_type": "VAEDecode",
+    "_meta": {"title": "Decode Front"}
+  },
+  "16": {
+    "inputs": {"filename_prefix": "multiview_ipa_front", "images": ["15", 0]},
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Front"}
+  },
+  "17": {
+    "inputs": {
+      "preset": "VIT-G (medium strength)",
+      "model": ["1", 0]
+    },
+    "class_type": "IPAdapterUnifiedLoader",
+    "_meta": {"title": "IPAdapter Loader"}
+  },
+  "18": {
+    "inputs": {
+      "weight": "PARAM_FLOAT_REFERENCE_WEIGHT",
+      "start_at": 0.0,
+      "end_at": 1.0,
+      "weight_type": "standard",
+      "model": ["17", 0],
+      "ipadapter": ["17", 1],
+      "image": ["15", 0]
+    },
+    "class_type": "IPAdapter",
+    "_meta": {"title": "IPAdapter (front as identity reference)"}
+  },
+  "19": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1.0,
+      "model": ["18", 0],
+      "positive": ["9", 0],
+      "negative": ["12", 0],
+      "latent_image": ["13", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "Left Pass"}
+  },
+  "20": {
+    "inputs": {"samples": ["19", 0], "vae": ["1", 2]},
+    "class_type": "VAEDecode",
+    "_meta": {"title": "Decode Left"}
+  },
+  "21": {
+    "inputs": {"filename_prefix": "multiview_ipa_left", "images": ["20", 0]},
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Left"}
+  },
+  "22": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1.0,
+      "model": ["18", 0],
+      "positive": ["10", 0],
+      "negative": ["12", 0],
+      "latent_image": ["13", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "Right Pass"}
+  },
+  "23": {
+    "inputs": {"samples": ["22", 0], "vae": ["1", 2]},
+    "class_type": "VAEDecode",
+    "_meta": {"title": "Decode Right"}
+  },
+  "24": {
+    "inputs": {"filename_prefix": "multiview_ipa_right", "images": ["23", 0]},
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Right"}
+  },
+  "25": {
+    "inputs": {
+      "seed": "PARAM_INT_SEED",
+      "steps": "PARAM_INT_STEPS",
+      "cfg": "PARAM_FLOAT_CFG",
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
+      "denoise": 1.0,
+      "model": ["18", 0],
+      "positive": ["11", 0],
+      "negative": ["12", 0],
+      "latent_image": ["13", 0]
+    },
+    "class_type": "KSampler",
+    "_meta": {"title": "Back Pass"}
+  },
+  "26": {
+    "inputs": {"samples": ["25", 0], "vae": ["1", 2]},
+    "class_type": "VAEDecode",
+    "_meta": {"title": "Decode Back"}
+  },
+  "27": {
+    "inputs": {"filename_prefix": "multiview_ipa_back", "images": ["26", 0]},
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save Back"}
+  }
+}

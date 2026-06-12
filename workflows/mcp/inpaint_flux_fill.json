@@ -1,12 +1,11 @@
 {
   "1": {
     "inputs": {
-      "unet_name": "flux1-fill-dev.safetensors",
-      "weight_dtype": "default"
+      "unet_name": "flux1-fill-dev-Q5_K_S.gguf"
     },
-    "class_type": "UNETLoader",
+    "class_type": "UnetLoaderGGUF",
     "_meta": {
-      "title": "Load Flux Fill Model"
+      "title": "Unet Loader (GGUF)"
     }
   },
   "2": {

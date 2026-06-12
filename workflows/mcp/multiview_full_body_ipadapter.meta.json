@@ -1,0 +1,64 @@
+{
+  "name": "Multiview Full Body (IPAdapter, separate images)",
+  "description": "Generates FOUR separate full-body images of the same character — front, left profile, right profile, back — each as its own file. The front view is generated first and used as an IPAdapter identity reference for the other three views, keeping the character consistent. Pick an artistic style from the list. Use this variant when you need individual per-view files (e.g. to feed a 3D pipeline); use multiview_full_body_profile for a single combined turnaround sheet.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "StringConcatenate", "CLIPTextEncode", "EmptyLatentImage", "KSampler", "VAEDecode", "SaveImage", "IPAdapterUnifiedLoader", "IPAdapter"],
+    "models": {
+      "checkpoint": "sd_xl_base_1.0.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "parameters": {
+    "prompt": {
+      "type": "string",
+      "required": true,
+      "description": "Character description (e.g. 'a young elf ranger with braided silver hair, green hooded cloak, leather armor')."
+    },
+    "style": {
+      "type": "string",
+      "required": true,
+      "description": "Artistic style for the illustration.",
+      "options": [
+        "heavy black ink illustration, high contrast noir comic style",
+        "soft watercolor storybook illustration",
+        "clean cel-shaded anime style",
+        "retro 16-bit pixel art sprite style",
+        "painterly fantasy concept art, oil texture",
+        "western comic book style, bold inks and halftone shading",
+        "pastel children's book illustration, gentle colors",
+        "dark gritty graphic novel style, muted palette"
+      ],
+      "default": "painterly fantasy concept art, oil texture"
+    },
+    "negative_prompt": {
+      "type": "string",
+      "required": false,
+      "description": "Elements to avoid (default: 'blurry, low quality, deformed, watermark, text, multiple characters')."
+    },
+    "reference_weight": {
+      "type": "float",
+      "required": false,
+      "description": "How strongly the front view constrains the other views via IPAdapter (0.0-1.0, default 0.7). Higher = more consistent but stiffer poses."
+    },
+    "width": {"type": "int", "required": false, "description": "Per-view image width (default: 832)."},
+    "height": {"type": "int", "required": false, "description": "Per-view image height (default: 1216 — portrait for full body)."},
+    "steps": {"type": "int", "required": false, "description": "Sampling steps per view (default: 25)."},
+    "cfg": {"type": "float", "required": false, "description": "Guidance scale (default: 7.5 for SDXL)."},
+    "seed": {"type": "int", "required": false, "description": "Random seed, shared across all four views for reproducibility."}
+  },
+  "defaults": {
+    "negative_prompt": "blurry, low quality, deformed, watermark, text, multiple characters",
+    "reference_weight": 0.7,
+    "width": 832,
+    "height": 1216,
+    "steps": 25,
+    "cfg": 7.5
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "sdxl", "ipadapter", "character", "turnaround", "multiview", "reference-sheet", "chargen"]
+}

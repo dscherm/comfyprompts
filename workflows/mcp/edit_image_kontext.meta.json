@@ -2,7 +2,17 @@
   "name": "Edit Image (Flux Kontext)",
   "description": "Instruction-based image editing using Flux Kontext Dev (12B parameters). Edit images with natural language instructions like 'change the hat to red', 'make it sunset', or 'replace the background with a beach'. Maintains character consistency and context across edits. Supports iterative editing (edit -> edit -> edit).",
   "requirements": {
-    "nodes": ["UNETLoader", "DualCLIPLoader", "VAELoader", "LoadImage", "VAEEncode", "CLIPTextEncode", "KSampler", "VAEDecode", "SaveImage"],
+    "nodes": [
+      "UNETLoader",
+      "DualCLIPLoader",
+      "VAELoader",
+      "LoadImage",
+      "VAEEncode",
+      "CLIPTextEncode",
+      "KSampler",
+      "VAEDecode",
+      "SaveImage"
+    ],
     "models": {
       "diffusion_model": "flux1-dev-kontext_fp8_scaled.safetensors",
       "text_encoder_1": "t5xxl_fp8_e4m3fn_scaled.safetensors",
@@ -19,39 +29,57 @@
     "recommended_vram_gb": 16,
     "comfyui_minimum_version": "0.3.42"
   },
-  "requires_download": {
-    "models": [
-      {
-        "file": "flux1-dev-kontext_fp8_scaled.safetensors",
-        "folder": "unet",
-        "source": "https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI",
-        "approx_size_gb": 12.0
-      },
-      {
-        "file": "t5xxl_fp8_e4m3fn_scaled.safetensors",
-        "folder": "clip",
-        "source": "https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI",
-        "approx_size_gb": 4.9
-      },
-      {
-        "file": "clip_l.safetensors",
-        "folder": "clip",
-        "source": "https://huggingface.co/Comfy-Org/flux1-kontext-dev_ComfyUI",
-        "approx_size_gb": 0.2
-      }
-    ],
-    "reason": "Flux Kontext Dev unet and CLIP encoders not downloaded"
-  },
   "parameters": {
-    "image_path": {"type": "string", "required": true, "description": "Filename of the source image to edit"},
-    "prompt": {"type": "string", "required": true, "description": "Natural language editing instruction (e.g. 'change the background to a forest', 'make the person wear a red hat', 'add snow to the scene'). English only."},
-    "negative_prompt": {"type": "string", "required": false, "description": "Things to avoid in the edit"},
-    "seed": {"type": "int", "required": false, "description": "Random seed for reproducibility"},
-    "steps": {"type": "int", "required": false, "default": 25, "description": "Sampling steps (20-30 recommended)"},
-    "cfg": {"type": "float", "required": false, "default": 3.5, "description": "CFG scale (1.0-3.5 recommended)"},
-    "sampler_name": {"type": "string", "required": false, "default": "euler", "description": "Sampler algorithm"},
-    "scheduler": {"type": "string", "required": false, "default": "simple", "description": "Noise scheduler"},
-    "denoise": {"type": "float", "required": false, "default": 0.8, "description": "Denoising strength (0.6-0.9 for editing, lower preserves more of original)"}
+    "image_path": {
+      "type": "string",
+      "required": true,
+      "description": "Filename of the source image to edit"
+    },
+    "prompt": {
+      "type": "string",
+      "required": true,
+      "description": "Natural language editing instruction (e.g. 'change the background to a forest', 'make the person wear a red hat', 'add snow to the scene'). English only."
+    },
+    "negative_prompt": {
+      "type": "string",
+      "required": false,
+      "description": "Things to avoid in the edit"
+    },
+    "seed": {
+      "type": "int",
+      "required": false,
+      "description": "Random seed for reproducibility"
+    },
+    "steps": {
+      "type": "int",
+      "required": false,
+      "default": 25,
+      "description": "Sampling steps (20-30 recommended)"
+    },
+    "cfg": {
+      "type": "float",
+      "required": false,
+      "default": 3.5,
+      "description": "CFG scale (1.0-3.5 recommended)"
+    },
+    "sampler_name": {
+      "type": "string",
+      "required": false,
+      "default": "euler",
+      "description": "Sampler algorithm"
+    },
+    "scheduler": {
+      "type": "string",
+      "required": false,
+      "default": "simple",
+      "description": "Noise scheduler"
+    },
+    "denoise": {
+      "type": "float",
+      "required": false,
+      "default": 0.8,
+      "description": "Denoising strength (0.6-0.9 for editing, lower preserves more of original)"
+    }
   },
   "output": {
     "type": "image",
@@ -59,7 +87,14 @@
     "node": "SaveImage"
   },
   "category": "editing",
-  "tags": ["image-editing", "kontext", "instruction-based", "style-transfer", "character-consistency", "text-modification"],
+  "tags": [
+    "image-editing",
+    "kontext",
+    "instruction-based",
+    "style-transfer",
+    "character-consistency",
+    "text-modification"
+  ],
   "notes": {
     "prompt_tips": "Use clear, specific instructions. Good: 'Replace the goose head with a snake head'. Bad: 'make it different'. Kontext understands the full image context and regenerates based on your instruction.",
     "denoise_guidance": "Lower denoise (0.5-0.7) preserves more of the original image. Higher denoise (0.8-1.0) allows more creative freedom. For subtle edits like color changes, use 0.6. For major changes like background replacement, use 0.9.",
