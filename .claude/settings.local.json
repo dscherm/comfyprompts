@@ -31,7 +31,14 @@
       "Glob",
       "Grep",
       "Read",
-      "Write"
+      "Write",
+      "PowerShell(Get-ChildItem D:\\\\Projects\\\\ComfyUI\\\\output -File -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -gt \\(Get-Date '2026-06-12 12:00'\\) } | Sort-Object LastWriteTime | Select-Object LastWriteTime, Length, FullName | Format-Table -AutoSize)",
+      "PowerShell(Get-ChildItem .omc\\\\research -Recurse -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 10 LastWriteTime, Length, FullName; Get-Date; try { \\(Invoke-WebRequest -Uri http://localhost:8188/system_stats -UseBasicParsing -TimeoutSec 3\\).StatusCode } catch { 'ComfyUI not responding' })",
+      "PowerShell(Get-ChildItem .omc\\\\research\\\\lora-eval-2026-06-12; $r = Get-Content .omc\\\\research\\\\lora-eval-2026-06-12\\\\results.json -Raw | ConvertFrom-Json; $r | Get-Member -MemberType NoteProperty | Select-Object Name; if \\($r.results\\) { $r.results.Count })",
+      "PowerShell($r = Get-Content .omc\\\\research\\\\lora-eval-2026-06-12\\\\results.json -Raw | ConvertFrom-Json; $r | Group-Object lora | Select-Object Name, Count; \\(Get-ChildItem D:\\\\Projects\\\\ComfyUI\\\\models\\\\loras -File -ErrorAction SilentlyContinue\\).Count)"
     ]
-  }
+  },
+  "enabledMcpjsonServers": [
+    "blender-mcp"
+  ]
 }

@@ -1,0 +1,1 @@
+{"pipeline_id": null, "phase": "unknown", "turn_count": 44, "input_tokens": 38766, "output_tokens": 30112, "cache_read_input_tokens": 2426451, "cache_creation_input_tokens": 395277, "cost_usd": 2.778202, "first_ts": "2026-06-12T22:17:56.972Z", "last_ts": "2026-06-12T22:22:40.052Z"}
