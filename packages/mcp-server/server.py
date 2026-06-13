@@ -278,7 +278,7 @@ register_export_tools(mcp, export_presets_manager, asset_registry)
 register_prompt_library_tools(mcp, prompt_library)
 
 # Register model management tools (list_loras, list_controlnet_models, list_vae_models, etc.)
-register_model_management_tools(mcp, comfyui_client)
+register_model_management_tools(mcp, comfyui_client, defaults_manager)
 
 # Register tileset generation tools
 register_tileset_tools(mcp, comfyui_client, defaults_manager, asset_registry, webhook_manager)

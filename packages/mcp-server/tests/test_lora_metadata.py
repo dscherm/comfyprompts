@@ -17,11 +17,15 @@ if str(_MCP_ROOT) not in sys.path:
     sys.path.insert(0, str(_MCP_ROOT))
 
 from tools.lora_metadata import (  # noqa: E402
+    active_checkpoint_family,
     classify,
     detect_base_model,
     detect_lora_base_model,
+    load_lora_blocklist,
     lora_path,
 )
+
+from tools import lora_metadata  # noqa: E402
 
 
 def _write_safetensors(path: Path, header: dict) -> None:
@@ -278,6 +282,208 @@ def test_no_warning_when_lora_name_absent():
     from tools import generation
 
     assert generation._lora_mismatch_warning("generate_image_lora", {}) is None
+
+
+# --------------------------------------------------------------------------- #
+# active_checkpoint_family
+# --------------------------------------------------------------------------- #
+
+
+class _StubDefaults:
+    def __init__(self, model):
+        self._model = model
+
+    def get_default(self, namespace, key, provided=None):
+        return self._model
+
+
+def test_active_family_env_override(monkeypatch):
+    monkeypatch.setenv("COMFY_MCP_CHECKPOINT_FAMILY", "SDXL")
+    # Override wins even if defaults would say flux.
+    assert active_checkpoint_family(_StubDefaults("flux1-dev.safetensors")) == "sdxl"
+
+
+def test_active_family_infer_flux(monkeypatch):
+    monkeypatch.delenv("COMFY_MCP_CHECKPOINT_FAMILY", raising=False)
+    assert active_checkpoint_family(_StubDefaults("flux1-dev-fp8.safetensors")) == "flux"
+
+
+def test_active_family_infer_sdxl(monkeypatch):
+    monkeypatch.delenv("COMFY_MCP_CHECKPOINT_FAMILY", raising=False)
+    assert active_checkpoint_family(_StubDefaults("sd_xl_base_1.0.safetensors")) == "sdxl"
+
+
+def test_active_family_infer_sd15(monkeypatch):
+    monkeypatch.delenv("COMFY_MCP_CHECKPOINT_FAMILY", raising=False)
+    assert active_checkpoint_family(_StubDefaults("v1-5-pruned.safetensors")) == "sd15"
+
+
+def test_active_family_unknown_name(monkeypatch):
+    monkeypatch.delenv("COMFY_MCP_CHECKPOINT_FAMILY", raising=False)
+    assert active_checkpoint_family(_StubDefaults("mystery_checkpoint.safetensors")) == "unknown"
+
+
+def test_active_family_none_defaults(monkeypatch):
+    monkeypatch.delenv("COMFY_MCP_CHECKPOINT_FAMILY", raising=False)
+    assert active_checkpoint_family(None) == "unknown"
+
+
+def test_active_family_defaults_raises(monkeypatch):
+    monkeypatch.delenv("COMFY_MCP_CHECKPOINT_FAMILY", raising=False)
+
+    class _Boom:
+        def get_default(self, *a, **k):
+            raise RuntimeError("boom")
+
+    assert active_checkpoint_family(_Boom()) == "unknown"
+
+
+# --------------------------------------------------------------------------- #
+# load_lora_blocklist (never touch the real user config in tests)
+# --------------------------------------------------------------------------- #
+
+
+def test_blocklist_missing_returns_empty(monkeypatch, tmp_path):
+    monkeypatch.setattr(lora_metadata, "BLOCKLIST_FILE", tmp_path / "nope.json")
+    monkeypatch.delenv("COMFY_MCP_LORA_BLOCKLIST", raising=False)
+    assert load_lora_blocklist() == set()
+
+
+def test_blocklist_reads_file(monkeypatch, tmp_path):
+    f = tmp_path / "lora_blocklist.json"
+    f.write_text(json.dumps({"blocked": ["a.safetensors", "style/b.safetensors"]}))
+    monkeypatch.setattr(lora_metadata, "BLOCKLIST_FILE", f)
+    monkeypatch.delenv("COMFY_MCP_LORA_BLOCKLIST", raising=False)
+    assert load_lora_blocklist() == {"a.safetensors", "style/b.safetensors"}
+
+
+def test_blocklist_reads_env(monkeypatch, tmp_path):
+    monkeypatch.setattr(lora_metadata, "BLOCKLIST_FILE", tmp_path / "nope.json")
+    monkeypatch.setenv("COMFY_MCP_LORA_BLOCKLIST", "x.safetensors, y.safetensors")
+    assert load_lora_blocklist() == {"x.safetensors", "y.safetensors"}
+
+
+def test_blocklist_merges_file_and_env(monkeypatch, tmp_path):
+    f = tmp_path / "lora_blocklist.json"
+    f.write_text(json.dumps({"blocked": ["a.safetensors"]}))
+    monkeypatch.setattr(lora_metadata, "BLOCKLIST_FILE", f)
+    monkeypatch.setenv("COMFY_MCP_LORA_BLOCKLIST", "b.safetensors")
+    assert load_lora_blocklist() == {"a.safetensors", "b.safetensors"}
+
+
+def test_blocklist_bad_json_never_raises(monkeypatch, tmp_path):
+    f = tmp_path / "lora_blocklist.json"
+    f.write_text("{ not valid json")
+    monkeypatch.setattr(lora_metadata, "BLOCKLIST_FILE", f)
+    monkeypatch.delenv("COMFY_MCP_LORA_BLOCKLIST", raising=False)
+    assert load_lora_blocklist() == set()
+
+
+# --------------------------------------------------------------------------- #
+# list_loras default-prune behavior (integration of the pieces)
+# --------------------------------------------------------------------------- #
+
+
+class _StubClient:
+    def __init__(self, names):
+        self._names = names
+
+    def get_lora_models(self):
+        return list(self._names)
+
+
+def _build_list_loras(monkeypatch, tmp_path, names, tags, family="flux", blocked=None):
+    """Register list_loras against stubbed deps and return the captured callable.
+
+    Patches detection (name -> tag from `tags`), the checkpoint family, the
+    loras dir, and the blocklist so no real files/ComfyUI are touched.
+    """
+    from mcp.server.fastmcp import FastMCP
+
+    from tools import model_management
+
+    monkeypatch.setattr(
+        model_management, "detect_lora_base_model", lambda name, d: tags.get(name, "unknown")
+    )
+    monkeypatch.setattr(model_management, "resolve_loras_dir", lambda: tmp_path)
+    monkeypatch.setattr(model_management, "active_checkpoint_family", lambda dm: family)
+    monkeypatch.setattr(model_management, "load_lora_blocklist", lambda: set(blocked or []))
+
+    captured = {}
+
+    mcp = FastMCP("test")
+    orig_tool = mcp.tool
+
+    def _tool(*a, **k):
+        def deco(fn):
+            captured[fn.__name__] = fn
+            return orig_tool(*a, **k)(fn)
+
+        return deco
+
+    monkeypatch.setattr(mcp, "tool", _tool)
+    model_management.register_model_management_tools(
+        mcp, _StubClient(names), defaults_manager=object()
+    )
+    return captured["list_loras"]
+
+
+def test_list_loras_prunes_mismatched_by_default(monkeypatch, tmp_path):
+    names = ["flux_a.safetensors", "sdxl_b.safetensors", "sd15_c.safetensors", "myst.safetensors"]
+    tags = {
+        "flux_a.safetensors": "flux",
+        "sdxl_b.safetensors": "sdxl",
+        "sd15_c.safetensors": "sd15",
+        "myst.safetensors": "unknown",
+    }
+    list_loras = _build_list_loras(monkeypatch, tmp_path, names, tags, family="flux")
+    result = list_loras()
+    assert set(result["loras"]) == {"flux_a.safetensors", "myst.safetensors"}
+    assert result["target_family"] == "flux"
+    assert result["excluded"] == 2
+    assert result["count"] == 2
+
+
+def test_list_loras_prunes_blocklisted(monkeypatch, tmp_path):
+    names = ["flux_a.safetensors", "flux_blocked.safetensors"]
+    tags = {"flux_a.safetensors": "flux", "flux_blocked.safetensors": "flux"}
+    list_loras = _build_list_loras(
+        monkeypatch, tmp_path, names, tags, family="flux", blocked=["flux_blocked.safetensors"]
+    )
+    result = list_loras()
+    assert result["loras"] == ["flux_a.safetensors"]
+    assert result["excluded"] == 1
+
+
+def test_list_loras_include_incompatible_returns_all(monkeypatch, tmp_path):
+    names = ["flux_a.safetensors", "sdxl_b.safetensors"]
+    tags = {"flux_a.safetensors": "flux", "sdxl_b.safetensors": "sdxl"}
+    list_loras = _build_list_loras(
+        monkeypatch, tmp_path, names, tags, family="flux", blocked=["sdxl_b.safetensors"]
+    )
+    result = list_loras(include_incompatible=True)
+    assert set(result["loras"]) == {"flux_a.safetensors", "sdxl_b.safetensors"}
+    assert result["excluded"] == 0
+
+
+def test_list_loras_explicit_base_model_flips_filter(monkeypatch, tmp_path):
+    names = ["flux_a.safetensors", "sdxl_b.safetensors"]
+    tags = {"flux_a.safetensors": "flux", "sdxl_b.safetensors": "sdxl"}
+    # Active family is flux, but explicit base_model='sdxl' overrides it.
+    list_loras = _build_list_loras(monkeypatch, tmp_path, names, tags, family="flux")
+    result = list_loras(base_model="sdxl")
+    assert result["loras"] == ["sdxl_b.safetensors"]
+    assert result["target_family"] == "sdxl"
+
+
+def test_list_loras_unknown_family_keeps_all(monkeypatch, tmp_path):
+    # When target family is unknown, the architecture filter is a no-op.
+    names = ["flux_a.safetensors", "sdxl_b.safetensors"]
+    tags = {"flux_a.safetensors": "flux", "sdxl_b.safetensors": "sdxl"}
+    list_loras = _build_list_loras(monkeypatch, tmp_path, names, tags, family="unknown")
+    result = list_loras()
+    assert set(result["loras"]) == {"flux_a.safetensors", "sdxl_b.safetensors"}
+    assert result["excluded"] == 0
 
 
 if __name__ == "__main__":

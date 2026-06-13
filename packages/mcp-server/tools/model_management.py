@@ -4,7 +4,12 @@ import logging
 
 from mcp.server.fastmcp import FastMCP
 
-from tools.lora_metadata import detect_lora_base_model, resolve_loras_dir
+from tools.lora_metadata import (
+    active_checkpoint_family,
+    detect_lora_base_model,
+    load_lora_blocklist,
+    resolve_loras_dir,
+)
 
 logger = logging.getLogger("MCP_Server")
 
@@ -12,35 +17,50 @@ logger = logging.getLogger("MCP_Server")
 def register_model_management_tools(
     mcp: FastMCP,
     comfyui_client,
+    defaults_manager=None,
 ):
     """Register model management tools with the MCP server"""
 
     @mcp.tool()
-    def list_loras(base_model: str | None = None) -> dict:
-        """List all available LoRA models in ComfyUI, tagged by base model.
-
-        Returns LoRA model filenames that can be used with generation workflows
-        that support LoRA (e.g., generate_image_lora). LoRAs are typically stored
-        in ComfyUI's models/loras/ directory.
+    def list_loras(
+        base_model: str | None = None,
+        include_incompatible: bool = False,
+    ) -> dict:
+        """List available LoRA models, pruned to ones compatible with your checkpoint.
 
         Each LoRA is tagged with its base-model family ('flux', 'sdxl', 'sd15',
-        or 'unknown') by reading the safetensors header. This matters because a
-        LoRA built for one architecture (e.g. SDXL) has ZERO effect when loaded
-        onto a checkpoint of another architecture (e.g. FLUX) -- ComfyUI silently
-        ignores it. generate_image_lora uses a FLUX checkpoint, so prefer LoRAs
-        tagged 'flux' (or 'unknown') for it.
+        or 'unknown') by reading the safetensors header. A LoRA built for one
+        architecture (e.g. SDXL) has ZERO effect when loaded onto a checkpoint of
+        another architecture (e.g. FLUX) -- ComfyUI silently ignores it and the
+        image is unchanged.
+
+        BY DEFAULT this prunes LoRAs that won't work with your active checkpoint:
+          - Architecture mismatches: if the active checkpoint family is known
+            (e.g. flux) and a LoRA is a DIFFERENT known family (e.g. sdxl/sd15),
+            it is hidden. LoRAs tagged 'unknown' are NEVER hidden (we don't hide
+            what we couldn't classify).
+          - Blocklisted LoRAs: names listed in
+            ~/.config/comfy-mcp/lora_blocklist.json (shape
+            {"blocked": [...]}) or the COMFY_MCP_LORA_BLOCKLIST env var
+            (comma-separated). Edit that file to curate confirmed no-effect LoRAs.
+
+        The active checkpoint family is resolved from the COMFY_MCP_CHECKPOINT_FAMILY
+        env override, else inferred from the default image checkpoint name.
 
         Args:
-            base_model: Optional filter. If set (e.g. "flux"), only LoRAs whose
-                detected base model matches are returned. LoRAs tagged 'unknown'
-                are always included (never hidden) since detection can be
-                imperfect.
+            base_model: Force the target family for the architecture filter
+                (e.g. "sdxl"). Overrides the auto-detected checkpoint family.
+            include_incompatible: If True, return ALL LoRAs with no pruning
+                (no architecture filter, no blocklist), still tagged. Use this to
+                see everything available, including incompatible ones.
 
         Returns:
             Dict with:
-            - loras: list of LoRA filenames (filtered if base_model is set)
+            - loras: list of LoRA filenames (pruned unless include_incompatible)
             - count: number of names in `loras`
-            - tagged: list of {"name": str, "base_model": str} for each LoRA
+            - tagged: list of {"name": str, "base_model": str} (pruned to match)
+            - excluded: count of LoRAs hidden by the default prune
+            - target_family: the checkpoint family used for the architecture filter
         """
         models = comfyui_client.get_lora_models()
         loras_dir = resolve_loras_dir()
@@ -49,20 +69,36 @@ def register_model_management_tools(
             {"name": name, "base_model": detect_lora_base_model(name, loras_dir)}
             for name in models
         ]
+        total = len(tagged)
 
-        if base_model:
-            target = base_model.lower()
-            tagged = [
-                entry
-                for entry in tagged
-                if entry["base_model"] == target or entry["base_model"] == "unknown"
-            ]
+        target_family = (base_model or "").lower() or active_checkpoint_family(
+            defaults_manager
+        )
 
-        names = [entry["name"] for entry in tagged]
+        if include_incompatible:
+            kept = tagged
+        else:
+            blocklist = load_lora_blocklist()
+            kept = []
+            for entry in tagged:
+                if entry["name"] in blocklist:
+                    continue
+                fam = entry["base_model"]
+                if (
+                    target_family != "unknown"
+                    and fam != "unknown"
+                    and fam != target_family
+                ):
+                    continue
+                kept.append(entry)
+
+        names = [entry["name"] for entry in kept]
         return {
             "loras": names,
             "count": len(names),
-            "tagged": tagged,
+            "tagged": kept,
+            "excluded": total - len(kept),
+            "target_family": target_family,
         }
 
     @mcp.tool()

@@ -193,3 +193,97 @@ def detect_lora_base_model(lora_name: str, loras_dir: Path | None) -> str:
     if path is None:
         return "unknown"
     return detect_base_model(str(path))
+
+
+# --------------------------------------------------------------------------- #
+# Active checkpoint family resolution (for the default prune in list_loras)
+# --------------------------------------------------------------------------- #
+
+
+def _infer_family_from_name(name: str) -> str:
+    """Infer a base-model family from a checkpoint filename. Best-effort."""
+    lowered = name.lower()
+    if "flux" in lowered:
+        return "flux"
+    if "xl" in lowered:
+        return "sdxl"
+    if "sd15" in lowered or "1-5" in lowered or "v1-5" in lowered:
+        return "sd15"
+    return "unknown"
+
+
+def active_checkpoint_family(defaults_manager) -> str:
+    """Resolve the architecture family of the active image checkpoint.
+
+    Resolution order:
+      1. ``COMFY_MCP_CHECKPOINT_FAMILY`` env var (explicit override, lowercased).
+      2. Infer from the default image checkpoint name via
+         ``defaults_manager.get_default("image", "model", None)``.
+      3. ``'unknown'`` if nothing resolves.
+
+    Defensive: if ``defaults_manager`` is ``None`` or raises, returns
+    ``'unknown'`` rather than propagating.
+
+    Returns one of ``'flux'``, ``'sdxl'``, ``'sd15'``, or ``'unknown'``.
+    """
+    override = os.getenv("COMFY_MCP_CHECKPOINT_FAMILY")
+    if override:
+        return override.strip().lower()
+
+    if defaults_manager is None:
+        return "unknown"
+
+    try:
+        model = defaults_manager.get_default("image", "model", None)
+    except Exception:
+        logger.debug("defaults_manager.get_default failed", exc_info=True)
+        return "unknown"
+
+    if not model or not isinstance(model, str):
+        return "unknown"
+
+    return _infer_family_from_name(model)
+
+
+# --------------------------------------------------------------------------- #
+# Manual blocklist (static override)
+# --------------------------------------------------------------------------- #
+
+# Reuse the SDK DefaultsManager config dir so the blocklist lives alongside
+# config.json (~/.config/comfy-mcp/lora_blocklist.json) and is user-editable.
+try:
+    from comfyui_agent_sdk.defaults.manager import CONFIG_DIR as _CONFIG_DIR
+except Exception:  # pragma: no cover - SDK should always be importable in-server
+    _CONFIG_DIR = Path.home() / ".config" / "comfy-mcp"
+
+BLOCKLIST_FILE = _CONFIG_DIR / "lora_blocklist.json"
+
+
+def load_lora_blocklist() -> set[str]:
+    """Load the manual LoRA blocklist as a set of exact lora_name strings.
+
+    Union of two sources, either of which may be absent:
+      1. JSON file at ``~/.config/comfy-mcp/lora_blocklist.json`` with the shape
+         ``{"blocked": ["name1", "name2", ...]}``.
+      2. ``COMFY_MCP_LORA_BLOCKLIST`` env var (comma-separated names).
+
+    Names must match the exact string ComfyUI reports (subfolders may use
+    forward slashes). Missing file/env yields an empty set. Never raises.
+    """
+    blocked: set[str] = set()
+
+    try:
+        if BLOCKLIST_FILE.is_file():
+            data = json.loads(BLOCKLIST_FILE.read_text(encoding="utf-8"))
+            if isinstance(data, dict):
+                names = data.get("blocked", [])
+                if isinstance(names, list):
+                    blocked.update(str(n) for n in names if n)
+    except (OSError, ValueError, json.JSONDecodeError):
+        logger.debug("Failed to read LoRA blocklist file", exc_info=True)
+
+    env_value = os.getenv("COMFY_MCP_LORA_BLOCKLIST")
+    if env_value:
+        blocked.update(part.strip() for part in env_value.split(",") if part.strip())
+
+    return blocked
