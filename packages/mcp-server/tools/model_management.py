@@ -4,6 +4,8 @@ import logging
 
 from mcp.server.fastmcp import FastMCP
 
+from tools.lora_metadata import detect_lora_base_model, resolve_loras_dir
+
 logger = logging.getLogger("MCP_Server")
 
 
@@ -14,17 +16,53 @@ def register_model_management_tools(
     """Register model management tools with the MCP server"""
 
     @mcp.tool()
-    def list_loras() -> dict:
-        """List all available LoRA models in ComfyUI.
+    def list_loras(base_model: str | None = None) -> dict:
+        """List all available LoRA models in ComfyUI, tagged by base model.
 
         Returns LoRA model filenames that can be used with generation workflows
         that support LoRA (e.g., generate_image_lora). LoRAs are typically stored
         in ComfyUI's models/loras/ directory.
+
+        Each LoRA is tagged with its base-model family ('flux', 'sdxl', 'sd15',
+        or 'unknown') by reading the safetensors header. This matters because a
+        LoRA built for one architecture (e.g. SDXL) has ZERO effect when loaded
+        onto a checkpoint of another architecture (e.g. FLUX) -- ComfyUI silently
+        ignores it. generate_image_lora uses a FLUX checkpoint, so prefer LoRAs
+        tagged 'flux' (or 'unknown') for it.
+
+        Args:
+            base_model: Optional filter. If set (e.g. "flux"), only LoRAs whose
+                detected base model matches are returned. LoRAs tagged 'unknown'
+                are always included (never hidden) since detection can be
+                imperfect.
+
+        Returns:
+            Dict with:
+            - loras: list of LoRA filenames (filtered if base_model is set)
+            - count: number of names in `loras`
+            - tagged: list of {"name": str, "base_model": str} for each LoRA
         """
         models = comfyui_client.get_lora_models()
+        loras_dir = resolve_loras_dir()
+
+        tagged = [
+            {"name": name, "base_model": detect_lora_base_model(name, loras_dir)}
+            for name in models
+        ]
+
+        if base_model:
+            target = base_model.lower()
+            tagged = [
+                entry
+                for entry in tagged
+                if entry["base_model"] == target or entry["base_model"] == "unknown"
+            ]
+
+        names = [entry["name"] for entry in tagged]
         return {
-            "loras": models,
-            "count": len(models),
+            "loras": names,
+            "count": len(names),
+            "tagged": tagged,
         }
 
     @mcp.tool()

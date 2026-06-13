@@ -9,8 +9,55 @@ from typing import Any, Dict, Optional
 from mcp.server.fastmcp import FastMCP
 from models.workflow import WorkflowToolDefinition
 from tools.helpers import register_and_build_response
+from tools.lora_metadata import detect_lora_base_model, resolve_loras_dir
 
 logger = logging.getLogger("MCP_Server")
+
+# Workflows whose checkpoint is a known architecture family. Used to warn when a
+# chosen LoRA's base model doesn't match the checkpoint (and will be silently
+# ignored by ComfyUI). generate_image_lora is FLUX.
+_WORKFLOW_CHECKPOINT_FAMILY = {
+    "generate_image_lora": "flux",
+}
+
+
+def _lora_mismatch_warning(workflow_id: str, arguments: dict) -> str | None:
+    """Return a warning string if the chosen LoRA's base model is incompatible.
+
+    The check only fires when:
+      - the workflow has a known checkpoint family (e.g. generate_image_lora -> flux),
+      - a `lora_name` argument was provided,
+      - the LoRA's detected base model is a DIFFERENT known family.
+
+    Returns ``None`` (no warning) when the LoRA matches, when detection returns
+    'unknown' (we never block on imperfect detection), or when the LoRA file
+    can't be located. Never raises.
+    """
+    target_family = _WORKFLOW_CHECKPOINT_FAMILY.get(workflow_id)
+    if not target_family:
+        return None
+
+    lora_name = arguments.get("lora_name")
+    if not lora_name or not isinstance(lora_name, str):
+        return None
+
+    try:
+        loras_dir = resolve_loras_dir()
+        detected = detect_lora_base_model(lora_name, loras_dir)
+    except Exception:
+        logger.debug("LoRA base-model detection failed for %s", lora_name, exc_info=True)
+        return None
+
+    if detected == "unknown" or detected == target_family:
+        return None
+
+    return (
+        f"LoRA '{lora_name}' appears to be a {detected.upper()} model, but this "
+        f"workflow uses a {target_family.upper()} checkpoint. {detected.upper()} "
+        f"LoRAs are silently ignored on {target_family.upper()} checkpoints and "
+        f"will likely have NO effect on the output. Use `list_loras(base_model="
+        f"'{target_family}')` to find compatible LoRAs."
+    )
 
 
 def register_workflow_generation_tools(
@@ -109,7 +156,7 @@ def register_workflow_generation_tools(
                 )
                 
                 # Register asset and build response
-                return register_and_build_response(
+                response = register_and_build_response(
                     result,
                     definition.workflow_id,
                     asset_registry,
@@ -118,7 +165,17 @@ def register_workflow_generation_tools(
                     session_id=session_id,
                     webhook_manager=webhook_manager
                 )
-                
+
+                # Warn if the chosen LoRA's base model doesn't match the
+                # checkpoint architecture (it would be silently ignored).
+                warning = _lora_mismatch_warning(
+                    definition.workflow_id, dict(bound.arguments)
+                )
+                if warning and isinstance(response, dict):
+                    response["warning"] = warning
+
+                return response
+
             except Exception as exc:
                 error_str = str(exc).lower()
                 # Check if error is related to missing model (only if workflow uses model param)
