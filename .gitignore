@@ -66,6 +66,14 @@ temp/
 .ralph/observations.jsonl
 .ralph/spec_audit.json
 .ralph/spec_audit.md
+.ralph/bash_telemetry.jsonl
+.ralph/gate_audit.jsonl
+.ralph/handoff.md
+.ralph/interactive_tokens.jsonl
+.ralph/lesson_injections.jsonl
+.ralph/phase_cost.jsonl
+.ralph/.lessons_cache.json
+.ralph/.session_parse_offsets.json
 
 # workflow validator object_info cache (machine-specific, refetchable)
 scripts/cache/
