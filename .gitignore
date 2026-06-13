@@ -62,6 +62,10 @@ temp/
 .ralph/recent_activity.md
 .ralph/alerts.log
 .ralph/manager_reviews/
+# session telemetry rewritten on every tool call / SessionStart
+.ralph/observations.jsonl
+.ralph/spec_audit.json
+.ralph/spec_audit.md
 
 # workflow validator object_info cache (machine-specific, refetchable)
 scripts/cache/
