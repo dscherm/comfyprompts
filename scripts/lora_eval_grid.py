@@ -24,6 +24,7 @@ import json
 import re
 import sys
 import time
+import urllib.error
 import urllib.request
 from datetime import date
 from pathlib import Path
@@ -47,8 +48,13 @@ def http_json(path: str, payload: dict | None = None) -> dict:
     req = urllib.request.Request(
         COMFY_URL + path, data, {"Content-Type": "application/json"} if data else {}
     )
-    with urllib.request.urlopen(req, timeout=60) as r:
-        return json.loads(r.read())
+    try:
+        with urllib.request.urlopen(req, timeout=60) as r:
+            return json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        # surface ComfyUI's validation detail instead of a bare "400 Bad Request"
+        body = e.read().decode("utf-8", "replace")[:500]
+        raise RuntimeError(f"HTTP {e.code} {path}: {body}") from None
 
 
 def load_workflow(name: str) -> dict:
@@ -70,12 +76,32 @@ def fill(workflow: dict, values: dict) -> dict:
     return filled
 
 
-def run_job(workflow: dict, timeout: int = 300) -> list[dict]:
+def queue_prompt(workflow: dict, retries: int = 4) -> str:
+    """POST a workflow to /prompt, retrying transient validation failures.
+
+    On an 8GB card ComfyUI juggles model load/unload between jobs; a prompt
+    submitted mid-shuffle can fail CheckpointLoaderSimple validation with a
+    400 even though the checkpoint exists. These clear in a second or two, so
+    retry with backoff before giving up.
+    """
+    last = ""
+    for attempt in range(retries):
+        try:
+            resp = http_json("/prompt", {"prompt": workflow})
+            if "prompt_id" in resp:
+                return resp["prompt_id"]
+            last = f"queue rejected: {resp}"
+        except RuntimeError as e:
+            last = str(e)
+            if "failed validation" not in last and "HTTP 400" not in last:
+                raise  # not a transient validation race — fail fast
+        time.sleep(2 * (attempt + 1))
+    raise RuntimeError(f"queue failed after {retries} attempts: {last[:200]}")
+
+
+def run_job(workflow: dict, timeout: int = 600) -> list[dict]:
     """Queue, wait, return output image records."""
-    resp = http_json("/prompt", {"prompt": workflow})
-    if "prompt_id" not in resp:
-        raise RuntimeError(f"queue rejected: {resp}")
-    pid = resp["prompt_id"]
+    pid = queue_prompt(workflow)
     deadline = time.time() + timeout
     while time.time() < deadline:
         time.sleep(3)
@@ -108,11 +134,12 @@ def caption(image: dict, caption_wf: dict) -> str:
     }
     wf = fill(caption_wf, values)
     # caption workflow outputs text via a node that saves/returns text — read
-    # from history outputs instead of images
-    resp = http_json("/prompt", {"prompt": wf})
-    pid = resp.get("prompt_id")
-    if not pid:
-        return "(caption queue rejected)"
+    # from history outputs instead of images. Captioning is best-effort: never
+    # let a caption hiccup fail an otherwise-good generation cell.
+    try:
+        pid = queue_prompt(wf)
+    except RuntimeError as e:
+        return f"(caption queue failed: {str(e)[:80]})"
     deadline = time.time() + 120
     while time.time() < deadline:
         time.sleep(2)
@@ -134,6 +161,9 @@ def main() -> int:
     parser.add_argument("--no-captions", action="store_true")
     parser.add_argument("--resume", action="store_true",
                         help="keep existing results.json rows, skip cells already done")
+    parser.add_argument("--out-dir", default="",
+                        help="output dir (default: .omc/research/lora-eval-<today>); "
+                             "set this to resume a run started on a different day")
     args = parser.parse_args()
 
     object_info = http_json("/object_info/LoraLoader")
@@ -141,7 +171,8 @@ def main() -> int:
     if args.limit:
         loras = loras[: args.limit]
 
-    out_dir = REPO_ROOT / ".omc" / "research" / f"lora-eval-{date.today().isoformat()}"
+    out_dir = (Path(args.out_dir) if args.out_dir
+               else REPO_ROOT / ".omc" / "research" / f"lora-eval-{date.today().isoformat()}")
     out_dir.mkdir(parents=True, exist_ok=True)
 
     gen_wf = load_workflow("generate_image_lora")
@@ -151,13 +182,15 @@ def main() -> int:
     results: list[dict] = []
     done_keys: set[tuple] = set()
     if args.resume and (out_dir / "results.json").exists():
-        results = json.loads((out_dir / "results.json").read_text(encoding="utf-8"))
+        prior = json.loads((out_dir / "results.json").read_text(encoding="utf-8"))
+        # drop errored rows so their retries replace them cleanly (no dupes)
+        results = [r for r in prior if not r.get("error")]
         done_keys = {
             (r.get("lora"), r.get("strength"), r.get("prompt_key"))
             for r in results
-            if not r.get("error")
         }
-        print(f"resuming: {len(done_keys)} cells already done", flush=True)
+        print(f"resuming: {len(done_keys)} cells already done, "
+              f"{len(prior) - len(results)} errored cells will retry", flush=True)
 
     total = len(PROMPTS) * (1 + len(loras) * len(args.strengths))
     done = len(results)
