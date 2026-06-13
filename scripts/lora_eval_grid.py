@@ -132,6 +132,8 @@ def main() -> int:
     parser.add_argument("--limit", type=int, default=0, help="only first N LoRAs")
     parser.add_argument("--strengths", type=float, nargs="*", default=[0.6, 1.0])
     parser.add_argument("--no-captions", action="store_true")
+    parser.add_argument("--resume", action="store_true",
+                        help="keep existing results.json rows, skip cells already done")
     args = parser.parse_args()
 
     object_info = http_json("/object_info/LoraLoader")
@@ -147,8 +149,18 @@ def main() -> int:
     cap_wf = None if args.no_captions else load_workflow("caption_image")
 
     results: list[dict] = []
+    done_keys: set[tuple] = set()
+    if args.resume and (out_dir / "results.json").exists():
+        results = json.loads((out_dir / "results.json").read_text(encoding="utf-8"))
+        done_keys = {
+            (r.get("lora"), r.get("strength"), r.get("prompt_key"))
+            for r in results
+            if not r.get("error")
+        }
+        print(f"resuming: {len(done_keys)} cells already done", flush=True)
+
     total = len(PROMPTS) * (1 + len(loras) * len(args.strengths))
-    done = 0
+    done = len(results)
 
     def record(row: dict) -> None:
         nonlocal done
@@ -162,26 +174,29 @@ def main() -> int:
 
     for pkey, ptext in PROMPTS.items():
         # baseline (no LoRA)
-        try:
-            images = run_job(fill(base_wf, {
-                "PARAM_PROMPT": ptext,
-                "PARAM_NEGATIVE_PROMPT": "text, watermark",
-                "PARAM_INT_WIDTH": WIDTH, "PARAM_INT_HEIGHT": HEIGHT,
-                "PARAM_INT_SEED": SEED, "PARAM_INT_STEPS": STEPS,
-                "PARAM_FLOAT_CFG": 1.0,
-                "PARAM_STR_SAMPLER_NAME": "euler", "PARAM_STR_SCHEDULER": "simple",
-                "PARAM_FLOAT_DENOISE": 1.0,
-            }))
-            img = images[0] if images else {}
-            cap = caption(img, cap_wf) if cap_wf and img else ""
-            record({"lora": None, "strength": 0, "prompt_key": pkey, "prompt": ptext,
-                    "image": img.get("filename"), "caption": cap})
-        except Exception as e:
-            record({"lora": None, "strength": 0, "prompt_key": pkey, "prompt": ptext,
-                    "error": str(e)[:200]})
+        if (None, 0, pkey) not in done_keys:
+            try:
+                images = run_job(fill(base_wf, {
+                    "PARAM_PROMPT": ptext,
+                    "PARAM_NEGATIVE_PROMPT": "text, watermark",
+                    "PARAM_INT_WIDTH": WIDTH, "PARAM_INT_HEIGHT": HEIGHT,
+                    "PARAM_INT_SEED": SEED, "PARAM_INT_STEPS": STEPS,
+                    "PARAM_FLOAT_CFG": 1.0,
+                    "PARAM_STR_SAMPLER_NAME": "euler", "PARAM_STR_SCHEDULER": "simple",
+                    "PARAM_FLOAT_DENOISE": 1.0,
+                }))
+                img = images[0] if images else {}
+                cap = caption(img, cap_wf) if cap_wf and img else ""
+                record({"lora": None, "strength": 0, "prompt_key": pkey, "prompt": ptext,
+                        "image": img.get("filename"), "caption": cap})
+            except Exception as e:
+                record({"lora": None, "strength": 0, "prompt_key": pkey, "prompt": ptext,
+                        "error": str(e)[:200]})
 
         for lora in loras:
             for strength in args.strengths:
+                if (lora, strength, pkey) in done_keys:
+                    continue
                 try:
                     images = run_job(fill(gen_wf, {
                         "PARAM_PROMPT": ptext,
