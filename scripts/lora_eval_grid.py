@@ -25,6 +25,7 @@ import re
 import sys
 import time
 import urllib.error
+import urllib.parse
 import urllib.request
 from datetime import date
 from pathlib import Path
@@ -55,6 +56,46 @@ def http_json(path: str, payload: dict | None = None) -> dict:
         # surface ComfyUI's validation detail instead of a bare "400 Bad Request"
         body = e.read().decode("utf-8", "replace")[:500]
         raise RuntimeError(f"HTTP {e.code} {path}: {body}") from None
+
+
+def stage_for_caption(image: dict) -> str:
+    """Copy a generated output image into ComfyUI's input dir so LoadImage can
+    read it, and return the staged input-relative name.
+
+    LoadImage only validates files in ComfyUI's *input* directory, but grid
+    renders land in *output*. Rather than assume a filesystem path (the server
+    may be remote), round-trip the bytes over HTTP: fetch via /view from the
+    output area, re-POST via /upload/image into input.
+    """
+    filename = image["filename"]
+    subfolder = image.get("subfolder", "")
+    qs = urllib.parse.urlencode(
+        {"filename": filename, "subfolder": subfolder, "type": "output"}
+    )
+    with urllib.request.urlopen(f"{COMFY_URL}/view?{qs}", timeout=60) as r:
+        blob = r.read()
+
+    boundary = "----loraevalcaption"
+    body = b"".join([
+        f"--{boundary}\r\n".encode(),
+        b'Content-Disposition: form-data; name="image"; '
+        + f'filename="{filename}"\r\n'.encode(),
+        b"Content-Type: image/png\r\n\r\n",
+        blob,
+        f"\r\n--{boundary}\r\n".encode(),
+        b'Content-Disposition: form-data; name="overwrite"\r\n\r\ntrue\r\n',
+        f"--{boundary}--\r\n".encode(),
+    ])
+    req = urllib.request.Request(
+        f"{COMFY_URL}/upload/image",
+        body,
+        {"Content-Type": f"multipart/form-data; boundary={boundary}"},
+    )
+    with urllib.request.urlopen(req, timeout=60) as r:
+        resp = json.loads(r.read())
+    name = resp.get("name", filename)
+    sub = resp.get("subfolder", "")
+    return f"{sub}/{name}" if sub else name
 
 
 def load_workflow(name: str) -> dict:
@@ -125,9 +166,7 @@ def run_job(workflow: dict, timeout: int = 600) -> list[dict]:
 def caption(image: dict, caption_wf: dict) -> str:
     """Run caption_image on a generated output (referenced by filename)."""
     values = {
-        "PARAM_STR_IMAGE_PATH": image["filename"]
-        if not image.get("subfolder")
-        else f"{image['subfolder']}/{image['filename']}",
+        "PARAM_STR_IMAGE_PATH": stage_for_caption(image),
         "PARAM_STR_MODEL": "microsoft/Florence-2-large",
         "PARAM_STR_TASK": "detailed_caption",
         "PARAM_STR_TEXT_INPUT": "",
@@ -141,16 +180,28 @@ def caption(image: dict, caption_wf: dict) -> str:
     except RuntimeError as e:
         return f"(caption queue failed: {str(e)[:80]})"
     deadline = time.time() + 120
+    empty_polls = 0
     while time.time() < deadline:
         time.sleep(2)
         hist = http_json(f"/history/{pid}")
-        if pid in hist and hist[pid].get("status", {}).get("completed"):
+        if pid not in hist:
+            continue
+        status = hist[pid].get("status", {})
+        if status.get("status_str") == "error":
+            msgs = [m[1].get("exception_message", "") for m in status.get("messages", [])
+                    if m[0] == "execution_error"]
+            return f"(caption error: {'; '.join(msgs)[:80]})"
+        if status.get("completed"):
             for out in hist[pid].get("outputs", {}).values():
                 for key in ("text", "string", "caption"):
                     val = out.get(key)
                     if isinstance(val, list) and val:
                         return " ".join(str(v) for v in val)[:500]
-            return "(no caption output found)"
+            # ShowText's ui output can lag the completed flag by a poll on a
+            # cold model load — give it a few more polls before giving up.
+            empty_polls += 1
+            if empty_polls >= 3:
+                return "(no caption output found)"
     return "(caption timeout)"
 
 

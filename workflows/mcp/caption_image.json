@@ -40,10 +40,9 @@
   },
   "4": {
     "inputs": {
-      "filename_prefix": "ComfyUI_caption",
-      "images": ["3", 0]
+      "text": ["3", 2]
     },
-    "class_type": "SaveImage",
-    "_meta": {"title": "Save Annotated Image"}
+    "class_type": "ShowText|pysssss",
+    "_meta": {"title": "Caption Text"}
   }
 }
