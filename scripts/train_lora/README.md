@@ -25,18 +25,27 @@ is just the first proof-of-concept (see `.ralph/spec.md`).
   ./venv/Scripts/python.exe -m pip install -r requirements.txt
   ```
 
-## Hardware contract — ALWAYS train on GPU 1
+## Hardware contract — the 3090 Ti does both generation AND training
 
-This is a dual-GPU box (see CLAUDE.md):
+This is a dual-GPU box (see CLAUDE.md). The **RTX 3090 Ti (24GB)** is the primary
+card for both ComfyUI generation and LoRA training; the **RTX 3070 (8GB)** is
+secondary.
 
-- **GPU 0** — RTX 3070, 8GB — ComfyUI's card. Leave it alone during training.
-- **GPU 1** — RTX 3090 Ti, 24GB — the training card.
+- **ComfyUI** runs on the 3090 Ti via `D:\Projects\ComfyUI\run_3090ti.ps1`
+  (`CUDA_DEVICE_ORDER=PCI_BUS_ID` + `CUDA_VISIBLE_DEVICES=1`).
+- **Training** also runs on the 3090 Ti: **every** trainer invocation is prefixed
+  with `CUDA_VISIBLE_DEVICES=1`, so ai-toolkit sees only the 3090 Ti (as `cuda:0`).
 
-**Every** trainer invocation must be prefixed with `CUDA_VISIBLE_DEVICES=1` so
-ai-toolkit only ever sees the 3090 Ti (which then appears to it as `cuda:0`).
-Verify with `nvidia-smi` that VRAM is climbing on device 1, not device 0, before
-walking away. 16GB system RAM is the tighter constraint — cache latents and
-text-encoder outputs to disk in the training config.
+Because both want the same 24GB, they run **sequentially, not concurrently**:
+
+1. **Caption (T4)** — ComfyUI up on the 3090 Ti, Florence2 captions the dataset.
+2. **Train (T6)** — **stop ComfyUI first** to free the 24GB, then launch training.
+3. **Eval (T7)** — restart ComfyUI on the 3090 Ti (Flux eval is comfortable at
+   24GB) and run the grid.
+
+Verify with `nvidia-smi` that VRAM is climbing on the 3090 Ti before walking away.
+16GB system RAM is the tighter constraint — cache latents and text-encoder
+outputs to disk in the training config.
 
 ### GPU verification
 

@@ -168,9 +168,10 @@ Both Blender addons follow strict constraints:
 - **Venv**: `D:\Projects\ComfyUI\venv\` — **Python 3.11.9** (NOT system Python 3.13)
 - **PyTorch**: 2.9.1+cu126 (CUDA 12.6 runtime)
 - **CUDA toolkit**: 12.4 (system install at `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4`)
-- **GPUs** (dual-GPU system):
-  - **GPU 0** — NVIDIA GeForce RTX 3070, **8GB VRAM**. ComfyUI's default device (`cuda:0`). All the "8GB flux"/low-VRAM notes in this file refer to this card.
-  - **GPU 1** — NVIDIA GeForce RTX 3090 Ti, **24GB VRAM**. The heavy-lifting card — use this for LoRA/model training, batch jobs, and anything that exceeds 8GB. Target it with `CUDA_VISIBLE_DEVICES=1` (trainers) or `--cuda-device 1` (a second ComfyUI instance). Keep training on GPU 1 so ComfyUI on GPU 0 stays responsive.
+- **GPUs** (dual-GPU system). nvidia-smi / PCI_BUS_ID order: index 0 = 3070, index 1 = 3090 Ti. Torch's *default* CUDA order also enumerates the 3070 as `cuda:0`, so an unconfigured ComfyUI lands on the 8GB card — which is why the launcher below explicitly pins it.
+  - **GPU 1 — RTX 3090 Ti, 24GB — the primary workhorse for BOTH generation and training.** ComfyUI should run here (24GB makes Flux/video/3D comfortable). Launch it with **`D:\Projects\ComfyUI\run_3090ti.ps1`** (sets `CUDA_DEVICE_ORDER=PCI_BUS_ID` + `CUDA_VISIBLE_DEVICES=1`, fully hiding the 3070). Trainers target the same card with `CUDA_VISIBLE_DEVICES=1`.
+  - **GPU 0 — RTX 3070, 8GB — secondary.** Display + light/overflow inference. The "8GB flux"/low-VRAM notes elsewhere in this file are **historical** (pre-3090 Ti, when ComfyUI had no choice but this card).
+  - **Contention:** generation and training both want the 3090 Ti, so they run **sequentially** — stop (or idle, models unloaded) ComfyUI before a training run to free its 24GB, then restart it after. Only run ComfyUI on the 3070 (`--cuda-device 0` with the 3070 visible) if you genuinely need generation *during* a training job, accepting 8GB limits.
 - **Driver**: 610.62
 - **System RAM**: ~16GB (RAM, not VRAM, is the tighter constraint for training — cache latents to disk)
 - **Blender**: 5.0 at `C:\Program Files\Blender Foundation\Blender 5.0\blender.exe`
