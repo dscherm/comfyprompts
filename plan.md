@@ -53,7 +53,7 @@ them with the LoRA-training PoC.
     "Verify torch sees the 3090 Ti as device 0 under CUDA_VISIBLE_DEVICES=1",
     "Note install/venv paths in scripts/train_lora/README.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
