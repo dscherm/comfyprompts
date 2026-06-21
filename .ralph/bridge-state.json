@@ -16,9 +16,10 @@
     {
       "id": "T2",
       "title": "T2",
-      "status": "pending",
+      "status": "done",
       "gate_result": null,
-      "observation_id": null
+      "observation_id": "obs-20260621132651-0000000",
+      "activated_at": "2026-06-21T13:26:51.627522+00:00"
     },
     {
       "id": "T3",
@@ -63,13 +64,13 @@
       "observation_id": null
     }
   ],
-  "current_task_index": 1,
+  "current_task_index": 2,
   "stats": {
-    "tasks_completed": 1,
+    "tasks_completed": 2,
     "tasks_failed": 0,
     "gate_passes": 0,
     "gate_fails": 0,
-    "observations_recorded": 2
+    "observations_recorded": 4
   },
   "config": {
     "interactive_mode": true,
@@ -78,5 +79,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-21T13:25:11.463033+00:00"
+  "updated_at": "2026-06-21T14:30:29.952867+00:00"
 }

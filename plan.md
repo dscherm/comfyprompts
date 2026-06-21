@@ -76,7 +76,7 @@ them with the LoRA-training PoC.
     "Image normalization + dedupe + manifest",
     "Add a pytest covering the prep on a 3-image fixture"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

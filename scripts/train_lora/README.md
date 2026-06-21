@@ -62,7 +62,7 @@ ai-toolkit download the full model.
 ## Status
 
 - [x] T1 — ai-toolkit installed in own venv, GPU-1 contract verified
-- [ ] T2 — `prep_dataset.py`
+- [x] T2 — `prep_dataset.py` (Pillow normalize/dedupe/resize; 4 tests pass)
 - [ ] T3 — `caption.py`
 - [ ] T4 — curate Berserkr dataset
 - [ ] T5 — `launch_train.py`
