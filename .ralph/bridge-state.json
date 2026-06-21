@@ -1,10 +1,67 @@
 {
   "pipeline_id": "51771284",
   "started_at": "2026-04-26T13:07:42.889206+00:00",
-  "phase": "intake",
+  "phase": "plan",
   "spec_path": null,
   "plan_source": "plan.md",
-  "tasks": [],
+  "tasks": [
+    {
+      "id": "T1",
+      "title": "T1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T2",
+      "title": "T2",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T3",
+      "title": "T3",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T4",
+      "title": "T4",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T5",
+      "title": "T5",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T6",
+      "title": "T6",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T7",
+      "title": "T7",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T8",
+      "title": "T8",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    }
+  ],
   "current_task_index": 0,
   "stats": {
     "tasks_completed": 0,
@@ -20,5 +77,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-05-25T22:16:55.093052+00:00"
+  "updated_at": "2026-06-20T23:44:31.015191+00:00"
 }

@@ -35,7 +35,21 @@
       "PowerShell(Get-ChildItem D:\\\\Projects\\\\ComfyUI\\\\output -File -Recurse -ErrorAction SilentlyContinue | Where-Object { $_.LastWriteTime -gt \\(Get-Date '2026-06-12 12:00'\\) } | Sort-Object LastWriteTime | Select-Object LastWriteTime, Length, FullName | Format-Table -AutoSize)",
       "PowerShell(Get-ChildItem .omc\\\\research -Recurse -ErrorAction SilentlyContinue | Sort-Object LastWriteTime -Descending | Select-Object -First 10 LastWriteTime, Length, FullName; Get-Date; try { \\(Invoke-WebRequest -Uri http://localhost:8188/system_stats -UseBasicParsing -TimeoutSec 3\\).StatusCode } catch { 'ComfyUI not responding' })",
       "PowerShell(Get-ChildItem .omc\\\\research\\\\lora-eval-2026-06-12; $r = Get-Content .omc\\\\research\\\\lora-eval-2026-06-12\\\\results.json -Raw | ConvertFrom-Json; $r | Get-Member -MemberType NoteProperty | Select-Object Name; if \\($r.results\\) { $r.results.Count })",
-      "PowerShell($r = Get-Content .omc\\\\research\\\\lora-eval-2026-06-12\\\\results.json -Raw | ConvertFrom-Json; $r | Group-Object lora | Select-Object Name, Count; \\(Get-ChildItem D:\\\\Projects\\\\ComfyUI\\\\models\\\\loras -File -ErrorAction SilentlyContinue\\).Count)"
+      "PowerShell($r = Get-Content .omc\\\\research\\\\lora-eval-2026-06-12\\\\results.json -Raw | ConvertFrom-Json; $r | Group-Object lora | Select-Object Name, Count; \\(Get-ChildItem D:\\\\Projects\\\\ComfyUI\\\\models\\\\loras -File -ErrorAction SilentlyContinue\\).Count)",
+      "Read(//d/Projects/ComfyUI/**)",
+      "Bash(./venv/Scripts/python.exe main.py --port 8188)",
+      "Bash(D:/Projects/ComfyUI/venv/Scripts/python.exe -c ' *)",
+      "Bash(rm -f model.safetensors)",
+      "Bash(env)",
+      "Bash(.venv/Scripts/python.exe -m pytest packages/mcp-server/tests/test_lora_metadata.py -v)",
+      "Bash(.venv/Scripts/python.exe -m pytest packages/mcp-server/tests/ -q)",
+      "Bash(.venv/Scripts/python.exe -m ruff check packages/mcp-server/tools/lora_metadata.py packages/mcp-server/tools/model_management.py packages/mcp-server/tools/generation.py packages/mcp-server/tests/test_lora_metadata.py)",
+      "Bash(./.venv/Scripts/python.exe -c \"import comfyui_agent_sdk; print\\('SDK OK'\\)\")",
+      "Bash(./.venv/Scripts/python.exe -m pytest packages/mcp-server/tests/test_lora_metadata.py -q)",
+      "Bash(./.venv/Scripts/python.exe -m pytest packages/mcp-server/tests/ -q)",
+      "Bash(../../.venv/Scripts/python.exe -c ' *)",
+      "Bash(nvidia-smi --query-gpu=name,memory.total,driver_version --format=csv)",
+      "Bash(nvidia-smi --query-gpu=index,name,memory.total --format=csv,noheader)"
     ]
   },
   "enabledMcpjsonServers": [

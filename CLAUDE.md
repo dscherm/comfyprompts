@@ -168,8 +168,11 @@ Both Blender addons follow strict constraints:
 - **Venv**: `D:\Projects\ComfyUI\venv\` — **Python 3.11.9** (NOT system Python 3.13)
 - **PyTorch**: 2.9.1+cu126 (CUDA 12.6 runtime)
 - **CUDA toolkit**: 12.4 (system install at `C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v12.4`)
-- **GPU**: NVIDIA GeForce RTX 3070 8GB VRAM
-- **System RAM**: ~16GB
+- **GPUs** (dual-GPU system):
+  - **GPU 0** — NVIDIA GeForce RTX 3070, **8GB VRAM**. ComfyUI's default device (`cuda:0`). All the "8GB flux"/low-VRAM notes in this file refer to this card.
+  - **GPU 1** — NVIDIA GeForce RTX 3090 Ti, **24GB VRAM**. The heavy-lifting card — use this for LoRA/model training, batch jobs, and anything that exceeds 8GB. Target it with `CUDA_VISIBLE_DEVICES=1` (trainers) or `--cuda-device 1` (a second ComfyUI instance). Keep training on GPU 1 so ComfyUI on GPU 0 stays responsive.
+- **Driver**: 610.62
+- **System RAM**: ~16GB (RAM, not VRAM, is the tighter constraint for training — cache latents to disk)
 - **Blender**: 5.0 at `C:\Program Files\Blender Foundation\Blender 5.0\blender.exe`
 - **Blender MCP**: addon.py (v1.4.0) installed in Blender addons, socket server on port 9876. MCP server configured in `.claude.json` from `C:\Users\scher\Downloads\blender-mcp-main\blender-mcp-main`. Provides `execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`, Poly Haven asset search/download, Sketchfab search/download, and Hunyuan3D cloud generation tools. **This is the primary interface for all Blender operations in pipelines.**
 - **UniRig**: `C:\UniRig` (.venv Python 3.11, CUDA)
