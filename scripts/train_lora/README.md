@@ -63,7 +63,7 @@ ai-toolkit download the full model.
 
 - [x] T1 — ai-toolkit installed in own venv, GPU-1 contract verified
 - [x] T2 — `prep_dataset.py` (Pillow normalize/dedupe/resize; 4 tests pass)
-- [ ] T3 — `caption.py`
+- [x] T3 — `caption.py` (Florence2 REST, trigger prefix, idempotent; 4 tests pass; live round-trip exercised in T4)
 - [ ] T4 — curate Berserkr dataset
 - [ ] T5 — `launch_train.py`
 - [ ] T6 — run PoC training

@@ -98,7 +98,7 @@ them with the LoRA-training PoC.
     "CLI: --dir, --trigger, --prepend/--append",
     "Write .txt sidecars, log a count summary"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
