@@ -74,7 +74,7 @@ ai-toolkit download the full model.
 - [x] T2 — `prep_dataset.py` (Pillow normalize/dedupe/resize; 4 tests pass)
 - [x] T3 — `caption.py` (Florence2 REST, trigger prefix, idempotent; 4 tests pass; live round-trip exercised in T4)
 - [ ] T4 — curate Berserkr dataset
-- [ ] T5 — `launch_train.py`
+- [x] T5 — `launch_train.py` (generates ai-toolkit JSON config, pins GPU 1 + E: cache; 3 tests pass, --no-launch smoke OK)
 - [ ] T6 — run PoC training
 - [ ] T7 — eval grid
 - [ ] T8 — deploy + finalize this README

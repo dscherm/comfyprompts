@@ -147,7 +147,7 @@ them with the LoRA-training PoC.
     "Subprocess-launch ai-toolkit's run script under CUDA_VISIBLE_DEVICES=1",
     "Document background-run + nvidia-smi verification in README"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
