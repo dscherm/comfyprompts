@@ -33,8 +33,8 @@ consistency LoRAs that feed Hunyuan3D, etc.).
   ComfyUI to free 24GB → train (T6) → restart ComfyUI → eval (T7). Flux eval is
   comfortable at 24GB.
 - Verify with `nvidia-smi` that VRAM climbs on the 3090 Ti before walking away.
-  16GB system RAM is the tighter constraint — cache latents/text-encoder outputs
-  to disk.
+  System RAM is ~64GB (not the old 16GB note) — comfortable; latent caching to
+  disk is optional.
 - Flux LoRA config: rank 16, 512-768px, batch 1, grad-checkpoint ON,
   ~1000-2000 steps (start ~1500). Est. 1.5-2.5h.
 

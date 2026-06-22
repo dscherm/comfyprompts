@@ -173,7 +173,7 @@ Both Blender addons follow strict constraints:
   - **GPU 0 — RTX 3070, 8GB — secondary.** Display + light/overflow inference. The "8GB flux"/low-VRAM notes elsewhere in this file are **historical** (pre-3090 Ti, when ComfyUI had no choice but this card).
   - **Contention:** generation and training both want the 3090 Ti, so they run **sequentially** — stop (or idle, models unloaded) ComfyUI before a training run to free its 24GB, then restart it after. Only run ComfyUI on the 3070 (`--cuda-device 0` with the 3070 visible) if you genuinely need generation *during* a training job, accepting 8GB limits.
 - **Driver**: 610.62
-- **System RAM**: ~16GB (RAM, not VRAM, is the tighter constraint for training — cache latents to disk)
+- **System RAM**: ~64GB (confirmed via ComfyUI system_stats). Comfortable for training — latent caching to disk is optional, not forced.
 - **Blender**: 5.0 at `C:\Program Files\Blender Foundation\Blender 5.0\blender.exe`
 - **Blender MCP**: addon.py (v1.4.0) installed in Blender addons, socket server on port 9876. MCP server configured in `.claude.json` from `C:\Users\scher\Downloads\blender-mcp-main\blender-mcp-main`. Provides `execute_blender_code`, `get_viewport_screenshot`, `get_scene_info`, Poly Haven asset search/download, Sketchfab search/download, and Hunyuan3D cloud generation tools. **This is the primary interface for all Blender operations in pipelines.**
 - **UniRig**: `C:\UniRig` (.venv Python 3.11, CUDA)
