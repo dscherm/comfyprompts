@@ -75,6 +75,6 @@ ai-toolkit download the full model.
 - [x] T3 — `caption.py` (Florence2 REST, trigger prefix, idempotent; 4 tests pass; live round-trip exercised in T4)
 - [x] T4 — Berserkr dataset curated + captioned: **148 images** on `E:\ai-training\datasets\berserkr_style\` (balanced Creature/Portrait/Fullbody/Equipment/Prop; UI/tiles excluded), Florence2 captions cleaned + `brsk_style`-prefixed. Dataset lives on E: (not the repo) to avoid bloat.
 - [x] T5 — `launch_train.py` (generates ai-toolkit JSON config, pins GPU 1 + E: cache; 3 tests pass, --no-launch smoke OK)
-- [ ] T6 — run PoC training
+- [x] T6 — trained `berserkr_style.safetensors` (164 MB, rank-16 Flux LoRA, 1500 steps @ 512). Checkpoints at 500/750/1000/1250/1500 on `E:\ai-training\flux-output\berserkr_style\`. A transient external-GPU `cudaErrorUnknown` at step 499 was recovered by resuming from the step-500 checkpoint — the save_every=250 setting made it a non-event. Step-1500 samples show strong style transfer vs baseline.
 - [ ] T7 — eval grid
 - [ ] T8 — deploy + finalize this README

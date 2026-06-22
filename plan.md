@@ -168,7 +168,7 @@ them with the LoRA-training PoC.
     "Monitor in background, verify device 1 placement",
     "Collect checkpoints"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
