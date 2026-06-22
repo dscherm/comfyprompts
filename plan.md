@@ -123,7 +123,7 @@ them with the LoRA-training PoC.
     "caption.py --dir datasets/berserkr_style --trigger brsk_style",
     "Spot-check + hand-fix ~10 captions"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

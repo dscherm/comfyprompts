@@ -73,7 +73,7 @@ ai-toolkit download the full model.
 - [x] T1 — ai-toolkit installed in own venv, GPU-1 contract verified
 - [x] T2 — `prep_dataset.py` (Pillow normalize/dedupe/resize; 4 tests pass)
 - [x] T3 — `caption.py` (Florence2 REST, trigger prefix, idempotent; 4 tests pass; live round-trip exercised in T4)
-- [ ] T4 — curate Berserkr dataset
+- [x] T4 — Berserkr dataset curated + captioned: **148 images** on `E:\ai-training\datasets\berserkr_style\` (balanced Creature/Portrait/Fullbody/Equipment/Prop; UI/tiles excluded), Florence2 captions cleaned + `brsk_style`-prefixed. Dataset lives on E: (not the repo) to avoid bloat.
 - [x] T5 — `launch_train.py` (generates ai-toolkit JSON config, pins GPU 1 + E: cache; 3 tests pass, --no-launch smoke OK)
 - [ ] T6 — run PoC training
 - [ ] T7 — eval grid
