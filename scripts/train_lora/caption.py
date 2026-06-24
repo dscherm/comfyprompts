@@ -35,6 +35,17 @@ COMFY_URL = os.environ.get("COMFYUI_URL", "http://localhost:8188").rstrip("/")
 PARAM_RE = re.compile(r"PARAM_[A-Z0-9_]+")
 IMG_EXTS = (".png", ".jpg", ".jpeg", ".webp", ".bmp")
 
+# Maps the "__<view>" filename suffix (written by render_multiview.py) to a
+# natural-language view phrase, when --view-from-filename is set.
+VIEW_PHRASES = {
+    "front": "front view",
+    "back": "back view",
+    "left": "side view",
+    "right": "side view",
+    "front_left": "three-quarter view",
+    "front_right": "three-quarter view",
+}
+
 
 def http_json(path: str, payload: dict | None = None) -> dict:
     data = json.dumps(payload).encode() if payload is not None else None
@@ -170,6 +181,8 @@ def caption_dir(
     model: str = "microsoft/Florence-2-large",
     task: str = "detailed_caption",
     overwrite: bool = False,
+    extra_tags: str = "",
+    view_from_filename: bool = False,
 ) -> dict:
     """Caption every image in `directory`. Returns a stats dict."""
     d = Path(directory)
@@ -197,7 +210,15 @@ def caption_dir(
             stats["failed"] += 1
             print(f"  ! {img.name}: empty caption", file=sys.stderr)
             continue
-        line = f"{trigger}, {raw}" if position == "prepend" else f"{raw}, {trigger}"
+        tags = [trigger]
+        if view_from_filename:
+            phrase = VIEW_PHRASES.get(img.stem.rsplit("__", 1)[-1])
+            if phrase:
+                tags.append(phrase)
+        if extra_tags:
+            tags.append(extra_tags)
+        prefix = ", ".join(tags)
+        line = f"{prefix}, {raw}" if position == "prepend" else f"{raw}, {prefix}"
         txt.write_text(line, encoding="utf-8")
         stats["captioned"] += 1
         print(f"  + {img.name}: {line[:90]}")
@@ -213,10 +234,15 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--task", default="detailed_caption")
     ap.add_argument("--overwrite", action="store_true",
                     help="Recaption images that already have a .txt.")
+    ap.add_argument("--extra-tags", default="",
+                    help="Static tags inserted after the trigger (e.g. pose tags).")
+    ap.add_argument("--view-from-filename", action="store_true",
+                    help="Derive a view phrase from the '__<view>' filename suffix.")
     args = ap.parse_args(argv)
 
     stats = caption_dir(args.dir, args.trigger, position=args.position,
-                        model=args.model, task=args.task, overwrite=args.overwrite)
+                        model=args.model, task=args.task, overwrite=args.overwrite,
+                        extra_tags=args.extra_tags, view_from_filename=args.view_from_filename)
     print(json.dumps(stats, indent=2))
     return 1 if stats["captioned"] == 0 and stats["images"] > stats["skipped_existing"] else 0
 

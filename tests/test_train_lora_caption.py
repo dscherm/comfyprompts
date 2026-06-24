@@ -52,6 +52,27 @@ def test_append_position(imgdir: Path):
     assert txt.endswith(", brsk_style")
 
 
+def test_view_tag_and_extra_tags(tmp_path: Path, monkeypatch: pytest.MonkeyPatch):
+    d = tmp_path / "mv"
+    d.mkdir()
+    (d / "char__front.png").write_bytes(b"\x89PNG\r\n")
+    (d / "char__front_left.png").write_bytes(b"\x89PNG\r\n")
+    (d / "char__left.png").write_bytes(b"\x89PNG\r\n")
+    monkeypatch.setattr(caption, "preflight", lambda: None)
+    monkeypatch.setattr(caption, "load_workflow", lambda name: {})
+    monkeypatch.setattr(caption, "upload_local", lambda p: p.name)
+    monkeypatch.setattr(caption, "run_caption",
+                        lambda name, wf, model, task, timeout=180: "a person")
+    caption.caption_dir(d, "mv_ortho", extra_tags="wide T-pose, legs apart",
+                        view_from_filename=True)
+    assert (d / "char__front.txt").read_text(encoding="utf-8") == \
+        "mv_ortho, front view, wide T-pose, legs apart, a person"
+    assert (d / "char__front_left.txt").read_text(encoding="utf-8") == \
+        "mv_ortho, three-quarter view, wide T-pose, legs apart, a person"
+    assert (d / "char__left.txt").read_text(encoding="utf-8") == \
+        "mv_ortho, side view, wide T-pose, legs apart, a person"
+
+
 def test_failure_writes_no_txt(imgdir: Path, monkeypatch: pytest.MonkeyPatch):
     def boom(*a, **k):
         raise RuntimeError("execution failed")

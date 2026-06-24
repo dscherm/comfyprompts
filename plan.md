@@ -102,7 +102,7 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
     "caption.py --dir E:/ai-training/datasets/mv_ortho --trigger mv_ortho",
     "Run prep_dataset.py to normalize into the ai-toolkit layout if needed"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
