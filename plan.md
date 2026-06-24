@@ -172,6 +172,6 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
     "Smoke-test through generate_image_lora -> Hunyuan3D",
     "Update README + art-to-rig-ralph cross-link"
   ],
-  "passes": false
+  "passes": true
 }
 ```

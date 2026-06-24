@@ -7,8 +7,42 @@ for training Flux LoRAs on this workstation. The pipeline:
 prep_dataset.py  ->  caption.py  ->  launch_train.py  ->  (lora_eval_grid.py)  ->  deploy
 ```
 
-Point it at any folder of images and it produces a LoRA. The Berserkr-style LoRA
-is just the first proof-of-concept (see `.ralph/spec.md`).
+Point it at any folder of images and it produces a LoRA. Two LoRAs have been built
+with it: the **Berserkr style** PoC and **mv_ortho** (below).
+
+## mv_ortho — the Hunyuan3D "concept-art front-end" LoRA
+
+`mv_ortho` produces clean orthographic character art in a **wide T-pose with
+separated limbs**, so Hunyuan3D yields meshes whose hands/arms/legs are *separable*
+(not fused to the body) and rig cleanly. It is the upstream lever for
+`pipelines/art-to-rig-ralph/`. Built M1-M6 (see `.ralph/spec.md`,
+`eval/mv_ortho_grid.md`).
+
+**Use it — prompt the pose tokens, not just the trigger:**
+```
+mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, <your character>
+```
+Deployed: `D:\Projects\ComfyUI\models\loras\style\mv_ortho.safetensors` (+ `.txt`
+sidecar). Recommended strength **0.8** (1.0 for stronger enforcement). It controls
+POSE/FRAMING — stack with a style prompt/LoRA for detailed art.
+
+### Dataset from 3D meshes — `render_multiview.py`
+
+The mv_ortho dataset isn't photos; it's **orthographic renders of meshes we already
+own**, made by `render_multiview.py` over the **blender-mcp** socket (Blender must be
+open with the MCP addon on port 9876). It is dataset-agnostic — point it at any mesh
+folder:
+```bash
+python scripts/train_lora/render_multiview.py \
+    --src "<mesh dir or file>" --out "E:/ai-training/datasets/<name>" \
+    --angles front,front_left,front_right,left,right \
+    --include quaternius,xbot --exclude kart,car   # optional substring filters
+```
+Renders clean ortho views (neutral bg, even light, `_force_opaque` so alpha=0 FBX
+still show) named `<mesh>__<view>.png`; `caption.py --view-from-filename --extra-tags`
+then adds view + pose tags. **Only include meshes already in a separated-limb pose**
+(wide T-pose) — relaxed/arms-down meshes teach fused geometry (cf.
+`project_mesh_intersection_fix`).
 
 ## Reusable loop — train a LoRA on ANY dataset (no code changes)
 
@@ -123,3 +157,12 @@ ai-toolkit download the full model.
 - [x] T6 — trained `berserkr_style.safetensors` (164 MB, rank-16 Flux LoRA, 1500 steps @ 512). Checkpoints at 500/750/1000/1250/1500 on `E:\ai-training\flux-output\berserkr_style\`. A transient external-GPU `cudaErrorUnknown` at step 499 was recovered by resuming from the step-500 checkpoint — the save_every=250 setting made it a non-event. Step-1500 samples show strong style transfer vs baseline.
 - [x] T7 — eval grid + AI-judge verdict (`eval/berserkr_style_grid.md`). Base vs LoRA across checkpoints 1000/1250/1500 × strengths 0.6/0.8/1.0 on 2 neutral prompts (seed 123456, 512px, 12 steps). LoRA measurably shifts output toward the Berserkr painterly concept-art aesthetic (dramatic on the scene prompt). **Winner: `berserkr_style.safetensors` (ckpt 1500) @ strength 0.8** (trigger `brsk_style`; 0.6 portraits / 1.0 scenes). Driver gained a `--only` substring filter to target one model's checkpoints.
 - [x] T8 — deployed winner to `D:\Projects\ComfyUI\models\loras\style\berserkr_style.safetensors` + `berserkr_style.txt` sidecar (trigger `brsk_style`, strength 0.8). Smoke-tested through `generate_image_lora` @ 768px/strength 0.8 → on-aesthetic dark-fantasy warrior (`eval/deploy_smoke_brsk_style.png`). Reusable end-to-end loop + `comfy-improve-model` Path 3 / multiview-3D cross-links documented above.
+
+### mv_ortho pipeline (M1-M6) — COMPLETE
+
+- [x] M1 — `render_multiview.py` (blender-mcp ortho renderer; include/exclude filters; data-API wipe; `_force_opaque`).
+- [x] M2 — 125-image wide-T-pose dataset (Mixamo + 23 Quaternius + wide_tpose_rookie) on `E:\ai-training\datasets\mv_ortho\`; relaxed-pose/vehicle meshes culled (`datasets/mv_ortho_manifest.md`).
+- [x] M3 — captioned with `--view-from-filename` + `--extra-tags` (view + limb-separation pose tags); 5 caption tests pass.
+- [x] M4 — trained `mv_ortho.safetensors` (rank-16 Flux LoRA, 1500 steps, clean run).
+- [x] M5 — eval: 2D grid + **Hunyuan3D mesh-separability proof** (base→fused limbs, LoRA→separable). Winner: **ckpt 1500 @ 0.8** (`eval/mv_ortho_grid.md`).
+- [x] M6 — deployed to `loras/style/mv_ortho.safetensors` + sidecar; smoke-tested (barbarian, unseen subject → clean T-pose, `eval/mv_ortho_assets/deploy_smoke_barbarian.png`); documented above; `art-to-rig-ralph` cross-linked.

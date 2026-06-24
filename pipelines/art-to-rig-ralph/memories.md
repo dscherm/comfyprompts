@@ -6,6 +6,18 @@
 - Domain: `pipelines/art-to-rig-ralph/output/` -- concept images, cleaned images, raw meshes, prepared geometry, rigged models, platform exports
 - Expertise: Illustration styles (cartoon, comic, fantasy, sci-fi, realistic, pencil, painting, pixel art), 3D topology, skeletal rigging, bone naming conventions, multi-platform export
 
+## Concept-art front-end — use the mv_ortho LoRA for the T-pose step
+- For the concept-image stage, use the **`mv_ortho` Flux LoRA** (deployed at
+  `D:\Projects\ComfyUI\models\loras\style\mv_ortho.safetensors`, trigger strength 0.8).
+  It forces a clean orthographic **wide T-pose with separated limbs**, which is exactly
+  what Hunyuan3D needs to produce meshes with *separable* (not fused) hands/arms/legs.
+  Prompt the pose tokens, not just the trigger:
+  `mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, <character>`.
+  It controls pose/framing only — stack a style prompt/LoRA for the look. Built and
+  proven (base image → fused-limb mesh vs LoRA image → separable mesh) in
+  `scripts/train_lora/` (see `eval/mv_ortho_grid.md`). This is the upstream fix for the
+  "pose too dynamic for T-pose rigging" problem noted below.
+
 ## Style Knowledge
 - Cartoon/Chibi: Use bold outlines, flat colors, exaggerated proportions. Best with Flux + transparent background. Clean silhouettes convert well to 3D because edge detection is unambiguous.
 - Comic Book: Heavy inks, dynamic composition. Works well with style_transfer_ipadapter for consistency across a batch. Halftone patterns may confuse mesh generation -- consider removing them in prompt.
