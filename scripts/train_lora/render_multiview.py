@@ -191,13 +191,16 @@ def _make_camera(max_dim, margin):
     bpy.context.scene.camera = cam
     return cam
 
-def _place(cam, az_deg, el_deg, radius):
+def _place(cam, az_deg, el_deg, radius, target):
+    # Orbit the camera around the subject's world-space bbox center and aim at it.
+    # We never move the geometry — armature-parented meshes (FBX) don't recenter
+    # correctly by editing object.location, so framing is done purely by the camera.
     az = math.radians(az_deg)
     el = math.radians(el_deg)
     horiz = radius * math.cos(el)
-    loc = Vector((horiz * math.sin(az), -horiz * math.cos(az), radius * math.sin(el)))
-    cam.location = loc
-    cam.rotation_euler = (-loc).to_track_quat("-Z", "Y").to_euler()
+    offset = Vector((horiz * math.sin(az), -horiz * math.cos(az), radius * math.sin(el)))
+    cam.location = target + offset
+    cam.rotation_euler = (-offset).to_track_quat("-Z", "Y").to_euler()
 
 def run():
     _wipe()
@@ -209,8 +212,6 @@ def run():
         return
     mins, maxs = _combined_bbox(objs)
     center = (mins + maxs) * 0.5
-    for o in objs:
-        o.location -= center  # recenter combined bbox to origin
     dims = maxs - mins
     max_dim = max(dims.x, dims.y, dims.z) or 1.0
     radius = max_dim * 3.0
@@ -229,7 +230,7 @@ def run():
     stem = os.path.splitext(os.path.basename(CFG["mesh_path"]))[0]
     rendered = []
     for view, (az, el) in CFG["angles"].items():
-        _place(cam, az, el, radius)
+        _place(cam, az, el, radius, center)
         out_path = os.path.join(CFG["out_dir"], "%s__%s.png" % (stem, view))
         scene.render.filepath = out_path
         bpy.ops.render.render(write_still=True)
