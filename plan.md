@@ -124,7 +124,7 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
     "launch_train.py ... ; monitor in background, verify device 1",
     "Collect checkpoints"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
