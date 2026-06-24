@@ -84,3 +84,6 @@ workflows/mcp/.omc/
 
 # OMC session state (machine-local)
 .omc/
+
+# generated ai-toolkit training configs (regenerable via launch_train.py)
+scripts/train_lora/configs/
