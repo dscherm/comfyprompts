@@ -1,0 +1,162 @@
+[
+ {
+  "lora": null,
+  "strength": 0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_00180_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style.safetensors",
+  "strength": 0.6,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00001_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style.safetensors",
+  "strength": 0.8,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00002_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style.safetensors",
+  "strength": 1.0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00003_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001000.safetensors",
+  "strength": 0.6,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00004_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001000.safetensors",
+  "strength": 0.8,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00005_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001000.safetensors",
+  "strength": 1.0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00006_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001250.safetensors",
+  "strength": 0.6,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00007_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black jacket. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001250.safetensors",
+  "strength": 0.8,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00008_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001250.safetensors",
+  "strength": 1.0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00009_.png",
+  "caption": "The image shows a woman with long red hair standing in the woods, wearing a black dress. The background is blurred, giving the image a dreamy, ethereal feel."
+ },
+ {
+  "lora": null,
+  "strength": 0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_00181_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset, surrounded by lush green grass and trees. The sky is painted in a beautiful array of oranges, pinks, and purples, and the sun is setting in the background, casting a warm glow over the lake. The cabin is illuminated by the warm light of the setting sun, creating a peaceful atmosphere."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style.safetensors",
+  "strength": 0.6,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00010_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset. The lake is surrounded by lush green grass and trees, and the sky is filled with beautiful clouds. The sun is setting in the background, casting a warm orange glow over the lake and the cabin."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style.safetensors",
+  "strength": 0.8,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00011_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset. The cabin has a door and windows, and is surrounded by stones, grass, a pathway, a wooden fence, a group of trees, and the hills in the background. The sky is cloudy, adding to the peaceful atmosphere of the scene."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style.safetensors",
+  "strength": 1.0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00012_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset. The cabin has a door and windows, and is surrounded by stones, grass, a group of trees, and the hills in the background. The sky is cloudy, adding to the peaceful atmosphere of the scene."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001000.safetensors",
+  "strength": 0.6,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00013_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset. The lake is surrounded by lush green grass and trees, and the sky is filled with beautiful clouds. The sun is setting in the background, casting a warm orange glow over the lake and the cabin."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001000.safetensors",
+  "strength": 0.8,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00014_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset, surrounded by lush green grass, stones, and trees. The sky is painted in a beautiful array of oranges, pinks, and purples, and the sun is setting in the background, casting a warm glow over the scene."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001000.safetensors",
+  "strength": 1.0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00015_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset, surrounded by lush green grass, stones, and trees. The sky is painted in a beautiful array of oranges, pinks, and purples, and the sun is setting in the background, casting a warm glow over the lake and the cabin."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001250.safetensors",
+  "strength": 0.6,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00016_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset. The cabin has windows and a door, and is surrounded by stones, grass, plants, and a group of trees. The sky is cloudy and the sun is setting, creating a beautiful backdrop for the cabin."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001250.safetensors",
+  "strength": 0.8,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00017_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset. The cabin has windows and a door, and is surrounded by stones, grass, and a group of trees. The sky is cloudy and the sun is setting, casting a warm orange glow over the lake."
+ },
+ {
+  "lora": "_eval_berserkr\\berserkr_style_000001250.safetensors",
+  "strength": 1.0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00018_.png",
+  "caption": "The image shows a log cabin situated on the shore of a lake at sunset. The cabin has a door and windows, and is surrounded by a pathway, grass, stones, a wooden fence, a group of trees, the hills, and a cloudy sky. The sun is setting in the background, creating a beautiful and peaceful atmosphere."
+ }
+]

@@ -189,7 +189,7 @@ them with the LoRA-training PoC.
     "Run lora_eval_grid.py across checkpoints x strengths",
     "Record judge verdict + winner in eval/berserkr_style_grid.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

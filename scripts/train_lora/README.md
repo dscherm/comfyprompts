@@ -76,5 +76,5 @@ ai-toolkit download the full model.
 - [x] T4 — Berserkr dataset curated + captioned: **148 images** on `E:\ai-training\datasets\berserkr_style\` (balanced Creature/Portrait/Fullbody/Equipment/Prop; UI/tiles excluded), Florence2 captions cleaned + `brsk_style`-prefixed. Dataset lives on E: (not the repo) to avoid bloat.
 - [x] T5 — `launch_train.py` (generates ai-toolkit JSON config, pins GPU 1 + E: cache; 3 tests pass, --no-launch smoke OK)
 - [x] T6 — trained `berserkr_style.safetensors` (164 MB, rank-16 Flux LoRA, 1500 steps @ 512). Checkpoints at 500/750/1000/1250/1500 on `E:\ai-training\flux-output\berserkr_style\`. A transient external-GPU `cudaErrorUnknown` at step 499 was recovered by resuming from the step-500 checkpoint — the save_every=250 setting made it a non-event. Step-1500 samples show strong style transfer vs baseline.
-- [ ] T7 — eval grid
-- [ ] T8 — deploy + finalize this README
+- [x] T7 — eval grid + AI-judge verdict (`eval/berserkr_style_grid.md`). Base vs LoRA across checkpoints 1000/1250/1500 × strengths 0.6/0.8/1.0 on 2 neutral prompts (seed 123456, 512px, 12 steps). LoRA measurably shifts output toward the Berserkr painterly concept-art aesthetic (dramatic on the scene prompt). **Winner: `berserkr_style.safetensors` (ckpt 1500) @ strength 0.8** (trigger `brsk_style`; 0.6 portraits / 1.0 scenes). Driver gained a `--only` substring filter to target one model's checkpoints.
+- [ ] T8 — deploy winning LoRA to `ComfyUI/models/loras/style/` + finalize this README

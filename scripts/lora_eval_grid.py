@@ -208,6 +208,9 @@ def caption(image: dict, caption_wf: dict) -> str:
 def main() -> int:
     parser = argparse.ArgumentParser()
     parser.add_argument("--limit", type=int, default=0, help="only first N LoRAs")
+    parser.add_argument("--only", default="",
+                        help="case-insensitive substring filter on LoRA name "
+                             "(e.g. 'berserkr' to grid just one model's checkpoints)")
     parser.add_argument("--strengths", type=float, nargs="*", default=[0.6, 1.0])
     parser.add_argument("--no-captions", action="store_true")
     parser.add_argument("--resume", action="store_true",
@@ -219,6 +222,11 @@ def main() -> int:
 
     object_info = http_json("/object_info/LoraLoader")
     loras = object_info["LoraLoader"]["input"]["required"]["lora_name"][0]
+    if args.only:
+        needle = args.only.lower()
+        loras = [l for l in loras if needle in l.lower()]
+        if not loras:
+            raise SystemExit(f"--only {args.only!r} matched no installed LoRA")
     if args.limit:
         loras = loras[: args.limit]
 
