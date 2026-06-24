@@ -211,6 +211,6 @@ them with the LoRA-training PoC.
     "Smoke-test via generate_image_lora",
     "Write the reusable-harness README"
   ],
-  "passes": false
+  "passes": true
 }
 ```

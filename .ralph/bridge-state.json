@@ -1,7 +1,7 @@
 {
   "pipeline_id": "51771284",
   "started_at": "2026-04-26T13:07:42.889206+00:00",
-  "phase": "task-loop",
+  "phase": "learn",
   "spec_path": null,
   "plan_source": "plan.md",
   "tasks": [
@@ -64,18 +64,19 @@
     {
       "id": "T8",
       "title": "T8",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260624024531-0000000",
+      "activated_at": "2026-06-24T02:45:31.164890+00:00"
     }
   ],
-  "current_task_index": 7,
+  "current_task_index": 8,
   "stats": {
-    "tasks_completed": 7,
+    "tasks_completed": 8,
     "tasks_failed": 0,
-    "gate_passes": 1,
+    "gate_passes": 2,
     "gate_fails": 0,
-    "observations_recorded": 15
+    "observations_recorded": 18
   },
   "config": {
     "interactive_mode": true,
@@ -84,5 +85,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-24T02:43:52.264070+00:00"
+  "updated_at": "2026-06-24T02:52:06.505755+00:00"
 }
