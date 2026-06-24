@@ -78,7 +78,7 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
     "render_multiview.py --src ... --out E:/ai-training/datasets/mv_ortho",
     "Review a sample; cull bad renders; write manifest"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

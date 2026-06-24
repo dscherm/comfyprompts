@@ -146,6 +146,21 @@ def _import(path):
 def _mesh_objects():
     return [o for o in bpy.context.scene.objects if o.type == "MESH"]
 
+def _force_opaque():
+    # Some FBX exports (e.g. Quaternius modwomen) bake Principled-BSDF Alpha=0,
+    # which renders the surface fully transparent in EEVEE -> a blank frame even
+    # though the mesh is present. Force every Principled alpha opaque so the
+    # subject always shows; we render on a solid neutral bg, so alpha is unwanted.
+    for m in bpy.data.materials:
+        if not m.use_nodes:
+            continue
+        for n in m.node_tree.nodes:
+            if n.type == "BSDF_PRINCIPLED":
+                a = n.inputs["Alpha"]
+                for link in list(a.links):
+                    m.node_tree.links.remove(link)
+                a.default_value = 1.0
+
 def _combined_bbox(objs):
     mins = Vector((1e18, 1e18, 1e18))
     maxs = Vector((-1e18, -1e18, -1e18))
@@ -205,6 +220,7 @@ def _place(cam, az_deg, el_deg, radius, target):
 def run():
     _wipe()
     _import(CFG["mesh_path"])
+    _force_opaque()
     objs = _mesh_objects()
     if not objs:
         print("MVRESULT " + json.dumps({"mesh": CFG["mesh_path"], "rendered": [],
