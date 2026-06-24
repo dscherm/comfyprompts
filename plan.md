@@ -69,8 +69,9 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
   "acceptance_criteria": [
     "render_multiview.py run across D:/Projects/ComfyUI/output/3D + pipelines/autorig-ralph/references/humanoid",
     "~100-150 clean ortho PNGs on E:/ai-training/datasets/mv_ortho/ (front view weighted heaviest, since the objective is single-image front)",
-    "Spot-checked via blender-mcp viewport / output preview: subjects centered, neutral bg, even light, no clipping",
-    "A manifest lists which meshes contributed and the view distribution"
+    "LIMB SEPARATION: only meshes with clearly separated limbs are kept — wide/exaggerated T-pose, arms horizontal, fingers spread, legs apart, visible gaps between arms/hands and the torso/hips. Relaxed/arms-down/hands-on-hips meshes (e.g. player_textured, A-pose Quaternius) are CULLED, not trained on (see project_mesh_intersection_fix)",
+    "Spot-checked via the rendered PNGs: subjects centered, neutral bg, even light, no clipping, AND no movable part touching the body",
+    "A manifest lists which meshes contributed, the view distribution, and which were culled for fused/contacting limbs"
   ],
   "steps": [
     "Select meshes that are clean, full-body, humanoid-ish (skip broken/partial)",
@@ -91,7 +92,7 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
   "description": "Caption the mv_ortho set with trigger + per-view tag (reuse caption.py, add view tag from filename)",
   "files": ["scripts/train_lora/caption.py", "scripts/train_lora/datasets/mv_ortho_manifest.md"],
   "acceptance_criteria": [
-    "Every image has a .txt caption prefixed with trigger mv_ortho AND a view tag derived from the filename (e.g. 'front view'/'side view'/'back view')",
+    "Every image has a .txt caption prefixed with trigger mv_ortho, a view tag derived from the filename (e.g. 'front view'/'side view'/'back view'), AND pose tags reinforcing limb separation ('wide T-pose, arms outstretched, fingers spread, legs apart')",
     "Florence2 content caption appended after the tags; idempotent (skips existing .txt)",
     "Captions describe the subject neutrally; the ortho/clean framing is implicit in the consistent dataset",
     "Existing caption.py tests still pass; any new view-tag logic is covered"
@@ -140,7 +141,8 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
     "Restart ComfyUI on the 3090 Ti; lora_eval_grid.py --only mv_ortho across strengths 0.6/0.8/1.0 on character prompts",
     "2D judge verdict: LoRA produces cleaner/more-orthographic T-pose framing vs base at fixed seeds",
     "3D test: feed the best base front image AND the best LoRA front image through Hunyuan3D; import both meshes via blender-mcp; compare watertightness/silhouette/artifacts with viewport screenshots",
-    "Verdict names a winning (checkpoint, strength) AND states whether the LoRA's mesh is measurably cleaner than base"
+    "LIMB SEPARATION check: confirm the LoRA's mesh has separable hands/arms/legs (no fusion to torso/hips/each other) — the core reason for this LoRA; base will typically fuse them",
+    "Verdict names a winning (checkpoint, strength) AND states whether the LoRA's mesh is measurably cleaner AND more separable than base"
   ],
   "steps": [
     "Restart ComfyUI; run the 2D grid; pick the winning cell",

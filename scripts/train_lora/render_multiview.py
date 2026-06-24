@@ -270,6 +270,10 @@ def main(argv: list[str] | None = None) -> int:
                     help="Ortho framing margin (1.0 = tight bbox).")
     ap.add_argument("--transparent", action="store_true",
                     help="Transparent background (RGBA) instead of neutral grey.")
+    ap.add_argument("--include", default="",
+                    help="Comma substrings; keep only mesh paths matching any (case-insensitive).")
+    ap.add_argument("--exclude", default="",
+                    help="Comma substrings; drop mesh paths matching any (case-insensitive).")
     ap.add_argument("--limit", type=int, default=0, help="Only the first N meshes (trial).")
     args = ap.parse_args(argv)
 
@@ -285,10 +289,16 @@ def main(argv: list[str] | None = None) -> int:
         meshes = sorted(p for p in src.rglob("*") if p.suffix.lower() in MESH_EXTS)
     else:
         raise SystemExit(f"--src not found: {src}")
+    inc = [s.strip().lower() for s in args.include.split(",") if s.strip()]
+    exc = [s.strip().lower() for s in args.exclude.split(",") if s.strip()]
+    if inc:
+        meshes = [m for m in meshes if any(s in str(m).lower() for s in inc)]
+    if exc:
+        meshes = [m for m in meshes if not any(s in str(m).lower() for s in exc)]
     if args.limit:
         meshes = meshes[: args.limit]
     if not meshes:
-        raise SystemExit(f"no meshes ({', '.join(MESH_EXTS)}) under {src}")
+        raise SystemExit(f"no meshes ({', '.join(MESH_EXTS)}) under {src} after include/exclude")
 
     out_dir = Path(args.out)
     preflight()

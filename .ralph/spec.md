@@ -20,6 +20,15 @@ source and the eval (which now includes a 3D mesh comparison) differ.
 
 - **Objective:** clean ortho **single-image** T-pose (NOT a multi-angle sheet).
   Matches the proven pipeline: *wide T-pose → Hunyuan3D → cleanup → UniRig*.
+- **Limb separation (HARD requirement):** the LoRA must produce art where every
+  *movable* part is in clear negative space — **wide/exaggerated T-pose, arms fully
+  horizontal, fingers spread, legs apart, visible gaps between arms↔torso,
+  hands↔hips, and between the legs.** Rationale: when Hunyuan3D sees parts in
+  contact (hands on hips, arms against the torso, legs together) it bakes them into
+  *fused* geometry that cannot be rigged/posed (see project memory
+  `project_mesh_intersection_fix` and the `mesh split` step of the proven pipeline).
+  This drives BOTH dataset selection (only train on separated-limb meshes; cull
+  relaxed/arms-down poses) AND the eval (the output mesh must have separable limbs).
 - **Dataset source:** **Blender-rendered orthographic views of 3D assets we already
   own** — gives ground-truth-clean, view-consistent training images for free.
   - Source meshes: ~62 in `D:\Projects\ComfyUI\output\3D` + ~36 rigged humanoids in
@@ -66,6 +75,8 @@ source and the eval (which now includes a 3D mesh comparison) differ.
 ## Definition of done
 
 The `mv_ortho` LoRA measurably produces cleaner orthographic T-pose art than base
-Flux at fixed seeds, AND a base-vs-LoRA Hunyuan3D comparison shows the LoRA's output
-yields a cleaner/more-consistent mesh. Winner deployed; the renderer + README let a
-future run rebuild the dataset from any mesh folder without code changes.
+Flux at fixed seeds, with **limbs clearly separated (no hands/arms/legs in contact
+with the body)**, AND a base-vs-LoRA Hunyuan3D comparison shows the LoRA's output
+yields a cleaner mesh **whose hands/arms/legs are separable (not fused to the body)**.
+Winner deployed; the renderer + README let a future run rebuild the dataset from any
+mesh folder without code changes.
