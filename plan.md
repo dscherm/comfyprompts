@@ -55,7 +55,7 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
     "Neutral bg + even lighting; orthographic camera per angle",
     "Write <mesh>__<view>.png; log a count summary"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

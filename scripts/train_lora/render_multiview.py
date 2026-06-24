@@ -159,7 +159,7 @@ def _combined_bbox(objs):
 
 def _setup_world(transparent):
     scene = bpy.context.scene
-    scene.render.engine = "BLENDER_EEVEE_NEXT"
+    scene.render.engine = "BLENDER_EEVEE"  # EEVEE-Next under the legacy enum id (4.2+/5.0)
     world = bpy.data.worlds.get("World") or bpy.data.worlds.new("World")
     scene.world = world
     world.use_nodes = True
