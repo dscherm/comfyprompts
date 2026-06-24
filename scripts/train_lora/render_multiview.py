@@ -121,8 +121,17 @@ def _blender_code(mesh_path: str, out_dir: str, angles: list[str], res: int,
 # bpy calls stay readable; it reads its inputs from the CFG dict prepended above.
 _BLENDER_BODY = r'''
 def _wipe():
-    bpy.ops.object.select_all(action="SELECT")
-    bpy.ops.object.delete(use_global=False)
+    # Leave any edit/pose mode first — a prior session can leave Blender in a
+    # mode where object operators fail their poll() over the socket.
+    if bpy.context.mode != "OBJECT":
+        try:
+            bpy.ops.object.mode_set(mode="OBJECT")
+        except RuntimeError:
+            pass
+    # Delete through the data API (operator-free) so scene wipe is robust to
+    # whatever context the socket call lands in.
+    for o in list(bpy.data.objects):
+        bpy.data.objects.remove(o, do_unlink=True)
     for block in (bpy.data.meshes, bpy.data.materials, bpy.data.images):
         for b in list(block):
             if b.users == 0:

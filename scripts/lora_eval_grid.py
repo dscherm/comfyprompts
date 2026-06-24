@@ -213,12 +213,26 @@ def main() -> int:
                              "(e.g. 'berserkr' to grid just one model's checkpoints)")
     parser.add_argument("--strengths", type=float, nargs="*", default=[0.6, 1.0])
     parser.add_argument("--no-captions", action="store_true")
+    parser.add_argument("--prompt", action="append", default=[], metavar="KEY=TEXT",
+                        help="override the default prompt set; repeatable "
+                             "(e.g. --prompt 'knight=mv_ortho, a knight, full body'). "
+                             "Bake the trigger word into the text to activate the LoRA.")
     parser.add_argument("--resume", action="store_true",
                         help="keep existing results.json rows, skip cells already done")
     parser.add_argument("--out-dir", default="",
                         help="output dir (default: .omc/research/lora-eval-<today>); "
                              "set this to resume a run started on a different day")
     args = parser.parse_args()
+
+    global PROMPTS
+    if args.prompt:
+        parsed = {}
+        for spec in args.prompt:
+            if "=" not in spec:
+                raise SystemExit(f"--prompt must be KEY=TEXT, got: {spec!r}")
+            key, text = spec.split("=", 1)
+            parsed[key.strip()] = text.strip()
+        PROMPTS = parsed
 
     object_info = http_json("/object_info/LoraLoader")
     loras = object_info["LoraLoader"]["input"]["required"]["lora_name"][0]

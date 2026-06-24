@@ -150,7 +150,7 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
     "Run both through Hunyuan3D (comfyui-mcp or blender-mcp); import + screenshot both meshes",
     "Record the combined 2D+3D verdict in eval/mv_ortho_grid.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
