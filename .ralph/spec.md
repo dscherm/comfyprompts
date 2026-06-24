@@ -1,78 +1,71 @@
-# Spec — Reusable Flux LoRA Training Harness (Berserkr-style PoC)
+# Spec — Multiview-Consistency LoRA (Hunyuan3D-friendly ortho T-pose)
 
-*Crystallized: 2026-06-20. Interactive bridge intake.*
+*Crystallized: 2026-06-24. Interactive intake. Builds on the completed
+train_lora harness PoC (see `.ralph/spec-berserkr-poc.md`).*
 
 ## Goal
 
-Stand up a **reusable LoRA-training capability** in the comfyui-toolchain, and
-prove it with a proof-of-concept **Berserkr-style Flux LoRA**. The PoC validates
-the *pipeline* (install trainer → curate dataset → caption → train on GPU 1 →
-eval-grid → deploy), not the dataset. Once proven, the same harness retrains on
-ANY image set (other styles, single-character consistency LoRAs, multiview-
-consistency LoRAs that feed Hunyuan3D, etc.).
+Train a Flux LoRA (`mv_ortho`) that emits **clean, orthographic, Hunyuan3D-friendly
+character art** — single neutral-pose (wide T-pose) subject, plain background, even
+lighting, canonical front framing, consistent silhouette. Feeding this LoRA's output
+into Hunyuan3D should produce **cleaner, more consistent meshes** than feeding base
+Flux output. This is the documented "training lever for 3D characters" (see
+`comfy-improve-model` skill, Path 3) and directly improves the `art-to-rig-ralph`
+flagship pipeline upstream.
 
-## Locked decisions (interactive intake, 2026-06-20)
+Reuses the existing `scripts/train_lora/` harness end-to-end — only the dataset
+source and the eval (which now includes a 3D mesh comparison) differ.
 
-- **Base model:** Flux dev (`flux1-dev-fp8.safetensors`, installed).
-- **Trainer:** `ostris/ai-toolkit`, in its OWN venv (Python 3.11 + the torch it
-  pins — do NOT reuse the ComfyUI venv).
-- **PoC subject:** Berserkr style/aesthetic. One reusable style LoRA from
-  ~100-150 curated renders across Creature/Character/Equipment. Trigger:
-  `brsk_style`.
-- **Tooling reusability:** build a reusable harness under `scripts/train_lora/`
-  (dataset-prep + caption + train-launch + eval), parameterized by dataset dir
-  so future LoRAs are one command. Not a one-off.
+## Locked decisions (interactive intake, 2026-06-24)
 
-## Hardware contract
-
-- **The 3090 Ti (24GB) is the primary card for BOTH generation and training.**
-  ComfyUI runs on it via `D:\Projects\ComfyUI\run_3090ti.ps1`
-  (`CUDA_DEVICE_ORDER=PCI_BUS_ID` + `CUDA_VISIBLE_DEVICES=1`); training also runs
-  on it via `CUDA_VISIBLE_DEVICES=1`. The 3070 (8GB) is secondary.
-- **They contend, so phases are sequential:** caption (T4, ComfyUI up) → STOP
-  ComfyUI to free 24GB → train (T6) → restart ComfyUI → eval (T7). Flux eval is
-  comfortable at 24GB.
-- Verify with `nvidia-smi` that VRAM climbs on the 3090 Ti before walking away.
-  System RAM is ~64GB (not the old 16GB note) — comfortable; latent caching to
-  disk is optional.
-- Flux LoRA config: rank 16, 512-768px, batch 1, grad-checkpoint ON,
-  ~1000-2000 steps (start ~1500). Est. 1.5-2.5h.
+- **Objective:** clean ortho **single-image** T-pose (NOT a multi-angle sheet).
+  Matches the proven pipeline: *wide T-pose → Hunyuan3D → cleanup → UniRig*.
+- **Dataset source:** **Blender-rendered orthographic views of 3D assets we already
+  own** — gives ground-truth-clean, view-consistent training images for free.
+  - Source meshes: ~62 in `D:\Projects\ComfyUI\output\3D` + ~36 rigged humanoids in
+    `pipelines/autorig-ralph/references/humanoid`.
+  - Render via **blender-mcp** (`execute_blender_code`): orthographic camera,
+    neutral/transparent background, even 3-point or studio lighting, framed front
+    (primary) + a few canonical angles for volume.
+  - Target ~100-150 images. Lives on `E:\ai-training\datasets\mv_ortho\` (off the
+    full C:/D: drives).
+- **Trigger:** `mv_ortho` (+ a view tag like "front view" derived from filename).
+- **Eval:** **full rigor** — 2D base-vs-LoRA grid (judge cleanliness/orthographic
+  framing) AND feed base-vs-LoRA front images through Hunyuan3D, then compare the
+  resulting meshes (watertightness, silhouette fidelity, artifact count) via
+  blender-mcp + viewport screenshots.
+- **Base / trainer / hardware:** unchanged from the PoC — Flux `flux1-dev-fp8`,
+  `ostris/ai-toolkit` in its own venv, train on the 3090 Ti (`CUDA_VISIBLE_DEVICES=1`),
+  rank 16, 512-768px, ~1500 steps. Generation and training contend for the 24GB →
+  run sequentially (stop ComfyUI before training, restart after).
 
 ## Reuse the existing tooling
 
-- **Captioning:** Florence2 `caption_image` workflow (already wired, REST API).
-- **Eval:** `scripts/lora_eval_grid.py` (already hardened) — fixed prompt+seed
-  grid at LoRA strengths 0.6/0.8/1.0, AI-judge verdict. Pick winner by judge
-  score, not loss curve.
-- **Deploy target:** `D:\Projects\ComfyUI\models\loras\style\` with a sidecar
-  note (trigger word + recommended strength).
+- `prep_dataset.py`, `launch_train.py`, `lora_eval_grid.py` — unchanged, dataset-agnostic.
+- `caption.py` — extended/post-processed to add a per-view tag from the filename.
+- New: a Blender orthographic multi-view **renderer** script (the only genuinely new
+  dataset-gen component).
 
 ## Deliverables
 
-1. `ostris/ai-toolkit` installed in own venv, confirmed running on GPU 1.
-2. `scripts/train_lora/` reusable harness: `prep_dataset.py`, `caption.py`,
-   `launch_train.py`, plus a thin README documenting one-command retraining on
-   any dataset.
-3. A curated ~100-150-image captioned Berserkr training set (trigger
-   `brsk_style`).
-4. A trained `berserkr_style` Flux LoRA `.safetensors`.
-5. An eval grid (base Flux vs +LoRA at 0.6/0.8/1.0) with an AI-judge verdict
-   selecting the winning checkpoint/strength.
-6. Winning LoRA deployed to `loras/style/` + sidecar note. README explains how
-   to point the harness at a new dataset.
+1. Blender ortho multi-view renderer (blender-mcp-driven) — dataset-agnostic, points
+   at any folder of meshes.
+2. ~100-150 captioned `mv_ortho` training images on `E:\`.
+3. A trained `mv_ortho` Flux LoRA `.safetensors`.
+4. Eval: 2D grid verdict + a base-vs-LoRA **Hunyuan3D mesh comparison** showing the
+   LoRA yields cleaner/more-consistent meshes.
+5. Winning LoRA deployed to `loras/style/` + sidecar; README + `art-to-rig-ralph`
+   cross-link documenting how to use it as the Hunyuan3D front-end.
 
-## Out of scope (documented in comfy-improve-model skill)
+## Out of scope
 
-- Skeletal/game animation and rigging → `pipelines/animate-ralph/`,
-  `art-to-rig-ralph/` (data/retarget problem, not training).
-- Video motion LoRA (Wan/Hunyuan) → future, separate toolchain (musubi-tuner).
-- Hunyuan3D/TripoSR finetuning → not done locally; 3D quality is improved
-  upstream via a multiview-consistency image LoRA (same harness, different
-  dataset).
+- Multi-angle/multi-view *reconstruction* LoRA (chose single-image objective).
+- Finetuning Hunyuan3D/TripoSR (frozen feed-forward — improve the input, not the model).
+- Rigging/animation/retargeting (those are `autorig-ralph`/`animate-ralph` data problems).
 
 ## Definition of done
 
-Eval grid shows the `brsk_style` LoRA measurably shifts output toward the
-Berserkr aesthetic vs base Flux at fixed seeds, the winning LoRA is deployed,
-and the harness README lets a future run retrain on an arbitrary dataset dir
-without code changes.
+The `mv_ortho` LoRA measurably produces cleaner orthographic T-pose art than base
+Flux at fixed seeds, AND a base-vs-LoRA Hunyuan3D comparison shows the LoRA's output
+yields a cleaner/more-consistent mesh. Winner deployed; the renderer + README let a
+future run rebuild the dataset from any mesh folder without code changes.

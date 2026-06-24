@@ -1,9 +1,9 @@
-# plan.md — Reusable Flux LoRA Training Harness (Berserkr-style PoC)
+# plan.md — Multiview-Consistency LoRA (Hunyuan3D-friendly ortho T-pose)
 
 Task queue for Ralph Loop. JSON blocks in triple-backtick fences.
 Only ONE task per iteration. Mark `"passes": true` when complete.
 Spec: `.ralph/spec.md`. All training runs on GPU 1 (3090 Ti) via
-`CUDA_VISIBLE_DEVICES=1`.
+`CUDA_VISIBLE_DEVICES=1`. Reuses the `scripts/train_lora/` harness.
 
 ---
 
@@ -11,7 +11,7 @@ Spec: `.ralph/spec.md`. All training runs on GPU 1 (3090 Ti) via
 
 <!-- Template for reference only. Do NOT pick this up as a task.
 {
-  "id": "T0",
+  "id": "M0",
   "category": "setup|feature|testing|bugfix",
   "priority": 1,
   "description": "One-line description",
@@ -24,193 +24,152 @@ Spec: `.ralph/spec.md`. All training runs on GPU 1 (3090 Ti) via
 
 ---
 
-## Prior pipeline (ComfyPrompts + Blender MCP integration) — COMPLETE
+## Prior pipeline (Berserkr-style LoRA training harness PoC) — COMPLETE
 
-All earlier setup/integration/workflow-drift tasks shipped (see git history
-through `bf00a3e` and the fully-checked `fix_plan.md`). This plan supersedes
-them with the LoRA-training PoC.
+All of T1-T8 shipped (see git through `b7c6658` and `scripts/train_lora/README.md`).
+That pipeline proved the reusable harness; this one retrains it on a Blender-rendered
+orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
+`.ralph/spec-berserkr-poc.md`.
 
 ---
 
-### Phase 1: Trainer + harness scaffolding
+### Phase 1: Dataset generation (Blender ortho multi-view renderer)
 
 ```json
 {
-  "id": "T1",
-  "category": "setup",
-  "priority": 1,
-  "description": "Install ostris/ai-toolkit in its own venv and confirm it runs on GPU 1 (3090 Ti)",
-  "files": ["scripts/train_lora/README.md"],
-  "acceptance_criteria": [
-    "ai-toolkit cloned to a dedicated dir with its OWN venv (Python 3.11, its pinned torch — NOT the ComfyUI venv)",
-    "CUDA_VISIBLE_DEVICES=1 python -c 'import torch; print(torch.cuda.get_device_name(0))' prints 'NVIDIA GeForce RTX 3090 Ti'",
-    "ai-toolkit's run script imports without error in that venv",
-    "scripts/train_lora/README.md records the install path, venv path, and the CUDA_VISIBLE_DEVICES=1 contract"
-  ],
-  "steps": [
-    "Clone github.com/ostris/ai-toolkit to a dedicated dir (e.g. D:\\Projects\\ai-toolkit)",
-    "Create its own venv, install per its requirements (do not reuse ComfyUI venv)",
-    "Verify torch sees the 3090 Ti as device 0 under CUDA_VISIBLE_DEVICES=1",
-    "Note install/venv paths in scripts/train_lora/README.md"
-  ],
-  "passes": true
-}
-```
-
-```json
-{
-  "id": "T2",
+  "id": "M1",
   "category": "feature",
   "priority": 1,
-  "description": "Build scripts/train_lora/prep_dataset.py — curate any image set into an ai-toolkit training folder",
-  "files": ["scripts/train_lora/prep_dataset.py"],
+  "description": "Build a Blender orthographic multi-view renderer (blender-mcp) — dataset-agnostic, renders any mesh folder to clean ortho views",
+  "files": ["scripts/train_lora/render_multiview.py"],
   "acceptance_criteria": [
-    "Takes a source dir/glob (or a list file) + an output training dir + image count cap",
-    "Copies/normalizes images (RGB, strips alpha, optional max-edge resize), skips dupes/corrupt files",
-    "Writes the ai-toolkit-expected folder layout",
-    "Dataset-agnostic: nothing Berserkr-specific hardcoded; runs on an arbitrary dir",
-    "Has a unit test under packages/.../tests or tests/ that runs on a tiny fixture set"
+    "Takes a mesh source dir/glob + output dir + list of canonical angles (default front/back/left/right + front-3/4 L/R)",
+    "Drives blender-mcp execute_blender_code: imports each mesh, frames it to fill the frame, sets an ORTHOGRAPHIC camera, neutral/transparent background, even studio lighting",
+    "Renders each angle to <out>/<mesh>__<view>.png; view encoded in filename for downstream captioning",
+    "Checks blender-mcp availability (get_external_app_status / get_scene_info) first; clear error if unreachable, no half-written set",
+    "Dataset-agnostic: nothing mesh-specific hardcoded; runs on an arbitrary mesh folder"
   ],
   "steps": [
-    "Implement CLI with argparse: --src, --out, --max-images, --max-edge",
-    "Image normalization + dedupe + manifest",
-    "Add a pytest covering the prep on a 3-image fixture"
+    "Confirm blender-mcp reachable (socket 9876) via get_scene_info",
+    "Per mesh: clear scene, import, normalize scale/origin, frame, render N angles",
+    "Neutral bg + even lighting; orthographic camera per angle",
+    "Write <mesh>__<view>.png; log a count summary"
   ],
-  "passes": true
+  "passes": false
 }
 ```
 
 ```json
 {
-  "id": "T3",
+  "id": "M2",
   "category": "feature",
   "priority": 1,
-  "description": "Build scripts/train_lora/caption.py — Florence2 auto-caption with trigger-word prefix",
-  "files": ["scripts/train_lora/caption.py"],
+  "description": "Generate the mv_ortho raw dataset: render ~100-150 ortho views across owned meshes",
+  "files": ["scripts/train_lora/datasets/mv_ortho_manifest.md"],
   "acceptance_criteria": [
-    "For each image in a training dir, calls the caption_image (Florence2) workflow via ComfyUI REST",
-    "Writes a sibling .txt caption per image, prefixed with a configurable trigger word (e.g. brsk_style)",
-    "Idempotent: skips images that already have a .txt",
-    "Graceful failure if ComfyUI (localhost:8188) is unreachable — clear error, no half-written files"
+    "render_multiview.py run across D:/Projects/ComfyUI/output/3D + pipelines/autorig-ralph/references/humanoid",
+    "~100-150 clean ortho PNGs on E:/ai-training/datasets/mv_ortho/ (front view weighted heaviest, since the objective is single-image front)",
+    "Spot-checked via blender-mcp viewport / output preview: subjects centered, neutral bg, even light, no clipping",
+    "A manifest lists which meshes contributed and the view distribution"
   ],
   "steps": [
-    "Reuse the existing caption_image workflow + REST pattern (see scripts/ for the API helper)",
-    "CLI: --dir, --trigger, --prepend/--append",
-    "Write .txt sidecars, log a count summary"
+    "Select meshes that are clean, full-body, humanoid-ish (skip broken/partial)",
+    "render_multiview.py --src ... --out E:/ai-training/datasets/mv_ortho",
+    "Review a sample; cull bad renders; write manifest"
   ],
-  "passes": true
+  "passes": false
 }
 ```
 
-### Phase 2: Curate the PoC dataset
+### Phase 2: Caption + train
 
 ```json
 {
-  "id": "T4",
+  "id": "M3",
   "category": "feature",
   "priority": 2,
-  "description": "Curate ~100-150 best Berserkr renders into a captioned training set (trigger brsk_style)",
-  "files": ["scripts/train_lora/datasets/berserkr_style/"],
+  "description": "Caption the mv_ortho set with trigger + per-view tag (reuse caption.py, add view tag from filename)",
+  "files": ["scripts/train_lora/caption.py", "scripts/train_lora/datasets/mv_ortho_manifest.md"],
   "acceptance_criteria": [
-    "~100-150 images selected across Creature/Character/Equipment from D:\\Projects\\ComfyUI\\output (Berserkr_*)",
-    "Run through prep_dataset.py (T2) then caption.py (T3)",
-    "Every image has a brsk_style-prefixed .txt caption; a few spot-checked captions are hand-corrected",
-    "A short manifest lists what was included and why (category balance)"
+    "Every image has a .txt caption prefixed with trigger mv_ortho AND a view tag derived from the filename (e.g. 'front view'/'side view'/'back view')",
+    "Florence2 content caption appended after the tags; idempotent (skips existing .txt)",
+    "Captions describe the subject neutrally; the ortho/clean framing is implicit in the consistent dataset",
+    "Existing caption.py tests still pass; any new view-tag logic is covered"
   ],
   "steps": [
-    "Select the cleanest renders, balanced across categories",
-    "prep_dataset.py --src ... --out datasets/berserkr_style",
-    "caption.py --dir datasets/berserkr_style --trigger brsk_style",
-    "Spot-check + hand-fix ~10 captions"
+    "Add a --view-from-filename option (or a thin post-pass) mapping __front/__side/__back to view tags",
+    "caption.py --dir E:/ai-training/datasets/mv_ortho --trigger mv_ortho",
+    "Run prep_dataset.py to normalize into the ai-toolkit layout if needed"
   ],
-  "passes": true
+  "passes": false
 }
 ```
 
-### Phase 3: Train + evaluate
-
 ```json
 {
-  "id": "T5",
+  "id": "M4",
   "category": "feature",
   "priority": 2,
-  "description": "Build scripts/train_lora/launch_train.py — generate ai-toolkit Flux config + launch on GPU 1",
-  "files": ["scripts/train_lora/launch_train.py"],
+  "description": "Train the mv_ortho Flux LoRA via launch_train.py (stop ComfyUI first to free the 24GB)",
+  "files": ["scripts/train_lora/output/mv_ortho/"],
   "acceptance_criteria": [
-    "Generates an ai-toolkit Flux-LoRA config (rank 16, 512-768px, batch 1, grad-checkpoint, ~1500 steps, save per epoch) from CLI args",
-    "Launches training with CUDA_VISIBLE_DEVICES=1, base = flux1-dev-fp8",
-    "Dataset dir and output LoRA name are parameters (reusable for any dataset)",
-    "Prints the resolved config path + a tail-the-log hint; safe to run in background"
+    "ComfyUI stopped before launch; training confirmed on GPU 1 via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/mv_ortho --name mv_ortho (rank 16, ~1500 steps, save per epoch)",
+    "Per-epoch checkpoints + a final mv_ortho.safetensors on E:/ai-training/flux-output/mv_ortho/",
+    "No OOM; sample images during training trend toward clean ortho framing"
   ],
   "steps": [
-    "Template the ai-toolkit YAML/JSON config from args (--dataset, --name, --steps, --rank)",
-    "Subprocess-launch ai-toolkit's run script under CUDA_VISIBLE_DEVICES=1",
-    "Document background-run + nvidia-smi verification in README"
-  ],
-  "passes": true
-}
-```
-
-```json
-{
-  "id": "T6",
-  "category": "feature",
-  "priority": 3,
-  "description": "Run the Berserkr-style PoC training to produce a Flux LoRA",
-  "files": ["scripts/train_lora/output/berserkr_style/"],
-  "acceptance_criteria": [
-    "Training launched via launch_train.py on the berserkr_style dataset, confirmed on GPU 1 via nvidia-smi",
-    "Per-epoch checkpoints written; at least one final berserkr_style .safetensors produced",
-    "No OOM; system stayed responsive (ComfyUI on GPU 0 untouched)"
-  ],
-  "steps": [
-    "launch_train.py --dataset datasets/berserkr_style --name berserkr_style",
-    "Monitor in background, verify device 1 placement",
+    "Stop ComfyUI (free 24GB)",
+    "launch_train.py ... ; monitor in background, verify device 1",
     "Collect checkpoints"
   ],
-  "passes": true
+  "passes": false
 }
 ```
 
+### Phase 3: Eval (2D grid + Hunyuan3D mesh comparison) + deploy
+
 ```json
 {
-  "id": "T7",
+  "id": "M5",
   "category": "testing",
   "priority": 3,
-  "description": "Eval-grid base Flux vs +brsk_style LoRA; AI judge picks winning checkpoint/strength",
-  "files": ["scripts/train_lora/eval/berserkr_style_grid.md"],
+  "description": "Eval: 2D grid (base vs LoRA) AND base-vs-LoRA Hunyuan3D mesh comparison",
+  "files": ["scripts/train_lora/eval/mv_ortho_grid.md"],
   "acceptance_criteria": [
-    "Uses scripts/lora_eval_grid.py to render fixed prompt+seed cells: base vs LoRA at strengths 0.6/0.8/1.0 across the best 2-3 checkpoints",
-    "AI-judge verdict ranks cells and names a winning (checkpoint, strength)",
-    "Verdict shows the LoRA measurably shifts output toward the Berserkr aesthetic vs base"
+    "Restart ComfyUI on the 3090 Ti; lora_eval_grid.py --only mv_ortho across strengths 0.6/0.8/1.0 on character prompts",
+    "2D judge verdict: LoRA produces cleaner/more-orthographic T-pose framing vs base at fixed seeds",
+    "3D test: feed the best base front image AND the best LoRA front image through Hunyuan3D; import both meshes via blender-mcp; compare watertightness/silhouette/artifacts with viewport screenshots",
+    "Verdict names a winning (checkpoint, strength) AND states whether the LoRA's mesh is measurably cleaner than base"
   ],
   "steps": [
-    "Pick 3-4 representative prompts + fixed seeds",
-    "Run lora_eval_grid.py across checkpoints x strengths",
-    "Record judge verdict + winner in eval/berserkr_style_grid.md"
+    "Restart ComfyUI; run the 2D grid; pick the winning cell",
+    "Generate matched base + LoRA front images at a fixed seed",
+    "Run both through Hunyuan3D (comfyui-mcp or blender-mcp); import + screenshot both meshes",
+    "Record the combined 2D+3D verdict in eval/mv_ortho_grid.md"
   ],
-  "passes": true
+  "passes": false
 }
 ```
 
 ```json
 {
-  "id": "T8",
+  "id": "M6",
   "category": "feature",
   "priority": 4,
-  "description": "Deploy winning LoRA + finalize reusable-harness README",
+  "description": "Deploy winning mv_ortho LoRA + document the Hunyuan3D front-end use in README + art-to-rig-ralph",
   "files": ["scripts/train_lora/README.md", "D:/Projects/ComfyUI/models/loras/style/"],
   "acceptance_criteria": [
-    "Winning .safetensors copied to ComfyUI/models/loras/style/ with a sidecar note (trigger brsk_style + recommended strength)",
-    "Smoke-tested through the generate_image_lora workflow (one good sample)",
-    "README documents the full reusable loop end-to-end: how to point prep/caption/train/eval at ANY new dataset dir with no code changes",
-    "README cross-links comfy-improve-model Path 3 and the multiview-consistency 3D use case"
+    "Winning mv_ortho.safetensors copied to ComfyUI/models/loras/style/ with a sidecar note (trigger mv_ortho + recommended strength)",
+    "Smoke-tested: generate a clean front T-pose via generate_image_lora, confirm Hunyuan3D ingests it well",
+    "README documents the renderer + how to rebuild the dataset from any mesh folder, and how to use mv_ortho as the art-to-rig Hunyuan3D front-end",
+    "Cross-link added in pipelines/art-to-rig-ralph (point its concept-art step at this LoRA)"
   ],
   "steps": [
     "Copy + sidecar-note the winner",
-    "Smoke-test via generate_image_lora",
-    "Write the reusable-harness README"
+    "Smoke-test through generate_image_lora -> Hunyuan3D",
+    "Update README + art-to-rig-ralph cross-link"
   ],
-  "passes": true
+  "passes": false
 }
 ```
