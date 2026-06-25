@@ -153,8 +153,11 @@ Use for most styles. Call `generate_image` with appropriate checkpoint:
 
 ### PREFERRED for humanoids → 3D: generate_image_lora + mv_ortho
 For any humanoid bound for mesh generation + rigging, use `generate_image_lora` with the
-**`mv_ortho`** LoRA (`style/mv_ortho.safetensors`, strength **0.8**). It forces the clean
-separated-limb wide T-pose Hunyuan3D needs. **Prompt the pose tokens, not just the trigger:**
+**`mv_ortho`** LoRA (`style/mv_ortho.safetensors`). It forces the clean separated-limb wide
+T-pose Hunyuan3D needs. **Strength: 0.8** for clean/simple characters (max separation);
+**0.5–0.6** when a strong art style matters (at 0.8 mv_ortho overrides painterly/2D styles
+toward a clean-3D-render look; lower strength keeps the style while holding the pose).
+**Prompt the pose tokens, not just the trigger:**
 ```
 mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, {description}, {style_prompt_suffix}, {background_hint}
 ```

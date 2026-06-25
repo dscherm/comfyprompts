@@ -45,6 +45,20 @@ This closes the loop end-to-end: `mv_ortho` → separated-limb T-pose art → Hu
 with **separable limbs**. The limb-separation requirement is satisfied not just in 2D but
 in the resulting 3D geometry.
 
+## Style vs strength (gap-finding follow-up)
+
+A varied-roster probe (knight/wizard/ogre/elf/painterly/quadruped) found that at strength
+0.8 mv_ortho **overrides strong art styles** toward its clean-3D-render look
+(`mv_ortho_assets/style_bleed_s0.8.png`). This is a **strength artifact, not a dataset
+flaw**: at **0.5–0.6** the painterly style returns AND the separated T-pose still holds
+(`style_ok_s0.5.png`). So no diverse-render retrain is needed — guidance:
+**0.8 = max separation (clean characters); 0.5–0.6 = styled characters.**
+
+Other probe findings: fingers render spread/separated fine (no hand fix needed); loose
+robes/capes bridge limb gaps (prompt fitted clothing for riggable characters); mv_ortho is
+**humanoid-biped only** — a quadruped prompt becomes a bipedal werewolf, so quadruped
+coverage needs a separate `mv_ortho_quad` LoRA.
+
 ## Notes / gotchas (for M6 docs)
 
 - **Prompt with the pose tokens**, not the bare trigger (see usage finding above).
