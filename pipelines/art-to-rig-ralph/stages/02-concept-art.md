@@ -33,7 +33,10 @@ For the current asset (identified by `batch_progress.current_asset_id` in `pipel
   needs a manual mesh-split. The wide T-pose keeps clear gaps between every movable part
   so the mesh rigs cleanly through UniRig (validated end-to-end — see
   `scripts/train_lora/eval/mv_ortho_grid.md`).
-- **quadruped**: `standing on all four legs, side-on view, neutral stance`
+- **quadruped**: **use the `mv_ortho_quad` LoRA** (`style/mv_ortho_quad.safetensors`, strength 0.8) —
+  `mv_quad, side view, quadruped, neutral standing stance, four legs, legs apart`. It keeps
+  the four legs separated (gaps) so Hunyuan3D yields separable legs. Side view reads best.
+  Do NOT use `mv_ortho` here — that's humanoid-only and forces quadrupeds into a biped T-pose.
 - **quadruped_winged**: `standing on all four legs, wings partially spread, neutral stance`
 - **biped_winged**: `standing in A-pose, wings spread behind, arms slightly away from body`
 - **serpentine**: `coiled in S-shape, head raised, full body visible`
