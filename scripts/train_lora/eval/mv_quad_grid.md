@@ -37,4 +37,15 @@ neutral stance suitable for Hunyuan3D → riggable meshes. Closes the humanoid-o
 - Strength 0.8 for clean separation; drop to ~0.5-0.6 if a strong art style is overridden.
 - Pick the right sibling: `mv_ortho` (humanoid biped) vs `mv_ortho_quad` (four-legged).
 
-_Judge: Claude (Opus 4.8), visual comparison of the mv_quad roster vs the humanoid-LoRA werewolf._
+## Full-chain validation (mv_quad → Hunyuan3D → UniRig)
+
+Ran a wolf end-to-end (symmetric with the humanoid proof): `mv_quad` 3/4 wolf →
+Hunyuan3D geometry mesh (`quad_wolf_00001_.glb`, via the fixed PARAM_STR_OUTPUT_PREFIX) →
+prep → UniRig (~3 min). UniRig produced a **36-bone four-legged skeleton** — four distinct
+leg chains at the corners (front pair x≈−0.4, rear pair x≈+0.5, L/R symmetric, feet at the
+bottom), NOT a humanoid skeleton forced onto it. Posing one front-leg bone lifts/swings
+**only that leg**; body, rear legs, head, tail stay put (`mv_quad_assets/rig_rest.png` vs
+`rig_posed_leg_lift.png`). Quadruped meshes rig cleanly with separable legs — gap #3 closed
+to the same depth as the humanoid track.
+
+_Judge: Claude (Opus 4.8), visual comparison of the mv_quad roster vs the humanoid-LoRA werewolf, and the rest-vs-posed quad rig._
