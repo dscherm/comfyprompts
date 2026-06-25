@@ -1,89 +1,70 @@
 {
-  "pipeline_id": "51771284",
-  "started_at": "2026-04-26T13:07:42.889206+00:00",
+  "pipeline_id": "0756e188",
+  "started_at": "2026-06-24T11:58:02.585475+00:00",
   "phase": "done",
   "spec_path": null,
   "plan_source": "plan.md",
   "tasks": [
     {
-      "id": "T1",
-      "title": "T1",
-      "status": "done",
-      "gate_result": null,
-      "observation_id": "obs-20260621122428-0000000",
-      "activated_at": "2026-06-21T12:24:28.503414+00:00"
-    },
-    {
-      "id": "T2",
-      "title": "T2",
-      "status": "done",
-      "gate_result": null,
-      "observation_id": "obs-20260621132651-0000000",
-      "activated_at": "2026-06-21T13:26:51.627522+00:00"
-    },
-    {
-      "id": "T3",
-      "title": "T3",
-      "status": "done",
-      "gate_result": null,
-      "observation_id": "obs-20260621143046-0000000",
-      "activated_at": "2026-06-21T14:30:46.840910+00:00"
-    },
-    {
-      "id": "T4",
-      "title": "T4",
-      "status": "done",
-      "gate_result": null,
-      "observation_id": "obs-20260622110649-0000000",
-      "activated_at": "2026-06-22T11:06:48.929929+00:00"
-    },
-    {
-      "id": "T5",
-      "title": "T5",
-      "status": "done",
-      "gate_result": null,
-      "observation_id": "obs-20260622021259-0000000",
-      "activated_at": "2026-06-22T02:12:59.551896+00:00"
-    },
-    {
-      "id": "T6",
-      "title": "T6",
-      "status": "done",
-      "gate_result": null,
-      "observation_id": "obs-20260622155242-0000000",
-      "activated_at": "2026-06-22T15:52:42.669536+00:00"
-    },
-    {
-      "id": "T7",
-      "title": "T7",
+      "id": "M1",
+      "title": "M1",
       "status": "done",
       "gate_result": "pass",
-      "observation_id": "obs-20260622175039-0000000",
-      "activated_at": "2026-06-22T17:50:39.107305+00:00"
+      "observation_id": "obs-20260624120309-0000000",
+      "activated_at": "2026-06-24T12:03:09.673987+00:00"
     },
     {
-      "id": "T8",
-      "title": "T8",
+      "id": "M2",
+      "title": "M2",
       "status": "done",
       "gate_result": "pass",
-      "observation_id": "obs-20260624024531-0000000",
-      "activated_at": "2026-06-24T02:45:31.164890+00:00"
+      "observation_id": "obs-20260624171631-0000000"
+    },
+    {
+      "id": "M3",
+      "title": "M3",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260624174240-0000000"
+    },
+    {
+      "id": "M4",
+      "title": "M4",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260624201027-0000000"
+    },
+    {
+      "id": "M5",
+      "title": "M5",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260624201122-0000000",
+      "activated_at": "2026-06-24T20:11:22.173922+00:00"
+    },
+    {
+      "id": "M6",
+      "title": "M6",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260624224638-0000000",
+      "activated_at": "2026-06-24T22:46:38.175503+00:00"
     }
   ],
-  "current_task_index": 8,
+  "current_task_index": 6,
   "stats": {
-    "tasks_completed": 8,
+    "tasks_completed": 6,
     "tasks_failed": 0,
-    "gate_passes": 2,
+    "gate_passes": 6,
     "gate_fails": 0,
-    "observations_recorded": 18
+    "observations_recorded": 15
   },
   "config": {
     "interactive_mode": true,
-    "skip_deep_interview": false,
+    "skip_deep_interview": true,
     "skip_deslop": false,
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-24T11:35:02.652421+00:00"
+  "updated_at": "2026-06-25T01:06:09.475437+00:00"
 }
