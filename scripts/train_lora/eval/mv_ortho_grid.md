@@ -55,4 +55,23 @@ in the resulting 3D geometry.
 - `render_multiview.py` hardened: data-API scene wipe (operator-free) so it works from any
   Blender context.
 
-_Judge: Claude (Opus 4.8), visual comparison of the rendered 2D grid and the two meshes._
+## Part C — Full-pipeline validation (mv_ortho → Hunyuan3D → UniRig)
+
+Ran one character end-to-end through the real art-to-rig chain:
+1. **mv_ortho** generated a barbarian wide-T-pose front image (strength 0.8).
+2. **Hunyuan3D** (local geometry workflow) → 40K-vert mesh; prep = keep main mesh +
+   merge doubles → clean GLB (`barbarian_clean.glb`).
+3. **UniRig** (`C:\UniRig`, extract → skeleton → skin; ~3 min total on this box, not the
+   ~30 min the older 3070 note assumed) → `barbarian_rigged.fbx`: a **28-bone humanoid
+   skeleton** with symmetric 4-bone arm chains (shoulder→elbow→wrist→hand) and a vertex
+   group per bone.
+4. **Separability test:** rotated the right upper-arm bone 75° — **only that arm
+   articulated; torso, legs, head, and the other arm stayed put** (`mv_ortho_assets/
+   rig_rest.png` vs `rig_posed_arm_down.png`).
+
+**Result:** the mv_ortho mesh rigs cleanly straight out of UniRig with **no manual
+mesh-split / fusion fix** — the limb-separation requirement holds all the way through to
+a posable rig. This is the production proof that mv_ortho earns its place as the
+art-to-rig concept-art front-end.
+
+_Judge: Claude (Opus 4.8), visual comparison of the rendered 2D grid, the two meshes, and the rest-vs-posed rig._
