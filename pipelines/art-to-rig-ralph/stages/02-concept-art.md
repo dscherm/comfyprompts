@@ -26,7 +26,13 @@ For the current asset (identified by `batch_progress.current_asset_id` in `pipel
 ```
 
 ### Pose Hints by Body Type
-- **humanoid**: `standing in A-pose, arms slightly away from body, legs shoulder-width apart, facing camera`
+- **humanoid**: **use the `mv_ortho` LoRA (see Tools below) with a wide T-pose** —
+  `mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart`.
+  Do NOT use the old A-pose ("arms slightly away from body"): arms near the torso make
+  Hunyuan3D fuse the hands to the hips/thighs, producing unriggable geometry that then
+  needs a manual mesh-split. The wide T-pose keeps clear gaps between every movable part
+  so the mesh rigs cleanly through UniRig (validated end-to-end — see
+  `scripts/train_lora/eval/mv_ortho_grid.md`).
 - **quadruped**: `standing on all four legs, side-on view, neutral stance`
 - **quadruped_winged**: `standing on all four legs, wings partially spread, neutral stance`
 - **biped_winged**: `standing in A-pose, wings spread behind, arms slightly away from body`
@@ -145,7 +151,18 @@ Use for most styles. Call `generate_image` with appropriate checkpoint:
 - Flux-dev for general purpose
 - Flux-schnell for fast iterations
 
-### Alternative: generate_image_lora
+### PREFERRED for humanoids → 3D: generate_image_lora + mv_ortho
+For any humanoid bound for mesh generation + rigging, use `generate_image_lora` with the
+**`mv_ortho`** LoRA (`style/mv_ortho.safetensors`, strength **0.8**). It forces the clean
+separated-limb wide T-pose Hunyuan3D needs. **Prompt the pose tokens, not just the trigger:**
+```
+mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, {description}, {style_prompt_suffix}, {background_hint}
+```
+mv_ortho controls pose/framing only — keep your style suffix in the prompt (or stack a
+style LoRA) for the look. This is the upstream fix for fused-limb meshes; see project
+memory `project_mv_ortho_lora`.
+
+### Alternative: generate_image_lora (style)
 When a style LoRA is available (e.g., anime, comic), use `generate_image_lora` for better style adherence.
 
 ### Alternative: mcp__coplay-mcp__generate_or_edit_images

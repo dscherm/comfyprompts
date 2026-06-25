@@ -84,7 +84,7 @@
   "11": {
     "inputs": {
       "trimesh": ["10", 0],
-      "filename_prefix": "3D/ground_tile",
+      "filename_prefix": "PARAM_STR_OUTPUT_PREFIX",
       "file_format": "glb"
     },
     "class_type": "Hy3DExportMesh",

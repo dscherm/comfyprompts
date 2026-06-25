@@ -57,10 +57,17 @@
       "description": "Random seed (-1 for random)",
       "default": -1
     },
-    "max_faces": {
+    "PARAM_INT_MAX_FACES": {
       "type": "int",
-      "required": false,
-      "description": "Maximum face count for mesh decimation (default: 40000)"
+      "description": "Maximum face count for mesh decimation",
+      "default": 40000,
+      "min": 1000,
+      "max": 200000
+    },
+    "PARAM_STR_OUTPUT_PREFIX": {
+      "type": "string",
+      "description": "Output filename prefix under ComfyUI/output (e.g. '3D/<name>'); the GLB lands at output/<prefix>_NNNNN.glb. Set a meaningful per-call name so the result is discoverable (Hy3DExportMesh does not report its filename to /history).",
+      "default": "3D/hy3d_mesh"
     }
   },
   "tool": {
