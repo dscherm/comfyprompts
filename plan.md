@@ -175,3 +175,113 @@ orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
   "passes": true
 }
 ```
+
+---
+
+## Phase MT: Text-to-motion (MDM) spike — animate-ralph extension
+
+Wire a text-to-motion model in as an *alternative* to the mocap library: a text
+prompt -> novel animation -> retargeted onto a UniRig character -> FBX, reusing
+`pipelines/animate-ralph/scripts/retarget_mocap.py` (now root-motion-capable) and
+`references/retarget_maps/mixamo_to_unirig.json` unchanged. Model: **MDM**
+(50-step `humanml_enc_512_50steps`). Use posture: **exploring only** — AMASS/HumanML3D
+weights are research/non-commercial, so output is previz, not shippable. Env lives at
+`E:\ai-training\_motiongen\` (own py3.9 venv; pip temp/cache forced to E: — C: is full).
+GPU note: generation runs on the **3090 Ti** and needs ComfyUI idle first — **gated on
+explicit user go-ahead** (do NOT touch the card without it).
+
+```json
+{
+  "id": "MT0",
+  "category": "setup",
+  "priority": 1,
+  "description": "Stage the MDM text-to-motion env (CPU only) — venv, deps, model, dataset stats, SMPL, joints->armature bridge",
+  "files": ["E:/ai-training/_motiongen/mdm_to_source.py", "E:/ai-training/_motiongen/motion-diffusion-model/"],
+  "acceptance_criteria": [
+    "py3.9 venv + torch 2.4.1 cu121 (<2.6 to dodge weights_only load break)",
+    "Deps: clip, smplx, spacy==3.7.5, moviepy==1.0.3, scipy, joblib, blobfile, gdown",
+    "Model save/humanml_enc_512_50steps/model000750000.pt unzipped",
+    "dataset/HumanML3D wired (Mean/Std/test.txt/texts) + body_models/smpl/SMPL_NEUTRAL.pkl",
+    "`import sample.generate` succeeds on CPU (IMPORT_OK) — full dep chain resolves",
+    "mdm_to_source.py written: 22-joint xyz -> Character1_*-named animated armature FBX"
+  ],
+  "steps": ["DONE this session — env staged, import verified CPU-only"],
+  "passes": true
+}
+```
+
+```json
+{
+  "id": "MT1",
+  "category": "feature",
+  "priority": 1,
+  "description": "[GPU — needs user go-ahead + ComfyUI idle] Generate one motion from a text prompt via MDM -> results.npy",
+  "files": ["E:/ai-training/_motiongen/motion-diffusion-model/save/.../results.npy"],
+  "acceptance_criteria": [
+    "ComfyUI stopped/idle so the 3090 Ti 24GB is free (verify, then CUDA_VISIBLE_DEVICES=1)",
+    "python -m sample.generate --model_path save/humanml_enc_512_50steps/model000750000.pt --text_prompt '<prompt>' --num_repetitions 1 produces results.npy (22-joint xyz, ~60 frames)",
+    "Restart ComfyUI on the 3090 Ti afterwards (run_3090ti.ps1)"
+  ],
+  "steps": [
+    "WAIT for explicit user GPU go-ahead",
+    "Stop ComfyUI; confirm VRAM free",
+    "Run sample.generate for a test prompt (e.g. 'a person walks forward and waves')",
+    "Restart ComfyUI"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MT2",
+  "category": "feature",
+  "priority": 2,
+  "description": "Convert MDM results.npy -> animated source FBX and retarget onto the barbarian rig (with root motion)",
+  "files": ["E:/ai-training/_motiongen/mdm_to_source.py", "pipelines/animate-ralph/scripts/retarget_mocap.py"],
+  "acceptance_criteria": [
+    "mdm_to_source.py results.npy -> mdm_clip.fbx (Character1_* bones, animated)",
+    "retarget_mocap.py mdm_clip.fbx onto barbarian_renamed.glb via mixamo_to_unirig.json -> FBX, matches >=18/20 bones",
+    "Rendered frames show the barbarian performing the prompted motion; root motion carries through"
+  ],
+  "steps": [
+    "Run mdm_to_source.py on results.npy",
+    "Run retarget_mocap.py (root_motion transfer) onto the barbarian",
+    "Render proof frames (reuse render_rootmotion.py with the mesh-deform fix)"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MT3",
+  "category": "bugfix",
+  "priority": 2,
+  "description": "Calibrate coordinate/facing for the MDM source (Y-up->Z-up + src_z) so the motion plays upright and faces forward",
+  "files": ["E:/ai-training/_motiongen/mdm_to_source.py"],
+  "acceptance_criteria": [
+    "Retargeted clip is upright (not lying/rolled) and the character faces its travel direction",
+    "If wrong: fix the Y-up->Z-up axis map in load_joints and/or pass the right src_z to retarget; document the values"
+  ],
+  "steps": ["Inspect first render", "Adjust axis map / src_z", "Re-render to confirm"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MT4",
+  "category": "feature",
+  "priority": 3,
+  "description": "Promote the bridge into the animate-ralph pipeline + write a prompt->FBX orchestrator and VALIDATION entry",
+  "files": ["pipelines/animate-ralph/scripts/mdm_to_source.py", "pipelines/animate-ralph/scripts/generate_motion.py", "pipelines/animate-ralph/validation/VALIDATION.md"],
+  "acceptance_criteria": [
+    "mdm_to_source.py moved into pipelines/animate-ralph/scripts/ (single source of truth)",
+    "generate_motion.py orchestrates prompt + rig -> animated FBX (gen -> source -> retarget -> export), with the GPU step clearly gated/documented",
+    "VALIDATION.md documents the MDM path, the research-only license caveat, and 2-3 example prompts with proof frames"
+  ],
+  "steps": ["Move bridge into the pipeline", "Write generate_motion.py orchestrator", "Validate 2-3 prompts + document"],
+  "passes": false
+}
+```
