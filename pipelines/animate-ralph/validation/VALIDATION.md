@@ -56,13 +56,22 @@ So the full chain reaches library-driven mocap:
 mv_ortho → Hunyuan3D → UniRig → rename_unirig_bones (19/19) → retarget_mocap (Mixamo walk)
 ```
 
-**Known wrinkle:** exporting the baked animation to GLB and re-importing renders broken
-(flat/blank) while the same animation is correct in-scene — a glTF *serialization* issue, not
-a retarget bug. Verify/drive in a live Blender for now; the export step needs settings work
-(FBX, or apply-transforms-before-export). Minor head-bone artifact also remains.
+**Export: SOLVED — use FBX, not glTF.** Chasing the "broken export" uncovered a stack of
+issues that were mostly *rendering* artifacts, plus one real one:
+- The exported scene had a stray **Icosphere** (size 2) that my render scripts framed instead
+  of the character; the character is at **~0.01 scale** (UniRig bind pose) so it sat invisible;
+  and its material needed **force-opaque** + a clip-safe camera. Fixing the *render* showed the
+  character fine.
+- The real blocker: **Blender's glTF exporter DROPS the baked armature animation** (exports a
+  static rest pose), confirmed by identical frames. **FBX retains it** — distinct walk poses
+  across frames (`validation/retarget/fbx_walk_f00.png` vs `fbx_walk_f40.png`). FBX is also the
+  game-engine animation format, so it's the right target.
 
-**Working:** procedural keyframing (wave), bone-rename (19/19), and the mocap retarget itself
-(live). **Last 5%:** a clean animated-GLB export of the retargeted result.
+Deliverable: `output/export/barbarian_walk.fbx` (rigged + animated). Imports at ~0.01 scale —
+set the engine's FBX import **Scale Factor ≈ 100** (same as stock Mixamo FBX).
+
+**Full chain working end-to-end:** mv_ortho → Hunyuan3D → UniRig → rename (19/19) →
+retarget (Mixamo walk) → **animated FBX**. Minor head-bone artifact still wants polish.
 - **Textures:** UniRig output drops materials, so the rigged mesh renders untextured
   (low contrast) — fine for motion validation; re-apply the source texture for beauty shots.
 - This was a focused single-clip validation, not the full 6-stage / multi-clip pipeline run.

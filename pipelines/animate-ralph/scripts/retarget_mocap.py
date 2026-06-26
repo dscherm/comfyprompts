@@ -7,11 +7,10 @@ a SCALE bug: the source is scaled 0.01 (Mixamo cm->m) and .to_3x3() baked that
 into the rotation matrices. Pure quaternions (below) fix it. In-place (no root
 motion); a minor head-bone artifact may still want tuning.
 
-KNOWN WRINKLE: exporting the baked animation to GLB and re-importing renders
-broken (flat/blank) while the SAME animation is correct in-scene — a glTF
-serialization issue, not a retarget bug. For now drive/verify the result in a
-live Blender (blender-mcp); the GLB export step needs settings work (try FBX,
-or apply-transforms-before-export).
+EXPORT: use FBX, not glTF. Blender's glTF exporter DROPS this baked armature
+animation (exports a static rest pose); FBX retains it (verified: distinct walk
+poses across frames). Output imports at ~0.01 scale (UniRig bind pose) — set the
+engine's FBX import Scale Factor (~100), same as stock Mixamo FBX.
 
 Rest-pose-relative WORLD-rotation transfer: for each mapped bone, the source's
 rotation *relative to its own rest* (in world space) is applied to the target's
@@ -89,9 +88,14 @@ def main():
     for o in bpy.data.objects:
         o.select_set(o.type in ("ARMATURE", "MESH"))
     bpy.context.view_layer.objects.active = tgt
-    bpy.ops.export_scene.gltf(filepath=OUT, use_selection=True, export_format="GLB",
-                              export_animations=True, export_frame_range=True)
-    print(f"RETARGET_DONE frames {F1-F0+1} -> {OUT}")
+    # Export FBX, NOT glTF: Blender's glTF exporter drops this baked armature
+    # animation (exports a static rest pose), while FBX retains it — and FBX is
+    # the game-engine format anyway. Output imports at ~0.01 scale (UniRig bind
+    # pose); set the engine's FBX import Scale Factor (~100), like stock Mixamo.
+    out_fbx = OUT.rsplit(".", 1)[0] + ".fbx"
+    bpy.ops.export_scene.fbx(filepath=out_fbx, use_selection=True, bake_anim=True,
+                             add_leaf_bones=False, object_types={'ARMATURE', 'MESH'})
+    print(f"RETARGET_DONE frames {F1-F0+1} -> {out_fbx}")
 
 
 main()
