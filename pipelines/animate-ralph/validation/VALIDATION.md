@@ -71,7 +71,14 @@ Deliverable: `output/export/barbarian_walk.fbx` (rigged + animated). Imports at 
 set the engine's FBX import **Scale Factor ≈ 100** (same as stock Mixamo FBX).
 
 **Full chain working end-to-end:** mv_ortho → Hunyuan3D → UniRig → rename (19/19) →
-retarget (Mixamo walk) → **animated FBX**. Minor head-bone artifact still wants polish.
+retarget (Mixamo walk) → **animated FBX**.
+
+**Head-bone artifact — FIXED.** Root cause: UniRig's auto-rename mis-detected the upper
+spine ("neck" was actually the arm-branch bone, "head" hung off an unnamed bone), so the
+mocap head/neck rotations swung the head into a stretched spike. Fix: `retarget_mocap.py`
+now **skips `head`+`neck`** (leaves them at rest — a neutral head reads fine on a walk; arms
+are separate bones, still retargeted). Re-rendered: spike gone, walk intact
+(`validation/retarget/fbx_walk_f*.png`). Deliverable `barbarian_walk.fbx` refreshed.
 - **Textures:** UniRig output drops materials, so the rigged mesh renders untextured
   (low contrast) — fine for motion validation; re-apply the source texture for beauty shots.
 - This was a focused single-clip validation, not the full 6-stage / multi-clip pipeline run.

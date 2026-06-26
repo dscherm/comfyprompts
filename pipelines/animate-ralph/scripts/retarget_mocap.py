@@ -48,8 +48,15 @@ def main():
     bpy.context.view_layer.update()
 
     bone_map = json.load(open(MAP, encoding="utf-8"))["bone_map"]
+    # UniRig's auto-rename mis-detects the upper spine on some rigs ("neck" ends up
+    # being the arm-branch bone, "head" hangs off an unnamed bone), so retargeting
+    # head/neck swings the head into a stretched artifact. Leave them at rest — a
+    # neutral head reads fine on a walk. (Arms are separate bones, still retargeted.)
+    SKIP_ROLES = {"head", "neck"}
     pairs = []
     for sname, role in bone_map.items():
+        if role in SKIP_ROLES:
+            continue
         sb = src.pose.bones.get(sname); tb = tgt.pose.bones.get(role)
         if sb and tb:
             tb.rotation_mode = 'QUATERNION'
