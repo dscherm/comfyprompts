@@ -1,13 +1,17 @@
 """retarget_mocap — transfer a Mixamo/Rokoko (Character1_*) mocap clip onto a
 renamed UniRig rig (role names from rename_unirig_bones.py).
 
-STATUS: SCAFFOLD / NOT WORKING YET. Bone matching is solid (20/20 via the map),
-the clip loads, and it runs end-to-end — but the blind rest-pose-relative world
-transfer below COLLAPSES the rig (verified: barbarian + zombiewalk → flat sprawl,
-while the same renamed rig renders upright statically). Proper retargeting needs
-rest-pose calibration the addons do (Rokoko/Auto-Rig Pro) or the blender-mcp
-visual-iteration loop — a headless one-shot transfer is not enough. Kept as the
-tool skeleton + the empirical finding; do NOT treat its output as usable.
+STATUS: rotation transfer WORKING (proven live via blender-mcp — an upright,
+walking barbarian; see validation/retarget/walk_f*.png). The earlier collapse was
+a SCALE bug: the source is scaled 0.01 (Mixamo cm->m) and .to_3x3() baked that
+into the rotation matrices. Pure quaternions (below) fix it. In-place (no root
+motion); a minor head-bone artifact may still want tuning.
+
+KNOWN WRINKLE: exporting the baked animation to GLB and re-importing renders
+broken (flat/blank) while the SAME animation is correct in-scene — a glTF
+serialization issue, not a retarget bug. For now drive/verify the result in a
+live Blender (blender-mcp); the GLB export step needs settings work (try FBX,
+or apply-transforms-before-export).
 
 Rest-pose-relative WORLD-rotation transfer: for each mapped bone, the source's
 rotation *relative to its own rest* (in world space) is applied to the target's
@@ -58,21 +62,23 @@ def main():
     pairs.sort(key=lambda pr: depth(pr[1]))  # parents first
     print(f"MATCHED {len(pairs)}/{len(bone_map)} bones")
 
-    # rest world matrices (src includes facing rotation via matrix_world)
+    # rest as pure-rotation QUATERNIONS (scale-free — the source is often scaled
+    # 0.01 (Mixamo cm->m); .to_3x3() would bake that scale in and collapse the rig).
     rest = {}
     for sb, tb in pairs:
-        rest[sb.name] = (src.matrix_world @ sb.bone.matrix_local).to_3x3()
-        rest[tb.name] = (tgt.matrix_world @ tb.bone.matrix_local)
+        rest[("s", sb.name)] = (src.matrix_world @ sb.bone.matrix_local).to_quaternion()
+        rest[("t", tb.name)] = (tgt.matrix_world @ tb.bone.matrix_local)
 
     sc = bpy.context.scene
     for f in range(F0, F1 + 1):
         sc.frame_set(f)
         for sb, tb in pairs:
-            src_w3 = (src.matrix_world @ sb.matrix).to_3x3()
-            delta = src_w3 @ rest[sb.name].inverted()
-            tgt_w3 = delta @ rest[tb.name].to_3x3()
-            tgt_w = Matrix.Translation(rest[tb.name].translation) @ tgt_w3.to_4x4()
-            tb.matrix = tgt.matrix_world.inverted() @ tgt_w
+            sq = (src.matrix_world @ sb.matrix).to_quaternion()
+            delta = sq @ rest[("s", sb.name)].inverted()          # world rotation from rest
+            tq = delta @ rest[("t", tb.name)].to_quaternion()     # apply to target rest
+            loc = rest[("t", tb.name)].translation                # keep rest position (in-place)
+            tw = Matrix.Translation(loc) @ tq.to_matrix().to_4x4()
+            tb.matrix = tgt.matrix_world.inverted() @ tw
             bpy.context.view_layer.update()  # parent posed before child reads it
             tb.keyframe_insert("rotation_quaternion", frame=f - F0)
 

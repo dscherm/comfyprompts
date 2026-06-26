@@ -42,22 +42,27 @@ blender --background --python pipelines/animate-ralph/scripts/rename_unirig_bone
     <unirig_rigged.fbx> <renamed.glb>
 ```
 
-## Rotation retarget — ATTEMPTED, confirmed needs calibration
+## Rotation retarget — WORKING (mocap walk transfers; proven live)
 
-Built `scripts/retarget_mocap.py` (rest-pose-relative world-rotation transfer, parents-first)
-and ran it: renamed barbarian + `rokoko_legacy_zombiewalk.fbx` via `mixamo_to_unirig.json`.
-- **Bone matching: 20/20** (map resolves cleanly to the renamed rig).
-- **Result: BROKEN** — the rig collapses to a flat sprawl. Ruled out orientation (the same
-  renamed rig renders perfectly upright statically), so it's the transfer math, not import.
+`scripts/retarget_mocap.py` transfers a Mixamo/Rokoko (`Character1_*`) clip onto the renamed
+rig via `mixamo_to_unirig.json`. Bone matching is **20/20**. The first attempt collapsed to a
+flat sprawl — root-caused via the blender-mcp visual loop to a **scale bug**: the mocap source
+is scaled 0.01 (Mixamo cm→m) and `.to_3x3()` baked that scale into the rotation matrices.
+**Fix: pure quaternions** (scale-free). Result, rendered live: an **upright barbarian walking**
+— legs cycling through stride poses across frames (`validation/retarget/walk_f00..59.png`).
 
-This empirically confirms the earlier call: a **blind headless rest-relative transfer is not
-enough** — proper retargeting needs the rest-pose calibration that addons (Rokoko/Auto-Rig
-Pro) or a visual-iteration loop provide. `retarget_mocap.py` is kept as the tool skeleton +
-this finding (clearly marked NOT WORKING), not a shippable retarget.
+So the full chain reaches library-driven mocap:
+```
+mv_ortho → Hunyuan3D → UniRig → rename_unirig_bones (19/19) → retarget_mocap (Mixamo walk)
+```
 
-**Working today:** procedural keyframing (the wave above) and the bone-rename groundwork
-(19/19, retarget-ready). **Next:** drive the retarget through a retarget addon or reconnect
-blender-mcp for visual calibration.
+**Known wrinkle:** exporting the baked animation to GLB and re-importing renders broken
+(flat/blank) while the same animation is correct in-scene — a glTF *serialization* issue, not
+a retarget bug. Verify/drive in a live Blender for now; the export step needs settings work
+(FBX, or apply-transforms-before-export). Minor head-bone artifact also remains.
+
+**Working:** procedural keyframing (wave), bone-rename (19/19), and the mocap retarget itself
+(live). **Last 5%:** a clean animated-GLB export of the retargeted result.
 - **Textures:** UniRig output drops materials, so the rigged mesh renders untextured
   (low contrast) — fine for motion validation; re-apply the source texture for beauty shots.
 - This was a focused single-clip validation, not the full 6-stage / multi-clip pipeline run.
