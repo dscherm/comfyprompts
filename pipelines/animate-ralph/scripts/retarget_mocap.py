@@ -4,8 +4,13 @@ renamed UniRig rig (role names from rename_unirig_bones.py).
 STATUS: rotation transfer WORKING (proven live via blender-mcp — an upright,
 walking barbarian; see validation/retarget/walk_f*.png). The earlier collapse was
 a SCALE bug: the source is scaled 0.01 (Mixamo cm->m) and .to_3x3() baked that
-into the rotation matrices. Pure quaternions (below) fix it. In-place (no root
-motion); a minor head-bone artifact may still want tuning.
+into the rotation matrices. Pure quaternions (below) fix it.
+
+ROOT MOTION: the body now translates forward (see the optional <root_motion> arg).
+"transfer" (default) replays the source hips' world travel onto the target hips,
+scaled by the leg-length ratio so the stride matches the character's size; "off"
+restores the legacy in-place behavior; a float synthesizes a constant forward
+speed (target units/frame) for genuinely in-place source clips.
 
 EXPORT: use FBX, not glTF. Blender's glTF exporter DROPS this baked armature
 animation (exports a static rest pose); FBX retains it (verified: distinct walk
@@ -14,21 +19,27 @@ engine's FBX import Scale Factor (~100), same as stock Mixamo FBX.
 
 Rest-pose-relative WORLD-rotation transfer: for each mapped bone, the source's
 rotation *relative to its own rest* (in world space) is applied to the target's
-rest — so differing bone orientations between the two skeletons are handled.
-Rotation only / in-place (no root motion) for a clean first pass. A --src-z
-facing offset (degrees) aligns the source's facing to the target's.
+rest — so differing bone orientations between the two skeletons are handled. A
+src_z facing offset (degrees) aligns the source's facing to the target's; that
+same alignment carries the root-motion translation, so forward is forward.
 
 Usage (headless):
     blender --background --python retarget_mocap.py -- \
-        <renamed_rig.glb> <mocap.fbx> <map.json> <out.glb> <f0> <f1> [src_z_deg]
+        <renamed_rig.glb> <mocap.fbx> <map.json> <out.glb> <f0> <f1> [src_z_deg] [root_motion]
+
+    root_motion: transfer (default) | off | <float speed/frame>
 """
 import bpy, sys, json, math
-from mathutils import Matrix
+from mathutils import Matrix, Vector
 
 a = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 RIG, MOCAP, MAP, OUT = a[0], a[1], a[2], a[3]
 F0, F1 = int(a[4]), int(a[5])
 SRC_Z = math.radians(float(a[6])) if len(a) > 6 else 0.0
+# root motion: "transfer" (default) replays the source hips' world travel onto the
+# target hips (scaled to the target's leg length); "off" = in-place (legacy); a float
+# = synthesize a constant forward speed (target units/frame) for in-place sources.
+ROOT_MOTION = a[7] if len(a) > 7 else "transfer"
 
 
 def imp(path):
@@ -76,17 +87,62 @@ def main():
         rest[("t", tb.name)] = (tgt.matrix_world @ tb.bone.matrix_local)
 
     sc = bpy.context.scene
+
+    # --- root motion --------------------------------------------------------------
+    # Each bone below is posed by its ABSOLUTE world matrix, so to translate the body
+    # forward we offset EVERY bone's world target by the same per-frame root vector
+    # (a rigid shift) and key `location` only on the hips — children keep their rest
+    # *local* transform and ride along with the moved parent, so the gait is intact.
+    # Without this, pinning every bone to its rest world position is what made the
+    # walk play in place.
+    hips_pair = next(((sb, tb) for sb, tb in pairs if tb.name == "hips"), None)
+    root_hips = hips_pair[1] if hips_pair else None
+    root_off_fn = (lambda f: Vector((0.0, 0.0, 0.0)))            # "off"
+    if ROOT_MOTION != "off" and hips_pair is not None:
+        hsb, htb = hips_pair
+        try:
+            speed = float(ROOT_MOTION)                           # synthesize constant speed
+            fwd = (tgt.matrix_world.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
+            root_off_fn = lambda f: fwd * (speed * (f - F0))
+            print(f"ROOT_MOTION synthesize speed={speed}/frame fwd={tuple(round(c,2) for c in fwd)}")
+        except ValueError:                                       # "transfer": scaled source travel
+            sc.frame_set(F0)
+            src_hip_f0 = (src.matrix_world @ hsb.matrix).translation.copy()  # start = no jump
+            # Size proxy = leg length (hips->foot world distance). A Euclidean length is
+            # orientation- and sign-safe, unlike hip Z (UniRig rigs import with the hips
+            # below origin / a non-Z up axis, which gives a bogus negative scale).
+            def _leg(arm, hips_b, foot_name):
+                fb = arm.pose.bones.get(foot_name)
+                if not fb:
+                    return None
+                hp = (arm.matrix_world @ hips_b.bone.matrix_local).translation
+                fp = (arm.matrix_world @ fb.bone.matrix_local).translation
+                return (hp - fp).length
+            src_foot = next((s for s, r in bone_map.items() if r == "foot.r"), None)
+            src_leg = _leg(src, hsb, src_foot) if src_foot else None
+            tgt_leg = _leg(tgt, htb, "foot.r")
+            root_scale = (tgt_leg / src_leg) if (src_leg and tgt_leg and src_leg > 1e-6) else 1.0
+            def root_off_fn(f):
+                now = (src.matrix_world @ hsb.matrix).translation
+                return (now - src_hip_f0) * root_scale
+            print(f"ROOT_MOTION transfer src_leg={src_leg} tgt_leg={tgt_leg} scale={root_scale:.4f}")
+    else:
+        print("ROOT_MOTION off (in-place)")
+
     for f in range(F0, F1 + 1):
         sc.frame_set(f)
+        root_off = root_off_fn(f)
         for sb, tb in pairs:
             sq = (src.matrix_world @ sb.matrix).to_quaternion()
             delta = sq @ rest[("s", sb.name)].inverted()          # world rotation from rest
             tq = delta @ rest[("t", tb.name)].to_quaternion()     # apply to target rest
-            loc = rest[("t", tb.name)].translation                # keep rest position (in-place)
+            loc = rest[("t", tb.name)].translation + root_off     # rigid forward shift
             tw = Matrix.Translation(loc) @ tq.to_matrix().to_4x4()
             tb.matrix = tgt.matrix_world.inverted() @ tw
             bpy.context.view_layer.update()  # parent posed before child reads it
             tb.keyframe_insert("rotation_quaternion", frame=f - F0)
+            if tb is root_hips and ROOT_MOTION != "off":
+                tb.keyframe_insert("location", frame=f - F0)      # only the hips carries translation
 
     # drop the source armature; export only the retargeted rig+mesh
     for o in (src,):

@@ -79,6 +79,29 @@ mocap head/neck rotations swung the head into a stretched spike. Fix: `retarget_
 now **skips `head`+`neck`** (leaves them at rest — a neutral head reads fine on a walk; arms
 are separate bones, still retargeted). Re-rendered: spike gone, walk intact
 (`validation/retarget/fbx_walk_f*.png`). Deliverable `barbarian_walk.fbx` refreshed.
+
+**Root motion (forward locomotion) — DONE.** The walk used to play **in place**: the
+retarget pinned *every* bone — including the hips/root — to its rest world position
+(`loc = rest translation`), discarding the source clip's forward travel. Headless probes
+confirmed the source (`rokoko_legacy_halo_elitewalking.fbx`, `Character1_*`, matching the
+map) carries 0.54 of hip travel that was being thrown away. Fix: a `[root_motion]` arg on
+`retarget_mocap.py`:
+- `transfer` (**default**) — replays the source hips' world travel onto the target hips,
+  added to **every** bone's world target as a rigid shift (so the whole body advances, not
+  just a detached hip), `location`-keyed on the hips only. Scaled by the **leg-length
+  ratio** (hips→foot Euclidean distance — orientation/sign-safe; hip-height ratio gave a
+  bogus negative scale because UniRig rigs import with the hips below origin).
+- `off` — legacy in-place behavior. `<float>` — synthesize a constant forward speed for
+  genuinely in-place source clips.
+
+Verified on the barbarian: output hips travel **0.50 world units** (~½ leg-length) over the
+60-frame clip (`HAS_ROOT_MOTION`); top-down renders show the character translating across
+the ground (`validation/retarget/rootmotion_top_f0{01,60}.png`); gait intact in 3/4 view
+(`rootmotion_ortho_f0{01,30,60}.png`). **Foot-slide check passes** — each foot still hits a
+planted stance (`min` horizontal speed ≈ 0.0001) while the body advances, and the swing foot
+peaks higher than in-place (0.215 vs 0.115) to keep up: real locomotion, not moonwalking.
+Deliverables: `output/export/barbarian_walk.fbx` (now forward-moving) +
+`barbarian_walk_inplace.fbx` (legacy in-place, kept for engine-driven locomotion).
 - **Textures:** UniRig output drops materials, so the rigged mesh renders untextured
   (low contrast) — fine for motion validation; re-apply the source texture for beauty shots.
 - This was a focused single-clip validation, not the full 6-stage / multi-clip pipeline run.
