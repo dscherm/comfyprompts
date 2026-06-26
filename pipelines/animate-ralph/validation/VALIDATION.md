@@ -42,13 +42,22 @@ blender --background --python pipelines/animate-ralph/scripts/rename_unirig_bone
     <unirig_rigged.fbx> <renamed.glb>
 ```
 
-## What's left for library-driven mocap (the hard part)
-With names aligned, the remaining step is the **rotation retarget itself** — transferring
-Mixamo `Character1_*` clip rotations onto the renamed rig. This needs rest-pose-relative
-transfer + facing/scale calibration (Mixamo and UniRig rest poses/orientations differ),
-which is best done with a retarget addon (Rokoko/Auto-Rig Pro) or the blender-mcp visual
-loop, not a blind headless rotation-copy. The naming groundwork (this script) is the
-prerequisite that was missing. Procedural keyframing (the wave above) works today without it.
+## Rotation retarget — ATTEMPTED, confirmed needs calibration
+
+Built `scripts/retarget_mocap.py` (rest-pose-relative world-rotation transfer, parents-first)
+and ran it: renamed barbarian + `rokoko_legacy_zombiewalk.fbx` via `mixamo_to_unirig.json`.
+- **Bone matching: 20/20** (map resolves cleanly to the renamed rig).
+- **Result: BROKEN** — the rig collapses to a flat sprawl. Ruled out orientation (the same
+  renamed rig renders perfectly upright statically), so it's the transfer math, not import.
+
+This empirically confirms the earlier call: a **blind headless rest-relative transfer is not
+enough** — proper retargeting needs the rest-pose calibration that addons (Rokoko/Auto-Rig
+Pro) or a visual-iteration loop provide. `retarget_mocap.py` is kept as the tool skeleton +
+this finding (clearly marked NOT WORKING), not a shippable retarget.
+
+**Working today:** procedural keyframing (the wave above) and the bone-rename groundwork
+(19/19, retarget-ready). **Next:** drive the retarget through a retarget addon or reconnect
+blender-mcp for visual calibration.
 - **Textures:** UniRig output drops materials, so the rigged mesh renders untextured
   (low contrast) — fine for motion validation; re-apply the source texture for beauty shots.
 - This was a focused single-clip validation, not the full 6-stage / multi-clip pipeline run.
