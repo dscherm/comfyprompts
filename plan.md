@@ -228,7 +228,7 @@ explicit user go-ahead** (do NOT touch the card without it).
     "Run sample.generate for a test prompt (e.g. 'a person walks forward and waves')",
     "Restart ComfyUI"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -249,7 +249,7 @@ explicit user go-ahead** (do NOT touch the card without it).
     "Run retarget_mocap.py (root_motion transfer) onto the barbarian",
     "Render proof frames (reuse render_rootmotion.py with the mesh-deform fix)"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
