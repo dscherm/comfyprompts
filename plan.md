@@ -285,3 +285,152 @@ explicit user go-ahead** (do NOT touch the card without it).
   "passes": true
 }
 ```
+
+---
+
+## Phase GS: Game-ready shippable barbarian (commercial clip set → Unity)
+
+Phase MT proved text→FBX motion but its MDM/AMASS weights are research-only, so the
+output is **previz, not shippable**. This phase closes the gap to a **game-ready, shippable
+animated character** by switching to the **commercially-licensed Rokoko/Mixamo reference
+library** already in `references/humanoid/` (locomotion/idle/combat/gesture, all
+`Character1_*` and covered by `mixamo_to_unirig.json` — the same map MT used), retargeting a
+multi-clip SET onto the barbarian, re-applying its texture, and landing it in the
+`../soapbox-unity` project with an Animator controller — the same Unity path animate-ralph
+already proved on the karts (coplay-mcp import + validation). **No GPU needed** (the source
+clips are existing FBX; retarget/texture/export are CPU/Blender, Unity is coplay-mcp), so it
+does not contend with ComfyUI. MDM/`generate_motion.py` stays as the **previz/novel-motion**
+fallback for clips the commercial library lacks.
+
+```json
+{
+  "id": "GS0",
+  "category": "setup",
+  "priority": 1,
+  "description": "Select a commercial-license core gameplay clip set from references/humanoid and write a retarget manifest",
+  "files": ["pipelines/animate-ralph/output/intake/barbarian_clipset.md"],
+  "acceptance_criteria": [
+    "Core gameplay set chosen from references/humanoid/{idle,locomotion,combat,gesture}: idle, walk, run/jog, attack (punch or sword), hit_reaction, dodge, block, wave, celebrate (9 clips)",
+    "Each chosen source FBX confirmed Character1_* and retarget-compatible (>=18/20 vs mixamo_to_unirig.json) via a dry retarget or bone-name check — cull any that miss",
+    "Manifest table: clip name -> source FBX path -> root_motion policy (transfer for locomotion, off for in-place) -> loop flag (idle/walk loop; attack/hit one-shot)",
+    "Only commercially-usable sources (Rokoko/Mixamo library) — NO MDM-derived clips in the shippable set"
+  ],
+  "steps": [
+    "Inventory references/humanoid/{idle,locomotion,combat,gesture} for the 9 core clips (idle, walk, run, attack, hit, dodge, block, wave, celebrate)",
+    "Bone-check each candidate against mixamo_to_unirig.json (reuse retarget_mocap MATCHED count)",
+    "Write barbarian_clipset.md with the per-clip root_motion + loop policy"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS1",
+  "category": "feature",
+  "priority": 1,
+  "description": "Batch-retarget the clip set onto the barbarian (one FBX per clip) + per-clip proof frames",
+  "files": ["pipelines/animate-ralph/scripts/batch_retarget.py", "pipelines/animate-ralph/output/export/barbarian/"],
+  "acceptance_criteria": [
+    "batch_retarget.py reads barbarian_clipset.md, runs retarget_mocap.py per clip onto barbarian_renamed.glb with the manifest's root_motion, writes output/export/barbarian/<clip>.fbx",
+    "Every clip retargets at >=18/20 bones; locomotion clips carry root motion (HIP_TRAVEL > 0), in-place clips stay put",
+    "render_rootmotion.py proof frames per clip; spot-checked that each reads as its motion and the character stays upright",
+    "A run summary lists clip -> bones matched -> frames -> root-motion status"
+  ],
+  "steps": [
+    "Write batch_retarget.py (thin loop over retarget_mocap.py from the manifest)",
+    "Run the batch; collect per-clip FBX",
+    "Render + spot-check proof frames; record the summary"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS2",
+  "category": "feature",
+  "priority": 2,
+  "description": "Re-apply the barbarian's source texture to the rigged mesh (UniRig drops materials) for shippable beauty",
+  "files": ["pipelines/animate-ralph/scripts/reapply_texture.py"],
+  "acceptance_criteria": [
+    "reapply_texture.py transfers the original textured Hunyuan3D barbarian material/UVs onto the rigged+animated mesh (UVs preserved, no re-bake) — headless Blender",
+    "A textured beauty frame (reuse render_rootmotion.py path, but keep the real material instead of the matte) confirms the character is textured, not grey",
+    "Works on an exported clip FBX without breaking the armature/animation",
+    "Locates the textured source mesh from the proven character pipeline (see project_proven_character_pipeline); clear error if not found"
+  ],
+  "steps": [
+    "Find the pre-rig textured barbarian mesh; inspect its material/UVs",
+    "Transfer material to the rigged mesh by UV/name; verify in a render",
+    "Apply to the GS1 clip outputs (or document as an export-time step)"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS3",
+  "category": "feature",
+  "priority": 2,
+  "description": "Package the clip set into Unity (../soapbox-unity) as a Humanoid/Mecanim avatar + an Animator controller",
+  "files": ["pipelines/animate-ralph/scripts/package_for_unity.py", "pipelines/animate-ralph/output/export/barbarian/ANIMATION-MANIFEST.json"],
+  "acceptance_criteria": [
+    "Clips exported into ../soapbox-unity/Assets/Animations/Barbarian/ and set to Animation Type = Humanoid (Mecanim) on import (mirror the kart deploy layout)",
+    "A Humanoid Avatar configured for the barbarian (Avatar Definition: Create From This Model on the rig FBX, or Copy From Other Avatar onto each clip) with a valid bone mapping — the UniRig role names map to Mecanim's required human bones; record any unmapped bones",
+    "An Animator controller built (via coplay-mcp) with idle<->walk<->run<->attack/hit/dodge/block states + transitions, using the Humanoid avatar so clips are retargetable/mirrorable in-engine",
+    "ANIMATION-MANIFEST.json records clip -> file -> duration -> loop -> root_motion -> avatar (same schema as the kart manifest, plus the avatar)",
+    "Import scale documented (UniRig ~0.01 -> FBX Scale Factor ~100, per the retarget_mocap export note); muscle/avatar setup notes captured"
+  ],
+  "steps": [
+    "Export/copy clip FBX into the Unity project; set Animation Type = Humanoid",
+    "Create the Humanoid Avatar from the rig FBX and assign it to the clips (Copy From Other Avatar)",
+    "Build the Animator controller + transitions via coplay-mcp; write ANIMATION-MANIFEST.json"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS4",
+  "category": "testing",
+  "priority": 3,
+  "description": "Validate the barbarian Humanoid animation set imports + plays in Unity (coplay-mcp), mirroring the kart validation",
+  "files": ["soapbox-unity/Assets/Editor/ValidateBarbarianAnimImport.cs", "pipelines/animate-ralph/validation/VALIDATION.md"],
+  "acceptance_criteria": [
+    "coplay-mcp import check: every clip imports without errors as Animation Type = Humanoid; AnimationClip durations match the manifest",
+    "Avatar valid: the Humanoid avatar's bone mapping is complete enough that clips play without 'avatar invalid' / unmapped-required-bone errors; any optional bones left unmapped are listed",
+    "Animator controller transitions verified (enter Play or inspect states) on the Humanoid avatar; no missing-bone / broken-curve warnings; clips are retargetable (Humanoid) not skeleton-locked",
+    "An editor validator (like ValidateKartAnimImport.cs) reports per-clip pass/fail incl. avatar validity",
+    "VALIDATION.md gets a Phase GS section: the shippable path, clip inventory, the Humanoid-avatar setup, and the commercial-vs-MDM source policy"
+  ],
+  "steps": [
+    "Import via coplay-mcp as Humanoid; run the editor validator",
+    "Verify avatar validity, clip durations + Animator transitions",
+    "Record the verdict + clip inventory + avatar notes in VALIDATION.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS5",
+  "category": "feature",
+  "priority": 4,
+  "description": "Document the two-source motion strategy (commercial=shippable vs MDM=previz) + cross-link the tools",
+  "files": ["pipelines/animate-ralph/PROMPT.md", "scripts/train_lora/README.md"],
+  "acceptance_criteria": [
+    "A short 'motion sources' note: commercial Rokoko/Mixamo library (batch_retarget.py) = shippable; MDM generate_motion.py = previz/novel motion the library lacks",
+    "Decision guidance: prefer the library; use MDM only for motions with no library match, and never ship MDM output",
+    "Cross-links between generate_motion.py, batch_retarget.py, and the Unity package step so the full chain is discoverable"
+  ],
+  "steps": [
+    "Write the motion-sources note in PROMPT.md",
+    "Cross-link the previz (MDM) and shippable (library) paths",
+    "Note the licensing line one more time where it matters"
+  ],
+  "passes": false
+}
+```
