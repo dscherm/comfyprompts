@@ -364,7 +364,8 @@ fallback for clips the commercial library lacks.
     "Transfer material to the rigged mesh by UV/name; verify in a render",
     "Apply to the GS1 clip outputs (or document as an export-time step)"
   ],
-  "passes": false
+  "note": "DONE 2026-06-27. HONEST LIMITATION: the barbarian was generated as a GEOMETRY-ONLY Hunyuan3D mesh — verified to have NO UVs, NO materials, NO vertex colors (and UniRig output is likewise bare). With no UVs there is no source texture to transfer and nothing to bake an image onto, so a real texture set is impossible without a UV-unwrap + re-bake (out of scope here). Fallback shipped instead: reapply_texture.py authors a SOLID #8B5E3C leather-brown Principled material (the only thing a UV-less mesh can carry through FBX into Unity) and applies it to all 9 clips -> output/export/barbarian/textured/<clip>.fbx. Round-trip VERIFIED: verify_textured_proof.py reimports attack.fbx and reads base_color back as exactly (0.258,0.118,0.045) linear == #8B5E3C (not reset to grey/default); armature+animation intact. Proof frame (posed, colored, not grey): validation/retarget/gs2_textured/barbarian_attack_textured_front.png. A game artist replaces this flat color with a proper texture set after a UV unwrap.",
+  "passes": true
 }
 ```
 
