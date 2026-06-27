@@ -1,0 +1,199 @@
+{
+  "character": "barbarian",
+  "generated_by": "scripts/package_for_unity.py",
+  "unity_project": "../../../soapbox-unity",
+  "unity_dest": "Assets/Animations/Barbarian",
+  "source_policy": "Commercial Rokoko/Mixamo library retargets (batch_retarget.py) \u2014 SHIPPABLE. MDM (generate_motion.py) output is previz only and is never shipped.",
+  "import": {
+    "animation_type": "Humanoid",
+    "fps": 100.0,
+    "scale_note": "UniRig rigs export at ~0.01 scale; these clips were exported from Blender in meters (useFileScale: 1, useFileUnits: 1). If the character imports tiny, set the FBX 'Scale Factor' to ~100 per the retarget_mocap export note. GS4 confirms in-engine size."
+  },
+  "avatar": {
+    "name": "BarbarianAvatar",
+    "source_clip": "idle.fbx",
+    "definition": "CreateFromThisModel on idle.fbx; CopyFromOther onto the other 8 clips",
+    "source_avatar_ref": {
+      "fileID": 9000000,
+      "guid": "d3269417362e0278d085e6645239c1aa",
+      "type": 3
+    },
+    "bone_map": {
+      "hips": "Hips",
+      "spine": "Spine",
+      "chest": "Chest",
+      "neck": "Neck",
+      "head": "Head",
+      "shoulder.l": "LeftShoulder",
+      "upperarm.l": "LeftUpperArm",
+      "lowerarm.l": "LeftLowerArm",
+      "hand.l": "LeftHand",
+      "shoulder.r": "RightShoulder",
+      "upperarm.r": "RightUpperArm",
+      "lowerarm.r": "RightLowerArm",
+      "hand.r": "RightHand",
+      "upperleg.l": "LeftUpperLeg",
+      "lowerleg.l": "LeftLowerLeg",
+      "foot.l": "LeftFoot",
+      "upperleg.r": "RightUpperLeg",
+      "lowerleg.r": "RightLowerLeg",
+      "foot.r": "RightFoot"
+    },
+    "required_human_bones_mapped": true,
+    "unmapped_bones": [
+      "bone_3",
+      "bone_4",
+      "bone_9",
+      "bone_11",
+      "bone_13",
+      "bone_16",
+      "bone_18",
+      "hip_connector.l",
+      "hip_connector.r"
+    ],
+    "unmapped_note": "Filler/connector bones with no Mecanim slot: extra spine (bone_3/4), arm twist/filler (bone_9/11/13/16/18), pelvis connectors (hip_connector.l/r). All 15 REQUIRED human bones map."
+  },
+  "animator_controller": {
+    "file": "Barbarian.controller",
+    "guid": "04c513b89abf2c1f0144620d91d17af3",
+    "default_state": "Idle",
+    "parameters": {
+      "Speed": "float",
+      "Attack": "trigger",
+      "Hit": "trigger",
+      "Dodge": "trigger",
+      "Block": "trigger",
+      "Wave": "trigger",
+      "Celebrate": "trigger"
+    },
+    "transitions": [
+      "Idle -> Walk (Speed > 0.1)",
+      "Walk -> Idle (Speed < 0.1)",
+      "Walk -> Run (Speed > 0.6)",
+      "Run -> Walk (Speed < 0.6)",
+      "AnyState -> {Attack,Hit,Dodge,Block,Wave,Celebrate} (trigger)",
+      "each action/emote -> Idle (exit time)"
+    ],
+    "motion_binding": "each state's m_Motion = fileID 7400000 (FBX primary AnimationClip) + the clip's guid"
+  },
+  "loop_note": "loop flags below are the spec; Loop Time is enabled on the imported idle/walk/run clips by the GS4 editor validator (needs the imported clip's internal name, only known after Unity imports).",
+  "clips": [
+    {
+      "clip": "idle",
+      "file": "idle.fbx",
+      "guid": "d3269417362e0278d085e6645239c1aa",
+      "duration_s": 1.4,
+      "frames": 140,
+      "fps": 100.0,
+      "loop": true,
+      "root_motion": false,
+      "animator_state": "Idle",
+      "category": "locomotion",
+      "avatar": "BarbarianAvatar (CreateFromThisModel, source)"
+    },
+    {
+      "clip": "walk",
+      "file": "walk.fbx",
+      "guid": "00a85af513d265c58ce9f37566b6a790",
+      "duration_s": 1.2,
+      "frames": 120,
+      "fps": 100.0,
+      "loop": true,
+      "root_motion": true,
+      "animator_state": "Walk",
+      "category": "locomotion",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    },
+    {
+      "clip": "run",
+      "file": "run.fbx",
+      "guid": "86924428a95995f86f69ca68366788f8",
+      "duration_s": 1.2,
+      "frames": 120,
+      "fps": 100.0,
+      "loop": true,
+      "root_motion": true,
+      "animator_state": "Run",
+      "category": "locomotion",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    },
+    {
+      "clip": "attack",
+      "file": "attack.fbx",
+      "guid": "2fb03c7f17ed837f765dc4f8468ebf8c",
+      "duration_s": 1.3,
+      "frames": 130,
+      "fps": 100.0,
+      "loop": false,
+      "root_motion": false,
+      "animator_state": "Attack",
+      "category": "action",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    },
+    {
+      "clip": "hit",
+      "file": "hit.fbx",
+      "guid": "0a8bb8f76c3603e6209073b66ce30413",
+      "duration_s": 1.3,
+      "frames": 130,
+      "fps": 100.0,
+      "loop": false,
+      "root_motion": false,
+      "animator_state": "Hit",
+      "category": "action",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    },
+    {
+      "clip": "dodge",
+      "file": "dodge.fbx",
+      "guid": "2572db8a3e5022b32f711950a2f7df8e",
+      "duration_s": 1.02,
+      "frames": 102,
+      "fps": 100.0,
+      "loop": false,
+      "root_motion": true,
+      "animator_state": "Dodge",
+      "category": "action",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    },
+    {
+      "clip": "block",
+      "file": "block.fbx",
+      "guid": "040a53cf0bb0e6c99d9e56fd0864c56c",
+      "duration_s": 1.5,
+      "frames": 150,
+      "fps": 100.0,
+      "loop": false,
+      "root_motion": false,
+      "animator_state": "Block",
+      "category": "action",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    },
+    {
+      "clip": "wave",
+      "file": "wave.fbx",
+      "guid": "194281ec20ff729c8f6b298f95167ade",
+      "duration_s": 1.5,
+      "frames": 150,
+      "fps": 100.0,
+      "loop": false,
+      "root_motion": false,
+      "animator_state": "Wave",
+      "category": "emote",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    },
+    {
+      "clip": "celebrate",
+      "file": "celebrate.fbx",
+      "guid": "d3789f6cd63689c141f5b8f2209fe164",
+      "duration_s": 1.5,
+      "frames": 150,
+      "fps": 100.0,
+      "loop": false,
+      "root_motion": false,
+      "animator_state": "Celebrate",
+      "category": "emote",
+      "avatar": "BarbarianAvatar (CopyFromOther)"
+    }
+  ]
+}
