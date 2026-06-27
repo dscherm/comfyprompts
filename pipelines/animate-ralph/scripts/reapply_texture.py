@@ -88,6 +88,14 @@ def process(clip, out_path, make_mat):
     if not meshes:
         print(f"SKIP {os.path.basename(clip)} no mesh"); return
     char = max(meshes, key=lambda o: len(o.data.vertices))
+    # pin the scene frame range to THIS clip's action so bake_anim exports its full
+    # length (not the leftover scene range from a prior clip).
+    act = arm.animation_data.action if (arm and arm.animation_data) else None
+    if act:
+        sc = bpy.context.scene
+        sc.frame_start = int(round(act.frame_range[0]))
+        sc.frame_end = int(round(act.frame_range[1]))
+        print(f"  range {os.path.basename(clip)} = {sc.frame_start}..{sc.frame_end}")
     # strip stray meshes (the Icosphere) and any empties from the rig export
     for o in list(bpy.data.objects):
         if o.type == 'MESH' and o is not char:
@@ -101,6 +109,7 @@ def process(clip, out_path, make_mat):
         o.select_set(o.type in ('ARMATURE', 'MESH'))
     bpy.context.view_layer.objects.active = arm or char
     bpy.ops.export_scene.fbx(filepath=out_path, use_selection=True, bake_anim=True,
+                             bake_anim_use_all_actions=False, bake_anim_use_nla_strips=False,
                              add_leaf_bones=False, object_types={'ARMATURE', 'MESH'},
                              path_mode='COPY', embed_textures=True)
     print(f"TEXTURED {os.path.basename(out_path)} mat='{mat.name}' verts={len(char.data.vertices)}")
