@@ -105,3 +105,40 @@ Deliverables: `output/export/barbarian_walk.fbx` (now forward-moving) +
 - **Textures:** UniRig output drops materials, so the rigged mesh renders untextured
   (low contrast) — fine for motion validation; re-apply the source texture for beauty shots.
 - This was a focused single-clip validation, not the full 6-stage / multi-clip pipeline run.
+
+## Text-to-motion (MDM) — NOVEL clip generated + retargeted (Phase MT, 2026-06-27)
+
+Extended the mocap-library path with a **text-to-motion** alternative: a text prompt →
+novel animation → same retarget chain → animated barbarian FBX. Model: **MDM**
+(`humanml_enc_512_50steps`, 50 steps), research/non-commercial weights → **previz only**.
+
+```
+text prompt  →  MDM  →  mdm_to_source.py  →  retarget_mocap.py  →  animated barbarian FBX
+"walks fwd       results.npy   mdm_clip.fbx        (root motion)        (faces its travel)
+ and waves"      (22-joint xyz) Character1_* bones   18/20 bones
+```
+
+- **MT1 — generate:** `python -m sample.generate ... --text_prompt "a person walks forward
+  and waves"` on the 3090 Ti → `results.npy` (6 samples, 22-joint xyz, 120 frames). Env
+  fixes: the HumanML3D `text_only` loader asserts `len>1`, so `dataset/HumanML3D/test.txt`
+  must hold the full split (it had been cut to a single id); and SMPL `.pkl` load needs
+  `chumpy`, patched for numpy 1.26 (`chumpy/__init__.py` imported removed `np.bool` etc.).
+- **MT2 — source + retarget:** `mdm_to_source.py results.npy mdm_clip.fbx` builds a
+  `Character1_*`-named animated armature (positions→bone-aim solve); `retarget_mocap.py`
+  onto `barbarian_renamed.glb` matches **18/20** bones, `root_motion transfer` (leg-ratio
+  scale 1.07). Hips travel **3.71** world units, Z≈0 → grounded forward locomotion.
+- **MT3 — facing calibration:** the `load_joints` Y-up→Z-up map was already correct
+  (character is **upright, not rolled**), so only the source facing needed aligning to the
+  travel direction. Measured objectively with `diag_facing.py` (feet `+Y`/toe direction =
+  true front, vs hips displacement = travel): at `src_z=0` the body faced **39°** off its
+  travel. `src_z` rotates **facing** (travel is invariant), ≈ −1.08°/deg. **`src_z=-36`**
+  drives misalignment to **0.7°** — the character now walks facing where it travels.
+  Proof: `validation/retarget/barbarian_mdm_{ortho34,top}_f*.png`.
+
+```bash
+# reproduce the calibrated clip
+blender --background --python scripts/retarget_mocap.py -- \
+    barbarian_renamed.glb mdm_clip.fbx mixamo_to_unirig.json out.glb 0 119 -36 transfer
+```
+
+Deliverable: `barbarian_mdm.fbx` (rigged + animated, faces travel). Research-license previz.

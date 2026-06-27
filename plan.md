@@ -265,7 +265,7 @@ explicit user go-ahead** (do NOT touch the card without it).
     "If wrong: fix the Y-up->Z-up axis map in load_joints and/or pass the right src_z to retarget; document the values"
   ],
   "steps": ["Inspect first render", "Adjust axis map / src_z", "Re-render to confirm"],
-  "passes": false
+  "passes": true
 }
 ```
 
