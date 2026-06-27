@@ -320,7 +320,7 @@ fallback for clips the commercial library lacks.
     "Bone-check each candidate against mixamo_to_unirig.json (reuse retarget_mocap MATCHED count)",
     "Write barbarian_clipset.md with the per-clip root_motion + loop policy"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
