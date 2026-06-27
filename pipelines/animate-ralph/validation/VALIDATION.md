@@ -176,7 +176,18 @@ shippable game content** — block out motion and validate the rig with it, but 
 clips from a commercially-licensed source (e.g. the Mixamo/Rokoko library path). The
 license note is printed by `generate_motion.py` on every run.
 
-Example prompts validated through the chain: *"a person walks forward and waves"*
-(proof frames above). The path accepts any HumanML3D-style prompt
-(e.g. *"a person jumps"*, *"a person walks in a circle"*) — generation is the only
-GPU-gated step.
+**Three prompts validated end-to-end through `generate_motion.py --generate --auto-face`**
+(proof frames in `validation/retarget/`), each 18/20 bones:
+
+| prompt | src_z (auto) | misalign | hip travel | reads as |
+|--------|-------------:|---------:|-----------:|----------|
+| "a person walks forward and waves" | −36 | 0.7° | 3.71 (horizontal) | upright walk, faces travel, waves |
+| "a person jumps and punches the air" | 130 | −8.7° | 0.05 (in place) | upright, arm extended in a punch |
+| "a person crouches down and picks something up" | −22.4 | 2.2° | 0.61 (Z −0.51) | forward bend/reach, hips drop = crouch |
+
+Notes: for near-in-place motions (jump, crouch) the net f0→fN hip travel is small, so the
+**travel direction is ill-defined and `--auto-face` is less meaningful** (the jump's −8.7°
+residual reflects this, not a retarget error) — facing calibration matters mainly for
+locomotion. The `--auto-face` single-probe linear solve (slope 1.08) lands within a few
+degrees; for a hero clip, hand-set `--src-z` after reading the `diag_facing` report.
+The path accepts any HumanML3D-style prompt — generation is the only GPU-gated step.
