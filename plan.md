@@ -342,7 +342,7 @@ fallback for clips the commercial library lacks.
     "Run the batch; collect per-clip FBX",
     "Render + spot-check proof frames; record the summary"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

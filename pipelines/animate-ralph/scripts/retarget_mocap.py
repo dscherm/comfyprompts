@@ -144,8 +144,12 @@ def main():
             if tb is root_hips and ROOT_MOTION != "off":
                 tb.keyframe_insert("location", frame=f - F0)      # only the hips carries translation
 
-    # drop the source armature; export only the retargeted rig+mesh
-    for o in (src,):
+    # drop EVERYTHING imported with the mocap — the source armature AND any skinned
+    # source mesh it brought in — keeping only the target rig+mesh (the objects present
+    # in `pre`, captured after the rig import). Rokoko/Mixamo source FBX usually include
+    # their own character mesh; leaving it in the export adds a second, differently-scaled
+    # mesh (~100x) that swamps the target and renders as a flat sprawl.
+    for o in [obj for obj in bpy.data.objects if obj not in pre]:
         bpy.data.objects.remove(o, do_unlink=True)
     sc.frame_start = 0; sc.frame_end = F1 - F0
     for o in bpy.data.objects:
