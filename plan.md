@@ -282,6 +282,6 @@ explicit user go-ahead** (do NOT touch the card without it).
     "VALIDATION.md documents the MDM path, the research-only license caveat, and 2-3 example prompts with proof frames"
   ],
   "steps": ["Move bridge into the pipeline", "Write generate_motion.py orchestrator", "Validate 2-3 prompts + document"],
-  "passes": false
+  "passes": true
 }
 ```

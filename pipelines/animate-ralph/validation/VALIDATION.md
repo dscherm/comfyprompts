@@ -142,3 +142,41 @@ blender --background --python scripts/retarget_mocap.py -- \
 ```
 
 Deliverable: `barbarian_mdm.fbx` (rigged + animated, faces travel). Research-license previz.
+
+### MT4 — promoted into the pipeline + one-command orchestrator
+
+The bridge scripts are now the pipeline's single source of truth under
+`scripts/`: `mdm_to_source.py` and `diag_facing.py` (facing/travel measurement) joined
+`retarget_mocap.py` and `render_rootmotion.py`. **`generate_motion.py`** orchestrates the
+whole chain in one command — `[MDM generate] → mdm_to_source → retarget_mocap → FBX`:
+
+```bash
+# CPU/Blender only: reuse an existing MDM results.npy, auto-calibrate facing
+python scripts/generate_motion.py --results <results.npy> \
+    --rig barbarian_renamed.glb --out out/walkwave.fbx --auto-face
+
+# full chain incl. GPU generation (ComfyUI must be stopped first)
+python scripts/generate_motion.py --generate --prompt "a person walks forward and waves" \
+    --rig barbarian_renamed.glb --out out/walkwave.fbx --auto-face
+```
+
+- **GPU gate (explicit + enforced):** generation is OFF unless `--generate` is passed, and
+  the orchestrator **refuses while ComfyUI is listening on :8188** (`--force-gpu` overrides)
+  so it never silently grabs the 3090 Ti. Stop ComfyUI first; restart with `run_3090ti.ps1`.
+- **`--auto-face`:** retargets a src_z=0 probe, measures misalignment via `diag_facing.py`,
+  and solves `src_z = -misalign / 1.08` (the measured facing response) so the body faces its
+  travel with no hand-tuning. Verified end-to-end: probe misalign 39° → `src_z=-36.1` →
+  final **18/20 bones, misalign 0.5°**.
+- Defaults (Blender exe, MDM dir/venv/model, tmp) are env-overridable
+  (`BLENDER_EXE`, `MDM_DIR`, `MDM_PYTHON`, `MDM_MODEL`, `MDM_TMP`).
+
+**LICENSE CAVEAT — PREVIZ ONLY.** MDM and its AMASS / HumanML3D weights are
+**research / non-commercial**. Every clip from this path is **previsualization, not
+shippable game content** — block out motion and validate the rig with it, but ship only
+clips from a commercially-licensed source (e.g. the Mixamo/Rokoko library path). The
+license note is printed by `generate_motion.py` on every run.
+
+Example prompts validated through the chain: *"a person walks forward and waves"*
+(proof frames above). The path accepts any HumanML3D-style prompt
+(e.g. *"a person jumps"*, *"a person walks in a circle"*) — generation is the only
+GPU-gated step.
