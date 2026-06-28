@@ -436,3 +436,212 @@ fallback for clips the commercial library lacks.
   "passes": false
 }
 ```
+
+---
+
+## Phase TX: Tile/texture foundation LoRAs (mat_tile + tile_topdown)
+
+Two material/texture-aesthetic Flux LoRAs trained with the proven `scripts/train_lora/`
+harness (rank 16/alpha 16, 1500 steps, lr 1e-4, adamw8bit, flowmatch, EMA 0.99,
+multi-res [512,768,1024], GPU 1 (3090 Ti) with ComfyUI stopped). **Key insight: a LoRA
+does NOT make a texture tile** — seamlessness comes from `ComfyUI-seamless-tiling`
+(`SeamlessTile` patches the model's Conv2d to circular padding; `CircularVAEDecode`
+does the same to the VAE). The LoRA teaches the material **aesthetic + even, flat,
+top-down lighting** so the seamless machinery has clean, evenly-lit input to wrap.
+
+**Architecture constraint (drives TX4/TX8):** this harness produces **Flux** LoRAs, but
+the existing `workflows/mcp/generate_texture_tile.json` is **SDXL** — a Flux LoRA cannot
+load into it. The deploy path is therefore a **Flux + seamless** graph
+(flux1-dev-fp8 → LoraLoader(tile LoRA) → SeamlessTile(enable) → KSampler →
+CircularVAEDecode(enable) → SaveImage), registered as a new MCP tool, NOT the SDXL one.
+
+- **mat_tile** (TX1-TX4): PBR-style material surfaces (brick, stone, wood, metal, fabric,
+  ground) from CC0 Poly Haven albedo maps. Trigger `mat_tile`.
+- **tile_topdown** (TX5-TX8): top-down RPG game tiles (grass, dirt, water, sand, path)
+  from CC0 Kenney / OpenGameArt tilesets. Trigger `tile_topdown`.
+
+Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
+
+```json
+{
+  "id": "TX0",
+  "category": "setup",
+  "priority": 1,
+  "description": "Write the tile-LoRA spec: triggers, caption templates, CC0 dataset sourcing, hyperparams (reuse mv_ortho recipe), and the seamless-tiling eval method (edge MAD <5% at 2x2/4x4)",
+  "files": ["scripts/train_lora/datasets/tile_loras_spec.md"],
+  "acceptance_criteria": [
+    "Documents both triggers (mat_tile, tile_topdown) and short trigger-anchored caption templates (e.g. 'mat_tile, <material>, seamless texture, even top-down lighting')",
+    "CC0-only sourcing called out per LoRA: Poly Haven (mat_tile) + Kenney/OpenGameArt (tile_topdown), with license note",
+    "Hyperparams reuse the mv_ortho/grimforge recipe exactly (rank 16/alpha 16, 1500 steps, lr 1e-4, adamw8bit, flowmatch, EMA 0.99, multi-res 512/768/1024, GPU 1, ComfyUI stopped)",
+    "Explains the LoRA-vs-seamless split (LoRA = aesthetic+even light; SeamlessTile+CircularVAEDecode = actual tiling) and the Flux-not-SDXL deploy constraint",
+    "Eval method: pair LoRA output with SeamlessTile+CircularVAEDecode, tile 2x2/4x4, measure wrap-edge MAD <5% (with the exact metric definition)"
+  ],
+  "steps": [
+    "Capture the proven recipe + CLI from launch_train.py/prep_dataset.py/caption.py",
+    "Document triggers, captions, sourcing, hyperparams, eval (edge MAD)",
+    "Write scripts/train_lora/datasets/tile_loras_spec.md"
+  ],
+  "passes": true
+}
+```
+
+```json
+{
+  "id": "TX1",
+  "category": "feature",
+  "priority": 1,
+  "description": "Build the mat_tile dataset: ~30-50 CC0 evenly-lit tileable material crops from Poly Haven albedo maps; prep + short captions + manifest",
+  "files": ["scripts/train_lora/datasets/mat_tile_manifest.md"],
+  "acceptance_criteria": [
+    "~30-50 CC0 Poly Haven albedo/diffuse maps across material families (brick, stone, cobble, wood, planks, metal, concrete, fabric, ground/dirt/sand/grass)",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/mat_tile (max-edge 1024, RGB)",
+    "SHORT captions per image: 'mat_tile, <material>, seamless texture, even top-down lighting' (NOT Florence2 verbose — these are flat surfaces)",
+    "Manifest lists each source asset, its Poly Haven slug, CC0 license, and the material tag"
+  ],
+  "steps": [
+    "Download CC0 Poly Haven albedo maps (blender-mcp download_polyhaven_asset or HTTP) across material families",
+    "prep_dataset.py --src ... --out E:/ai-training/datasets/mat_tile --max-edge 1024",
+    "Write short trigger-anchored captions + mat_tile_manifest.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX2",
+  "category": "feature",
+  "priority": 1,
+  "description": "Train the mat_tile Flux LoRA (stop ComfyUI first; launch_train.py with the mv_ortho recipe; collect checkpoints; restart ComfyUI)",
+  "files": ["scripts/train_lora/configs/mat_tile.json"],
+  "acceptance_criteria": [
+    "ComfyUI stopped before launch; training confirmed on GPU 1 (3090 Ti) via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/mat_tile --name mat_tile --trigger mat_tile --steps 1500 --rank 16 --resolutions 512,768,1024",
+    "Per-checkpoint saves (every 250) + final mat_tile.safetensors on E:/ai-training/flux-output/mat_tile/",
+    "No OOM; sample images trend toward flat, evenly-lit material surfaces; ComfyUI restarted on the 3090 Ti afterwards"
+  ],
+  "steps": [
+    "Stop ComfyUI to free the 24GB",
+    "launch_train.py (background); verify device 1; collect checkpoints",
+    "Restart ComfyUI (run_3090ti.ps1)"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX3",
+  "category": "testing",
+  "priority": 2,
+  "description": "Eval mat_tile: 2D grid (base vs LoRA) + seamless validation through the circular-padding path; measure wrap-edge MAD <5% at 2x2/4x4",
+  "files": ["scripts/train_lora/eval/mat_tile_grid.md", "scripts/train_lora/eval/tile_edge_mad.py"],
+  "acceptance_criteria": [
+    "tile_edge_mad.py computes the mean-absolute-difference across the horizontal+vertical wrap seams of a tile (0-100% of channel range) and tiles 2x2/4x4 for visual proof",
+    "Base-vs-LoRA generated through Flux + SeamlessTile(enable) + CircularVAEDecode(enable) at fixed seeds/strengths 0.6/0.8/1.0",
+    "Winner cell named; the winning mat_tile output achieves wrap-edge MAD <5% at 2x2 and 4x4 (seamless machinery working) AND reads as an evenly-lit material (LoRA working)",
+    "Verdict records the winning (checkpoint, strength) and the measured edge MAD"
+  ],
+  "steps": [
+    "Restart ComfyUI; write tile_edge_mad.py",
+    "Generate base + LoRA tiles through the seamless Flux path across strengths",
+    "Tile 2x2/4x4, measure edge MAD, record verdict in eval/mat_tile_grid.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX4",
+  "category": "feature",
+  "priority": 2,
+  "description": "Deploy mat_tile to ComfyUI/models/loras/style/ and wire it into a Flux+seamless texture-generation path (new MCP workflow, since the existing tile workflow is SDXL)",
+  "files": ["workflows/mcp/generate_texture_tile_flux.json", "workflows/mcp/generate_texture_tile_flux.meta.json"],
+  "acceptance_criteria": [
+    "Winning mat_tile.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger mat_tile + recommended strength)",
+    "A new parametric Flux+seamless workflow (flux1-dev-fp8 → LoraLoader(mat_tile) → SeamlessTile(enable) → KSampler → CircularVAEDecode(enable) → SaveImage) authored + .meta.json, validated, registered as an MCP tool",
+    "Smoke-tested: generate one seamless material tile through the new tool; confirm wrap-edge MAD <5%",
+    "README documents the texture-tile path + the Flux-not-SDXL rationale"
+  ],
+  "steps": [
+    "Copy + sidecar the winner",
+    "Author + validate generate_texture_tile_flux.json/.meta.json (seamless nodes wired)",
+    "Smoke-test via the MCP tool; document"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX5",
+  "category": "feature",
+  "priority": 3,
+  "description": "Build the tile_topdown dataset: ~30-50 CC0 top-down RPG tiles (Kenney/OpenGameArt); prep + short captions + manifest",
+  "files": ["scripts/train_lora/datasets/tile_topdown_manifest.md"],
+  "acceptance_criteria": [
+    "~30-50 CC0 top-down RPG tiles (grass, dirt, water, sand, path/road, stone floor) from Kenney and/or OpenGameArt (CC0 only)",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/tile_topdown",
+    "SHORT captions: 'tile_topdown, <terrain> tile, top-down RPG tileset, seamless texture, even lighting'",
+    "Manifest lists each source pack, its CC0 license/URL, and the terrain tag"
+  ],
+  "steps": [
+    "Download CC0 Kenney/OpenGameArt top-down tile packs",
+    "prep_dataset.py --src ... --out E:/ai-training/datasets/tile_topdown",
+    "Write short captions + tile_topdown_manifest.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX6",
+  "category": "feature",
+  "priority": 3,
+  "description": "Train the tile_topdown Flux LoRA (stop ComfyUI; launch_train.py with the mv_ortho recipe; collect checkpoints; restart ComfyUI)",
+  "files": ["scripts/train_lora/configs/tile_topdown.json"],
+  "acceptance_criteria": [
+    "ComfyUI stopped; training on GPU 1 confirmed via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/tile_topdown --name tile_topdown --trigger tile_topdown --steps 1500 --rank 16 --resolutions 512,768,1024",
+    "Checkpoints + final tile_topdown.safetensors on E:/ai-training/flux-output/tile_topdown/; ComfyUI restarted afterwards"
+  ],
+  "steps": ["Stop ComfyUI", "launch_train.py (background); verify device 1", "Restart ComfyUI"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX7",
+  "category": "testing",
+  "priority": 4,
+  "description": "Eval tile_topdown: 2D grid (base vs LoRA) + seamless validation; wrap-edge MAD <5% at 2x2/4x4",
+  "files": ["scripts/train_lora/eval/tile_topdown_grid.md"],
+  "acceptance_criteria": [
+    "Base-vs-LoRA generated through Flux + SeamlessTile + CircularVAEDecode at strengths 0.6/0.8/1.0 on terrain prompts",
+    "tile_edge_mad.py (from TX3) measures the winning tile_topdown output at wrap-edge MAD <5% at 2x2 and 4x4",
+    "Verdict names the winning (checkpoint, strength) and confirms the LoRA reads as a top-down game tile aesthetic"
+  ],
+  "steps": ["Run the seamless grid", "Measure edge MAD", "Record verdict in eval/tile_topdown_grid.md"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX8",
+  "category": "feature",
+  "priority": 4,
+  "description": "Deploy tile_topdown to ComfyUI/models/loras/style/ + wire into the Flux+seamless texture path; smoke-test + document",
+  "files": ["scripts/train_lora/README.md", "D:/Projects/ComfyUI/models/loras/style/"],
+  "acceptance_criteria": [
+    "Winning tile_topdown.safetensors copied to loras/style/ with a .txt sidecar (trigger + strength)",
+    "Usable via the generate_texture_tile_flux MCP tool (pass lora_name=tile_topdown); smoke-tested to a seamless top-down tile (edge MAD <5%)",
+    "README documents both tile LoRAs, their triggers/strengths, the seamless path, and how to rebuild each dataset"
+  ],
+  "steps": ["Copy + sidecar the winner", "Smoke-test through the Flux seamless tool", "Document both tile LoRAs in README"],
+  "passes": false
+}
+```
