@@ -191,3 +191,46 @@ residual reflects this, not a retarget error) — facing calibration matters mai
 locomotion. The `--auto-face` single-probe linear solve (slope 1.08) lands within a few
 degrees; for a hero clip, hand-set `--src-z` after reading the `diag_facing` report.
 The path accepts any HumanML3D-style prompt — generation is the only GPU-gated step.
+
+## Phase GS — Unity packaging + validation (barbarian Humanoid clip set)
+
+The proven single-character chain was packaged as a **shippable, multi-clip Humanoid
+animation set** for the game project (`../soapbox-unity`), mirroring the kart deploy.
+
+**Shippable path (GS1–GS3, committed):**
+```
+commercial mocap library  →  batch_retarget.py  →  9 barbarian FBX clips
+(Rokoko/Mixamo, licensed)     (rename + retarget    (idle/walk/run/attack/hit/
+                               + per-clip root motion) dodge/block/wave/celebrate)
+        →  package_for_unity.py  →  soapbox-unity/Assets/Animations/Barbarian/
+           (Humanoid import, BarbarianAvatar, Barbarian.controller + ANIMATION-MANIFEST.json)
+```
+
+**Clip inventory (9, all Humanoid @100fps; see `Assets/Animations/Barbarian/ANIMATION-MANIFEST.json`):**
+locomotion — `idle` (1.4s, loop), `walk` (1.2s, loop, root-motion), `run` (1.2s, loop,
+root-motion); actions — `attack` (1.3s), `hit` (1.3s), `dodge` (1.02s, root-motion),
+`block` (1.5s); emotes — `wave` (1.5s), `celebrate` (1.5s).
+
+**Humanoid avatar — `BarbarianAvatar`** (CreateFromThisModel on `idle.fbx`, CopyFromOther
+onto the other 8). All **15 required** Mecanim human bones map (hips/spine/chest/neck/head,
+both arms shoulder→hand, both legs upperleg→foot). 9 filler/connector bones have no Mecanim
+slot and are left unmapped (extra spine `bone_3/4`, arm twist `bone_9/11/13/16/18`, pelvis
+`hip_connector.l/r`) — expected, not a mapping failure. **Animator** `Barbarian.controller`:
+default `Idle`, `Speed` float drives idle↔walk↔run, triggers (`Attack/Hit/Dodge/Block/Wave/
+Celebrate`) fire from AnyState and exit-time back to Idle.
+
+**Source policy:** library retargets (`batch_retarget.py`) are **SHIPPABLE**; MDM
+(`generate_motion.py`, Phase MT) output is **previz only** and never shipped.
+
+**GS4 — validation: PARTIAL (offline artifacts complete, live editor validation deferred).**
+An editor validator `Assets/Editor/ValidateBarbarianAnimImport.cs` was authored (mirrors
+`ValidateKartAnimImport.cs`): it checks all 9 FBXs import as Humanoid with a usable clip,
+the avatar is valid/Humanoid with ≥15 mapped bones, the controller's states/transitions/
+parameters load, and a headless rig-build resolves every state's motion clip. It exposes
+both a live-MCP entry (`Execute()`) and a headless batch entry (`RunBatch`, writes
+`barbarian_validation_report.txt` + exit code).
+- **Deferred:** the headless batch run (`-executeMethod ValidateBarbarianAnimImport.RunBatch`)
+  exited **198 — "No valid Unity Editor license found"** (licensing/activation, not a
+  validator or asset fault). Live coplay-mcp import + play-mode transition verification is
+  therefore deferred to a licensed editor session. The artifacts (validator, packaged clips,
+  avatar, controller, manifest) are in place and ready to run the moment the editor opens.
