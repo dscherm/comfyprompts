@@ -40,6 +40,10 @@ SRC_Z = math.radians(float(a[6])) if len(a) > 6 else 0.0
 # target hips (scaled to the target's leg length); "off" = in-place (legacy); a float
 # = synthesize a constant forward speed (target units/frame) for in-place sources.
 ROOT_MOTION = a[7] if len(a) > 7 else "transfer"
+# bind alignment: aim each target bone's rest to the source bone's rest DIRECTION before
+# transfer, so limb directions track the source (fixes the arms-up/frozen artifact from the
+# wide-T UniRig bind). "on" (default) | "off" (legacy full-quaternion transfer).
+ALIGN = (a[8] if len(a) > 8 else "on").lower() != "off"
 
 
 def imp(path):
@@ -81,10 +85,25 @@ def main():
 
     # rest as pure-rotation QUATERNIONS (scale-free — the source is often scaled
     # 0.01 (Mixamo cm->m); .to_3x3() would bake that scale in and collapse the rig).
+    # Bind-direction ALIGNMENT: the transfer applies the source's world-rotation delta to
+    # the TARGET bind, so target_dir(f) = delta . target_bind_dir. When a bone's target bind
+    # axis differs from the source's (notably the arms on the wide-T UniRig bind), that
+    # diverges from the source pose — the "arms forced up / frozen" artifact. Aiming each
+    # target bind to point the SAME world direction as the source bind makes target_dir(f)
+    # track source_dir(f). A no-op where binds already align (legs).
+    Y = Vector((0.0, 1.0, 0.0))
     rest = {}
     for sb, tb in pairs:
-        rest[("s", sb.name)] = (src.matrix_world @ sb.bone.matrix_local).to_quaternion()
-        rest[("t", tb.name)] = (tgt.matrix_world @ tb.bone.matrix_local)
+        sbind = src.matrix_world @ sb.bone.matrix_local
+        tbind = tgt.matrix_world @ tb.bone.matrix_local
+        rest[("s", sb.name)] = sbind.to_quaternion()
+        rest[("t", tb.name)] = tbind                        # matrix: rest position (+ root motion)
+        tq_rest = tbind.to_quaternion()
+        if ALIGN:
+            sdir = (sbind.to_quaternion() @ Y).normalized()
+            tdir = (tq_rest @ Y).normalized()
+            tq_rest = tdir.rotation_difference(sdir) @ tq_rest   # aim target bind -> source bind dir
+        rest[("tq", tb.name)] = tq_rest                     # aligned rest ORIENTATION
 
     sc = bpy.context.scene
 
@@ -135,7 +154,7 @@ def main():
         for sb, tb in pairs:
             sq = (src.matrix_world @ sb.matrix).to_quaternion()
             delta = sq @ rest[("s", sb.name)].inverted()          # world rotation from rest
-            tq = delta @ rest[("t", tb.name)].to_quaternion()     # apply to target rest
+            tq = delta @ rest[("tq", tb.name)]                    # apply to aligned target rest
             loc = rest[("t", tb.name)].translation + root_off     # rigid forward shift
             tw = Matrix.Translation(loc) @ tq.to_matrix().to_4x4()
             tb.matrix = tgt.matrix_world.inverted() @ tw
