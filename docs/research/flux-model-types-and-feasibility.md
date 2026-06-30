@@ -57,8 +57,15 @@ pattern. **Sources:** [Hands XL](https://civitai.com/models/200255/hands-xl-sd-1
 Flux LoRAs **are** scarcer than SDXL/SD1.5 (recency since Aug 2024, the 12B-param
 training barrier, tooling immaturity, and the non-commercial license chilling
 commercial creators). **But every specific ratio was refuted** — "SD1.5 100k+ /
-SDXL 30k+ / Flux 5k+" (1-2) and "10k/5k/500" (0-3) both failed. **Treat the gap as
-real but unquantified** until a direct CivitAI API count is run (open question).
+SDXL 30k+ / Flux 5k+" (1-2) and "10k/5k/500" (0-3) both failed.
+
+🔒 **A hard count is NOT obtainable via the public API** *(confirmed 2026-06-30,
+direct attempt)*: `/api/v1/models` uses **cursor-only pagination — no `totalItems`
+or `totalPages`**, even with `page=1`, for filtered (`baseModels=`) queries.
+Pinning the gap numerically would require scraping thousands of pages. **The
+supply gap is directionally real but cannot be quantified from the API** — which
+is precisely why the specific ratios above failed verification. Treat "Flux is
+scarcer than SDXL/SD1.5" as a directional planning assumption, not a number.
 
 ---
 
@@ -91,9 +98,13 @@ DeepSpeed/8-bit/CPU-offload can lower it but is impractically slow.
 → **LoRA/QLoRA is the only realistically solo-feasible path.**
 **Source:** [HF flux-qlora](https://huggingface.co/blog/flux-qlora)
 
-### 2d. IP-Adapter training ⬜ unverified
-No surviving claim established whether a Flux IP-Adapter is trainable on 24 GB.
-**Open question** — don't assume either way.
+### 2d. IP-Adapter training — NOT solo-feasible 🟢 *(resolved 2026-06-30, direct fetch)*
+XLabs-AI `x-flux` (the reference Flux IP-Adapter trainer) is configured for
+**multi-GPU DeepSpeed Zero-2 clusters** (`num_processes: 8`) at 1024² — no
+single-GPU training path is documented. A user reports a single 24 GB card is
+**insufficient even for IP-Adapter *inference*** ([x-flux issue #105](https://github.com/XLabs-AI/x-flux/issues/105)).
+→ **IP-Adapter training joins ControlNet/checkpoint as not solo-feasible.**
+**Source:** [XLabs-AI/x-flux](https://github.com/XLabs-AI/x-flux)
 
 ---
 
@@ -131,9 +142,10 @@ your stylized/3D edge rather than competing in saturated photoreal:
 - a **game-art / stylized detail enhancer** (sharpen materials/edges on stylized renders),
 - a **clean-silhouette / neutral-background** helper (also improves image→3D input).
 
-**Cross OFF the "what else to build" list (not solo-feasible):** Flux ControlNets,
-Flux IP-Adapters (unverified — don't assume), full checkpoints/fine-tunes. **The
-LoRA is the unit.**
+**Cross OFF the "what else to build" list (all confirmed not solo-feasible):** Flux
+ControlNets (datacenter-scale), Flux **IP-Adapters** (multi-GPU cluster; single
+24 GB can't even reliably do inference), full checkpoints/fine-tunes (~120 GB).
+**The LoRA is the unit — period.**
 
 **Marketing honesty:** lead with *repeatability + curation + 3D-rendered datasets*
 (verifiable edges), not "higher quality" (unproven).

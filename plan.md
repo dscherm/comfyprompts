@@ -922,3 +922,104 @@ automation needed. Assets staged: `E:/ai-training/_rigtest/bakeoff/barbarian_fis
   "passes": false
 }
 ```
+
+---
+
+## Phase UL: Utility / quality-enhancer LoRA (FREE CivitAI Buzz/reputation track)
+
+Derived from the 2026-06-30 research (`docs/research/flux-model-types-and-feasibility.md`
++ `flux-lora-edge-and-licensing.md`). **Verified finding:** the most-downloaded Flux
+LoRAs are **utility/quality enhancers** (hands/anatomy/detail/realism), *above any
+single art style* — because they're used in **every** generation, so they top
+CivitAI's 25%-of-Generator-Buzz mechanic. **Two constraints shape this phase:**
+
+1. **License:** GrimForge/all our LoRAs are FLUX.1-dev-derived → **selling the
+   `.safetensors` file is prohibited** (non-commercial Derivative). So this LoRA is
+   shipped **FREE** — it's a Buzz/reputation/funnel engine, not a paid product.
+   (Sellable LoRA files would need a FLUX.1-schnell/Apache base — out of scope here.)
+2. **Feasibility:** the **LoRA is the only solo-feasible unit** on the 24GB 3090 Ti —
+   ControlNet / IP-Adapter / full-checkpoint training are all multi-GPU/datacenter
+   scale. So we build a LoRA, not a ControlNet.
+
+**Edge framing (honest):** market **repeatability + curation + 3D-rendered datasets**,
+NOT "higher quality" (the multi-res quality *delta* is unproven). **Recipe** = the
+proven one (rank 16/alpha 16, 1500 steps, lr 1e-4, adamw8bit, flowmatch, EMA 0.99,
+multi-res [512,768,1024], GPU 1 with ComfyUI stopped). Pick: a **stylized game-art
+detail enhancer** — broadly reusable on top of any stylized generation, and a natural
+companion to GrimForge / `stylized_game`.
+
+```json
+{
+  "id": "UL1",
+  "category": "feature",
+  "priority": 2,
+  "description": "Build the gameart_detailer dataset: ~60-100 IP-clean, HIGH-DETAIL stylized game-art crops (sharp faces/hands/materials/edges/rendered surfaces) — the reference the enhancer learns to push toward; prep + captions + manifest",
+  "files": ["scripts/train_lora/datasets/gameart_detailer_manifest.md"],
+  "acceptance_criteria": [
+    "~60-100 ORIGINAL, IP-clean, visibly HIGH-DETAIL stylized game-art crops (clean hands, crisp faces, detailed materials/armor/edges) — assembled like the grimforge set; the dataset embodies the 'more detail' target, not a subject or a single style",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/gameart_detailer (max-edge 1024, RGB)",
+    "SHORT trigger-anchored captions: 'gameart_detailer, highly detailed, sharp, intricate' + a one-word subject tag; NOT verbose Florence2 (this is an aesthetic-bias enhancer, not a subject LoRA)",
+    "Manifest records each crop's IP-clean origin + the detail attribute it contributes (provenance per the Stream D legal note)"
+  ],
+  "steps": [
+    "Curate the high-detail IP-clean game-art crop set",
+    "prep_dataset.py --src ... --out E:/ai-training/datasets/gameart_detailer --max-edge 1024",
+    "Write short captions + gameart_detailer_manifest.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "UL2",
+  "category": "feature",
+  "priority": 2,
+  "description": "Train the gameart_detailer Flux LoRA (stop ComfyUI first; proven recipe; collect checkpoints; restart ComfyUI)",
+  "files": ["scripts/train_lora/configs/gameart_detailer.json"],
+  "acceptance_criteria": [
+    "ComfyUI stopped before launch; training confirmed on GPU 1 (3090 Ti) via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/gameart_detailer --name gameart_detailer --trigger gameart_detailer --steps 1500 --rank 16 --resolutions 512,768,1024 --cuda-device 1",
+    "Per-checkpoint saves (every 250) + final gameart_detailer.safetensors on E:/ai-training/flux-output/gameart_detailer/",
+    "No OOM; ComfyUI restarted on the 3090 Ti afterwards"
+  ],
+  "steps": ["Stop ComfyUI to free the 24GB", "launch_train.py (background); verify device 1; collect checkpoints", "Restart ComfyUI (run_3090ti.ps1)"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "UL3",
+  "category": "testing",
+  "priority": 3,
+  "description": "Eval gameart_detailer as an ENHANCER: same-seed A/B toggle (LoRA off vs on at low strengths 0.2/0.4/0.6) across varied subjects; confirm it ADDS detail WITHOUT changing composition or imposing a style",
+  "files": ["scripts/train_lora/eval/gameart_detailer_grid.md", "scripts/train_lora/eval/gameart_detailer_assets/"],
+  "acceptance_criteria": [
+    "Restart ComfyUI; generate matched pairs at FIXED seed across several subjects (character/creature/prop/environment), LoRA OFF vs ON at strengths 0.2/0.4/0.6 (enhancers run lower than style LoRAs)",
+    "AI-judge / visual verdict: the ON cells show measurably MORE detail (sharper edges, cleaner hands/faces, richer materials) while keeping the SAME composition — an enhancer, not a restyle",
+    "Names a recommended strength (likely 0.3-0.5) where detail improves but the base image isn't overpowered or pushed toward photoreal",
+    "A few before/after pairs saved to eval/gameart_detailer_assets/ for the listing gallery; verdict in gameart_detailer_grid.md"
+  ],
+  "steps": ["Restart ComfyUI; generate OFF/ON same-seed pairs across subjects + strengths", "Judge detail-gain vs composition-drift; pick the strength", "Save before/after pairs; record the verdict"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "UL4",
+  "category": "feature",
+  "priority": 3,
+  "description": "Deploy gameart_detailer + write the FREE CivitAI listing (Buzz/reputation framing, before/after gallery); NO paid file (license) — monetize via reputation + Generator-Buzz, not a sale",
+  "files": ["scripts/train_lora/eval/gameart_detailer_listing.md", "D:/Projects/ComfyUI/models/loras/style/"],
+  "acceptance_criteria": [
+    "Winning gameart_detailer.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger gameart_detailer + recommended low strength ~0.3-0.5, 'enhancer — stack on top of other LoRAs')",
+    "FREE CivitAI listing copy: name, trigger, recommended strength, 'utility/quality enhancer for stylized game art' positioning, before/after gallery, AI-disclosure + original-IP provenance — explicitly FREE (no Early-Access paywall, no Gumroad sale of the file: Flux-dev Derivative)",
+    "Listing notes the honest edge (repeatability/curation, not a 'quality' guarantee) and that it stacks with GrimForge/stylized_game",
+    "Cross-reference a BUSINESS-PLAN-TASKS.md item for the actual (human-gated) CivitAI upload"
+  ],
+  "steps": ["Copy + sidecar the winner (enhancer usage note)", "Write the FREE listing copy with before/after gallery", "Flag the human-gated upload in BUSINESS-PLAN-TASKS.md"],
+  "passes": false
+}
+```

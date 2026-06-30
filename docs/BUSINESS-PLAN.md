@@ -424,10 +424,16 @@ audience are where the meaningful ceiling lives.
 - [~] **Quality edge:** multi-res bucketing confirmed built-in, but the quality
   *delta* is unquantified → market repeatability/curation, not "higher quality."
 
-**Still open → next pass** (needs deeper data):
-- Numeric Flux-vs-SDXL LoRA **supply ratio** (all specific ratios refuted; needs a
-  direct CivitAI API count) + Flux **IP-Adapter** 24GB training feasibility (unverified).
+**Resolved — pass 5b (2026-06-30, direct API/source)** (→ `flux-model-types-and-feasibility.md`):
+- [x] **Supply-gap count is NOT API-obtainable** — CivitAI `/models` is cursor-only
+  (no `totalItems`), so the Flux-vs-SDXL ratio stays *directional, not numeric*.
+- [x] **Flux IP-Adapter training is NOT solo-feasible** — XLabs trains on 8-GPU
+  clusters; a single 24GB can't even reliably run IP-Adapter inference. Joins
+  ControlNet/checkpoint as off-limits. **The LoRA is the only feasible unit.**
+
+**Still open** (low priority):
 - Whether any **paid BFL tier** authorizes selling a Flux-dev LoRA file to the public.
+- A quantified multi-res / eval-grid quality *delta* (feature confirmed, delta unmeasured).
 - Confirm **schnell (Apache-2.0)** terms + dev-vs-schnell LoRA quality tradeoff.
 - A marketplace-backed **static-vs-rigged price multiplier** (Fab/CGTrader/TurboSquid).
 - **Booth's exact fee split + payout threshold** (only AI policy + VRM pricing verified).
