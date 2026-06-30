@@ -503,47 +503,79 @@ fallback for clips the commercial library lacks.
 
 ## Phase TX: Tile/texture foundation LoRAs (mat_tile + tile_topdown)
 
-Two material/texture-aesthetic Flux LoRAs trained with the proven `scripts/train_lora/`
-harness (rank 16/alpha 16, 1500 steps, lr 1e-4, adamw8bit, flowmatch, EMA 0.99,
-multi-res [512,768,1024], GPU 1 (3090 Ti) with ComfyUI stopped). **Key insight: a LoRA
-does NOT make a texture tile** — seamlessness comes from `ComfyUI-seamless-tiling`
-(`SeamlessTile` patches the model's Conv2d to circular padding; `CircularVAEDecode`
-does the same to the VAE). The LoRA teaches the material **aesthetic + even, flat,
-top-down lighting** so the seamless machinery has clean, evenly-lit input to wrap.
+Two material/texture-aesthetic **SDXL** LoRAs that feed the proven seamless tile path in
+the **tileset-ralph** pipeline. **Key insight: a LoRA does NOT make a texture tile** —
+seamlessness comes from `ComfyUI-seamless-tiling` (`SeamlessTile` patches the model's
+Conv2d to circular padding; `CircularVAEDecode` does the same to the VAE). The LoRA
+teaches the material **aesthetic + even, flat, top-down lighting** so the seamless
+machinery has clean, evenly-lit input to wrap.
 
-**Architecture constraint (drives TX4/TX8):** this harness produces **Flux** LoRAs, but
-the existing `workflows/mcp/generate_texture_tile.json` is **SDXL** — a Flux LoRA cannot
-load into it. The deploy path is therefore a **Flux + seamless** graph
-(flux1-dev-fp8 → LoraLoader(tile LoRA) → SeamlessTile(enable) → KSampler →
-CircularVAEDecode(enable) → SaveImage), registered as a new MCP tool, NOT the SDXL one.
+**Why SDXL, not Flux** (see project memory `project_seamless_texture_pipeline`): Flux's
+transformer has no spatial Conv2d layers for `SeamlessTile` to patch — tested and
+confirmed: wrap-seam MAD ~55 vs interior ~6, a hard seam. The proven seamless path is
+**SDXL** (`sd_xl_base_1.0.safetensors`, present at `D:/Projects/ComfyUI/models/checkpoints/`)
++ `SeamlessTile` + `CircularVAEDecode`, wired into the EXISTING
+`workflows/mcp/generate_texture_tile.json`. The `scripts/train_lora/` ai-toolkit harness
+trains Flux only (`is_flux: True` hardcoded; no sd_xl config) — so tile/material LoRAs
+require a **separate SDXL trainer** (kohya_ss / sd-scripts). Install prerequisite: TX0b.
+Deploy target: wire the trained SDXL LoRA into the EXISTING `generate_texture_tile.json`
+(add optional `LoraLoader` + `PARAM_LORA_NAME`/`PARAM_LORA_STRENGTH`) — NOT a new Flux
+workflow. Home pipeline: **tileset-ralph** (`pipelines/tileset-ralph/`).
 
 - **mat_tile** (TX1-TX4): PBR-style material surfaces (brick, stone, wood, metal, fabric,
   ground) from CC0 Poly Haven albedo maps. Trigger `mat_tile`.
 - **tile_topdown** (TX5-TX8): top-down RPG game tiles (grass, dirt, water, sand, path)
   from CC0 Kenney / OpenGameArt tilesets. Trigger `tile_topdown`.
 
-Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
+Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite for SDXL).
 
 ```json
 {
   "id": "TX0",
   "category": "setup",
   "priority": 1,
-  "description": "Write the tile-LoRA spec: triggers, caption templates, CC0 dataset sourcing, hyperparams (reuse mv_ortho recipe), and the seamless-tiling eval method (edge MAD <5% at 2x2/4x4)",
+  "description": "Rewrite the tile-LoRA spec for SDXL: triggers, caption templates, CC0 dataset sourcing, SDXL hyperparams (kohya_ss/sd-scripts sdxl_train_network.py, rank 16, 1024 res, ~1500 steps), and the seamless-tiling eval method (edge MAD <5% at 2x2/4x4). Previous spec was Flux-specific (Flux cannot tile); this rewrite documents the SDXL path that feeds generate_texture_tile.json.",
   "files": ["scripts/train_lora/datasets/tile_loras_spec.md"],
   "acceptance_criteria": [
-    "Documents both triggers (mat_tile, tile_topdown) and short trigger-anchored caption templates (e.g. 'mat_tile, <material>, seamless texture, even top-down lighting')",
+    "Documents both triggers (mat_tile, tile_topdown) and short trigger-anchored caption templates (e.g. 'mat_tile, <material>, seamless texture, even top-down lighting') — same tags work for SDXL",
     "CC0-only sourcing called out per LoRA: Poly Haven (mat_tile) + Kenney/OpenGameArt (tile_topdown), with license note",
-    "Hyperparams reuse the mv_ortho/grimforge recipe exactly (rank 16/alpha 16, 1500 steps, lr 1e-4, adamw8bit, flowmatch, EMA 0.99, multi-res 512/768/1024, GPU 1, ComfyUI stopped)",
-    "Explains the LoRA-vs-seamless split (LoRA = aesthetic+even light; SeamlessTile+CircularVAEDecode = actual tiling) and the Flux-not-SDXL deploy constraint",
-    "Eval method: pair LoRA output with SeamlessTile+CircularVAEDecode, tile 2x2/4x4, measure wrap-edge MAD <5% (with the exact metric definition)"
+    "Hyperparams documented for SDXL LoRA via kohya_ss sdxl_train_network.py: network_dim 16, network_alpha 16, ~1500 steps, lr 1e-4, AdamW8bit, resolution 1024 (SDXL-native), GPU 1 (3090 Ti), ComfyUI stopped, output to E:/ai-training/sdxl-output/<name>/",
+    "Explains the LoRA-vs-seamless split (LoRA = aesthetic+even light; SeamlessTile+CircularVAEDecode = actual tiling) and WHY SDXL not Flux (Flux has no Conv2d to patch)",
+    "Eval method: generate through SDXL generate_texture_tile.json + LoraLoader, tile 2x2/4x4, measure wrap-edge MAD <5% (with the exact metric definition)",
+    "Notes trainer prerequisite: kohya_ss/sd-scripts must be installed (TX0b) before TX2/TX6 can run",
+    "Notes that prep_dataset.py and tile_edge_mad.py are trainer-agnostic and reusable as-is"
   ],
   "steps": [
-    "Capture the proven recipe + CLI from launch_train.py/prep_dataset.py/caption.py",
-    "Document triggers, captions, sourcing, hyperparams, eval (edge MAD)",
-    "Write scripts/train_lora/datasets/tile_loras_spec.md"
+    "Rewrite scripts/train_lora/datasets/tile_loras_spec.md replacing Flux recipe with SDXL recipe",
+    "Document SDXL trainer CLI (sdxl_train_network.py) and config conventions",
+    "Update deploy path: SDXL LoRA → generate_texture_tile.json (existing) via optional LoraLoader"
   ],
-  "passes": true
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TX0b",
+  "category": "setup",
+  "priority": 1,
+  "description": "Install and verify an SDXL LoRA trainer (kohya_ss / sd-scripts) in its own venv on E:, GPU 1 (3090 Ti) verified, pointed at the LOCAL sd_xl_base_1.0.safetensors (no re-download). This is a hard prerequisite for TX2 and TX6 — no SDXL trainer is currently installed anywhere on this machine.",
+  "files": ["E:/ai-training/sd-scripts/", "scripts/train_lora/README.md"],
+  "acceptance_criteria": [
+    "kohya-ss/sd-scripts cloned + venv created on E: (E:/ai-training/sd-scripts/, Python 3.11) — keeps C:/D: space free",
+    "sdxl_train_network.py launches without import errors in the venv (Python 3.10+, torch+CUDA for GPU 1)",
+    "Trainer pointed at LOCAL sd_xl_base_1.0.safetensors (D:/Projects/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors) — no 6.9GB re-download",
+    "Smoke-test: sdxl_train_network.py with --max_train_steps 1 on a tiny dummy dataset (2 images) completes without OOM or CUDA errors on GPU 1 (CUDA_VISIBLE_DEVICES=1)",
+    "README documents the trainer install path, venv activation command, and the sdxl_train_network.py invocation pattern for TX2/TX6"
+  ],
+  "steps": [
+    "Clone kohya_ss or sd-scripts to E:/ai-training/sd-scripts/",
+    "Create venv: python -m venv E:/ai-training/sd-scripts/venv; install torch+CUDA + kohya deps",
+    "Verify sdxl_train_network.py is importable and GPU 1 is visible (CUDA_VISIBLE_DEVICES=1 nvidia-smi)",
+    "Run 1-step smoke-test on a 2-image dummy dataset with sd_xl_base_1.0.safetensors",
+    "Document install + invocation in scripts/train_lora/README.md"
+  ],
+  "passes": false
 }
 ```
 
@@ -552,18 +584,18 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX1",
   "category": "feature",
   "priority": 1,
-  "description": "Build the mat_tile dataset: ~30-50 CC0 evenly-lit tileable material crops from Poly Haven albedo maps; prep + short captions + manifest",
-  "files": ["scripts/train_lora/datasets/mat_tile_manifest.md"],
+  "description": "Build the mat_tile dataset: ~30-50 CC0 evenly-lit tileable material crops from Poly Haven albedo maps; prep + short SDXL-style captions + manifest. Dataset images live on E:; manifest lives under the tileset-ralph pipeline.",
+  "files": ["pipelines/tileset-ralph/loras/mat_tile/mat_tile_manifest.md"],
   "acceptance_criteria": [
     "~30-50 CC0 Poly Haven albedo/diffuse maps across material families (brick, stone, cobble, wood, planks, metal, concrete, fabric, ground/dirt/sand/grass)",
-    "prep_dataset.py normalizes to E:/ai-training/datasets/mat_tile (max-edge 1024, RGB)",
-    "SHORT captions per image: 'mat_tile, <material>, seamless texture, even top-down lighting' (NOT Florence2 verbose — these are flat surfaces)",
-    "Manifest lists each source asset, its Poly Haven slug, CC0 license, and the material tag"
+    "prep_dataset.py normalizes to E:/ai-training/datasets/mat_tile (max-edge 1024, RGB) — prep_dataset.py is trainer-agnostic (Pillow only) and reusable as-is",
+    "SHORT tag-style captions per image: 'mat_tile, <material>, seamless texture, even top-down lighting' (NOT Florence2 verbose — these are flat surfaces; short natural tags suit SDXL well)",
+    "Manifest at pipelines/tileset-ralph/loras/mat_tile/mat_tile_manifest.md lists each source asset, its Poly Haven slug, CC0 license, and the material tag"
   ],
   "steps": [
     "Download CC0 Poly Haven albedo maps (blender-mcp download_polyhaven_asset or HTTP) across material families",
     "prep_dataset.py --src ... --out E:/ai-training/datasets/mat_tile --max-edge 1024",
-    "Write short trigger-anchored captions + mat_tile_manifest.md"
+    "Write short trigger-anchored captions + manifest at pipelines/tileset-ralph/loras/mat_tile/mat_tile_manifest.md"
   ],
   "passes": false
 }
@@ -574,17 +606,18 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX2",
   "category": "feature",
   "priority": 1,
-  "description": "Train the mat_tile Flux LoRA (stop ComfyUI first; launch_train.py with the mv_ortho recipe; collect checkpoints; restart ComfyUI)",
-  "files": ["scripts/train_lora/configs/mat_tile.json"],
+  "description": "Train the mat_tile SDXL LoRA via kohya_ss sdxl_train_network.py (stop ComfyUI first; GPU 1, 3090 Ti; base = local sd_xl_base_1.0.safetensors; output to E:/ai-training/sdxl-output/mat_tile/). Prereq: TX0b (trainer installed).",
+  "files": ["E:/ai-training/sdxl-output/mat_tile/"],
   "acceptance_criteria": [
-    "ComfyUI stopped before launch; training confirmed on GPU 1 (3090 Ti) via nvidia-smi",
-    "launch_train.py --dataset E:/ai-training/datasets/mat_tile --name mat_tile --trigger mat_tile --steps 1500 --rank 16 --resolutions 512,768,1024",
-    "Per-checkpoint saves (every 250) + final mat_tile.safetensors on E:/ai-training/flux-output/mat_tile/",
-    "No OOM; sample images trend toward flat, evenly-lit material surfaces; ComfyUI restarted on the 3090 Ti afterwards"
+    "ComfyUI stopped before launch to free 24GB; training confirmed on GPU 1 (CUDA_VISIBLE_DEVICES=1 nvidia-smi)",
+    "sdxl_train_network.py invoked with: --pretrained_model_name_or_path D:/Projects/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors, --train_data_dir E:/ai-training/datasets/mat_tile, --network_dim 16, --network_alpha 16, --max_train_steps 1500, --resolution 1024,1024, --learning_rate 1e-4, --optimizer_type AdamW8bit, --save_every_n_steps 250",
+    "Per-checkpoint saves (every 250) + final mat_tile.safetensors on E:/ai-training/sdxl-output/mat_tile/",
+    "No OOM; sample images trend toward flat, evenly-lit material surfaces; ComfyUI restarted on the 3090 Ti afterwards (run_3090ti.ps1)"
   ],
   "steps": [
     "Stop ComfyUI to free the 24GB",
-    "launch_train.py (background); verify device 1; collect checkpoints",
+    "Activate E:/ai-training/sd-scripts/venv; run sdxl_train_network.py with CUDA_VISIBLE_DEVICES=1; verify GPU 1 via nvidia-smi",
+    "Collect checkpoints at E:/ai-training/sdxl-output/mat_tile/",
     "Restart ComfyUI (run_3090ti.ps1)"
   ],
   "passes": false
@@ -596,17 +629,17 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX3",
   "category": "testing",
   "priority": 2,
-  "description": "Eval mat_tile: 2D grid (base vs LoRA) + seamless validation through the circular-padding path; measure wrap-edge MAD <5% at 2x2/4x4",
+  "description": "Eval mat_tile: 2D grid (base vs LoRA) + seamless validation through the SDXL circular-padding path (generate_texture_tile.json + LoraLoader); measure wrap-edge MAD <5% at 2x2/4x4. tile_edge_mad.py is generation-path-agnostic and reusable.",
   "files": ["scripts/train_lora/eval/mat_tile_grid.md", "scripts/train_lora/eval/tile_edge_mad.py"],
   "acceptance_criteria": [
     "tile_edge_mad.py computes the mean-absolute-difference across the horizontal+vertical wrap seams of a tile (0-100% of channel range) and tiles 2x2/4x4 for visual proof",
-    "Base-vs-LoRA generated through Flux + SeamlessTile(enable) + CircularVAEDecode(enable) at fixed seeds/strengths 0.6/0.8/1.0",
+    "Base-vs-LoRA generated through SDXL generate_texture_tile.json + LoraLoader(mat_tile) + SeamlessTile(enable) + CircularVAEDecode(enable) at fixed seeds/strengths 0.6/0.8/1.0",
     "Winner cell named; the winning mat_tile output achieves wrap-edge MAD <5% at 2x2 and 4x4 (seamless machinery working) AND reads as an evenly-lit material (LoRA working)",
     "Verdict records the winning (checkpoint, strength) and the measured edge MAD"
   ],
   "steps": [
-    "Restart ComfyUI; write tile_edge_mad.py",
-    "Generate base + LoRA tiles through the seamless Flux path across strengths",
+    "Write tile_edge_mad.py (generation-path-agnostic; reused by TX7)",
+    "Generate base + LoRA tiles through generate_texture_tile.json (SDXL + SeamlessTile + CircularVAEDecode) with mat_tile LoRA loaded at strengths 0.6/0.8/1.0",
     "Tile 2x2/4x4, measure edge MAD, record verdict in eval/mat_tile_grid.md"
   ],
   "passes": false
@@ -618,18 +651,20 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX4",
   "category": "feature",
   "priority": 2,
-  "description": "Deploy mat_tile to ComfyUI/models/loras/style/ and wire it into a Flux+seamless texture-generation path (new MCP workflow, since the existing tile workflow is SDXL)",
-  "files": ["workflows/mcp/generate_texture_tile_flux.json", "workflows/mcp/generate_texture_tile_flux.meta.json"],
+  "description": "Deploy mat_tile SDXL LoRA to ComfyUI/models/loras/style/ and wire it into the EXISTING generate_texture_tile.json workflow (add optional LoraLoader + PARAM_LORA_NAME/PARAM_LORA_STRENGTH to the workflow + .meta.json). No new Flux workflow needed — the SDXL LoRA loads directly into the proven SDXL seamless path.",
+  "files": ["workflows/mcp/generate_texture_tile.json", "workflows/mcp/generate_texture_tile.meta.json"],
   "acceptance_criteria": [
     "Winning mat_tile.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger mat_tile + recommended strength)",
-    "A new parametric Flux+seamless workflow (flux1-dev-fp8 → LoraLoader(mat_tile) → SeamlessTile(enable) → KSampler → CircularVAEDecode(enable) → SaveImage) authored + .meta.json, validated, registered as an MCP tool",
-    "Smoke-tested: generate one seamless material tile through the new tool; confirm wrap-edge MAD <5%",
-    "README documents the texture-tile path + the Flux-not-SDXL rationale"
+    "generate_texture_tile.json updated: optional LoraLoader node wired between checkpoint and SeamlessTile; PARAM_LORA_NAME and PARAM_LORA_STRENGTH params added (both optional, default to no-op / empty when not supplied)",
+    "generate_texture_tile.meta.json updated: PARAM_LORA_NAME (string, optional) and PARAM_LORA_STRENGTH (float 0.0-1.0, default 0.8) documented as new WorkflowParameters",
+    "Smoke-tested: generate one seamless material tile via generate_game_tileset MCP tool (mode 'simple') with lora_name=mat_tile; confirm wrap-edge MAD <5%",
+    "pipelines/tileset-ralph/loras/mat_tile/ contains the manifest and a deploy-receipt noting the .safetensors location and trigger"
   ],
   "steps": [
-    "Copy + sidecar the winner",
-    "Author + validate generate_texture_tile_flux.json/.meta.json (seamless nodes wired)",
-    "Smoke-test via the MCP tool; document"
+    "Copy winning mat_tile.safetensors to D:/Projects/ComfyUI/models/loras/style/ + write .txt sidecar",
+    "Update generate_texture_tile.json to wire in optional LoraLoader with PARAM_LORA_NAME/PARAM_LORA_STRENGTH",
+    "Update generate_texture_tile.meta.json with new optional WorkflowParameters",
+    "Smoke-test via generate_game_tileset mode 'simple' with mat_tile LoRA; confirm MAD <5%"
   ],
   "passes": false
 }
@@ -640,18 +675,18 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX5",
   "category": "feature",
   "priority": 3,
-  "description": "Build the tile_topdown dataset: ~30-50 CC0 top-down RPG tiles (Kenney/OpenGameArt); prep + short captions + manifest",
-  "files": ["scripts/train_lora/datasets/tile_topdown_manifest.md"],
+  "description": "Build the tile_topdown dataset: ~30-50 CC0 top-down RPG tiles (Kenney/OpenGameArt); prep + short SDXL-style captions + manifest. Dataset images on E:; manifest under tileset-ralph pipeline.",
+  "files": ["pipelines/tileset-ralph/loras/tile_topdown/tile_topdown_manifest.md"],
   "acceptance_criteria": [
     "~30-50 CC0 top-down RPG tiles (grass, dirt, water, sand, path/road, stone floor) from Kenney and/or OpenGameArt (CC0 only)",
-    "prep_dataset.py normalizes to E:/ai-training/datasets/tile_topdown",
-    "SHORT captions: 'tile_topdown, <terrain> tile, top-down RPG tileset, seamless texture, even lighting'",
-    "Manifest lists each source pack, its CC0 license/URL, and the terrain tag"
+    "prep_dataset.py normalizes to E:/ai-training/datasets/tile_topdown (max-edge 1024, RGB) — prep_dataset.py is trainer-agnostic and reusable as-is",
+    "SHORT tag-style captions: 'tile_topdown, <terrain> tile, top-down RPG tileset, seamless texture, even lighting' (short natural tags suit SDXL well)",
+    "Manifest at pipelines/tileset-ralph/loras/tile_topdown/tile_topdown_manifest.md lists each source pack, its CC0 license/URL, and the terrain tag"
   ],
   "steps": [
     "Download CC0 Kenney/OpenGameArt top-down tile packs",
-    "prep_dataset.py --src ... --out E:/ai-training/datasets/tile_topdown",
-    "Write short captions + tile_topdown_manifest.md"
+    "prep_dataset.py --src ... --out E:/ai-training/datasets/tile_topdown --max-edge 1024",
+    "Write short captions + manifest at pipelines/tileset-ralph/loras/tile_topdown/tile_topdown_manifest.md"
   ],
   "passes": false
 }
@@ -662,14 +697,20 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX6",
   "category": "feature",
   "priority": 3,
-  "description": "Train the tile_topdown Flux LoRA (stop ComfyUI; launch_train.py with the mv_ortho recipe; collect checkpoints; restart ComfyUI)",
-  "files": ["scripts/train_lora/configs/tile_topdown.json"],
+  "description": "Train the tile_topdown SDXL LoRA via kohya_ss sdxl_train_network.py (stop ComfyUI first; GPU 1, 3090 Ti; base = local sd_xl_base_1.0.safetensors; output to E:/ai-training/sdxl-output/tile_topdown/). Prereq: TX0b (trainer installed).",
+  "files": ["E:/ai-training/sdxl-output/tile_topdown/"],
   "acceptance_criteria": [
-    "ComfyUI stopped; training on GPU 1 confirmed via nvidia-smi",
-    "launch_train.py --dataset E:/ai-training/datasets/tile_topdown --name tile_topdown --trigger tile_topdown --steps 1500 --rank 16 --resolutions 512,768,1024",
-    "Checkpoints + final tile_topdown.safetensors on E:/ai-training/flux-output/tile_topdown/; ComfyUI restarted afterwards"
+    "ComfyUI stopped before launch to free 24GB; training confirmed on GPU 1 (CUDA_VISIBLE_DEVICES=1 nvidia-smi)",
+    "sdxl_train_network.py invoked with: --pretrained_model_name_or_path D:/Projects/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors, --train_data_dir E:/ai-training/datasets/tile_topdown, --network_dim 16, --network_alpha 16, --max_train_steps 1500, --resolution 1024,1024, --learning_rate 1e-4, --optimizer_type AdamW8bit, --save_every_n_steps 250",
+    "Per-checkpoint saves (every 250) + final tile_topdown.safetensors on E:/ai-training/sdxl-output/tile_topdown/",
+    "No OOM; sample images trend toward flat, evenly-lit top-down terrain tiles; ComfyUI restarted afterwards (run_3090ti.ps1)"
   ],
-  "steps": ["Stop ComfyUI", "launch_train.py (background); verify device 1", "Restart ComfyUI"],
+  "steps": [
+    "Stop ComfyUI to free the 24GB",
+    "Activate E:/ai-training/sd-scripts/venv; run sdxl_train_network.py with CUDA_VISIBLE_DEVICES=1; verify GPU 1 via nvidia-smi",
+    "Collect checkpoints at E:/ai-training/sdxl-output/tile_topdown/",
+    "Restart ComfyUI (run_3090ti.ps1)"
+  ],
   "passes": false
 }
 ```
@@ -679,14 +720,17 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX7",
   "category": "testing",
   "priority": 4,
-  "description": "Eval tile_topdown: 2D grid (base vs LoRA) + seamless validation; wrap-edge MAD <5% at 2x2/4x4",
+  "description": "Eval tile_topdown: 2D grid (base vs LoRA) + seamless validation through the SDXL circular-padding path (generate_texture_tile.json + LoraLoader); wrap-edge MAD <5% at 2x2/4x4. Reuses tile_edge_mad.py from TX3.",
   "files": ["scripts/train_lora/eval/tile_topdown_grid.md"],
   "acceptance_criteria": [
-    "Base-vs-LoRA generated through Flux + SeamlessTile + CircularVAEDecode at strengths 0.6/0.8/1.0 on terrain prompts",
-    "tile_edge_mad.py (from TX3) measures the winning tile_topdown output at wrap-edge MAD <5% at 2x2 and 4x4",
+    "Base-vs-LoRA generated through SDXL generate_texture_tile.json + LoraLoader(tile_topdown) + SeamlessTile(enable) + CircularVAEDecode(enable) at strengths 0.6/0.8/1.0 on terrain prompts",
+    "tile_edge_mad.py (from TX3, generation-path-agnostic) measures the winning tile_topdown output at wrap-edge MAD <5% at 2x2 and 4x4",
     "Verdict names the winning (checkpoint, strength) and confirms the LoRA reads as a top-down game tile aesthetic"
   ],
-  "steps": ["Run the seamless grid", "Measure edge MAD", "Record verdict in eval/tile_topdown_grid.md"],
+  "steps": [
+    "Generate base + LoRA tiles through generate_texture_tile.json (SDXL + SeamlessTile + CircularVAEDecode) with tile_topdown LoRA at strengths 0.6/0.8/1.0",
+    "Run tile_edge_mad.py; tile 2x2/4x4; record verdict in eval/tile_topdown_grid.md"
+  ],
   "passes": false
 }
 ```
@@ -696,14 +740,19 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
   "id": "TX8",
   "category": "feature",
   "priority": 4,
-  "description": "Deploy tile_topdown to ComfyUI/models/loras/style/ + wire into the Flux+seamless texture path; smoke-test + document",
-  "files": ["scripts/train_lora/README.md", "D:/Projects/ComfyUI/models/loras/style/"],
+  "description": "Deploy tile_topdown SDXL LoRA to ComfyUI/models/loras/style/ (already wired into generate_texture_tile.json by TX4); smoke-test both tile LoRAs end-to-end + document.",
+  "files": ["scripts/train_lora/README.md", "pipelines/tileset-ralph/loras/tile_topdown/"],
   "acceptance_criteria": [
-    "Winning tile_topdown.safetensors copied to loras/style/ with a .txt sidecar (trigger + strength)",
-    "Usable via the generate_texture_tile_flux MCP tool (pass lora_name=tile_topdown); smoke-tested to a seamless top-down tile (edge MAD <5%)",
-    "README documents both tile LoRAs, their triggers/strengths, the seamless path, and how to rebuild each dataset"
+    "Winning tile_topdown.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger tile_topdown + recommended strength)",
+    "Usable via generate_game_tileset MCP tool (mode 'simple') with lora_name=tile_topdown; smoke-tested to a seamless top-down tile (edge MAD <5%)",
+    "pipelines/tileset-ralph/loras/tile_topdown/ contains the manifest and a deploy-receipt noting .safetensors location and trigger",
+    "scripts/train_lora/README.md documents both tile LoRAs (mat_tile + tile_topdown): triggers, strengths, SDXL trainer path, dataset rebuild commands, and the seamless path (generate_texture_tile.json)"
   ],
-  "steps": ["Copy + sidecar the winner", "Smoke-test through the Flux seamless tool", "Document both tile LoRAs in README"],
+  "steps": [
+    "Copy winning tile_topdown.safetensors to D:/Projects/ComfyUI/models/loras/style/ + write .txt sidecar",
+    "Smoke-test via generate_game_tileset mode 'simple' with tile_topdown LoRA; confirm MAD <5%",
+    "Document both tile LoRAs in scripts/train_lora/README.md"
+  ],
   "passes": false
 }
 ```

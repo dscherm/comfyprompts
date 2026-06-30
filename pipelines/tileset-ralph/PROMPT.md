@@ -104,6 +104,7 @@ You are an expert in:
 - **Primary**: `generate_game_tileset` MCP tool with mode `"simple"` (uses `generate_texture_tile.json` workflow -- SDXL + optional SomeTile/PreAlphaWoW LoRA)
 - **Batch script**: `packages/mcp-server/scripts/generate_topdown_tiles.py` for bulk generation with consistent style
 - **Coherent set**: `generate_game_tileset` with mode `"coherent"` (uses `generate_tileset_coherent.meta.json` -- 16 marching squares via non-manifold diffusion, requires comfyui-tileset-nodes)
+- **Project-trained LoRAs (Phase TX)**: This project trains its own `mat_tile` and `tile_topdown` **SDXL** LoRAs (via `plan.md` Phase TX tasks) that load directly into `generate_texture_tile.json` via the optional `PARAM_LORA_NAME`/`PARAM_LORA_STRENGTH` params. These LoRAs teach material aesthetic + flat even top-down lighting; seamlessness comes from `SeamlessTile`+`CircularVAEDecode` already in that workflow. **Flux LoRAs are NOT compatible with this seamless path** (Flux has no Conv2d layers for SeamlessTile to patch -- tested: hard wrap seam). Manifests and deploy receipts live in `pipelines/tileset-ralph/loras/<name>/`.
 
 ### Transitions
 - **Primary**: `generate_game_tileset` with mode `"dual_terrain"` (uses `generate_terrain_transition.meta.json` -- marching squares mask blending between two terrains)
