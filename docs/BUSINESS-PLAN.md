@@ -138,6 +138,20 @@ Each playbook = **what you sell · who buys & where · pricing · the product ga
   - **Reach vs dollars:** CivitAI is a **lead-magnet + reputation engine**
     (earnings top-heavy: top 1,000 creators ≈ 90% of Buzz; median cycle payout
     ~$81) — capture actual dollars on the **Gumroad/Ko-fi mirror (~90%)**.
+  - **Utility/quality-enhancer LoRA track** (verified 2026-06-30, `flux-model-types-
+    and-feasibility.md`): the **most-downloaded Flux LoRAs are utility enhancers**
+    (hands/anatomy/detail/realism), not art styles — they're used in *every*
+    generation, so they top the 25%-of-Generator-Buzz mechanic. Build one or two
+    **FREE** (licensing bars selling the file) as the best Buzz/reputation/funnel
+    engine — fitting our edge: a stylized/game-art **detail enhancer** or a
+    **clean-silhouette/neutral-bg** helper (the latter also improves image→3D input).
+  - **Feasibility boundary:** the **LoRA is the only solo-feasible unit** on a
+    24GB card. **Do NOT attempt to train Flux ControlNets** (datacenter-scale:
+    300k steps / 20M images) **or full checkpoints** (~120GB) — use existing
+    ControlNets for inference instead.
+  - **Edge, stated honestly:** lead with **repeatability + curation + 3D-rendered
+    datasets** (verifiable). Multi-res training is real but its quality *delta* is
+    unquantified — don't market "higher quality" as a proven claim.
 
 ### E — Rigged characters (VRM / humanoid / Mixamo-compatible)  *(higher ceiling, harden first)*
 - **Sell:** game-ready rigged humanoid/creature GLB; **VRM** avatars for the
@@ -400,10 +414,19 @@ audience are where the meaningful ceiling lives.
   **schnell (Apache-2.0)** for any sellable LoRA file. Folded into §3 (Stream D)
   + §7. **Materially changes D0.6/D0.7.**
 
+**Resolved — pass 5 (2026-06-30)** (→ `docs/research/flux-model-types-and-feasibility.md`):
+- [x] **Top Flux LoRA category = utility/quality enhancers** (hands/anatomy/detail/
+  realism), above any single art style → build a **free** utility-LoRA track for
+  CivitAI Buzz/reputation (folded into §3 Stream D).
+- [x] **24GB feasibility:** LoRA/QLoRA = first-class (FluxGym 12-20GB, ai-toolkit
+  24GB, SimpleTuner ~18GB int8, QLoRA ~9GB). **ControlNet training (datacenter-
+  scale) and full fine-tune (~120GB) are NOT solo-feasible — the LoRA is the unit.**
+- [~] **Quality edge:** multi-res bucketing confirmed built-in, but the quality
+  *delta* is unquantified → market repeatability/curation, not "higher quality."
+
 **Still open → next pass** (needs deeper data):
-- **Q2/Q3 from pass 4 went unanswered** (no surviving claims): Flux-vs-SDXL LoRA
-  supply ratio; whether utility/quality LoRAs lead Flux downloads; 24GB
-  ControlNet/IP-Adapter *training* feasibility; measured LoRA quality-edge factors.
+- Numeric Flux-vs-SDXL LoRA **supply ratio** (all specific ratios refuted; needs a
+  direct CivitAI API count) + Flux **IP-Adapter** 24GB training feasibility (unverified).
 - Whether any **paid BFL tier** authorizes selling a Flux-dev LoRA file to the public.
 - Confirm **schnell (Apache-2.0)** terms + dev-vs-schnell LoRA quality tradeoff.
 - A marketplace-backed **static-vs-rigged price multiplier** (Fab/CGTrader/TurboSquid).
