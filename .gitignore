@@ -117,3 +117,8 @@ tools/asset_generators/village_kit/godot_verify/*.uid
 tools/asset_generators/village_kit/godot_verify/village.tscn
 tools/asset_generators/village_kit/godot_verify/verify_shot.png
 tools/asset_generators/village_kit/godot_verify/aesthetic.txt
+
+# ralph A/B trial runtime state (per-machine, never commit — live experiment data)
+.ralph/ab_trial_schedule.json
+.ralph/ab_trial_results.jsonl
+.claude/.ralph-bridge-resume.md
