@@ -472,7 +472,9 @@ fallback for clips the commercial library lacks.
     "Re-bake (batch_retarget.py) and re-review; each clip reads as a natural, game-usable loop/one-shot"
   ],
   "steps": ["Review the 9 fixed clips (MP4s / live Blender)", "Pick better sources/sub-ranges for the weak ones", "Re-bake + re-review"],
-  "passes": false
+  "superseded_by": "Unity-Humanoid decision (2026-06-30)",
+  "superseded_reason": "GS8 re-bakes rokoko_legacy_* via batch_retarget.py 'now that the retarget is faithful' — but the hand-rolled retarget is previz-only (lesson hand-rolled-retarget-limb-plane), so curating its source clips no longer feeds the ship set. The intent (pick clean single-purpose clips) is satisfied for the ship path by the curated free-Mixamo clip list in pipelines/animate-ralph/UNITY-IMPORT-NOTES.md §2. Re-baking via batch_retarget.py would only produce previz.",
+  "passes": true
 }
 ```
 
