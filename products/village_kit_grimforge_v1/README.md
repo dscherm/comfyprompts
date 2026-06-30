@@ -22,8 +22,11 @@ lamppost, brazier (glowing), signpost, cart, haystack, gravestone.
 - `models_obj/` — OBJ (+ .mtl)
 - `models_fbx/` — FBX
 
-Every piece is one mesh with solid-color materials (no textures — nothing to
-mip-blur or break across engines).
+Color is baked into **vertex colors** with a soft top-light gradient (the
+low-poly "shaded" look) — no texture files to mip-blur or break across engines.
+**GLB is recommended** (Godot/Unity/Unreal read the vertex-color shading); FBX
+also carries vertex colors; OBJ is geometry (flat — assign color in-engine or
+use GLB/FBX).
 
 ## Modular system
 All pieces are built on a **1-unit grid**, centered at origin with the base at

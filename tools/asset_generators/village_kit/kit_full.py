@@ -1,0 +1,234 @@
+"""Full GrimForge medieval village kit: ~24 procedural pieces, solid colors,
+Tudor detail. Builds each, exports GLB, lays out a catalog, renders it.
+blender -b --python kit_full.py"""
+import bpy, bmesh, math, os, mathutils
+D="C:/Users/scher/AppData/Local/Temp/claude/D--Projects-comfyui-toolchain/25899eda-2041-4e64-a0a8-0c83c9100526/scratchpad"
+GLBDIR=f"{D}/kit_glb"; os.makedirs(GLBDIR,exist_ok=True)
+bpy.ops.wm.read_factory_settings(use_empty=True)
+sc=bpy.context.scene
+def Hx(h): return tuple(int(h[i:i+2],16)/255 for i in (0,2,4))+(1.0,)
+PAL={
+ "stone":Hx("6f756a"),"stone_dk":Hx("4c5249"),"plaster":Hx("c9bfa6"),"plaster2":Hx("bcae8e"),
+ "beam":Hx("3a2a1a"),"wood":Hx("5a4230"),"wood_dk":Hx("39291b"),"thatch":Hx("7a6332"),
+ "thatch_dk":Hx("5e4d27"),"slate":Hx("3b434d"),"roof_red":Hx("823629"),"window":Hx("ffcf6b"),
+ "iron":Hx("474b52"),"moss":Hx("4f6a37"),"grass":Hx("44602f"),"dirt":Hx("4d3c29"),
+ "cobble":Hx("5a5a62"),"cloth":Hx("355f58"),"cloth_r":Hx("7a2f2a"),"leaf":Hx("3f7a35"),
+ "leaf_dk":Hx("2e5a26"),"fire":Hx("ff8a2a"),"gold":Hx("c8a23a"),"bone":Hx("c4bba2"),
+}
+M={}
+def mat(n):
+    if n in M: return M[n]
+    m=bpy.data.materials.new(n); m.use_nodes=True; b=m.node_tree.nodes["Principled BSDF"]
+    b.inputs["Base Color"].default_value=PAL[n]; b.inputs["Roughness"].default_value=0.9
+    if n in ("window","fire"):
+        b.inputs["Emission Color"].default_value=PAL[n]; b.inputs["Emission Strength"].default_value=2.0 if n=="fire" else 1.5
+    M[n]=m; return m
+def flat(o):
+    for p in o.data.polygons: p.use_smooth=False
+def box(P,sx,sy,sz,loc,c,rot=(0,0,0)):
+    bpy.ops.mesh.primitive_cube_add(size=1,location=loc,rotation=rot)
+    o=bpy.context.active_object; o.scale=(sx,sy,sz); o.data.materials.append(mat(c)); flat(o); P.append(o); return o
+def cyl(P,vn,r,dz,loc,c,rot=(0,0,0)):
+    bpy.ops.mesh.primitive_cylinder_add(vertices=vn,radius=r,depth=dz,location=loc,rotation=rot)
+    o=bpy.context.active_object; o.data.materials.append(mat(c)); flat(o); P.append(o); return o
+def cone(P,vn,r1,r2,dz,loc,c,rot=(0,0,0)):
+    bpy.ops.mesh.primitive_cone_add(vertices=vn,radius1=r1,radius2=r2,depth=dz,location=loc,rotation=rot)
+    o=bpy.context.active_object; o.data.materials.append(mat(c)); flat(o); P.append(o); return o
+def gable(P,w,d,h,loc,c,over=0.16):
+    w+=over; d+=over; bm=bmesh.new()
+    v=[bm.verts.new((-w/2,-d/2,0)),bm.verts.new((w/2,-d/2,0)),bm.verts.new((0,-d/2,h)),
+       bm.verts.new((-w/2,d/2,0)),bm.verts.new((w/2,d/2,0)),bm.verts.new((0,d/2,h))]
+    for f in [(0,1,2),(5,4,3),(0,2,5,3),(2,1,4,5),(1,0,3,4)]: bm.faces.new([v[i] for i in f])
+    bmesh.ops.recalc_face_normals(bm,faces=bm.faces)
+    me=bpy.data.meshes.new("g"); bm.to_mesh(me); bm.free()
+    o=bpy.data.objects.new("g",me); sc.collection.objects.link(o); o.location=loc
+    o.data.materials.append(mat(c)); flat(o); P.append(o); return o
+def join(P,name):
+    bpy.ops.object.select_all(action='DESELECT')
+    for o in P: o.select_set(True)
+    bpy.context.view_layer.objects.active=P[0]; bpy.ops.object.join()
+    o=bpy.context.active_object; o.name=name; return o
+
+# ---------- builders ----------
+def house(name,W=1.35,Dd=1.15,floors=1,jetty=True,roof="slate",wall="plaster",framing=True,chim=True,sign=None):
+    P=[]; bh=0.55
+    box(P,W,Dd,bh,(0,0,bh/2),"stone")
+    UW,UD=(W+0.22,Dd+0.22) if jetty else (W,Dd)
+    z=bh
+    for fl in range(floors):
+        box(P,UW,UD,0.55,(0,0,z+0.275),wall)
+        if jetty and fl==0: box(P,UW+0.02,UD+0.02,0.05,(0,0,z),"beam")
+        fy=-UD/2-0.01
+        if framing:
+            for x in (-UW/2+0.06,0,UW/2-0.06): box(P,0.05,0.04,0.5,(x,fy,z+0.27),"beam")
+            box(P,UW,0.04,0.05,(0,fy,z+0.5),"beam"); box(P,UW,0.04,0.05,(0,fy,z+0.05),"beam")
+            for s in (-1,1): box(P,0.05,0.04,0.32,(s*UW*0.26,fy,z+0.2),"beam",rot=(0,math.radians(s*32),0))
+        for wx in (-0.3,0.3):
+            box(P,0.2,0.05,0.2,(wx,fy+0.01,z+0.3),"wood_dk"); box(P,0.14,0.05,0.14,(wx,fy+0.03,z+0.3),"window")
+        z+=0.55
+    box(P,0.26,0.05,0.46,(0,-Dd/2-0.01,0.23),"wood_dk"); box(P,0.18,0.05,0.36,(0,-Dd/2-0.02,0.2),"wood")
+    gable(P,UW,UD,0.7,(0,0,z),roof,over=0.18)
+    box(P,0.08,UD+0.36,0.07,(0,0,z+0.7),"wood_dk")   # ridge (along Y - fixed)
+    if chim:
+        box(P,0.2,0.2,z+0.5,(W*0.42,0.34,(z+0.5)/2),"stone"); box(P,0.26,0.26,0.08,(W*0.42,0.34,z+0.5),"stone_dk")
+    if sign:
+        box(P,0.04,0.04,0.3,(W*0.5,-Dd*0.4,0.95),"beam"); box(P,0.28,0.04,0.18,(W*0.5+0.16,-Dd*0.4,0.78),sign)
+    return join(P,name)
+def church():
+    P=[]; box(P,1.3,2.2,0.9,(0,0,0.45),"stone")
+    gable(P,1.3,2.2,0.85,(0,0,0.9),"slate",over=0.2)
+    box(P,0.55,0.55,1.9,(0,-1.0,0.95),"stone")           # tower
+    cone(P,4,0.42,0,0.6,(0,-1.0,2.2),"slate",rot=(0,0,math.radians(45)))
+    box(P,0.06,0.06,0.34,(0,-1.0,2.6),"gold"); box(P,0.22,0.06,0.06,(0,-1.0,2.66),"gold")  # cross
+    for yy in (-0.2,0.5,1.0): box(P,0.18,0.05,0.5,(0.66,yy,0.7),"window");
+    box(P,0.3,0.06,0.55,(0,1.11,0.5),"wood_dk")
+    return join(P,"church")
+def barn():
+    P=[]; box(P,1.7,2.4,1.1,(0,0,0.55),"wood")
+    for x in (-0.7,0,0.7): box(P,0.08,2.42,0.08,(x,0,0.8),"wood_dk")
+    gable(P,1.7,2.4,0.95,(0,0,1.1),"thatch",over=0.2)
+    box(P,0.9,0.06,1.0,(0,-1.21,0.5),"wood_dk")          # big doors
+    return join(P,"barn")
+def tower():
+    P=[]; cyl(P,8,0.6,2.1,(0,0,1.05),"stone")
+    for k in range(8):
+        a=math.radians(k*45+22.5); box(P,0.2,0.2,0.28,(math.cos(a)*0.55,math.sin(a)*0.55,2.2),"stone_dk")
+    box(P,0.28,0.05,0.32,(0,-0.6,1.2),"window"); box(P,0.3,0.06,0.5,(0,-0.6,0.25),"wood_dk")
+    return join(P,"tower")
+def blacksmith():
+    P=[]; box(P,1.3,1.2,0.75,(0,0,0.375),"stone")
+    box(P,1.3,1.2,0.4,(0,0,0.95),"wood")
+    gable(P,1.3,1.2,0.5,(0,0,1.15),"slate",over=0.16)
+    box(P,0.32,0.32,1.7,(0.5,0.4,0.85),"stone"); box(P,0.2,0,0.3,(0.5,0.4,1.75),"fire")  # forge chimney glow
+    box(P,0.3,0.5,0.3,(0,-0.5,0.9),"iron")              # forge opening side
+    cyl(P,8,0.12,0.16,(-0.45,-0.5,0.55),"iron"); box(P,0.18,0.32,0.1,(-0.45,-0.5,0.68),"iron")  # anvil
+    return join(P,"blacksmith")
+
+def wall_seg():
+    P=[]; box(P,1.0,0.4,0.9,(0,0,0.45),"stone")
+    for x in (-0.35,0.05): box(P,0.22,0.42,0.18,(x,0,0.99),"stone_dk")
+    return join(P,"wall")
+def wall_gate():
+    P=[]
+    for s in (-1,1): box(P,0.5,0.6,1.7,(s*0.7,0,0.85),"stone")
+    box(P,1.0,0.6,0.35,(0,0,1.85),"stone")               # arch top
+    for s in (-1,1):
+        for x in (-0.18,0.0,0.18): box(P,0.16,0.62,0.18,(s*0.7+x*0.0,0,2.05),"stone_dk")
+    box(P,0.9,0.3,1.3,(0,0,0.65),"wood_dk")              # gate
+    return join(P,"wall_gate")
+def wall_corner():
+    P=[]; box(P,0.4,1.0,0.9,(0.3,0,0.45),"stone"); box(P,1.0,0.4,0.9,(0,0.3,0.45),"stone")
+    box(P,0.4,0.4,1.05,(0,0,0.52),"stone_dk")
+    return join(P,"wall_corner")
+
+def tile(name,c,h=0.1):
+    P=[]; box(P,1.0,1.0,h,(0,0,h/2-h),c); return join(P,name)
+def path_straight():
+    P=[]; box(P,1.0,1.0,0.08,(0,0,-0.04),"dirt")
+    for y in (-0.3,0.0,0.3): box(P,0.5,0.22,0.05,(0,y,0.0),"cobble")
+    return join(P,"path_straight")
+def path_corner():
+    P=[]; box(P,1.0,1.0,0.08,(0,0,-0.04),"dirt")
+    for a,b in [(-0.3,0),(0,0),(0,-0.3)]: box(P,0.34,0.34,0.05,(a,b,0.0),"cobble")
+    return join(P,"path_corner")
+
+def well():
+    P=[]; cyl(P,8,0.5,0.5,(0,0,0.25),"stone"); cyl(P,8,0.36,0.04,(0,0,0.5),"stone_dk")
+    for s in (-1,1): box(P,0.08,0.08,0.85,(s*0.42,0,0.65),"wood")
+    box(P,0.95,0.08,0.08,(0,0,1.08),"wood"); cyl(P,6,0.05,0.5,(0,0,0.95),"wood",rot=(math.radians(90),0,0))
+    gable(P,1.0,0.7,0.34,(0,0,1.12),"thatch",over=0.14); box(P,0.14,0.14,0.16,(0,0,0.66),"wood_dk")
+    return join(P,"well")
+def market_stall():
+    P=[]
+    for sx in (-0.5,0.5):
+        for sy in (-0.35,0.35): box(P,0.07,0.07,0.78,(sx,sy,0.39),"wood")
+    box(P,1.12,0.46,0.12,(0,0.16,0.56),"wood")
+    box(P,1.3,0.9,0.06,(0,-0.05,0.95),"cloth_r",rot=(math.radians(14),0,0))
+    for x in (-0.42,-0.14,0.14,0.42): box(P,0.12,0.9,0.06,(x,-0.05,0.96),"cloth")
+    box(P,0.2,0.2,0.2,(-0.3,0.18,0.72),"wood_dk"); cyl(P,8,0.16,0.34,(0.4,0.18,0.69),"wood_dk")
+    return join(P,"market_stall")
+def barrel():
+    P=[]; cyl(P,10,0.22,0.5,(0,0,0.25),"wood"); cyl(P,10,0.24,0.06,(0,0,0.13),"iron"); cyl(P,10,0.24,0.06,(0,0,0.37),"iron")
+    return join(P,"barrel")
+def crate():
+    P=[]; box(P,0.4,0.4,0.4,(0,0,0.2),"wood")
+    for e in [(-0.2,0,0.2),(0.2,0,0.2)]: box(P,0.04,0.42,0.42,e,"wood_dk")
+    box(P,0.42,0.42,0.04,(0,0,0.4),"wood_dk")
+    return join(P,"crate")
+def fence():
+    P=[];
+    for x in (-0.4,0.4): box(P,0.08,0.08,0.6,(x,0,0.3),"wood")
+    for z in (0.2,0.45): box(P,0.9,0.05,0.06,(0,0,z),"wood_dk")
+    return join(P,"fence")
+def tree():
+    P=[]; cyl(P,6,0.1,0.7,(0,0,0.35),"wood");
+    cone(P,7,0.5,0,0.7,(0,0,0.95),"leaf"); cone(P,7,0.38,0,0.55,(0,0,1.35),"leaf_dk")
+    return join(P,"tree")
+def tree_dead():
+    P=[]; cyl(P,6,0.11,1.3,(0,0,0.65),"wood_dk")
+    for s,zz,an in [(-1,1.0,40),(1,0.8,-35),(-1,1.3,25)]:
+        cyl(P,5,0.05,0.5,(s*0.18,0,zz),"wood_dk",rot=(0,math.radians(an),0))
+    return join(P,"tree_dead")
+def lamppost():
+    P=[]; cyl(P,6,0.05,1.3,(0,0,0.65),"iron"); box(P,0.18,0.18,0.18,(0,0,1.35),"iron"); box(P,0.12,0.12,0.12,(0,0,1.35),"window")
+    return join(P,"lamppost")
+def brazier():
+    P=[]; cone(P,6,0.2,0.1,0.6,(0,0,0.3),"iron"); cyl(P,8,0.27,0.16,(0,0,0.62),"iron")
+    cone(P,6,0.2,0,0.34,(0,0,0.82),"fire"); cone(P,5,0.11,0,0.26,(0.06,0,0.9),"fire")
+    return join(P,"brazier")
+def signpost():
+    P=[]; cyl(P,6,0.05,1.0,(0,0,0.5),"wood"); box(P,0.4,0.05,0.18,(0.15,0,0.85),"wood_dk")
+    return join(P,"signpost")
+def cart():
+    P=[]; box(P,0.9,0.5,0.18,(0,0,0.32),"wood"); box(P,0.9,0.5,0.22,(0,0,0.45),"wood_dk")
+    for sx in (-0.32,0.32): cyl(P,10,0.22,0.08,(sx,-0.28,0.22),"wood_dk",rot=(math.radians(90),0,0))
+    box(P,0.06,0.5,0.06,(0.0,0.4,0.5),"wood")
+    return join(P,"cart")
+def haystack():
+    P=[]; cyl(P,8,0.5,0.5,(0,0,0.25),"thatch"); cone(P,8,0.5,0,0.5,(0,0,0.7),"thatch_dk")
+    return join(P,"haystack")
+def gravestone():
+    P=[]; box(P,0.34,0.1,0.5,(0,0,0.25),"stone_dk"); box(P,0.34,0.12,0.12,(0,0,0.48),"stone")
+    return join(P,"gravestone")
+
+BUILD=[
+ ("cottage",lambda:house("cottage")),
+ ("house_small",lambda:house("house_small",jetty=False,roof="thatch",chim=True)),
+ ("house_tall",lambda:house("house_tall",W=1.1,Dd=1.0,floors=2,roof="slate")),
+ ("tavern",lambda:house("tavern",W=1.6,Dd=1.3,roof="thatch",sign="gold")),
+ ("church",church),("barn",barn),("tower",tower),("blacksmith",blacksmith),
+ ("wall",wall_seg),("wall_gate",wall_gate),("wall_corner",wall_corner),
+ ("ground_grass",lambda:tile("ground_grass","grass")),("ground_dirt",lambda:tile("ground_dirt","dirt")),
+ ("path_straight",path_straight),("path_corner",path_corner),
+ ("well",well),("market_stall",market_stall),("barrel",barrel),("crate",crate),
+ ("fence",fence),("tree",tree),("tree_dead",tree_dead),("lamppost",lamppost),
+ ("brazier",brazier),("signpost",signpost),("cart",cart),("haystack",haystack),("gravestone",gravestone),
+]
+
+placed=[]
+for i,(nm,fn) in enumerate(BUILD):
+    o=fn()
+    bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active=o
+    bpy.ops.export_scene.gltf(filepath=f"{GLBDIR}/{nm}.glb",export_format='GLB',use_selection=True)
+    col=i%6; row=i//6; o.location=(col*2.4-6, -row*2.4+5, 0); placed.append(o)
+
+# catalog ground + lighting
+P=[]; box(P,40,40,0.1,(0,0,-0.06),"dirt")
+sun=bpy.data.objects.new("Sun",bpy.data.lights.new("Sun",'SUN')); sc.collection.objects.link(sun)
+sun.data.energy=3.0; sun.data.angle=math.radians(5); sun.rotation_euler=(math.radians(52),math.radians(10),math.radians(35))
+fill=bpy.data.objects.new("F",bpy.data.lights.new("F",'SUN')); sc.collection.objects.link(fill)
+fill.data.energy=1.1; fill.data.use_shadow=False; fill.rotation_euler=(math.radians(62),0,math.radians(215))
+sc.world=bpy.data.worlds.new("W"); sc.world.use_nodes=True
+bg=sc.world.node_tree.nodes["Background"]; bg.inputs[1].default_value=0.55; bg.inputs[0].default_value=(0.55,0.6,0.66,1)
+sc.view_settings.view_transform='Standard'
+cam=bpy.data.objects.new("Cam",bpy.data.cameras.new("Cam")); sc.collection.objects.link(cam); sc.camera=cam
+cam.data.type='ORTHO'; cam.data.ortho_scale=17
+cam.location=(0,-12,16); look=mathutils.Vector((0,0,0))-mathutils.Vector(cam.location)
+cam.rotation_euler=look.to_track_quat('-Z','Y').to_euler()
+sc.render.engine='BLENDER_EEVEE'
+try: sc.eevee.taa_render_samples=48
+except Exception: pass
+sc.render.resolution_x=1500; sc.render.resolution_y=1100
+sc.render.filepath=f"{D}/kit_catalog.png"
+bpy.ops.render.render(write_still=True)
+print("DONE pieces:",len(BUILD))

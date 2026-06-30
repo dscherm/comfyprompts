@@ -1,14 +1,17 @@
 # GrimForge Village — Vol. 2 Expansion (Low-Poly Medieval Kit)
 
-23 new modular low-poly pieces that expand **GrimForge Village Vol. 1** — more
+25 new modular low-poly pieces that expand **GrimForge Village Vol. 1** — more
 buildings, defenses, a stone bridge, medieval props, and grimdark details.
 Same solid-color flat-shaded style and 1-unit grid. Use alongside Vol. 1 (the
 hero image combines both).
 
 ## Contents (23 pieces)
 
-**Buildings (5):** windmill, ruined house, stable, guard tower, stone bridge.
-**Defenses (3):** portcullis gate, ruined wall, wooden palisade.
+**Buildings (5):** windmill (lattice sails), ruined house, stable, guard tower,
+stone bridge (wide, cobbled, arched).
+**Defenses (4):** arched gatehouse with full portcullis, portcullis frame,
+ruined wall, wooden palisade.
+**Graveyard (1):** fenced graveyard plot (gravestones, mounds, tomb, dead tree).
 **Medieval props (8):** fountain, wood pile, standing torch (glowing), banner,
 stocks, anvil, water trough, weapon rack.
 **Grimdark props (3):** gibbet (hanging cage), bone pile, crypt entrance.
@@ -18,7 +21,9 @@ stocks, anvil, water trough, weapon rack.
 - `models_glb/` — **GLB** (recommended; native in Godot, imports to Unity/Unreal/Blender)
 - `models_obj/` — OBJ (+ .mtl) · `models_fbx/` — FBX
 
-Solid-color materials (no textures). Torch/forge/window pieces are emissive.
+Color is baked into **vertex colors** (soft top-light gradient "shaded" look) —
+no textures. **GLB recommended** (Godot/Unity/Unreal read vertex colors); FBX
+carries them too; OBJ is flat geometry. Torch/forge/window pieces are emissive.
 
 ## Modular system
 1-unit grid, centered at origin, base at floor level — same as Vol. 1. Walls,
