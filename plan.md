@@ -513,6 +513,37 @@ import packet: `pipelines/animate-ralph/UNITY-IMPORT-NOTES.md`. Automatable via
 documented manual GUI flow + the in-editor validator. **Mixamo has no API** — clip
 download is the one irreducibly manual web step.
 
+### ▶ RESUME AFTER RESTART (coplay live) — do this next
+
+This session restarted with the Unity Editor open on `../soapbox-unity` and the Coplay
+plugin signed in, so **coplay-mcp tools are now available** (verify with a tool search
+for coplay/unity; if absent, coplay didn't connect — confirm Unity is open + signed in
+and the session started AFTER). Then execute UH1→UH4 **in order**:
+
+1. **UH1 — verify coplay round-trip.** Call a coplay tool to read Unity scene/editor
+   state. Run `ValidateBarbarianHumanoid.Execute()` via coplay as a baseline (the
+   character will report Generic rig until UH2 — expected). Record the reconnect
+   procedure in `stages/07-unity-humanoid-packaging.md`. Mark UH1 gate-pass.
+2. **UH2 — import Humanoid.** On `Assets/Animations/Barbarian/Source/barbarian_accurig.fbx`
+   set Rig = Humanoid, Avatar Definition = Create From This Model, Apply; Configure +
+   Enforce T-Pose if any bone is red; assign `barbarian_tex.png` to Base Color. Re-run
+   the validator — §1 (character) must pass (avatar isValid && isHuman).
+3. **UH3 — Mixamo clips.** Mixamo download is MANUAL — prompt the user to download the
+   core set (idle, walk, run, attack, hit, dodge, block, wave, celebrate) as FBX
+   "Without Skin" into `Assets/Animations/Barbarian/Mixamo/`. Import each Humanoid /
+   Copy From Other Avatar = the barbarian avatar; Loop Time on idle/walk/run. Validator
+   §2 must pass.
+4. **UH4 — Animator + validate + cleanup.** Build `Barbarian.controller` (default Idle;
+   Speed float Idle↔Walk↔Run; AnyState triggers attack/hit/dodge/block/wave/celebrate →
+   exit Idle). Run `ValidateBarbarianHumanoid` (PASS); coplay-screenshot play-mode and
+   confirm NATURAL arm/leg carriage (not the previz splay). Update ANIMATION-MANIFEST.json
+   + VALIDATION.md; delete the stale Jun-27 arms-up clips from `Assets/Animations/Barbarian/`.
+
+After each task: commit the soapbox-unity changes and record the gate via the bridge
+(`bridge_state.py gate-pass UHx` → `done UHx`). If coplay never connects, fall back to
+the manual GUI flow in the stage doc + the headless validator (`-executeMethod
+ValidateBarbarianHumanoid.RunBatch`).
+
 ```json
 {
   "id": "UH0",
