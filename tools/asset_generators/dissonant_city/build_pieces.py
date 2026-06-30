@@ -33,7 +33,8 @@ def M(key):
         "pink": (PINK, None, 0, 0.6, 0.0), "cyan": (CYAN, None, 0, 0.6, 0.0),
         "cream": (CREAM, None, 0, 0.8, 0.0), "chrome": (CHROME, None, 0, 0.3, 0.5),
         "neonP": (PINK, PINK, 7, 0.4, 0.0), "neonC": (CYAN, CYAN, 7, 0.4, 0.0),
-        "win": (CREAM, "FFE9B0", 4, 0.5, 0.0),
+        "win": (CREAM, "FFE9B0", 4, 0.5, 0.0), "wgrid": (CYAN, CYAN, 3, 0.5, 0.0),
+        "navy": ("10122A", None, 0, 0.85, 0.0),
     }[key]
     return mat(key, Hx(d[0]), Hx(d[1]) if d[1] else None, d[2], d[3], d[4])
 
@@ -67,17 +68,11 @@ def sphere(r, loc, m, sc=(1, 1, 1)):
 
 
 # ---- piece builders (each builds at origin, z>=0) ----
-def tower_tall(body, band):
-    box(2.2, 2.2, 4.0, (0, 0, 2.0), M(body)); box(1.6, 1.6, 2.2, (0, 0, 4.9), M(body))
-    for i in (1, 2, 3): box(2.35, 2.35, 0.14, (0, 0, 1.3 * i), M(band))
-    cyl(1.0, 0.5, (0, 0, 6.1), M("chrome")); cone(0.9, 0.05, 1.6, (0, 0, 7.0), M(band), 6)
-    for z in (1.0, 2.4, 3.8): box(2.26, 0.55, 0.4, (0, 0, z), M("win"))
+def tower_tall(body, band):       # body kept for lambda signature (now always dark)
+    _edge_tower(1.7, 7.0, band)
 
 def tower_short(body, band):
-    box(2.2, 2.2, 2.6, (0, 0, 1.3), M(body))
-    for i in (1, 2): box(2.34, 2.34, 0.14, (0, 0, 0.9 * i), M(band))
-    cyl(1.1, 0.4, (0, 0, 2.8), M("chrome")); cone(1.0, 0.05, 1.2, (0, 0, 3.6), M(band), 6)
-    box(2.26, 0.5, 0.5, (0, 0, 1.4), M("win"))
+    _edge_tower(1.8, 4.4, band)
 
 def dome_building():
     cyl(2.6, 2.0, (0, 0, 1.0), M("cream"), 10); cyl(2.72, 0.2, (0, 0, 2.0), M("neonP"), 10)
@@ -97,9 +92,27 @@ def ziggurat():
     cone(0.6, 0.05, 1.0, (0, 0, 3.7), M("neonP"), 6)
 
 def cyl_tower():
-    cyl(1.6, 5.0, (0, 0, 2.5), M("cyan"), 12)
-    for z in (1.2, 2.6, 4.0): cyl(1.66, 0.16, (0, 0, z), M("neonP"), 12)
-    cyl(1.7, 0.4, (0, 0, 5.1), M("chrome"), 12); cone(0.5, 0.05, 1.4, (0, 0, 6.0), M("neonC"), 6)
+    # round counterpart of the neon tower: dark body, vertical neon strips,
+    # window grid, base/tier rings, crown + antenna.
+    sides = 14
+    body, ac, wn, cy = M("navy"), M("neonP"), M("wgrid"), M("neonC")
+    mh, sh, R = 5.4, 1.6, 1.6
+    cyl(R, mh, (0, 0, mh / 2), body, sides); cyl(R * 0.78, sh, (0, 0, mh + sh / 2), body, sides)
+    cyl(R + 0.18, 0.18, (0, 0, 0.09), cy, sides)        # base glow ring
+    cyl(R + 0.06, 0.12, (0, 0, mh), ac, sides); cyl(R * 0.78 + 0.06, 0.1, (0, 0, mh + sh), ac, sides)
+    for i in range(10):                                   # vertical neon strips
+        a = (i / 10.0) * 2 * math.pi
+        s = box(0.08, 0.08, mh, (R * 1.01 * math.cos(a), R * 1.01 * math.sin(a), mh / 2), ac)
+        s.rotation_euler.z = a
+    r = 0                                                 # window grid
+    while 0.5 + r * 0.7 < mh - 0.3:
+        wz = 0.5 + r * 0.7; r += 1
+        for i in range(9):
+            a = (i / 9.0) * 2 * math.pi + 0.2
+            w = box(0.3, 0.05, 0.2, (R * 1.02 * math.cos(a), R * 1.02 * math.sin(a), wz), wn)
+            w.rotation_euler.z = a
+    cyl(R * 0.7, 0.22, (0, 0, mh + sh + 0.1), M("chrome"), sides)
+    cyl(0.05, 1.6, (0, 0, mh + sh + 1.0), M("chrome"), 4); cone(0.1, 0.0, 0.3, (0, 0, mh + sh + 1.9), cy, 6)
 
 def arcology():
     box(3.6, 3.6, 1.6, (0, 0, 0.8), M("purple")); box(3.7, 3.7, 0.12, (0, 0, 1.6), M("neonP"))
@@ -204,12 +217,55 @@ def tower_prism():
             tri = cone(0.55, 0.0, 0.12, (fx, fy, z), M("neonP" if k % 2 == 0 else "neonC"), 3)
             tri.rotation_euler = (math.radians(90), 0, math.radians(frot + (180 if k % 2 else 0)))
 
+def _edge_tower(W, H, accent, footprint=True):
+    # dark-body neon tower: edge outlines + window grid (lit setback, no dark top).
+    body, ac, wn, cy = M("navy"), M(accent), M("wgrid"), M("neonC")
+    mh = H * 0.70; sh = H * 0.26; sw = W * 0.78
+    box(W, W, mh, (0, 0, mh / 2), body); box(sw, sw, sh, (0, 0, mh + sh / 2), body)
+    hx = W / 2; sx2 = sw / 2
+    for ex in (-1, 1):
+        for ey in (-1, 1):
+            box(0.07, 0.07, mh, (ex * hx, ey * hx, mh / 2), ac)              # main edges
+            box(0.06, 0.06, sh, (ex * sx2, ey * sx2, mh + sh / 2), ac)        # setback edges
+    def ring(w, z, m):
+        h = w / 2
+        for s in (-1, 1):
+            box(w + 0.06, 0.05, 0.05, (0, s * h, z), m); box(0.05, w + 0.06, 0.05, (s * h, 0, z), m)
+    ring(W, 0.1, cy); ring(W, mh, ac); ring(sw, mh + sh, ac)
+    # window grid on main mass
+    r = 0
+    while 0.5 + r * 0.72 < mh - 0.3:
+        wz = 0.5 + r * 0.72; r += 1
+        for col in (-1, 0, 1):
+            box(0.32, 0.04, 0.2, (col * W * 0.28, hx + 0.01, wz), wn)
+            box(0.32, 0.04, 0.2, (col * W * 0.28, -hx - 0.01, wz), wn)
+            box(0.04, 0.32, 0.2, (hx + 0.01, col * W * 0.28, wz), wn)
+            box(0.04, 0.32, 0.2, (-hx - 0.01, col * W * 0.28, wz), wn)
+    # lit setback window band (kills the dark top)
+    for fy in (1, -1):
+        box(sw * 0.66, 0.04, 0.42, (0, fy * (sx2 + 0.01), mh + sh * 0.5), wn)
+        box(0.04, sw * 0.66, 0.42, (fy * (sx2 + 0.01), 0, mh + sh * 0.5), wn)
+    if footprint:
+        for s in (-1, 1):
+            box(0.08, W + 0.6, 0.04, (s * (hx + 0.3), 0, 0.02), ac)
+            box(W + 0.6, 0.08, 0.04, (0, s * (hx + 0.3), 0.02), ac)
+    box(sw * 0.6, sw * 0.6, 0.22, (0, 0, mh + sh + 0.1), M("chrome"))
+    cyl(0.05, 1.6, (0, 0, mh + sh + 1.0), M("chrome"), 4)
+    cone(0.1, 0.0, 0.3, (0, 0, mh + sh + 1.9), cy, 6)
+
+def tower_neon():
+    _edge_tower(1.7, 7.2, "neonP")
+    # hero extras: bright vertical neon SIGN strips
+    box(0.05, 0.34, 3.2, (0.9, 0.45, 2.7), M("neonP"))
+    box(0.05, 0.18, 1.6, (0.9, -0.55, 4.4), M("neonC"))
+
 
 PIECES = {
     "tower_tall_cyan": lambda: tower_tall("cyan", "neonP"),
     "tower_tall_purple": lambda: tower_tall("purple", "neonC"),
     "tower_short_pink": lambda: tower_short("pink", "neonC"),
     "tower_cyl": cyl_tower, "tower_spiral": tower_spiral, "tower_prism": tower_prism,
+    "tower_neon": tower_neon,
     "dome_building": dome_building, "arcology": arcology,
     "ziggurat": ziggurat,
     "slab_shop_pink": lambda: slab_shop("pink", "neonC"),
