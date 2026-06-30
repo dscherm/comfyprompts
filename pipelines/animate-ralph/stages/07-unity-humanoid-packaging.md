@@ -73,6 +73,21 @@ Assets/Animations/Barbarian/Source/barbarian_tex.png
   not found in HumanDescription" error. Let Unity build the avatar.
 - CC_Base→Mecanim bone map: see `UNITY-IMPORT-NOTES.md` §3.
 
+> **Verified (UH2, 2026-06-30, coplay):** `barbarian_accurig.fbx` →
+> `animationType=Human`, `avatarSetup=CreateFromThisModel`; built
+> `barbarian_accurigAvatar` **isValid=True isHuman=True, 22 bones** (no Configure /
+> Enforce-T-Pose needed). The embedded URP/Lit material was **extracted** to
+> `Source/Materials/Material_0.mat` (embedded sub-assets aren't editable) and
+> `barbarian_tex.png` bound to `_BaseMap` (+`_MainTex`) — UVs align, no grey.
+> Validator §1 passes. A front scene capture confirms the textured Humanoid.
+>
+> **Caution on the legacy previz clips as a motion source:** sampling the Jun-27
+> `walk` previz clip onto this avatar (Humanoid retarget) renders the character pitched
+> ~45° back with arms splayed up/out — the `hand-rolled-retarget-limb-plane` defect,
+> baked into the motion and *not* fixed by muscle-space retarget. It confirms the previz
+> set is throwaway (UH4 deletes it); shippable motion must come from Mixamo (UH3). Also
+> note `idle.fbx` carries **no animation take** (static) — only walk/attack/etc. have one.
+
 ### 7.3 Download + import the Mixamo clip set (manual download)
 Grab the core gameplay set from mixamo.com as **FBX "Without Skin"** into
 `Assets/Animations/Barbarian/Mixamo/`:
