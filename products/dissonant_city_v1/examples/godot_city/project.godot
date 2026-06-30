@@ -1,0 +1,12 @@
+; Engine configuration file.
+config_version=5
+
+[application]
+
+config/name="DissonantCity"
+run/main_scene="res://build.tscn"
+config/features=PackedStringArray("4.6", "Forward Plus")
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.137, 0.063, 0.20, 1)
