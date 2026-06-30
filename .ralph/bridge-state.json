@@ -1,7 +1,7 @@
 {
-  "pipeline_id": "0756e188",
-  "started_at": "2026-06-24T11:58:02.585475+00:00",
-  "phase": "done",
+  "pipeline_id": "646dfc68",
+  "started_at": "2026-06-30T15:34:14.529859+00:00",
+  "phase": "task-loop",
   "spec_path": null,
   "plan_source": "plan.md",
   "tasks": [
@@ -9,55 +9,305 @@
       "id": "M1",
       "title": "M1",
       "status": "done",
-      "gate_result": "pass",
-      "observation_id": "obs-20260624120309-0000000",
-      "activated_at": "2026-06-24T12:03:09.673987+00:00"
+      "gate_result": null,
+      "observation_id": null
     },
     {
       "id": "M2",
       "title": "M2",
       "status": "done",
-      "gate_result": "pass",
-      "observation_id": "obs-20260624171631-0000000"
+      "gate_result": null,
+      "observation_id": null
     },
     {
       "id": "M3",
       "title": "M3",
       "status": "done",
-      "gate_result": "pass",
-      "observation_id": "obs-20260624174240-0000000"
+      "gate_result": null,
+      "observation_id": null
     },
     {
       "id": "M4",
       "title": "M4",
       "status": "done",
-      "gate_result": "pass",
-      "observation_id": "obs-20260624201027-0000000"
+      "gate_result": null,
+      "observation_id": null
     },
     {
       "id": "M5",
       "title": "M5",
       "status": "done",
-      "gate_result": "pass",
-      "observation_id": "obs-20260624201122-0000000",
-      "activated_at": "2026-06-24T20:11:22.173922+00:00"
+      "gate_result": null,
+      "observation_id": null
     },
     {
       "id": "M6",
       "title": "M6",
       "status": "done",
-      "gate_result": "pass",
-      "observation_id": "obs-20260624224638-0000000",
-      "activated_at": "2026-06-24T22:46:38.175503+00:00"
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MT0",
+      "title": "MT0",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MT1",
+      "title": "MT1",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MT2",
+      "title": "MT2",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MT3",
+      "title": "MT3",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MT4",
+      "title": "MT4",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS0",
+      "title": "GS0",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS1",
+      "title": "GS1",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS2",
+      "title": "GS2",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS3",
+      "title": "GS3",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS4",
+      "title": "GS4",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS6",
+      "title": "GS6",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": "obs-20260630161857-0000000",
+      "activated_at": "2026-06-30T16:18:57.833583+00:00"
+    },
+    {
+      "id": "GS7",
+      "title": "GS7",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS8",
+      "title": "GS8",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "GS5",
+      "title": "GS5",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX0",
+      "title": "TX0",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX1",
+      "title": "TX1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX2",
+      "title": "TX2",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX3",
+      "title": "TX3",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX4",
+      "title": "TX4",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX5",
+      "title": "TX5",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX6",
+      "title": "TX6",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX7",
+      "title": "TX7",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX8",
+      "title": "TX8",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "SL5",
+      "title": "SL5",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "SL6",
+      "title": "SL6",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "SL7",
+      "title": "SL7",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "PV1",
+      "title": "PV1",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "PV2",
+      "title": "PV2",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UL1",
+      "title": "UL1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UL2",
+      "title": "UL2",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UL3",
+      "title": "UL3",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UL4",
+      "title": "UL4",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DS1",
+      "title": "DS1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DS2",
+      "title": "DS2",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DS3",
+      "title": "DS3",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "DS4",
+      "title": "DS4",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
     }
   ],
-  "current_task_index": 6,
+  "current_task_index": 17,
   "stats": {
-    "tasks_completed": 6,
+    "tasks_completed": 1,
     "tasks_failed": 0,
-    "gate_passes": 6,
+    "gate_passes": 0,
     "gate_fails": 0,
-    "observations_recorded": 15
+    "observations_recorded": 2
   },
   "config": {
     "interactive_mode": true,
@@ -66,5 +316,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-25T01:06:09.475437+00:00"
+  "updated_at": "2026-06-30T16:35:01.407996+00:00"
 }

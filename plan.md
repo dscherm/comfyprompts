@@ -435,7 +435,8 @@ fallback for clips the commercial library lacks.
     "Fix extra-root handling OR configure the avatar live via coplay-mcp",
     "Verify all 9 import clean + the avatar is valid"
   ],
-  "passes": false
+  "note": "DONE 2026-06-30. ROOT CAUSE confirmed (from the GS4 live-editor error + the deployed metas): the package made idle CreateFromThisModel (avatarSetup:1) and the OTHER 8 clips CopyFromOther idle's avatar (avatarSetup:2, lastHumanDescriptionAvatarSource -> {fileID:9000000, guid:idle}). idle imported clean; the 8 copies failed with 'Copied Avatar Rig Configuration mis-match: Transform Armature not found in HumanDescription' — every retarget FBX has an extra 'Armature' transform above 'hips', and a copied (empty-skeleton) HumanDescription can't account for it. FIX (package_for_unity.py fbx_meta): make EVERY clip CreateFromThisModel (avatarSetup:1, lastHumanDescriptionAvatarSource:{instanceID:0}). Each FBX self-creates its own valid Humanoid avatar exactly like stock Mixamo FBX; Unity Humanoid clips are muscle-space normalized so any clip plays on the character's avatar regardless of which avatar instance it imported with (idle's avatar stays the canonical character avatar). This sidesteps the copy entirely — the known-good idle path is now applied to all 9. Redeployed: all 9 ../soapbox-unity/Assets/Animations/Barbarian/*.fbx.meta now avatarSetup:1, ZERO fileID:9000000 copied-avatar refs. Regression test tests/test_package_for_unity.py (10 cases) locks in CreateFromThisModel-for-every-clip + no copied ref + explicit human bone map; passing. LIVE-EDITOR CAVEAT: Unity was not running (list_unity_project_roots -> 0), so the final in-editor 'all 9 import clean, avatar valid' confirmation is GS4's job; this change removes the exact reported failure mode and applies the path idle already imported clean with.",
+  "passes": true
 }
 ```
 

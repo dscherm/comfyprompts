@@ -10,10 +10,22 @@ format, so no live step is required to PRODUCE the package:
 
   * Humanoid import + avatar — mirror the project's existing humanoid meta
     (Assets/.../Hitogatas.fbx.meta): animationType: 3, avatarSetup: 1 (Create From
-    This Model) on the canonical rig (idle.fbx), avatarSetup: 2 (Copy From Other)
-    on the other 8 clips. The bone map (UniRig role names -> Mecanim human bones) is
-    written explicitly into humanDescription.human so the avatar does not depend on
-    Unity's name-guessing. skeleton: [] -> Unity builds the T-pose from the model.
+    This Model) on EVERY clip. Each FBX self-creates its own valid Humanoid avatar
+    from its own model (exactly how stock Mixamo FBX import). The bone map (UniRig
+    role names -> Mecanim human bones) is written explicitly into
+    humanDescription.human so the avatar does not depend on Unity's name-guessing.
+    skeleton: [] -> Unity builds the T-pose + skeleton from the model.
+
+    Why not Copy From Other? The earlier package made idle CreateFromThisModel and
+    the other 8 CopyFromOther idle's avatar. That failed in the live editor with
+    "Copied Avatar Rig Configuration mis-match: Transform Armature not found in
+    HumanDescription" — every retarget FBX has an extra 'Armature' transform above
+    'hips', and a copied HumanDescription (empty skeleton) can't account for it, so
+    the copy is rejected. CreateFromThisModel sidesteps the copy entirely: idle
+    already imported clean this way, and Unity Humanoid clips are normalized to
+    muscle space, so any clip plays on the character's avatar regardless of which
+    avatar instance it was imported with. idle's avatar stays the canonical
+    character avatar; the other clips just don't depend on it at import time.
   * Avatar reference — an FBX's generated Avatar sub-asset has the deterministic
     fileID 9000000 (classID 90), so the 8 Copy-From-Other clips can reference idle's
     avatar as {fileID: 9000000, guid: <idle guid>, type: 3} with no live import.
@@ -91,7 +103,7 @@ def guid(s: str) -> str:
 
 # --------------------------------------------------------------------------- meta
 
-def fbx_meta(clip: str, gd: str, is_source: bool, idle_guid: str) -> str:
+def fbx_meta(clip: str, gd: str) -> str:
     human = "\n".join(
         f"    - boneName: {bone}\n"
         f"      humanName: {human_name}\n"
@@ -103,10 +115,11 @@ def fbx_meta(clip: str, gd: str, is_source: bool, idle_guid: str) -> str:
         f"        modified: 0"
         for bone, human_name in BONE_MAP.items()
     )
-    avatar_setup = 1 if is_source else 2
-    # Copy-From-Other clips point at idle's generated Avatar; the source builds its own.
-    avatar_src = ("{instanceID: 0}" if is_source
-                  else f"{{fileID: {UNITY_AVATAR_FILEID}, guid: {idle_guid}, type: 3}}")
+    # Every clip is CreateFromThisModel (avatarSetup: 1) and builds its own avatar.
+    # No CopyFromOther reference — a copied HumanDescription can't account for the
+    # extra 'Armature' root above 'hips' (Unity: "Transform Armature not found").
+    avatar_setup = 1
+    avatar_src = "{instanceID: 0}"
     return f"""fileFormatVersion: 2
 guid: {gd}
 ModelImporter:
@@ -440,7 +453,7 @@ def main():
         for name, *_ in CLIPS:
             shutil.copy2(os.path.join(SRC_DIR, f"{name}.fbx"), os.path.join(dest, f"{name}.fbx"))
             with open(os.path.join(dest, f"{name}.fbx.meta"), "w", newline="\n") as f:
-                f.write(fbx_meta(name, clip_guids[name], name == AVATAR_SOURCE, idle_guid))
+                f.write(fbx_meta(name, clip_guids[name]))
             actions_done.append(f"{name}.fbx + .meta")
         with open(os.path.join(dest, "Barbarian.controller"), "w", newline="\n") as f:
             f.write(build_controller(clip_guids))
@@ -468,8 +481,18 @@ def main():
         "avatar": {
             "name": "BarbarianAvatar",
             "source_clip": f"{AVATAR_SOURCE}.fbx",
-            "definition": "CreateFromThisModel on idle.fbx; CopyFromOther onto the other 8 clips",
-            "source_avatar_ref": {"fileID": UNITY_AVATAR_FILEID, "guid": idle_guid, "type": 3},
+            "definition": ("CreateFromThisModel on EVERY clip — each FBX self-creates a valid "
+                           "Humanoid avatar (like stock Mixamo FBX). Unity Humanoid clips are "
+                           "muscle-space normalized, so any clip plays on the character's avatar "
+                           "regardless of which avatar instance it imported with. idle's avatar "
+                           "is the canonical character avatar."),
+            "fix_note": ("GS6: switched the 8 non-idle clips from CopyFromOther to "
+                         "CreateFromThisModel. CopyFromOther failed in the live editor with "
+                         "'Copied Avatar Rig Configuration mis-match: Transform Armature not "
+                         "found in HumanDescription' — the retarget FBX has an extra 'Armature' "
+                         "transform above 'hips' that a copied (empty-skeleton) HumanDescription "
+                         "can't account for. CreateFromThisModel avoids the copy entirely."),
+            "character_avatar_ref": {"fileID": UNITY_AVATAR_FILEID, "guid": idle_guid, "type": 3},
             "bone_map": BONE_MAP,
             "required_human_bones_mapped": True,
             "unmapped_bones": UNMAPPED_BONES,
@@ -506,8 +529,8 @@ def main():
                 "root_motion": root,
                 "animator_state": state,
                 "category": cat,
-                "avatar": ("BarbarianAvatar (CreateFromThisModel, source)"
-                           if name == AVATAR_SOURCE else "BarbarianAvatar (CopyFromOther)"),
+                "avatar": ("BarbarianAvatar (CreateFromThisModel, canonical character avatar)"
+                           if name == AVATAR_SOURCE else "BarbarianAvatar (CreateFromThisModel)"),
             }
             for name, loop, root, state, cat, frames in CLIPS
         ],
@@ -524,7 +547,7 @@ def main():
     for a in actions_done:
         print(f"  + {a}")
     print(f"  manifest -> {MANIFEST_TRACKED}")
-    print(f"  avatar source: {AVATAR_SOURCE}.fbx (CreateFromThisModel); 8 clips CopyFromOther")
+    print(f"  avatar: every clip CreateFromThisModel; {AVATAR_SOURCE}.fbx = canonical avatar")
     print(f"  unmapped bones: {', '.join(UNMAPPED_BONES)}")
 
 

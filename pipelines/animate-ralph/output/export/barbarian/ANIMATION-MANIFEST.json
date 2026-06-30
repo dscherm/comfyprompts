@@ -12,8 +12,9 @@
   "avatar": {
     "name": "BarbarianAvatar",
     "source_clip": "idle.fbx",
-    "definition": "CreateFromThisModel on idle.fbx; CopyFromOther onto the other 8 clips",
-    "source_avatar_ref": {
+    "definition": "CreateFromThisModel on EVERY clip \u2014 each FBX self-creates a valid Humanoid avatar (like stock Mixamo FBX). Unity Humanoid clips are muscle-space normalized, so any clip plays on the character's avatar regardless of which avatar instance it imported with. idle's avatar is the canonical character avatar.",
+    "fix_note": "GS6: switched the 8 non-idle clips from CopyFromOther to CreateFromThisModel. CopyFromOther failed in the live editor with 'Copied Avatar Rig Configuration mis-match: Transform Armature not found in HumanDescription' \u2014 the retarget FBX has an extra 'Armature' transform above 'hips' that a copied (empty-skeleton) HumanDescription can't account for. CreateFromThisModel avoids the copy entirely.",
+    "character_avatar_ref": {
       "fileID": 9000000,
       "guid": "d3269417362e0278d085e6645239c1aa",
       "type": 3
@@ -89,7 +90,7 @@
       "root_motion": false,
       "animator_state": "Idle",
       "category": "locomotion",
-      "avatar": "BarbarianAvatar (CreateFromThisModel, source)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel, canonical character avatar)"
     },
     {
       "clip": "walk",
@@ -102,7 +103,7 @@
       "root_motion": true,
       "animator_state": "Walk",
       "category": "locomotion",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     },
     {
       "clip": "run",
@@ -115,7 +116,7 @@
       "root_motion": true,
       "animator_state": "Run",
       "category": "locomotion",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     },
     {
       "clip": "attack",
@@ -128,7 +129,7 @@
       "root_motion": false,
       "animator_state": "Attack",
       "category": "action",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     },
     {
       "clip": "hit",
@@ -141,7 +142,7 @@
       "root_motion": false,
       "animator_state": "Hit",
       "category": "action",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     },
     {
       "clip": "dodge",
@@ -154,7 +155,7 @@
       "root_motion": true,
       "animator_state": "Dodge",
       "category": "action",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     },
     {
       "clip": "block",
@@ -167,7 +168,7 @@
       "root_motion": false,
       "animator_state": "Block",
       "category": "action",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     },
     {
       "clip": "wave",
@@ -180,7 +181,7 @@
       "root_motion": false,
       "animator_state": "Wave",
       "category": "emote",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     },
     {
       "clip": "celebrate",
@@ -193,7 +194,7 @@
       "root_motion": false,
       "animator_state": "Celebrate",
       "category": "emote",
-      "avatar": "BarbarianAvatar (CopyFromOther)"
+      "avatar": "BarbarianAvatar (CreateFromThisModel)"
     }
   ]
 }
