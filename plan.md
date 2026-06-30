@@ -1199,7 +1199,8 @@ DS1 is curate+caption only (fast).
     "No OOM; sample images trend toward the retro-futurist pink/cyan halftone + chrome look; ComfyUI restarted afterwards"
   ],
   "steps": ["Stop ComfyUI to free the 24GB", "launch_train.py (background); verify device 1; collect checkpoints", "Restart ComfyUI (run_3090ti.ps1)"],
-  "passes": false
+  "note": "DONE 2026-06-30. Stopped ComfyUI (freed 23GB on the 3090 Ti), launched on GPU 1 (CUDA_VISIBLE_DEVICES=1, 99% util/415W). 1500 steps, ~1h45m. Checkpoints 500/750/1000/1250 + final dissonant_style.safetensors on E:/ai-training/flux-output/dissonant_style/. ComfyUI restarted after. NOTE: in-training sample previews used launch_train.py's off-domain dark-fantasy DEFAULT prompts so looked weak — the real eval (DS3) passed.",
+  "passes": true
 }
 ```
 
@@ -1217,7 +1218,8 @@ DS1 is curate+caption only (fast).
     "Verdict recorded in eval/dissonant_style_grid.md"
   ],
   "steps": ["Restart ComfyUI; run the eval grid on NEW subjects; pick the winner", "Render the 8-sample card", "Record the verdict"],
-  "passes": false
+  "note": "DONE 2026-06-30. PASS — strong, distinctive, TRANSFERABLE. Evaled on on-domain retro-futurist subjects (sci-fi figure/car/portrait/cityscape) NOT in training, strengths 0.8/1.0/1.2 + ckpt-1000 control. Reproduces the DissonantDreams pink/cyan/black halftone+chrome look on new subjects (learned a style, not memorized). Winner: ckpt 1500 @ 1.0 (range 0.8-1.2). The in-training previews looked weak ONLY because launch_train.py's DEFAULT sample prompts are dark-fantasy berserkr prompts (off-domain) — false alarm; fix = pass style-appropriate sample.prompts for non-fantasy LoRAs. Verdict: eval/dissonant_style_grid.md; 5 hero samples: eval/dissonant_style_assets/.",
+  "passes": true
 }
 ```
 
@@ -1235,6 +1237,7 @@ DS1 is curate+caption only (fast).
     "Cross-reference a BUSINESS-PLAN-TASKS.md item for the human-gated upload"
   ],
   "steps": ["Copy + sidecar the winner", "Write dissonant_style_listing.md (distinctive-hook framing + game cross-promo)", "Flag the human-gated upload in BUSINESS-PLAN-TASKS.md"],
-  "passes": false
+  "note": "DONE 2026-06-30. Final dissonant_style.safetensors deployed to ComfyUI/models/loras/style/ + .txt sidecar (trigger dissonant_style, strength 1.0, range 0.8-1.2). FREE CivitAI listing copy written: eval/dissonant_style_listing.md (distinctive retro-futurist hook, 5-sample gallery, AI-disclosure + own-game provenance, game cross-promo, NO paid gate per Flux-dev license). Human-gated upload remains (like grimforge D0.6).",
+  "passes": true
 }
 ```
