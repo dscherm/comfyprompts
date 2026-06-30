@@ -122,6 +122,3 @@ tools/asset_generators/village_kit/godot_verify/aesthetic.txt
 .ralph/ab_trial_schedule.json
 .ralph/ab_trial_results.jsonl
 .claude/.ralph-bridge-resume.md
-
-# generated village-kit product output (rebuildable via productize.py)
-products/village_kit_grimforge_occult_v1/
