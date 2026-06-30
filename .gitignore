@@ -74,6 +74,19 @@ temp/
 .ralph/phase_cost.jsonl
 .ralph/.lessons_cache.json
 .ralph/.session_parse_offsets.json
+.ralph/lesson-events.jsonl
+.ralph/phase.json
+.ralph/phase_log.jsonl
+.ralph/precompact_snapshot.md
+# nested per-pipeline .ralph telemetry (tracked specs/state stay tracked; these are auto-gen)
+**/.ralph/bash_telemetry.jsonl
+**/.ralph/gate_audit.jsonl
+**/.ralph/handoff.md
+**/.ralph/memories.md
+
+# PolyHaven API scratch dumps (refetchable via fetch_polyhaven_albedo.py)
+ph_assets.json
+ph_files_sample.json
 
 # workflow validator object_info cache (machine-specific, refetchable)
 scripts/cache/
