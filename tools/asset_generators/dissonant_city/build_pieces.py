@@ -181,7 +181,7 @@ def road_junction():
         box(0.1, 2.0, 0.04, (s, 0, 0.16), M("neonC")); box(2.0, 0.1, 0.04, (0, s, 0.16), M("neonP"))
 
 def plaza_tile():
-    box(2.0, 2.0, 0.15, (0, 0, 0.075), M("purple"))
+    box(2.0, 2.0, 0.15, (0, 0, 0.075), M("navy"))
     box(1.7, 1.7, 0.04, (0, 0, 0.16), M("dark")); box(0.4, 0.4, 0.06, (0, 0, 0.18), M("neonC"))
 
 def streetlight():
@@ -241,7 +241,7 @@ def holo_pylon():
     cyl(0.5, 0.3, (0, 0, 0.15), M("dark"), 8); box(0.3, 0.3, 2.4, (0, 0, 1.4), M("neonC")); sphere(0.5, (0, 0, 2.8), M("neonP"))
 
 def fountain_pad():
-    cyl(1.8, 0.3, (0, 0, 0.15), M("purple"), 12); cyl(1.4, 0.1, (0, 0, 0.32), M("neonC"), 12)
+    cyl(1.8, 0.3, (0, 0, 0.15), M("navy"), 12); cyl(1.4, 0.1, (0, 0, 0.32), M("neonC"), 12)
     cone(0.6, 0.1, 1.2, (0, 0, 0.9), M("chrome"), 8); sphere(0.4, (0, 0, 1.6), M("neonP"))
 
 def crystals():
@@ -259,7 +259,7 @@ def barrier():
 
 def tower_spiral():
     # central cylinder shaft + neon rings + cap/spire
-    cyl(1.3, 6.0, (0, 0, 3.0), M("purple"), 12)
+    cyl(1.3, 6.0, (0, 0, 3.0), M("navy"), 12)
     for z in (1.5, 3.0, 4.5): cyl(1.36, 0.14, (0, 0, z), M("neonC"), 12)
     cyl(1.5, 0.4, (0, 0, 6.15), M("chrome"), 12); cone(0.45, 0.04, 1.3, (0, 0, 7.0), M("neonP"), 6)
     # spiraling walkway (Archimedes screw): tangent box segments along a 3-turn helix
@@ -277,7 +277,7 @@ def tower_spiral():
 
 def tower_prism():
     # tall rectangular prism, dark-purple body (more depth than near-black)
-    box(2.0, 2.0, 6.0, (0, 0, 3.0), M("purple")); box(1.7, 1.7, 1.4, (0, 0, 6.4), M("purple"))
+    box(2.0, 2.0, 6.0, (0, 0, 3.0), M("navy")); box(1.7, 1.7, 1.4, (0, 0, 6.4), M("navy"))
     cyl(0.8, 0.3, (0, 0, 7.2), M("chrome"), 4); cone(0.5, 0.04, 1.2, (0, 0, 7.9), M("neonC"), 4)
     # glowing triangular features: chevron neon triangles up each face (3-vert flat cones)
     faces = [(0, -1.02, 0), (0, 1.02, 0), (1.02, 0, 90), (-1.02, 0, 90)]

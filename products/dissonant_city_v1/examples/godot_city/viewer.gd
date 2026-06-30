@@ -4,7 +4,7 @@ extends Node3D
 
 const PIECES := [
 	"tower_tall_cyan", "tower_tall_purple", "tower_short_pink", "tower_cyl",
-	"tower_spiral", "tower_prism", "dome_building", "arcology", "ziggurat",
+	"tower_spiral", "tower_prism", "tower_neon", "dome_building", "arcology", "ziggurat",
 	"slab_shop_pink", "slab_shop_cyan", "skybridge", "bridge_support",
 	"road_straight", "road_corner", "road_junction", "plaza_tile",
 	"streetlight", "billboard", "neon_arch", "hover_car", "hover_car2",
