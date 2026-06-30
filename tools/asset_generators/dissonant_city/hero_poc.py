@@ -60,9 +60,10 @@ M_PINK = mat("pink", Hx(PINK), rough=0.6)
 M_CYAN = mat("cyan", Hx(CYAN), rough=0.6)
 M_CREAM = mat("cream", Hx(CREAM), rough=0.8)
 M_CHROME = mat("chrome", Hx("C8CEDA"), rough=0.18, metal=1.0)
-M_NEON_P = mat("neonP", Hx(PINK), emit=Hx(PINK), emit_str=14, rough=0.4)
-M_NEON_C = mat("neonC", Hx(CYAN), emit=Hx(CYAN), emit_str=14, rough=0.4)
-M_WIN = mat("win", Hx(CREAM), emit=Hx("FFE9B0"), emit_str=6, rough=0.5)
+M_NEON_P = mat("neonP", Hx(PINK), emit=Hx(PINK), emit_str=24, rough=0.4)
+M_NEON_C = mat("neonC", Hx(CYAN), emit=Hx(CYAN), emit_str=24, rough=0.4)
+M_WIN = mat("win", Hx(CREAM), emit=Hx("FFE9B0"), emit_str=10, rough=0.5)
+M_DOME = mat("dome", Hx("8FA6BC"), rough=0.32, metal=0.5)  # mid chrome — reads as a dome, won't blow out under bloom
 
 # ground plaza (dark) + neon grid stripes
 box(24, 24, 0.2, (0, 0, -0.1), M_DARK)
@@ -93,7 +94,7 @@ def dome(loc):
     cyl(3.0, 2.0, (x, y, 1.0), M_CREAM, verts=10)
     cyl(3.15, 0.2, (x, y, 2.0), M_NEON_P, verts=10)
     bpy.ops.mesh.primitive_uv_sphere_add(radius=2.6, location=(x, y, 2.0), segments=12, ring_count=6)
-    d = bpy.context.active_object; d.scale = (1, 1, 0.55); d.data.materials.append(M_CHROME)
+    d = bpy.context.active_object; d.scale = (1, 1, 0.55); d.data.materials.append(M_DOME)
     for p in d.data.polygons: p.use_smooth = True
     for ang in range(0, 360, 45):
         bx = x + 2.7*math.cos(math.radians(ang)); by = y + 2.7*math.sin(math.radians(ang))
@@ -135,12 +136,12 @@ for p, gm in [((-2.0, 2.0), M_NEON_P), ((2.0, 2.0), M_NEON_C), ((-2.0, -2.5), M_
 # --- DUSK / NEON MOOD ---
 sc.world = bpy.data.worlds.new("W"); sc.world.use_nodes = True
 bg = sc.world.node_tree.nodes["Background"]
-bg.inputs[0].default_value = Hx("17091F"); bg.inputs[1].default_value = 0.25
+bg.inputs[0].default_value = Hx("231033"); bg.inputs[1].default_value = 0.45
 # big cream sun low on the horizon
 bpy.ops.mesh.primitive_circle_add(radius=7, fill_type='NGON', location=(0, 22, 7),
                                   rotation=(math.radians(90), 0, 0))
 sun_disc = bpy.context.active_object
-sun_disc.data.materials.append(mat("sun", Hx(CREAM), emit=Hx("FFD27A"), emit_str=8))
+sun_disc.data.materials.append(mat("sun", Hx(CREAM), emit=Hx("FFD27A"), emit_str=11))
 
 sc.view_settings.view_transform = 'Standard'
 
@@ -148,9 +149,9 @@ def sun_lamp(e, rot, c, sh=True):
     s = bpy.data.objects.new("S", bpy.data.lights.new("S", 'SUN')); sc.collection.objects.link(s)
     s.data.energy = e; s.data.angle = math.radians(6); s.data.color = c; s.data.use_shadow = sh
     s.rotation_euler = tuple(math.radians(a) for a in rot)
-sun_lamp(2.0, (62, 8, 8), (1.0, 0.78, 0.62))         # warm key
-sun_lamp(1.4, (58, 0, 210), (0.45, 0.85, 0.95), False)  # cyan fill
-sun_lamp(1.0, (50, 0, 30), (1.0, 0.35, 0.7), False)     # pink rim
+sun_lamp(2.6, (62, 8, 8), (1.0, 0.80, 0.66))         # warm key
+sun_lamp(1.9, (58, 0, 210), (0.45, 0.85, 0.95), False)  # cyan fill
+sun_lamp(1.5, (50, 0, 30), (1.0, 0.35, 0.7), False)     # pink rim
 
 cam = bpy.data.objects.new("C", bpy.data.cameras.new("C")); sc.collection.objects.link(cam); sc.camera = cam
 cam.data.type = 'ORTHO'; cam.data.ortho_scale = 22; cam.location = (17, -17, 13)
@@ -169,4 +170,5 @@ except Exception:
 sc.render.resolution_x = 1500; sc.render.resolution_y = 1100
 sc.render.filepath = OUT
 bpy.ops.render.render(write_still=True)
+print("RENDER DONE (bloom applied as a separate numpy post-step)")
 print("DISSONANT CITY HERO DONE ->", OUT)
