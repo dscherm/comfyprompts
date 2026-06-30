@@ -1,0 +1,218 @@
+"""DissonantCity kit (L0.3) — build the modular piece library, export GLB/OBJ/FBX.
+Procedural flat-shaded low-poly, DissonantDreams palette + neon. Grid-modular (2u tiles).
+Headless: blender --background --python build_pieces.py
+"""
+import bpy, math, os
+
+OUT = r"D:/Projects/comfyui-toolchain/products/dissonant_city_v1"
+for sub in ("models_glb", "models_obj", "models_fbx"):
+    os.makedirs(f"{OUT}/{sub}", exist_ok=True)
+
+PINK="E8186C"; CYAN="1BC6D6"; BLACK="0D0D18"; CREAM="EDE3C4"; PURPLE="3A1E5C"; CHROME="8FA6BC"
+
+
+def Hx(h, a=1.0):
+    return tuple(int(h[i:i+2], 16) / 255 for i in (0, 2, 4)) + (a,)
+
+
+def mat(name, rgb, emit=None, es=0.0, rough=0.85, metal=0.0):
+    m = bpy.data.materials.new(name); m.use_nodes = True
+    b = m.node_tree.nodes["Principled BSDF"]
+    b.inputs["Base Color"].default_value = rgb
+    b.inputs["Roughness"].default_value = rough
+    b.inputs["Metallic"].default_value = metal
+    if emit is not None:
+        b.inputs["Emission Color"].default_value = emit
+        b.inputs["Emission Strength"].default_value = es
+    return m
+
+
+def M(key):
+    d = {
+        "dark": (BLACK, None, 0, 0.9, 0.0), "purple": (PURPLE, None, 0, 0.95, 0.0),
+        "pink": (PINK, None, 0, 0.6, 0.0), "cyan": (CYAN, None, 0, 0.6, 0.0),
+        "cream": (CREAM, None, 0, 0.8, 0.0), "chrome": (CHROME, None, 0, 0.3, 0.5),
+        "neonP": (PINK, PINK, 12, 0.4, 0.0), "neonC": (CYAN, CYAN, 12, 0.4, 0.0),
+        "win": (CREAM, "FFE9B0", 6, 0.5, 0.0),
+    }[key]
+    return mat(key, Hx(d[0]), Hx(d[1]) if d[1] else None, d[2], d[3], d[4])
+
+
+def box(sx, sy, sz, loc, m):
+    bpy.ops.mesh.primitive_cube_add(size=1, location=loc)
+    o = bpy.context.active_object; o.scale = (sx, sy, sz); o.data.materials.append(m)
+    for p in o.data.polygons: p.use_smooth = False
+    return o
+
+
+def cyl(r, d, loc, m, v=8, smooth=False):
+    bpy.ops.mesh.primitive_cylinder_add(radius=r, depth=d, location=loc, vertices=v)
+    o = bpy.context.active_object; o.data.materials.append(m)
+    for p in o.data.polygons: p.use_smooth = smooth
+    return o
+
+
+def cone(r1, r2, d, loc, m, v=8):
+    bpy.ops.mesh.primitive_cone_add(radius1=r1, radius2=r2, depth=d, location=loc, vertices=v)
+    o = bpy.context.active_object; o.data.materials.append(m)
+    for p in o.data.polygons: p.use_smooth = False
+    return o
+
+
+def sphere(r, loc, m, sc=(1, 1, 1)):
+    bpy.ops.mesh.primitive_uv_sphere_add(radius=r, location=loc, segments=12, ring_count=6)
+    o = bpy.context.active_object; o.scale = sc; o.data.materials.append(m)
+    for p in o.data.polygons: p.use_smooth = True
+    return o
+
+
+# ---- piece builders (each builds at origin, z>=0) ----
+def tower_tall(body, band):
+    box(2.2, 2.2, 4.0, (0, 0, 2.0), M(body)); box(1.6, 1.6, 2.2, (0, 0, 4.9), M(body))
+    for i in (1, 2, 3): box(2.35, 2.35, 0.14, (0, 0, 1.3 * i), M(band))
+    cyl(1.0, 0.5, (0, 0, 6.1), M("chrome")); cone(0.9, 0.05, 1.6, (0, 0, 7.0), M(band), 6)
+    for z in (1.0, 2.4, 3.8): box(2.26, 0.55, 0.4, (0, 0, z), M("win"))
+
+def tower_short(body, band):
+    box(2.2, 2.2, 2.6, (0, 0, 1.3), M(body))
+    for i in (1, 2): box(2.34, 2.34, 0.14, (0, 0, 0.9 * i), M(band))
+    cyl(1.1, 0.4, (0, 0, 2.8), M("chrome")); cone(1.0, 0.05, 1.2, (0, 0, 3.6), M(band), 6)
+    box(2.26, 0.5, 0.5, (0, 0, 1.4), M("win"))
+
+def dome_building():
+    cyl(2.6, 2.0, (0, 0, 1.0), M("cream"), 10); cyl(2.72, 0.2, (0, 0, 2.0), M("neonP"), 10)
+    sphere(2.3, (0, 0, 2.0), M("chrome"), (1, 1, 0.55))
+    for a in range(0, 360, 60):
+        box(0.3, 0.3, 1.8, (2.3 * math.cos(math.radians(a)), 2.3 * math.sin(math.radians(a)), 0.9), M("dark"))
+
+def slab_shop(c, sign):
+    box(4.0, 2.4, 1.5, (0, 0, 0.75), M(c)); box(3.7, 2.2, 0.3, (0, 0, 1.5), M("dark"))
+    for i in (-1, 0, 1): box(0.9, 0.05, 0.8, (i * 1.3, -1.22, 0.9), M("win"))
+    box(2.0, 0.12, 0.7, (0, 1.24, 2.1), M(sign)); box(0.12, 0.12, 0.9, (0, 1.24, 1.5), M("chrome"))
+
+def ziggurat():
+    for i, w in enumerate((3.4, 2.6, 1.8, 1.0)):
+        box(w, w, 0.8, (0, 0, 0.4 + i * 0.8), M("purple" if i % 2 == 0 else "cyan"))
+        box(w + 0.05, w + 0.05, 0.08, (0, 0, 0.8 + i * 0.8), M("neonC"))
+    cone(0.6, 0.05, 1.0, (0, 0, 3.7), M("neonP"), 6)
+
+def cyl_tower():
+    cyl(1.6, 5.0, (0, 0, 2.5), M("cyan"), 12)
+    for z in (1.2, 2.6, 4.0): cyl(1.66, 0.16, (0, 0, z), M("neonP"), 12)
+    cyl(1.7, 0.4, (0, 0, 5.1), M("chrome"), 12); cone(0.5, 0.05, 1.4, (0, 0, 6.0), M("neonC"), 6)
+
+def arcology():
+    box(3.6, 3.6, 1.6, (0, 0, 0.8), M("purple")); box(3.7, 3.7, 0.12, (0, 0, 1.6), M("neonP"))
+    sphere(2.2, (0, 0, 1.6), M("chrome"), (1, 1, 0.7))
+    for i in (-1, 1):
+        for j in (-1, 1): box(0.8, 0.05, 0.8, (i * 1.1, j * 1.82, 0.9), M("win"))
+
+def skybridge():
+    box(0.5, 4.0, 0.4, (0, 0, 3.5), M("chrome")); box(0.6, 4.1, 0.1, (0, 0, 3.72), M("neonC"))
+    for s in (-1, 1): box(0.08, 4.0, 0.5, (s * 0.3, 0, 3.9), M("dark"))
+
+def bridge_support():
+    cyl(0.5, 3.4, (0, 0, 1.7), M("chrome"), 8); box(0.7, 0.7, 0.2, (0, 0, 3.4), M("neonC"))
+
+def road_straight():
+    box(2.0, 2.0, 0.15, (0, 0, 0.075), M("dark"))
+    box(0.1, 2.0, 0.04, (-0.7, 0, 0.16), M("neonC")); box(0.1, 2.0, 0.04, (0.7, 0, 0.16), M("neonC"))
+    box(0.12, 0.5, 0.04, (0, 0, 0.16), M("neonP"))
+
+def road_corner():
+    box(2.0, 2.0, 0.15, (0, 0, 0.075), M("dark"))
+    box(0.1, 1.4, 0.04, (-0.7, 0.3, 0.16), M("neonC")); box(1.4, 0.1, 0.04, (0.3, -0.7, 0.16), M("neonC"))
+
+def road_junction():
+    box(2.0, 2.0, 0.15, (0, 0, 0.075), M("dark"))
+    for s in (-0.7, 0.7):
+        box(0.1, 2.0, 0.04, (s, 0, 0.16), M("neonC")); box(2.0, 0.1, 0.04, (0, s, 0.16), M("neonP"))
+
+def plaza_tile():
+    box(2.0, 2.0, 0.15, (0, 0, 0.075), M("purple"))
+    box(1.7, 1.7, 0.04, (0, 0, 0.16), M("dark")); box(0.4, 0.4, 0.06, (0, 0, 0.18), M("neonC"))
+
+def streetlight():
+    cyl(0.12, 3.0, (0, 0, 1.5), M("dark"), 6); box(0.6, 0.14, 0.5, (0, 0, 2.8), M("neonP"))
+
+def billboard():
+    for s in (-1, 1): cyl(0.1, 2.2, (s * 1.0, 0, 1.1), M("dark"), 6)
+    box(2.6, 0.12, 1.4, (0, 0, 2.4), M("dark")); box(2.3, 0.05, 1.1, (0, -0.1, 2.4), M("neonC"))
+
+def hover_car():
+    box(1.2, 0.55, 0.35, (0, 0, 0.5), M("chrome")); box(1.0, 0.4, 0.06, (0, 0, 0.3), M("neonP"))
+    box(0.7, 0.45, 0.18, (0, 0, 0.66), M("win"))
+
+def hover_car2():
+    cyl(0.4, 1.4, (0, 0, 0.5), M("pink"), 8); o = bpy.context.active_object; o.rotation_euler.y = math.radians(90)
+    box(0.9, 0.5, 0.05, (0, 0, 0.28), M("neonC")); sphere(0.3, (0.2, 0, 0.6), M("win"))
+
+def neon_arch():
+    for s in (-1, 1): box(0.2, 0.2, 2.0, (s * 1.4, 0, 1.0), M("chrome"))
+    box(3.2, 0.2, 0.2, (0, 0, 2.1), M("neonP")); box(2.8, 0.24, 0.12, (0, 0, 2.1), M("neonC"))
+
+def antenna():
+    cyl(0.4, 2.0, (0, 0, 1.0), M("dark"), 6); cone(0.4, 0.04, 2.4, (0, 0, 3.2), M("chrome"), 6)
+    for z in (2.4, 3.2, 4.0): box(1.0, 0.05, 0.05, (0, 0, z), M("neonC"))
+
+def holo_pylon():
+    cyl(0.5, 0.3, (0, 0, 0.15), M("dark"), 8); box(0.3, 0.3, 2.4, (0, 0, 1.4), M("neonC")); sphere(0.5, (0, 0, 2.8), M("neonP"))
+
+def fountain_pad():
+    cyl(1.8, 0.3, (0, 0, 0.15), M("purple"), 12); cyl(1.4, 0.1, (0, 0, 0.32), M("neonC"), 12)
+    cone(0.6, 0.1, 1.2, (0, 0, 0.9), M("chrome"), 8); sphere(0.4, (0, 0, 1.6), M("neonP"))
+
+def crystals():
+    for x, y, h, mm in [(-0.4, 0, 1.4, "neonC"), (0.4, 0.2, 1.0, "neonP"), (0.0, -0.4, 0.7, "neonC")]:
+        cone(0.25, 0.0, h, (x, y, h / 2), M(mm), 6)
+
+def palm_retro():
+    cyl(0.18, 2.4, (0, 0, 1.2), M("chrome"), 6)
+    for a in range(0, 360, 60):
+        c = cone(0.5, 0.0, 1.4, (0.7 * math.cos(math.radians(a)), 0.7 * math.sin(math.radians(a)), 2.6), M("neonC"), 4)
+        c.rotation_euler = (math.radians(50), 0, math.radians(a))
+
+def barrier():
+    box(2.0, 0.2, 0.5, (0, 0, 0.25), M("dark")); box(2.0, 0.24, 0.08, (0, 0, 0.4), M("neonP"))
+
+
+PIECES = {
+    "tower_tall_cyan": lambda: tower_tall("cyan", "neonP"),
+    "tower_tall_purple": lambda: tower_tall("purple", "neonC"),
+    "tower_short_pink": lambda: tower_short("pink", "neonC"),
+    "tower_cyl": cyl_tower, "dome_building": dome_building, "arcology": arcology,
+    "ziggurat": ziggurat,
+    "slab_shop_pink": lambda: slab_shop("pink", "neonC"),
+    "slab_shop_cyan": lambda: slab_shop("cyan", "neonP"),
+    "skybridge": skybridge, "bridge_support": bridge_support,
+    "road_straight": road_straight, "road_corner": road_corner,
+    "road_junction": road_junction, "plaza_tile": plaza_tile,
+    "streetlight": streetlight, "billboard": billboard, "neon_arch": neon_arch,
+    "hover_car": hover_car, "hover_car2": hover_car2,
+    "antenna": antenna, "holo_pylon": holo_pylon, "fountain_pad": fountain_pad,
+    "crystals": crystals, "palm_retro": palm_retro, "barrier": barrier,
+}
+
+
+def export_piece(name):
+    bpy.ops.object.select_all(action='SELECT')
+    bpy.ops.export_scene.gltf(filepath=f"{OUT}/models_glb/{name}.glb", use_selection=True,
+                              export_format='GLB')
+    try:
+        bpy.ops.wm.obj_export(filepath=f"{OUT}/models_obj/{name}.obj", export_selected_objects=True)
+    except Exception:
+        pass
+    try:
+        bpy.ops.export_scene.fbx(filepath=f"{OUT}/models_fbx/{name}.fbx", use_selection=True)
+    except Exception:
+        pass
+
+
+n = 0
+for name, fn in PIECES.items():
+    bpy.ops.wm.read_factory_settings(use_empty=True)
+    fn()
+    export_piece(name)
+    n += 1
+    print(f"  built+exported {name}", flush=True)
+print(f"DISSONANT CITY PIECES DONE: {n} pieces -> {OUT}")
