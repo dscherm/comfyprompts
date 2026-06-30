@@ -60,7 +60,10 @@ def main():
         if mod is None:
             mod = m.modifiers.new("Armature", "ARMATURE")
         mod.object = arm
-        m.data.materials.clear(); m.data.materials.append(mat)
+        # Keep an authored material if the mesh already has one (textured clips);
+        # only fall back to the matte for material-less meshes.
+        if not m.data.materials:
+            m.data.materials.append(mat)
 
     scene = bpy.context.scene
     f0, f1 = scene.frame_start, scene.frame_end
