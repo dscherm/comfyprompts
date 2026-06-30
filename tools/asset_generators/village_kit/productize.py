@@ -41,9 +41,11 @@ def _write_docs(product_dir: str, title: str, aesthetic: str, names: list) -> No
             f"{pretty}. GLB + OBJ + FBX. Grid-modular for Godot, Unity, Unreal.\n\n"
             f"## Tags\n`low-poly`, `dark-fantasy`, `occult`, `horror`, `medieval`, `modular`, "
             f"`3D`, `kit`, `game-ready`, `GLB`, `FBX`, `Godot`, `Unity`\n\n"
-            f"## Gallery (upload order)\n1. `hero.png`\n2. `catalog.png`\n3. `gallery/*` close-ups\n\n"
+            f"## Gallery (upload order)\n1. `hero.png`\n2. `catalog.png`\n"
+            f"3. close-ups in `gallery/`\n\n"
             f"## Pre-publish checklist\n- [ ] Zip models_glb/ (+obj/fbx), README, hero, catalog.\n"
-            f"- [ ] Note 'procedurally generated low-poly'.\n- [ ] Royalty-free commercial license.\n"
+            f"- [ ] Note 'procedurally generated low-poly'.\n"
+            f"- [ ] Royalty-free commercial license.\n"
         )
 
 

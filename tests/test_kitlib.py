@@ -90,7 +90,7 @@ def test_emission_names_are_in_palette():
 
 def test_occult_palette_and_emissives():
     # dark-fantasy sub-palette additions (incl. LoRA-derived accents)
-    for key in ("charwood", "ash", "shroud", "rot", "blood", "gore",
+    for key in ("charwood", "soot", "ash", "shroud", "rot", "blood", "gore",
                 "crimson", "gunmetal", "steel"):
         assert key in kitlib.PALETTE
     # occult glow accents must be both in the palette and emissive

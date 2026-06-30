@@ -92,19 +92,19 @@ def hanged_tree(k):
     hz = 1.18
     k.box(P, 0.22, 0.16, 0.52, (nx, ny, hz), "shroud")          # coat
     k.box(P, 0.26, 0.2, 0.09, (nx, ny, hz + 0.28), "plaster")   # collar (overlaps coat)
-    k.cyl(P, 6, 0.05, 0.14, (nx, ny, hz + 0.36), "bone")        # short neck
-    znk = hz + 0.42
+    k.cyl(P, 6, 0.055, 0.08, (nx, ny, hz + 0.36), "bone")       # tiny neck (barely visible)
+    znk = hz + 0.38
     for a in range(8):                                         # hollow noose ring on the neck
         an = math.radians(a * 45)
-        k.box(P, 0.06, 0.035, 0.035, (nx + math.cos(an) * 0.12, ny + math.sin(an) * 0.12, znk),
+        k.box(P, 0.055, 0.032, 0.032, (nx + math.cos(an) * 0.11, ny + math.sin(an) * 0.11, znk),
               "bone", rot=(0, 0, an))
     k.cyl(P, 5, 0.022, 2.15 - (znk + 0.05), (nx, ny + 0.05, (2.15 + znk + 0.05) / 2), "bone")
-    # head lolled to one side (broken-neck hanging pose) with a tilted hat
-    hx = nx + 0.13
-    tilt = math.radians(28)
-    k.ico(P, 0.13, (hx, ny, hz + 0.5), "bone", sub=1)
-    k.cyl(P, 7, 0.17, 0.05, (hx + 0.04, ny, hz + 0.6), "charwood", rot=(0, 0, tilt))
-    k.cone(P, 7, 0.11, 0.02, 0.13, (hx + 0.09, ny, hz + 0.64), "charwood", rot=(0, 0, tilt))
+    # head cleanly on the neck, lolled only slightly; hat sits on it undistorted
+    tilt = math.radians(13)
+    hx = nx + 0.05
+    k.ico(P, 0.13, (hx, ny, hz + 0.46), "bone", sub=1)
+    k.cyl(P, 7, 0.17, 0.05, (hx + 0.02, ny, hz + 0.57), "charwood", rot=(0, 0, tilt))
+    k.cone(P, 7, 0.11, 0.02, 0.13, (hx + 0.04, ny, hz + 0.62), "charwood", rot=(0, 0, tilt))
     for s in (-1, 1):                                           # limp legs + arms
         k.box(P, 0.08, 0.08, 0.46, (nx + s * 0.06, ny, hz - 0.44), "shroud")
         k.box(P, 0.06, 0.06, 0.32, (nx + s * 0.13, ny, hz + 0.06), "shroud",
@@ -153,9 +153,9 @@ def crypt_entrance(k):
     cy = 0.12                                   # mass centre y
     ff = cy - MD / 2                            # front face y (= -0.53)
     bf = cy + MD / 2                            # back face y  (=  0.77)
-    # full base plinth under the whole crypt (extends to the rear) + a front step
+    # full base plinth + a second plate, both extending under the whole crypt
     k.box(P, 2.4, 2.2, 0.18, (0, 0.05, 0.09), "stone_dk")
-    k.box(P, 2.05, 1.5, 0.16, (0, -0.28, 0.26), "stone")
+    k.box(P, 2.05, 1.9, 0.16, (0, 0.0, 0.26), "stone")
     # main mass
     k.box(P, MW, MD, MH, (0, cy, 0.18 + MH / 2), "stone")
     # stonework "texture": horizontal mortar courses wrapping the mass
