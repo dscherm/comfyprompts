@@ -328,9 +328,10 @@
     {
       "id": "UH3",
       "title": "UH3",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260630203909-0000000",
+      "activated_at": "2026-06-30T20:39:09.316885+00:00"
     },
     {
       "id": "UH4",
@@ -347,13 +348,13 @@
       "observation_id": null
     }
   ],
-  "current_task_index": 45,
+  "current_task_index": 46,
   "stats": {
-    "tasks_completed": 4,
+    "tasks_completed": 5,
     "tasks_failed": 0,
-    "gate_passes": 3,
+    "gate_passes": 4,
     "gate_fails": 0,
-    "observations_recorded": 12
+    "observations_recorded": 15
   },
   "config": {
     "interactive_mode": true,
@@ -362,5 +363,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-30T19:01:58.675828+00:00"
+  "updated_at": "2026-06-30T20:39:10.302865+00:00"
 }

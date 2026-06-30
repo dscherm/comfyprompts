@@ -608,7 +608,7 @@ ValidateBarbarianHumanoid.RunBatch`).
     "ValidateBarbarianHumanoid section 2 (Mixamo clips) passes — clips retarget onto the barbarian avatar with usable AnimationClips"
   ],
   "steps": ["Download the core clips from mixamo.com (Without Skin)", "Import each Humanoid + Copy From Other Avatar", "Run the validator's clip check"],
-  "passes": false
+  "passes": true
 }
 ```
 

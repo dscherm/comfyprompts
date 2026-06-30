@@ -93,12 +93,30 @@ Grab the core gameplay set from mixamo.com as **FBX "Without Skin"** into
 `Assets/Animations/Barbarian/Mixamo/`:
 `idle` (Breathing Idle), `walk`, `run`, `attack` (Sword/Great Sword Slash),
 `hit` (Hit Reaction), `dodge`/`roll`, `block`, `wave`, `celebrate`/`victory`.
-For each clip FBX → **Rig ▸ Animation Type = Humanoid**, **Avatar Definition = Copy
-From Other Avatar → the barbarian's avatar** → Apply. Enable **Loop Time** on
-idle/walk/run.
+For each clip FBX → **Rig ▸ Animation Type = Humanoid**, then pick the avatar method by
+how the clip was downloaded:
+- **Generic clips (the usual free download — Mixamo's Y-Bot, `mixamorig:` skeleton):**
+  **Avatar Definition = Create From This Model**. Each clip builds its OWN Humanoid
+  avatar and Unity retargets onto the barbarian through muscle space **at runtime**.
+  *Copy-From-Other does NOT work here* — Mixamo's bone names don't match the AccuRIG
+  avatar, so the retarget finds no bones and **emits no AnimationClip** (silently:
+  sub-assets come back `GameObject,Transform,ImportLog` only).
+- **Clips downloaded onto the character's own skeleton** (uploaded the barbarian mesh
+  to Mixamo): **Avatar Definition = Copy From Other Avatar → the barbarian avatar**.
+
+Enable **Loop Time** on idle/walk/run. Apply.
 
 > Mixamo has **no API** — the download is the one irreducibly manual web step. Naming
 > the file with the motion stem (e.g. `walk.fbx`) lets the validator match it.
+>
+> **Verified (UH3, 2026-06-30, coplay):** 9/9 clips (idle/walk/run/attack/hit/dodge/
+> block/wave/celebrate) imported **Create From This Model**, each with its own humanoid
+> avatar and a `mixamo.com` clip (`human=True`; loop on idle/walk/run). Validator §2
+> passes. Sampling the Mixamo `walk` onto the barbarian shows **natural carriage** —
+> arms swinging at the sides, torso upright, clean stride — i.e. the
+> `hand-rolled-retarget-limb-plane` defect is gone. `ValidateBarbarianHumanoid` §2 was
+> corrected to accept **either** CreateFromThisModel (own humanoid avatar) **or**
+> CopyFromOther → barbarian avatar.
 
 ### 7.4 Build the Animator controller
 `Assets/Animations/Barbarian/Barbarian.controller`: default **Idle**; a `Speed` float
