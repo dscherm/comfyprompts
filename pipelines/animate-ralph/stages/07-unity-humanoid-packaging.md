@@ -32,6 +32,29 @@ Editor on `../soapbox-unity` with the Coplay plugin signed in, then start/refres
 Claude session so `coplay-mcp` (already in `~/.claude.json`) handshakes with the live
 editor — only then do its tools appear.
 
+### Reconnect / coplay round-trip (verified — UH1)
+
+Because `coplay-mcp` handshakes **at Claude-session start**, the Unity Editor must
+already be open on `../soapbox-unity` with the Coplay plugin signed in *before* the
+session launches (or refresh the session after opening Unity). To re-establish and
+verify the link from a fresh session, run this round-trip in order:
+
+1. **Discover the live editor** — `list_unity_project_roots` → expect
+   `{count:1, projectRoots:[{projectRoot:"D:\\Projects\\soapbox-unity", ...}]}`.
+   `count:0` means coplay didn't connect: confirm Unity is open + Coplay signed in,
+   then refresh the Claude session (MCP only loads on start).
+2. **Confirm the editor responds** — `get_unity_editor_state` → expect
+   `playMode:false, hasCompilationErrors:false` in edit mode.
+3. **Round-trip a real call** — run the validator:
+   `execute_script(filePath="Assets/Editor/ValidateBarbarianHumanoid.cs", methodName="Execute")`.
+   A `Success:true` with the full validation report back in `Result` proves the
+   round-trip. **A `RESULT: FAIL` here is the expected UH1 baseline** — the character
+   reports `animationType=Generic` until UH2, clips are missing until UH3, and Animator
+   states are unbound until UH4. UH1 verifies the *channel*, not a passing validation.
+
+Verified 2026-06-30 against Unity `6000.4.0f1`; baseline validator returned
+`Success:true` / `RESULT: FAIL` (Generic rig, no Mixamo folder) as expected.
+
 ## Steps
 
 ### 7.1 Stage assets (headless)

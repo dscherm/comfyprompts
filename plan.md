@@ -574,7 +574,7 @@ ValidateBarbarianHumanoid.RunBatch`).
     "Round-trip verified: a coplay call returns Unity state (e.g. runs ValidateBarbarianHumanoid.Execute() or reads the scene) — documents the reconnect procedure in the stage doc"
   ],
   "steps": ["Launch Unity on ../soapbox-unity (Coplay signed in)", "Start/refresh a Claude session so coplay-mcp connects", "Run a coplay round-trip and record the procedure"],
-  "passes": false
+  "passes": true
 }
 ```
 
