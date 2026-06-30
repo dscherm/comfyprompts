@@ -47,8 +47,14 @@ ALIGN = (a[8] if len(a) > 8 else "on").lower() != "off"
 
 
 def imp(path):
-    (bpy.ops.import_scene.gltf if path.lower().endswith((".glb", ".gltf"))
-     else bpy.ops.import_scene.fbx)(filepath=path)
+    p = path.lower()
+    if p.endswith(".bvh"):                       # CMU/clean mocap BVH (Y-up -> Z-up)
+        bpy.ops.import_anim.bvh(filepath=path, update_scene_fps=False,
+                                update_scene_duration=True)
+    elif p.endswith((".glb", ".gltf")):
+        bpy.ops.import_scene.gltf(filepath=path)
+    else:
+        bpy.ops.import_scene.fbx(filepath=path)
 
 
 def main():

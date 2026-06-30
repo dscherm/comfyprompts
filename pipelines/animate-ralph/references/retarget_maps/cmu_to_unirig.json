@@ -1,0 +1,26 @@
+{
+  "_comment": "CMU MotionBuilder-friendly BVH bone names -> UniRig role names (see rename_unirig_bones.py). CMU clips (cgspeed/B.Hahne conversion) are clean, free human mocap.",
+  "_source_skeleton": "CMU BVH (Hips/LeftUpLeg/.../LeftArm)",
+  "bone_map": {
+    "Hips": "hips",
+    "Spine": "spine",
+    "Spine1": "chest",
+    "Neck": "neck",
+    "Head": "head",
+    "LeftShoulder": "shoulder.l",
+    "LeftArm": "upperarm.l",
+    "LeftForeArm": "lowerarm.l",
+    "LeftHand": "hand.l",
+    "RightShoulder": "shoulder.r",
+    "RightArm": "upperarm.r",
+    "RightForeArm": "lowerarm.r",
+    "RightHand": "hand.r",
+    "LeftUpLeg": "upperleg.l",
+    "LeftLeg": "lowerleg.l",
+    "LeftFoot": "foot.l",
+    "RightUpLeg": "upperleg.r",
+    "RightLeg": "lowerleg.r",
+    "RightFoot": "foot.r"
+  },
+  "ignored_source_bones": ["LHipJoint","RHipJoint","LowerBack","Neck1","LeftToeBase","RightToeBase","LeftFingerBase","LeftHandIndex1","LThumb","RightFingerBase","RightHandIndex1","RThumb"]
+}
