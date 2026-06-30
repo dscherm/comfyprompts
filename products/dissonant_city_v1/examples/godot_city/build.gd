@@ -53,6 +53,7 @@ func _ready() -> void:
 	place("dome_building", 0, 5); place("ziggurat", -5, 0)
 	place("slab_shop_pink", 5, 0.5, 90); place("slab_shop_cyan", 0, -5)
 	place("tower_short_pink", 5, 5)
+	place("tower_spiral", -6.5, 2.5); place("tower_prism", 6.5, 2.5)
 	# skybridge
 	place("bridge_support", -1.4, 4); place("bridge_support", 1.4, 4); place("skybridge", 0, 4, 90)
 	# props
