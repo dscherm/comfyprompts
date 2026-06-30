@@ -738,18 +738,20 @@ keep a dataset-provenance manifest. AI-disclosure ON at listing time.
   "id": "SL1",
   "category": "feature",
   "priority": 1,
-  "description": "Build the stylized_game dataset: ~120-150 curated, IP-clean hand-painted stylized fantasy game-art renders spanning multiple substyles (character/creature/environment/prop) for breadth; prep + captions + manifest",
+  "description": "Build the stylized_game dataset by GENERATE-AND-CURATE (the proven grimforge method): generate ~200-250 stylized-fantasy game-art images with BASE Flux (not the GrimForge LoRA — the look must be distinct: bright hand-painted WoW/Hearthstone stylized, NOT dark painterly) across 6 subjects, curate to ~120-150 spanning substyles; prep + captions + manifest",
   "files": ["scripts/train_lora/datasets/stylized_game_manifest.md"],
   "acceptance_criteria": [
-    "~120-150 curated ORIGINAL stylized-fantasy game-art images (no third-party IP, no named characters, no living-artist styles) — assembled the same way the grimforge set was (curated original renders), deliberately spanning substyles (characters, creatures, environments, props) so the LoRA learns a broad reusable aesthetic, not one narrow look",
-    "prep_dataset.py normalizes to E:/ai-training/datasets/stylized_game (max-edge 1024, RGB)",
-    "Captions prefixed with trigger stylized_game + a short substyle/subject tag; Florence2 content caption appended; idempotent",
-    "Manifest records the source/provenance of each image (IP-clean origin), the substyle spread, and the count — the defensible-origin record per Stream D's legal note"
+    "SOURCING = generate-and-curate, IP-clean (self-generated Outputs, the same method that produced the 148-image grimforge set; NOT scraped art). Generate with generate_image on BASE Flux + stylized-fantasy prompts (e.g. 'stylized hand-painted fantasy game concept art, vibrant, painterly, clean rendering') — explicitly NOT grimforge_style, so the aesthetic is a DISTINCT bright stylized look",
+    "~200-250 raw generations spanning ~6 subjects for breadth (fullbody character, creature, environment, prop, equipment/weapon, portrait — mirror the grimforge spread ~35 each), then CURATE down to ~120-150 keeping only on-aesthetic, coherent images",
+    "prep_dataset.py normalizes the curated set to E:/ai-training/datasets/stylized_game (max-edge 1024, RGB)",
+    "Captions prefixed with trigger stylized_game + a short subject tag; Florence2 content caption appended; idempotent",
+    "Manifest records the generation method (base Flux + prompt set, self-generated Outputs = IP-clean per the Flux-license Output carve-out), the substyle spread, raw-vs-kept counts — the defensible-origin record per Stream D's legal note"
   ],
   "steps": [
-    "Assemble/curate the IP-clean stylized-fantasy corpus across substyles",
+    "Generate ~200-250 stylized-fantasy images via generate_image (base Flux, NOT grimforge), batched across the 6 subjects with varied prompts/seeds",
+    "Curate to ~120-150 on-aesthetic images (drop off-style/incoherent)",
     "prep_dataset.py --src ... --out E:/ai-training/datasets/stylized_game --max-edge 1024",
-    "caption.py --dir ... --trigger stylized_game; write stylized_game_manifest.md"
+    "caption.py --dir ... --trigger stylized_game; write stylized_game_manifest.md (record the generate-and-curate provenance)"
   ],
   "passes": false
 }
@@ -953,18 +955,20 @@ companion to GrimForge / `stylized_game`.
   "id": "UL1",
   "category": "feature",
   "priority": 2,
-  "description": "Build the gameart_detailer dataset: ~60-100 IP-clean, HIGH-DETAIL stylized game-art crops (sharp faces/hands/materials/edges/rendered surfaces) — the reference the enhancer learns to push toward; prep + captions + manifest",
+  "description": "Build the gameart_detailer dataset by GENERATE-then-ENHANCE (NOT self-distillation): generate ~60-100 game-art images, then ESRGAN-upscale + detail-enhance each (the 2K-texture-pack pipeline) so the TARGETS EXCEED base Flux detail; the LoRA learns to push toward the enhanced version; prep + captions + manifest",
   "files": ["scripts/train_lora/datasets/gameart_detailer_manifest.md"],
   "acceptance_criteria": [
-    "~60-100 ORIGINAL, IP-clean, visibly HIGH-DETAIL stylized game-art crops (clean hands, crisp faces, detailed materials/armor/edges) — assembled like the grimforge set; the dataset embodies the 'more detail' target, not a subject or a single style",
+    "SOURCING = generate-then-enhance (a quality enhancer CANNOT be trained on the base model's own default-detail output — that just learns the average). Generate ~60-100 varied game-art images (character/creature/prop/material) via generate_image, then run each through upscale_image/ESRGAN + a detail pass (reuse the texture-pack 2K enhance pipeline) to produce HIGH-DETAIL targets that visibly exceed the base generation",
+    "Each kept image is demonstrably MORE detailed than its source generation (sharper edges, cleaner hands/faces, richer materials) — that delta is the signal the enhancer learns",
     "prep_dataset.py normalizes to E:/ai-training/datasets/gameart_detailer (max-edge 1024, RGB)",
     "SHORT trigger-anchored captions: 'gameart_detailer, highly detailed, sharp, intricate' + a one-word subject tag; NOT verbose Florence2 (this is an aesthetic-bias enhancer, not a subject LoRA)",
-    "Manifest records each crop's IP-clean origin + the detail attribute it contributes (provenance per the Stream D legal note)"
+    "Manifest records the generate->enhance method (self-generated + upscaled Outputs = IP-clean) and the before/after detail delta per image"
   ],
   "steps": [
-    "Curate the high-detail IP-clean game-art crop set",
+    "Generate ~60-100 varied game-art images via generate_image",
+    "ESRGAN-upscale + detail-enhance each (texture-pack pipeline) into high-detail targets; verify each exceeds its source",
     "prep_dataset.py --src ... --out E:/ai-training/datasets/gameart_detailer --max-edge 1024",
-    "Write short captions + gameart_detailer_manifest.md"
+    "Write short captions + gameart_detailer_manifest.md (generate->enhance provenance)"
   ],
   "passes": false
 }
