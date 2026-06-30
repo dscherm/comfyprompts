@@ -705,110 +705,31 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
 
 ---
 
-## Phase SL: Evidence-backed sellable style LoRAs (stylized_game + lowpoly_flat)
+## Phase SL: lowpoly_flat LoRA  (stylized_game SCRAPPED 2026-06-30)
 
-Derived from the 2026-06-29/30 market research (3 deep-research passes; live
-CivitAI API + itch.io top-sellers). Strategy doc: `docs/BUSINESS-PLAN.md` §3
-(Stream D) + §6; full evidence: `docs/research/selling-ai-assets-followup.md` §5b.
-This is the **business-plan strategy translated into the Ralph queue** — only the
-autonomously-trainable LoRAs; the listing/funnel steps (account uploads) live in
-`docs/BUSINESS-PLAN-TASKS.md`, not here.
+**`stylized_game` was SCRAPPED.** Generate-and-curate on BASE Flux + "Blizzard
+concept art" prompts produced **generic AI-looking output** — which our OWN
+research says is the saturated lane to AVOID, and which (a) can't be sold anyway
+(Flux-dev license) and (b) earns ~no Buzz because it doesn't stand out. SL1-SL4
+removed. **Lesson: a style LoRA only has an edge if the dataset is art-directed to
+a SPECIFIC ownable aesthetic — not generic-prompted.** Validation: the *distinctive*
+GrimForge got positive ratings + 11 downloads in its first 12h on CivitAI; the
+generic set would not.
 
-**Why these two, in this order** (each is BOTH a sellable LoRA AND a pipeline lever):
-- **`stylized_game`** — hand-painted fantasy "game render" look, sibling to the
-  shipped GrimForge. CivitAI's #1 unsaturated style demand; the top fantasy LoRAs
-  win by **bundling many substyles** under one model (breadth = downloads =
-  Generator-Buzz). Avoid the saturated photoreal/anime/NSFW lanes.
-- **`lowpoly_flat`** — flat-shaded low-poly look. Feeds itch.io's **#2** selling
-  category (low-poly 3D kits, validates Stream K) AND improves image→3D input.
+**Pivot → distinctive own-art style LoRAs** (see Phase DS below / proposed): train
+on the user's already-art-directed game art (e.g. the DissonantDreams retro-
+futurist pink/cyan/black noir-pop set, ~120-150 cohesive images) — genuinely
+unique, IP-clean (curated own Outputs), nothing like it on Flux.
 
-Already-queued and research-validated (do NOT duplicate here): **`tile_topdown`**
-(TX5-TX8) feeds itch.io's **#1** category (16×16 RPG tiles); **`mat_tile`**
-(TX1-TX4) fills thin Flux material supply. Per the research these are now
-**high-priority** — run TX5-TX8 alongside SL. The `ortho_turnaround`/`mv_ortho`
-moat LoRA is already shipped (Phase M).
+`lowpoly_flat` (below) stays — it feeds itch.io's #2 selling category (low-poly 3D
+kits) AND improves image→3D input. Already-queued elsewhere: `tile_topdown`
+(TX5-TX8, itch #1), `mat_tile` (TX1-TX4). `ortho_turnaround`/`mv_ortho` shipped
+(Phase M).
 
 **Recipe (reuse verbatim, identical to grimforge/mv_ortho/TX):** rank 16/alpha 16,
 1500 steps, lr 1e-4, adamw8bit, flowmatch, EMA 0.99, multi-res [512,768,1024],
 GPU 1 (3090 Ti) with ComfyUI stopped, then restart. IP-clean original data only;
 keep a dataset-provenance manifest. AI-disclosure ON at listing time.
-
-```json
-{
-  "id": "SL1",
-  "category": "feature",
-  "priority": 1,
-  "description": "Build the stylized_game dataset by GENERATE-AND-CURATE (the proven grimforge method): generate ~200-250 stylized-fantasy game-art images with BASE Flux (not the GrimForge LoRA — the look must be distinct: bright hand-painted WoW/Hearthstone stylized, NOT dark painterly) across 6 subjects, curate to ~120-150 spanning substyles; prep + captions + manifest",
-  "files": ["scripts/train_lora/datasets/stylized_game_manifest.md"],
-  "acceptance_criteria": [
-    "SOURCING = generate-and-curate, IP-clean (self-generated Outputs, the same method that produced the 148-image grimforge set; NOT scraped art). Generate with generate_image on BASE Flux + stylized-fantasy prompts (e.g. 'stylized hand-painted fantasy game concept art, vibrant, painterly, clean rendering') — explicitly NOT grimforge_style, so the aesthetic is a DISTINCT bright stylized look",
-    "~200-250 raw generations spanning ~6 subjects for breadth (fullbody character, creature, environment, prop, equipment/weapon, portrait — mirror the grimforge spread ~35 each), then CURATE down to ~120-150 keeping only on-aesthetic, coherent images",
-    "prep_dataset.py normalizes the curated set to E:/ai-training/datasets/stylized_game (max-edge 1024, RGB)",
-    "Captions prefixed with trigger stylized_game + a short subject tag; Florence2 content caption appended; idempotent",
-    "Manifest records the generation method (base Flux + prompt set, self-generated Outputs = IP-clean per the Flux-license Output carve-out), the substyle spread, raw-vs-kept counts — the defensible-origin record per Stream D's legal note"
-  ],
-  "steps": [
-    "Generate ~200-250 stylized-fantasy images via generate_image (base Flux, NOT grimforge), batched across the 6 subjects with varied prompts/seeds",
-    "Curate to ~120-150 on-aesthetic images (drop off-style/incoherent)",
-    "prep_dataset.py --src ... --out E:/ai-training/datasets/stylized_game --max-edge 1024",
-    "caption.py --dir ... --trigger stylized_game; write stylized_game_manifest.md (record the generate-and-curate provenance)"
-  ],
-  "passes": false
-}
-```
-
-```json
-{
-  "id": "SL2",
-  "category": "feature",
-  "priority": 1,
-  "description": "Train the stylized_game Flux LoRA (stop ComfyUI first; launch_train.py with the proven recipe; collect checkpoints; restart ComfyUI)",
-  "files": ["scripts/train_lora/configs/stylized_game.json"],
-  "acceptance_criteria": [
-    "ComfyUI stopped before launch; training confirmed on GPU 1 (3090 Ti) via nvidia-smi",
-    "launch_train.py --dataset E:/ai-training/datasets/stylized_game --name stylized_game --trigger stylized_game --steps 1500 --rank 16 --resolutions 512,768,1024 --cuda-device 1",
-    "Per-checkpoint saves (every 250) + final stylized_game.safetensors on E:/ai-training/flux-output/stylized_game/",
-    "No OOM; sample images trend toward a cohesive hand-painted stylized look; ComfyUI restarted on the 3090 Ti afterwards"
-  ],
-  "steps": ["Stop ComfyUI to free the 24GB", "launch_train.py (background); verify device 1; collect checkpoints", "Restart ComfyUI (run_3090ti.ps1)"],
-  "passes": false
-}
-```
-
-```json
-{
-  "id": "SL3",
-  "category": "testing",
-  "priority": 2,
-  "description": "Eval stylized_game: base-vs-LoRA grid across checkpoints x strengths 0.6/0.8/1.0 + AI judge; pick the winning (checkpoint, strength); render an 8-sample product card spanning substyles",
-  "files": ["scripts/train_lora/eval/stylized_game_grid.md", "scripts/train_lora/eval/stylized_game_assets/"],
-  "acceptance_criteria": [
-    "Restart ComfyUI; lora_eval_grid.py --only stylized_game across strengths 0.6/0.8/1.0 on character/creature/environment/prop prompts at fixed seeds",
-    "AI-judge verdict: LoRA reads as a cohesive hand-painted stylized game-art look vs base; names a winning (checkpoint, strength)",
-    "8-sample 1024px product card rendered spanning substyles (proves breadth, mirroring grimforge_assets); style cohesive across >=7/8",
-    "Verdict recorded in eval/stylized_game_grid.md"
-  ],
-  "steps": ["Restart ComfyUI; run the eval grid; pick the winner", "Render the 8-sample breadth card", "Record the verdict"],
-  "passes": false
-}
-```
-
-```json
-{
-  "id": "SL4",
-  "category": "feature",
-  "priority": 2,
-  "description": "Deploy stylized_game + write the CivitAI/Gumroad listing copy (substyle-bundle framing per the research); AI-disclosure + provenance",
-  "files": ["scripts/train_lora/eval/stylized_game_listing.md", "D:/Projects/ComfyUI/models/loras/style/"],
-  "acceptance_criteria": [
-    "Winning stylized_game.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger stylized_game + recommended strength)",
-    "Listing copy (mirror grimforge_listing.md): name, trigger, recommended weights, tags, description that LEADS WITH the multi-substyle breadth (the CivitAI download-winner pattern), 8-sample gallery order, AI-disclosure + original-IP provenance line",
-    "Gumroad/Ko-fi mirror note (capture dollars off-CivitAI). Account upload itself stays a BUSINESS-PLAN-TASKS.md item (human-gated)"
-  ],
-  "steps": ["Copy + sidecar the winner", "Write stylized_game_listing.md (substyle-bundle framing)", "Cross-reference the BUSINESS-PLAN-TASKS listing checkbox"],
-  "passes": false
-}
-```
 
 ```json
 {
@@ -1024,6 +945,110 @@ companion to GrimForge / `stylized_game`.
     "Cross-reference a BUSINESS-PLAN-TASKS.md item for the actual (human-gated) CivitAI upload"
   ],
   "steps": ["Copy + sidecar the winner (enhancer usage note)", "Write the FREE listing copy with before/after gallery", "Flag the human-gated upload in BUSINESS-PLAN-TASKS.md"],
+  "passes": false
+}
+```
+
+---
+
+## Phase DS: Distinctive own-art style LoRA (DissonantDreams retro-futurist)
+
+**Replaces the scrapped `stylized_game`.** Generic-prompted styles don't sell or
+earn Buzz; the edge is an **art-directed, ownable aesthetic**. The user's
+**DissonantDreams** game art is exactly that — a cohesive retro-futurist pulp
+look (hot pink/cyan/black/cream, halftone screen-print + chrome airbrush, 70s-80s
+sci-fi-paperback energy) with **~125 curated illustrations already on disk** and
+**nothing like it on Flux**. Proof of model: distinctive GrimForge got +ratings
+and 11 downloads in its first 12h. **This is a repeatable play** — each
+art-directed project (DissonantDreams, soapboxsabatoge, berserkr) can become its
+own distinctive LoRA.
+
+**Source (whole retro-futurist family, per user):** `D:/Projects/DissonantDreams/
+assets/art/` — `cards/` (98) + `characters/` (11) + `scenarios/` (14) +
+`key_art/` (2) = ~125. EXCLUDE the non-illustration folders (ui/overlays/identity/
+card_backs/boards = frames/UI; tiles_* = iso tiles, a separate look).
+**IP-clean:** these are the user's own art-directed, curated Outputs (same posture
+as the grimforge/berserkr set). **License:** Flux-dev → ship the LoRA FREE on
+CivitAI (can cross-promote the DissonantDreams game); sell Outputs, not the file.
+**Recipe:** the proven one (rank 16/alpha 16, 1500 steps, lr 1e-4, adamw8bit,
+flowmatch, EMA 0.99, multi-res [512,768,1024], GPU 1 with ComfyUI stopped).
+**Trigger:** working `dissonant_style` (user may rebrand at listing, like
+berserkr→grimforge). NOTE: no generation step — the dataset already exists, so
+DS1 is curate+caption only (fast).
+
+```json
+{
+  "id": "DS1",
+  "category": "feature",
+  "priority": 1,
+  "description": "Assemble the dissonant_style dataset from the DissonantDreams illustration folders (cards/characters/scenarios/key_art, ~125 imgs), curate to a cohesive ~100-125, prep + caption + manifest. NO generation — the art already exists on disk.",
+  "files": ["scripts/train_lora/datasets/dissonant_style_manifest.md"],
+  "acceptance_criteria": [
+    "Copy the illustration images from D:/Projects/DissonantDreams/assets/art/{cards,characters,scenarios,key_art} into a working dir; EXCLUDE non-illustration assets (ui/overlays/identity/card_backs/boards frames; tiles_* iso tiles)",
+    "Curate to ~100-125 cohesive retro-futurist images (drop UI/text-card/duplicate/off-style frames); the set should read as one ownable aesthetic family",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/dissonant_style (max-edge 1024, RGB)",
+    "Captions prefixed with trigger dissonant_style + a short subject tag; Florence2 content caption appended; idempotent",
+    "Manifest records the source (own DissonantDreams game art, art-directed curated Outputs = IP-clean), the folder breakdown, and kept-vs-source counts (defensible-origin record per Stream D legal note)"
+  ],
+  "steps": [
+    "Copy the 4 illustration folders into a staging dir; cull non-illustration/UI/tile images",
+    "prep_dataset.py --src <staging> --out E:/ai-training/datasets/dissonant_style --max-edge 1024",
+    "caption.py --dir ... --trigger dissonant_style; write dissonant_style_manifest.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "DS2",
+  "category": "feature",
+  "priority": 1,
+  "description": "Train the dissonant_style Flux LoRA (stop ComfyUI first; proven recipe; collect checkpoints; restart ComfyUI)",
+  "files": ["scripts/train_lora/configs/dissonant_style.json"],
+  "acceptance_criteria": [
+    "ComfyUI stopped before launch; training confirmed on GPU 1 (3090 Ti) via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/dissonant_style --name dissonant_style --trigger dissonant_style --steps 1500 --rank 16 --resolutions 512,768,1024 --cuda-device 1",
+    "Per-checkpoint saves (every 250) + final dissonant_style.safetensors on E:/ai-training/flux-output/dissonant_style/",
+    "No OOM; sample images trend toward the retro-futurist pink/cyan halftone + chrome look; ComfyUI restarted afterwards"
+  ],
+  "steps": ["Stop ComfyUI to free the 24GB", "launch_train.py (background); verify device 1; collect checkpoints", "Restart ComfyUI (run_3090ti.ps1)"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "DS3",
+  "category": "testing",
+  "priority": 2,
+  "description": "Eval dissonant_style: base-vs-LoRA grid across checkpoints x strengths 0.6/0.8/1.0 + AI judge; confirm it captures the distinctive retro-futurist look on NEW subjects (not in the training set); pick winner + render an 8-sample card",
+  "files": ["scripts/train_lora/eval/dissonant_style_grid.md", "scripts/train_lora/eval/dissonant_style_assets/"],
+  "acceptance_criteria": [
+    "Restart ComfyUI; lora_eval_grid.py --only dissonant_style across strengths 0.6/0.8/1.0 on VARIED NEW prompts (portrait, sci-fi figure, cityscape, object) at fixed seeds",
+    "AI-judge / visual verdict: the LoRA reproduces the ownable retro-futurist aesthetic (palette + halftone/chrome) on subjects NOT in the training data (proves it learned a transferable style, not memorized images); names a winning (checkpoint, strength)",
+    "8-sample 1024px product card rendered on fresh subjects; style cohesive across >=7/8",
+    "Verdict recorded in eval/dissonant_style_grid.md"
+  ],
+  "steps": ["Restart ComfyUI; run the eval grid on NEW subjects; pick the winner", "Render the 8-sample card", "Record the verdict"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "DS4",
+  "category": "feature",
+  "priority": 2,
+  "description": "Deploy dissonant_style + write the FREE CivitAI listing (distinctive-style framing; cross-promote the DissonantDreams game); AI-disclosure + provenance",
+  "files": ["scripts/train_lora/eval/dissonant_style_listing.md", "D:/Projects/ComfyUI/models/loras/style/"],
+  "acceptance_criteria": [
+    "Winning dissonant_style.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger + recommended strength)",
+    "FREE CivitAI listing copy (mirror grimforge_listing.md): name (user may rebrand), trigger, recommended weights, tags, description LEADING WITH the distinctive retro-futurist hook (what makes it unique vs generic), 8-sample gallery, AI-disclosure + original-IP provenance; optional cross-promo link to the DissonantDreams game",
+    "Listing is FREE (Flux-dev Derivative can't be sold) — positioned as reputation/funnel + Generator-Buzz; Gumroad note only if a schnell-retrained sellable variant is later made",
+    "Cross-reference a BUSINESS-PLAN-TASKS.md item for the human-gated upload"
+  ],
+  "steps": ["Copy + sidecar the winner", "Write dissonant_style_listing.md (distinctive-hook framing + game cross-promo)", "Flag the human-gated upload in BUSINESS-PLAN-TASKS.md"],
   "passes": false
 }
 ```

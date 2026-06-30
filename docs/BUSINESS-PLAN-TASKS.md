@@ -9,6 +9,15 @@ the business plan is the strategy/rationale. Keep statuses current.*
 > Note: this is a deliberately separate file from the repo's `plan.md`
 > (which is the Ralph-loop queue for the mv_ortho LoRA). Do not merge them.
 
+> **CURRENT FOCUS (2026-06-30): list the finished products.** The texture pack
+> (B0.8), tileset (A0.4), and village kits (K0.5) are DONE + engine-validated —
+> they just need account upload. Selling these **Outputs/assets** is the licensed,
+> proven money. Secondary: build **distinctive own-art style LoRAs** (Phase DS in
+> `plan.md` — DissonantDreams), free on CivitAI for reputation/Buzz. **`stylized_game`
+> was SCRAPPED** (generic AI output, no edge — see `plan.md` Phase SL header).
+> GrimForge is LIVE on CivitAI (+ratings, 11 downloads / first 12h) — validates the
+> distinctive-free-LoRA play.
+
 ---
 
 ## Phase 0 — Cash the proven wins + clear blockers

@@ -126,15 +126,21 @@ Each playbook = **what you sell · who buys & where · pricing · the product ga
   2026-06-29; see `selling-ai-assets-followup.md` §5b):
   - **Saturated — avoid:** photoreal/hyperreal (the runaway #1 lane), anime/Pony,
     generic "woman/girl" character, NSFW. Not our edge; IP/saturation-risky.
-  - **Win pattern:** the top fantasy LoRA bundles *many substyles* under one model.
-    On CivitAI **breadth = downloads = Generator-Buzz** — build broad, versatile
-    style LoRAs, not narrow one-offs.
-  - **Build order (each is BOTH sellable AND a pipeline lever):**
-    `stylized_game` (hand-painted fantasy, bundle substyles — strongest LoRA play;
-    sibling to the shipped GrimForge) → `tile_topdown` (feeds itch.io's **#1**
-    selling category, 16×16 RPG tiles) → `lowpoly_flat` (feeds itch.io's **#2**,
-    low-poly 3D kits + image→3D) → `ortho_turnaround` (the 3D-data moat) →
-    `mat_tile` (thin Flux material supply).
+  - **Win pattern (REVISED 2026-06-30):** breadth alone is NOT enough — a
+    generic-prompted "stylized_game" LoRA produced **generic AI-looking output**
+    and was **SCRAPPED**. The real edge is a dataset **art-directed to a SPECIFIC,
+    ownable aesthetic**, not generic-prompted. Evidence both ways: the *distinctive*
+    GrimForge earned +ratings & 11 downloads in its first 12h; the generic set
+    would not. **Best source of a distinctive dataset = the user's own art-directed
+    game art** (DissonantDreams, soapboxsabatoge, berserkr) — IP-clean, cohesive,
+    and unrepeatable by competitors. This is a **repeatable pipeline**: each project
+    → a unique LoRA.
+  - **Build order (REVISED — distinctive own-art > generic):**
+    **`dissonant_style`** (DissonantDreams retro-futurist; ~125 art-directed images
+    already on disk — Phase DS) → `tile_topdown` (feeds itch.io's **#1** category,
+    16×16 RPG tiles) → `lowpoly_flat` (feeds itch.io's **#2**, low-poly 3D kits +
+    image→3D) → `ortho_turnaround` (the 3D-data moat) → `mat_tile` (thin Flux
+    material supply). *(`stylized_game` removed — generic, no edge.)*
   - **Reach vs dollars:** CivitAI is a **lead-magnet + reputation engine**
     (earnings top-heavy: top 1,000 creators ≈ 90% of Buzz; median cycle payout
     ~$81) — capture actual dollars on the **Gumroad/Ko-fi mirror (~90%)**.
@@ -404,8 +410,9 @@ audience are where the meaningful ceiling lives.
 - [x] **Style demand × gap** — live CivitAI API + itch.io top-sellers. CivitAI
   saturated by photoreal/anime/NSFW; **fantasy/stylized less saturated + bundling
   substyles wins downloads**. itch.io top sellers = **16×16 pixel RPG tiles +
-  low-poly 3D kits** (confirms Streams A/K + L5/L7). Build order:
-  `stylized_game → tile_topdown → lowpoly_flat → ortho_turnaround → mat_tile`.
+  low-poly 3D kits** (confirms Streams A/K + L5/L7). Build order (revised 2026-06-30
+  after `stylized_game` was scrapped for generic output):
+  `dissonant_style (own-art) → tile_topdown → lowpoly_flat → ortho_turnaround → mat_tile`.
 
 **Resolved — pass 4 (2026-06-30)** (→ `docs/research/flux-lora-edge-and-licensing.md`):
 - [x] **FLUX.1-dev commercial licensing** — selling a Flux-dev LoRA *file* is
