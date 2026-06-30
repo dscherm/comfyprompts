@@ -91,6 +91,7 @@ PALETTE: dict[str, str] = {
     # dark-fantasy / occult sub-palette (tuned to the grimforge_style LoRA:
     # high-contrast, saturated accents over deep darks)
     "charwood": "150f0a",
+    "soot": "08060a",      # near-black, for charring / scorch / cavities
     "ash": "242329",
     "shroud": "1c1a22",
     "rot": "32341f",
@@ -283,13 +284,35 @@ class Kit:
         obj.name = name
         return obj
 
-    def export_glb(self, obj: Any, filepath: str) -> None:
-        """Export ``obj`` (selected, alone) to a binary glTF (``.glb``)."""
+    def _select_only(self, obj: Any) -> None:
         bpy = self._bpy
         bpy.ops.object.select_all(action="DESELECT")
         obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
-        bpy.ops.export_scene.gltf(filepath=filepath, export_format="GLB", use_selection=True)
+
+    def export_glb(self, obj: Any, filepath: str) -> None:
+        """Export ``obj`` (selected, alone) to a binary glTF (``.glb``)."""
+        self._select_only(obj)
+        self._bpy.ops.export_scene.gltf(filepath=filepath, export_format="GLB", use_selection=True)
+
+    def export_obj(self, obj: Any, filepath: str) -> None:
+        """Export ``obj`` to Wavefront ``.obj`` (+ ``.mtl``)."""
+        self._select_only(obj)
+        self._bpy.ops.wm.obj_export(filepath=filepath, export_selected_objects=True)
+
+    def export_fbx(self, obj: Any, filepath: str) -> None:
+        """Export ``obj`` to Autodesk ``.fbx``."""
+        self._select_only(obj)
+        self._bpy.ops.export_scene.fbx(filepath=filepath, use_selection=True)
+
+    #: format name -> (method, extension) for productization multi-format export
+    @property
+    def exporters(self) -> dict:
+        return {
+            "glb": (self.export_glb, ".glb"),
+            "obj": (self.export_obj, ".obj"),
+            "fbx": (self.export_fbx, ".fbx"),
+        }
 
 
 __all__ = ["Color", "hex_to_rgba", "PALETTE", "EMISSION", "validate_palette", "Kit"]
