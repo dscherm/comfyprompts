@@ -859,3 +859,66 @@ keep a dataset-provenance manifest. AI-disclosure ON at listing time.
   "passes": false
 }
 ```
+
+---
+
+## Phase PV: Rig/animate PIVOT — owned local pipeline, Tripo as benchmark only
+
+A live bake-off (2026-06-29/30) retired the old chain. The arms-up failure was
+TWO bugs: (a) `retarget_mocap.py` bind-direction mismatch — FIXED (commit 3eb349b,
+per-bone bind alignment), and (b) the deeper issue: Hunyuan3D-lumpy-mesh + UniRig
+weak auto-rig + hand-rolled retarget stack three quality ceilings. Verdict: **drop
+UniRig + the hand-rolled retarget.** Tripo (image→mesh+rig+anim) and AccuRIG 2
+(free, 118-bone UE5 rig) both crush the old path and fix the arms.
+
+**Hands were the last defect** — `mv_ortho`'s "fingers spread" reconstructs as
+double-thumb/backwards hands in ANY image-to-3D (appeared in BOTH paths = source
+defect, not rigging). Fix: regenerate with **closed fists** ([[memory]]
+project_mv_ortho_fists) — keeps limb separation, reconstructs cleanly. Seed 123456.
+
+**Strategy (see memory project_tripo_strategy):** Tripo is a velocity shortcut +
+private quality BENCHMARK (Pro tier to ship its assets). ToS forbids training a
+model on its outputs; we sell tools+assets, not a pipeline, so no "compete" issue.
+Goal = OWNED local pipeline, tuned (not trained) against the Tripo bar.
+
+**Owned local pipeline (no cloud):**
+`mv_ortho (fists) → Hunyuan3D v2.0 TEXTURED (local) → retopo → AccuRIG free (local) → Mixamo/ActorCore → Unity`
+
+Tuning roadmap status: **Texture ✅** (Hy3D v2.0 textured pipeline — full-color
+barbarian matching Tripo; DLL fix confirmed) · **Mesh ~✅** (minor fur-spikes,
+tune the prompt) · **Rig** = AccuRIG free (validated) or headless UniRig if full
+automation needed. Assets staged: `E:/ai-training/_rigtest/bakeoff/barbarian_fists_textured.{glb,fbx,obj}`.
+
+```json
+{
+  "id": "PV1",
+  "category": "feature",
+  "priority": 1,
+  "description": "Close the texture gap: local Hunyuan3D v2.0 TEXTURED pipeline on the closed-fists mv_ortho barbarian",
+  "files": ["workflows/mcp/hunyuan3d_v20_image_to_3d.json", "E:/ai-training/_rigtest/bakeoff/barbarian_fists_textured.glb"],
+  "acceptance_criteria": [
+    "mv_ortho regenerated with CLOSED FISTS (seed 123456) — clean fists, wide separated T-pose",
+    "Hunyuan3D v2.0 textured workflow produces a full-color mesh (red beard, leather, fur) matching the Tripo bar; hands reconstruct as clean fists not double-thumbs",
+    "Textured mesh exported FBX(embedded)/OBJ/GLB for the local rigger"
+  ],
+  "steps": ["Regenerate fists art", "Run Hy3D v2.0 textured", "Export textured mesh"],
+  "passes": true
+}
+```
+
+```json
+{
+  "id": "PV2",
+  "category": "feature",
+  "priority": 2,
+  "description": "Rig + animate the textured fists barbarian via the local rigger (AccuRIG free) and into Unity",
+  "files": ["E:/ai-training/_rigtest/bakeoff/"],
+  "acceptance_criteria": [
+    "barbarian_fists_textured.fbx/obj auto-rigged in AccuRIG (now TEXTURED, not gray) — natural arms, clean fists",
+    "Animated (Mixamo/ActorCore) and imported to Unity as Humanoid",
+    "Quality matches/beats the Tripo benchmark; pipeline is fully free/local (no Tripo dependency)"
+  ],
+  "steps": ["AccuRIG auto-rig the textured mesh", "Apply a walk + idle", "Unity Humanoid import + verify"],
+  "passes": false
+}
+```
