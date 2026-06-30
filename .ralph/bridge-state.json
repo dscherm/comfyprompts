@@ -128,23 +128,25 @@
     {
       "id": "GS7",
       "title": "GS7",
-      "status": "pending",
+      "status": "skipped",
       "gate_result": null,
-      "observation_id": null
+      "observation_id": "obs-20260630163823-0000000",
+      "activated_at": "2026-06-30T16:38:23.549177+00:00"
     },
     {
       "id": "GS8",
       "title": "GS8",
-      "status": "pending",
+      "status": "skipped",
       "gate_result": null,
       "observation_id": null
     },
     {
       "id": "GS5",
       "title": "GS5",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260630173451-0000000",
+      "activated_at": "2026-06-30T17:34:51.195610+00:00"
     },
     {
       "id": "TX0",
@@ -299,15 +301,57 @@
       "status": "pending",
       "gate_result": null,
       "observation_id": null
+    },
+    {
+      "id": "UH0",
+      "title": "UH0",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UH1",
+      "title": "UH1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UH2",
+      "title": "UH2",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UH3",
+      "title": "UH3",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "UH4",
+      "title": "UH4",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "TX0b",
+      "title": "TX0b",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
     }
   ],
-  "current_task_index": 17,
+  "current_task_index": 20,
   "stats": {
-    "tasks_completed": 1,
+    "tasks_completed": 2,
     "tasks_failed": 0,
-    "gate_passes": 0,
+    "gate_passes": 1,
     "gate_fails": 0,
-    "observations_recorded": 2
+    "observations_recorded": 6
   },
   "config": {
     "interactive_mode": true,
@@ -316,5 +360,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-30T16:35:01.407996+00:00"
+  "updated_at": "2026-06-30T18:17:03.899176+00:00"
 }
