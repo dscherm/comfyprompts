@@ -1,47 +1,30 @@
 """GrimForge Village Vol.2 expansion: ~22 new procedural pieces, same style.
 blender -b --python kit_vol2.py"""
-import bpy, bmesh, math, os, mathutils
-D="C:/Users/scher/AppData/Local/Temp/claude/D--Projects-comfyui-toolchain/25899eda-2041-4e64-a0a8-0c83c9100526/scratchpad"
-GLB=f"{D}/kit2_glb"; os.makedirs(GLB,exist_ok=True)
-bpy.ops.wm.read_factory_settings(use_empty=True); sc=bpy.context.scene
-def Hx(h): return tuple(int(h[i:i+2],16)/255 for i in (0,2,4))+(1.0,)
-PAL={"stone":Hx("6f756a"),"stone_dk":Hx("4c5249"),"plaster":Hx("c9bfa6"),"beam":Hx("3a2a1a"),
- "wood":Hx("5a4230"),"wood_dk":Hx("39291b"),"thatch":Hx("7a6332"),"thatch_dk":Hx("5e4d27"),
- "slate":Hx("3b434d"),"iron":Hx("474b52"),"moss":Hx("4f6a37"),"leaf":Hx("3f7a35"),
- "leaf_dk":Hx("2e5a26"),"pine":Hx("2f5a33"),"fire":Hx("ff8a2a"),"water":Hx("2c6492"),
- "flag":Hx("7a2f2a"),"gold":Hx("c8a23a"),"bone":Hx("d8d0bc"),"window":Hx("ffcf6b"),"cloth":Hx("355f58")}
-M={}
-def mat(n):
-    if n in M: return M[n]
-    m=bpy.data.materials.new(n); m.use_nodes=True; b=m.node_tree.nodes["Principled BSDF"]
-    b.inputs["Base Color"].default_value=PAL[n]; b.inputs["Roughness"].default_value=0.9
-    if n in ("fire","window"): b.inputs["Emission Color"].default_value=PAL[n]; b.inputs["Emission Strength"].default_value=2.0
-    M[n]=m; return m
-def flat(o):
-    for p in o.data.polygons: p.use_smooth=False
-def box(P,sx,sy,sz,loc,c,rot=(0,0,0)):
-    bpy.ops.mesh.primitive_cube_add(size=1,location=loc,rotation=rot)
-    o=bpy.context.active_object; o.scale=(sx,sy,sz); o.data.materials.append(mat(c)); flat(o); P.append(o); return o
-def cyl(P,vn,r,dz,loc,c,rot=(0,0,0)):
-    bpy.ops.mesh.primitive_cylinder_add(vertices=vn,radius=r,depth=dz,location=loc,rotation=rot)
-    o=bpy.context.active_object; o.data.materials.append(mat(c)); flat(o); P.append(o); return o
-def cone(P,vn,r1,r2,dz,loc,c,rot=(0,0,0)):
-    bpy.ops.mesh.primitive_cone_add(vertices=vn,radius1=r1,radius2=r2,depth=dz,location=loc,rotation=rot)
-    o=bpy.context.active_object; o.data.materials.append(mat(c)); flat(o); P.append(o); return o
-def ico(P,r,loc,c,sub=1):
-    bpy.ops.mesh.primitive_ico_sphere_add(subdivisions=sub,radius=r,location=loc)
-    o=bpy.context.active_object; o.data.materials.append(mat(c)); flat(o); P.append(o); return o
-def gable(P,w,d,h,loc,c,over=0.16):
-    w+=over; d+=over; bm=bmesh.new()
-    v=[bm.verts.new((-w/2,-d/2,0)),bm.verts.new((w/2,-d/2,0)),bm.verts.new((0,-d/2,h)),
-       bm.verts.new((-w/2,d/2,0)),bm.verts.new((w/2,d/2,0)),bm.verts.new((0,d/2,h))]
-    for f in [(0,1,2),(5,4,3),(0,2,5,3),(2,1,4,5),(1,0,3,4)]: bm.faces.new([v[i] for i in f])
-    bmesh.ops.recalc_face_normals(bm,faces=bm.faces); me=bpy.data.meshes.new("g"); bm.to_mesh(me); bm.free()
-    o=bpy.data.objects.new("g",me); sc.collection.objects.link(o); o.location=loc; o.data.materials.append(mat(c)); flat(o); P.append(o); return o
-def join(P,name):
-    bpy.ops.object.select_all(action='DESELECT')
-    for o in P: o.select_set(True)
-    bpy.context.view_layer.objects.active=P[0]; bpy.ops.object.join(); o=bpy.context.active_object; o.name=name; return o
+import math
+import os
+import sys
+
+import bpy
+import mathutils
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from kitlib import PALETTE, Kit, hex_to_rgba as Hx  # noqa: E402  (sys.path tweak above)
+
+# Output dir: pass `-- <dir>` on the Blender command line, else the default.
+_argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
+D = _argv[0] if _argv else \
+    "C:/Users/scher/AppData/Local/Temp/claude/D--Projects-comfyui-toolchain/25899eda-2041-4e64-a0a8-0c83c9100526/scratchpad"
+GLB = f"{D}/kit2_glb"; os.makedirs(GLB, exist_ok=True)
+
+# The GrimForge primitive vocabulary now lives in kitlib. Vol.2 used a lighter
+# "bone" (d8d0bc vs the canonical c4bba2) and a brighter emissive "window"
+# (2.0 vs the default 1.5); both are preserved here so regenerated assets are
+# byte-stable. Binding the kit's methods to local names keeps every builder
+# call site below unchanged.
+k = Kit(palette={**PALETTE, "bone": "d8d0bc"},
+        emission={"fire": 2.0, "window": 2.0}, reset_scene=True)
+sc = k.scene
+box, cyl, cone, ico, gable, join = k.box, k.cyl, k.cone, k.ico, k.gable, k.join
 
 def windmill():
     P=[]; cyl(P,8,0.6,1.8,(0,0,0.9),"stone"); cyl(P,8,0.5,0.4,(0,0,1.9),"stone_dk")

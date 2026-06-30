@@ -1,0 +1,147 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" path="res://models/anvil.glb" id="1_g1m2f"]
+[ext_resource type="PackedScene" path="res://models/banner.glb" id="2_q7h4d"]
+[ext_resource type="PackedScene" path="res://models/bone_pile.glb" id="3_wecga"]
+[ext_resource type="PackedScene" path="res://models/bush.glb" id="4_5wk0x"]
+[ext_resource type="PackedScene" path="res://models/crypt.glb" id="5_3wx2v"]
+[ext_resource type="PackedScene" path="res://models/fountain.glb" id="6_qyfc2"]
+[ext_resource type="PackedScene" path="res://models/gate_arch.glb" id="7_byniu"]
+[ext_resource type="PackedScene" path="res://models/gibbet.glb" id="8_eqd1c"]
+[ext_resource type="PackedScene" path="res://models/graveyard.glb" id="9_w8nef"]
+[ext_resource type="PackedScene" path="res://models/guard_tower.glb" id="10_ysj02"]
+[ext_resource type="PackedScene" path="res://models/palisade.glb" id="11_2y3sr"]
+[ext_resource type="PackedScene" path="res://models/pine.glb" id="12_l7ay4"]
+[ext_resource type="PackedScene" path="res://models/portcullis.glb" id="13_i34yw"]
+[ext_resource type="PackedScene" path="res://models/rocks.glb" id="14_3ekg7"]
+[ext_resource type="PackedScene" path="res://models/ruined_house.glb" id="15_3sdjn"]
+[ext_resource type="PackedScene" path="res://models/stable.glb" id="16_xejuv"]
+[ext_resource type="PackedScene" path="res://models/stocks.glb" id="17_g3aas"]
+[ext_resource type="PackedScene" path="res://models/stone_bridge.glb" id="18_n7pee"]
+[ext_resource type="PackedScene" path="res://models/stump.glb" id="19_6chth"]
+[ext_resource type="PackedScene" path="res://models/torch.glb" id="20_rnoyk"]
+[ext_resource type="PackedScene" path="res://models/trough.glb" id="21_lvl4c"]
+[ext_resource type="PackedScene" path="res://models/wall_ruined.glb" id="22_n7odc"]
+[ext_resource type="PackedScene" path="res://models/weapon_rack.glb" id="23_wphn2"]
+[ext_resource type="PackedScene" path="res://models/windmill.glb" id="24_15mr6"]
+[ext_resource type="PackedScene" path="res://models/wood_pile.glb" id="25_1lidn"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_gao2u"]
+albedo_color = Color(0.2, 0.22, 0.16, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_81slr"]
+size = Vector3(40, 0.2, 40)
+
+[sub_resource type="Environment" id="Environment_ut4us"]
+background_mode = 1
+background_color = Color(0.13, 0.15, 0.19, 1)
+ambient_light_source = 2
+ambient_light_color = Color(0.5, 0.55, 0.66, 1)
+ambient_light_energy = 0.85
+
+[node name="VillageVol2" type="Node3D" unique_id=1333715874]
+
+[node name="@MeshInstance3D@2" type="MeshInstance3D" parent="." unique_id=2036730765]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0)
+material_override = SubResource("StandardMaterial3D_gao2u")
+mesh = SubResource("BoxMesh_81slr")
+
+[node name="anvil" type="Node3D" parent="." unique_id=1927563712 instance=ExtResource("1_g1m2f")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -6)
+
+[node name="banner" type="Node3D" parent="." unique_id=682459216 instance=ExtResource("2_q7h4d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -6)
+
+[node name="bone_pile" type="Node3D" parent="." unique_id=355072463 instance=ExtResource("3_wecga")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -6)
+
+[node name="bush" type="Node3D" parent="." unique_id=1872451450 instance=ExtResource("4_5wk0x")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -6)
+
+[node name="crypt" type="Node3D" parent="." unique_id=824257573 instance=ExtResource("5_3wx2v")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -6)
+
+[node name="fountain" type="Node3D" parent="." unique_id=1573061812 instance=ExtResource("6_qyfc2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, -3)
+
+[node name="gate_arch" type="Node3D" parent="." unique_id=1438126826 instance=ExtResource("7_byniu")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -3)
+
+[node name="gibbet" type="Node3D" parent="." unique_id=306386340 instance=ExtResource("8_eqd1c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -3)
+
+[node name="graveyard" type="Node3D" parent="." unique_id=854106242 instance=ExtResource("9_w8nef")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, -3)
+
+[node name="guard_tower" type="Node3D" parent="." unique_id=299978215 instance=ExtResource("10_ysj02")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, -3)
+
+[node name="palisade" type="Node3D" parent="." unique_id=1733646339 instance=ExtResource("11_2y3sr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 0)
+
+[node name="pine" type="Node3D" parent="." unique_id=90403855 instance=ExtResource("12_l7ay4")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 0)
+
+[node name="portcullis" type="Node3D" parent="." unique_id=1625250640 instance=ExtResource("13_i34yw")]
+
+[node name="rocks" type="Node3D" parent="." unique_id=282307314 instance=ExtResource("14_3ekg7")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 0)
+
+[node name="ruined_house" type="Node3D" parent="." unique_id=519504637 instance=ExtResource("15_3sdjn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 0)
+
+[node name="stable" type="Node3D" parent="." unique_id=849472563 instance=ExtResource("16_xejuv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 3)
+
+[node name="stocks" type="Node3D" parent="." unique_id=213934159 instance=ExtResource("17_g3aas")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 3)
+
+[node name="stone_bridge" type="Node3D" parent="." unique_id=124115303 instance=ExtResource("18_n7pee")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 3)
+
+[node name="stump" type="Node3D" parent="." unique_id=1330184813 instance=ExtResource("19_6chth")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 3)
+
+[node name="torch" type="Node3D" parent="." unique_id=2001309420 instance=ExtResource("20_rnoyk")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 3)
+
+[node name="trough" type="Node3D" parent="." unique_id=1322482162 instance=ExtResource("21_lvl4c")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0, 6)
+
+[node name="wall_ruined" type="Node3D" parent="." unique_id=1487148514 instance=ExtResource("22_n7odc")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, 6)
+
+[node name="weapon_rack" type="Node3D" parent="." unique_id=1610296886 instance=ExtResource("23_wphn2")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 6)
+
+[node name="windmill" type="Node3D" parent="." unique_id=1079264972 instance=ExtResource("24_15mr6")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0, 6)
+
+[node name="wood_pile" type="Node3D" parent="." unique_id=1282660536 instance=ExtResource("25_1lidn")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 6)
+
+[node name="@DirectionalLight3D@3" type="DirectionalLight3D" parent="." unique_id=24824032]
+transform = Transform3D(0.7431448, -0.48133227, 0.4648172, 0, 0.6946584, 0.7193398, -0.6691306, -0.5345736, 0.5162318, 0, 0, 0)
+light_color = Color(1, 0.91, 0.82, 1)
+light_energy = 2.0
+shadow_enabled = true
+
+[node name="@WorldEnvironment@4" type="WorldEnvironment" parent="." unique_id=827692304]
+environment = SubResource("Environment_ut4us")
+
+[node name="@OmniLight3D@5" type="OmniLight3D" parent="." unique_id=1057168720]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.9, 3)
+light_color = Color(1, 0.55, 0.2, 1)
+light_energy = 4.0
+omni_range = 7.0
+
+[node name="@OmniLight3D@6" type="OmniLight3D" parent="." unique_id=760490337]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 0.9, -3)
+light_color = Color(1, 0.55, 0.2, 1)
+light_energy = 4.0
+omni_range = 7.0
+
+[node name="@Camera3D@7" type="Camera3D" parent="." unique_id=1659210988]
+transform = Transform3D(0.70710677, -0.3833725, 0.5941595, 0, 0.84026843, 0.5421706, -0.70710677, -0.3833725, 0.5941595, 16, 15, 16)
+projection = 1
+size = 18.0

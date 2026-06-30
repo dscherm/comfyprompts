@@ -100,3 +100,11 @@ workflows/mcp/.omc/
 
 # generated ai-toolkit training configs (regenerable via launch_train.py)
 scripts/train_lora/configs/
+
+# Godot example import caches (regenerated on open) + verification artifacts
+products/**/examples/**/.godot/
+products/**/examples/**/*.import
+products/**/examples/**/*.uid
+products/**/examples/**/verify_shot.png
+# Packaged product zips (build artifacts; large)
+products/_dist/
