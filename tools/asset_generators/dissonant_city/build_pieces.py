@@ -121,8 +121,17 @@ def arcology():
         for j in (-1, 1): box(0.8, 0.05, 0.8, (i * 1.1, j * 1.82, 0.9), M("win"))
 
 def skybridge():
-    box(0.5, 4.0, 0.4, (0, 0, 3.5), M("chrome")); box(0.6, 4.1, 0.1, (0, 0, 3.72), M("neonC"))
-    for s in (-1, 1): box(0.08, 4.0, 0.5, (s * 0.3, 0, 3.9), M("dark"))
+    # detailed enclosed walkway: floor + neon strip + railings w/ posts + underside trusses
+    chrome, c, dark = M("chrome"), M("neonC"), M("navy")
+    box(0.75, 4.0, 0.16, (0, 0, 3.4), chrome)                    # walkway floor
+    box(0.8, 4.1, 0.04, (0, 0, 3.5), c)                          # glowing floor strip
+    for s in (-1, 1):                                            # side railings
+        box(0.05, 4.0, 0.34, (s * 0.36, 0, 3.6), dark)
+        box(0.06, 4.0, 0.04, (s * 0.36, 0, 3.79), c)
+        for y in (-1.5, -0.5, 0.5, 1.5): box(0.06, 0.06, 0.3, (s * 0.36, y, 3.58), chrome)
+    for y in (-1.3, 0, 1.3): box(0.55, 0.12, 0.3, (0, y, 3.18), dark)   # underside trusses
+    box(0.12, 4.0, 0.1, (0, 0, 3.08), chrome)                    # spine beam
+    box(0.14, 0.5, 0.14, (0, 1.9, 3.4), c); box(0.14, 0.5, 0.14, (0, -1.9, 3.4), c)  # end caps
 
 def bridge_support():
     cyl(0.5, 3.4, (0, 0, 1.7), M("chrome"), 8); box(0.7, 0.7, 0.2, (0, 0, 3.4), M("neonC"))
@@ -149,16 +158,44 @@ def streetlight():
     cyl(0.12, 3.0, (0, 0, 1.5), M("dark"), 6); box(0.6, 0.14, 0.5, (0, 0, 2.8), M("neonP"))
 
 def billboard():
-    for s in (-1, 1): cyl(0.1, 2.2, (s * 1.0, 0, 1.1), M("dark"), 6)
-    box(2.6, 0.12, 1.4, (0, 0, 2.4), M("dark")); box(2.3, 0.05, 1.1, (0, -0.1, 2.4), M("neonC"))
+    # framed glowing screen on supports + neon frame + content bars + top sign (ref billboards)
+    dark, screen, p, c = M("navy"), M("wgrid"), M("neonP"), M("neonC")
+    for s in (-1, 1): cyl(0.1, 2.6, (s * 1.15, 0, 1.3), dark, 6)   # support legs
+    box(2.5, 0.12, 0.1, (0, 0, 1.0), dark)                         # cross brace
+    box(2.9, 0.2, 1.7, (0, 0, 2.7), dark)                          # screen backing
+    box(2.55, 0.06, 1.4, (0, -0.13, 2.7), screen)                 # glowing screen
+    box(2.75, 0.06, 0.07, (0, -0.14, 3.45), p); box(2.75, 0.06, 0.07, (0, -0.14, 1.95), p)  # frame top/bot
+    box(0.07, 0.06, 1.55, (1.38, -0.14, 2.7), c); box(0.07, 0.06, 1.55, (-1.38, -0.14, 2.7), c)  # frame sides
+    for k, z in enumerate((2.3, 2.6, 2.9, 3.2)):                   # content "text" bars
+        box(1.9, 0.02, 0.1, (0, -0.17, z), c if k % 2 else p)
+    box(1.1, 0.12, 0.45, (0.6, 0, 3.78), p); box(0.7, 0.13, 0.3, (-0.7, 0, 3.72), c)  # top signs
 
 def hover_car():
-    box(1.2, 0.55, 0.35, (0, 0, 0.5), M("chrome")); box(1.0, 0.4, 0.06, (0, 0, 0.3), M("neonP"))
-    box(0.7, 0.45, 0.18, (0, 0, 0.66), M("win"))
+    # sleek low hover-car (ref car1): dark hull, glowing canopy, underglow, rear thrusters
+    hull, glow, canopy, hot = M("navy"), M("neonC"), M("wgrid"), M("neonP")
+    box(1.7, 0.7, 0.22, (0, 0, 0.5), hull)                       # main hull
+    nose = cone(0.42, 0.0, 0.62, (1.05, 0, 0.5), hull, 4)        # pointed nose wedge
+    nose.rotation_euler = (0, math.radians(90), math.radians(45))
+    box(0.55, 0.66, 0.18, (-0.85, 0, 0.52), hull)               # rear deck
+    box(0.8, 0.5, 0.22, (0.05, 0, 0.72), canopy)                # glowing canopy
+    box(0.85, 0.52, 0.05, (0.05, 0, 0.85), hull)                # roof
+    for s in (-1, 1): box(1.5, 0.03, 0.05, (0, s * 0.36, 0.56), glow)   # side accent lines
+    box(1.4, 0.5, 0.05, (0, 0, 0.31), glow)                     # underglow
+    for s in (-1, 1): cyl(0.13, 0.1, (-1.0, s * 0.22, 0.5), glow, 8)    # rear thrusters
+    box(0.06, 0.34, 0.1, (1.18, 0, 0.5), hot)                   # front headlight bar
 
 def hover_car2():
-    cyl(0.4, 1.4, (0, 0, 0.5), M("pink"), 8); o = bpy.context.active_object; o.rotation_euler.y = math.radians(90)
-    box(0.9, 0.5, 0.05, (0, 0, 0.28), M("neonC")); sphere(0.3, (0.2, 0, 0.6), M("win"))
+    # retro DeLorean-style with glowing cyan wheels (ref car2)
+    body, wheel, canopy, accent, hot = M("navy"), M("neonC"), M("wgrid"), M("neonC"), M("neonP")
+    box(1.5, 0.7, 0.28, (0, 0, 0.55), body)                     # boxy body
+    box(0.9, 0.66, 0.26, (0.05, 0, 0.82), canopy)              # angular glowing cabin
+    box(0.95, 0.68, 0.05, (0.05, 0, 0.95), body)               # roof
+    box(0.5, 0.72, 0.12, (-0.7, 0, 0.62), body)                # rear deck
+    for sx in (0.55, -0.55):                                     # 4 glowing wheels
+        for sy in (-1, 1):
+            w = cyl(0.22, 0.16, (sx, sy * 0.42, 0.3), wheel, 10); w.rotation_euler.x = math.radians(90)
+    for s in (-1, 1): box(1.3, 0.04, 0.05, (0, s * 0.36, 0.55), accent)  # side trim
+    box(0.06, 0.42, 0.12, (0.82, 0, 0.55), hot)                # front light bar
 
 def neon_arch():
     for s in (-1, 1): box(0.2, 0.2, 2.0, (s * 1.4, 0, 1.0), M("chrome"))
@@ -261,9 +298,9 @@ def tower_neon():
 
 
 PIECES = {
-    "tower_tall_cyan": lambda: tower_tall("cyan", "neonP"),
-    "tower_tall_purple": lambda: tower_tall("purple", "neonC"),
-    "tower_short_pink": lambda: tower_short("pink", "neonC"),
+    "tower_tall_cyan": lambda: _edge_tower(1.4, 8.4, "neonC"),     # slim + tall, cyan edges
+    "tower_tall_purple": lambda: _edge_tower(2.1, 6.2, "neonP"),   # wide + medium, pink edges
+    "tower_short_pink": lambda: _edge_tower(2.1, 4.0, "neonP"),    # short + wide, pink edges
     "tower_cyl": cyl_tower, "tower_spiral": tower_spiral, "tower_prism": tower_prism,
     "tower_neon": tower_neon,
     "dome_building": dome_building, "arcology": arcology,
