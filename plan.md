@@ -995,7 +995,8 @@ DS1 is curate+caption only (fast).
     "prep_dataset.py --src <staging> --out E:/ai-training/datasets/dissonant_style --max-edge 1024",
     "caption.py --dir ... --trigger dissonant_style; write dissonant_style_manifest.md"
   ],
-  "passes": false
+  "note": "DONE 2026-06-30. Staged 125 from DissonantDreams/assets/art -> curated to 50 'striking only' (23 cards/rf + 14 scenarios + 11 characters + 2 key_art; dropped the 75 zc_* sketchy interiors per user). prep_dataset.py: 50/50 included, 0 dupes, 27 resized -> E:/ai-training/datasets/dissonant_style. caption.py (Florence-2-large, trigger dissonant_style prepended): 50/50 captioned, 0 failed. Manifest: scripts/train_lora/datasets/dissonant_style_manifest.md.",
+  "passes": true
 }
 ```
 
