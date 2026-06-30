@@ -501,6 +501,106 @@ fallback for clips the commercial library lacks.
 
 ---
 
+## Phase UH: Unity Humanoid + Mixamo packaging (the SHIPPABLE animation route)
+
+Formalizes "bring the rigged character into Unity + load Mixamo motion" as a pipeline
+stage — the SHIP path that replaces the previz-only hand-rolled retarget (lesson
+`hand-rolled-retarget-limb-plane`). Unity Humanoid muscle-space retargeting maps free
+Mixamo clips onto the AccuRIG rig, fixing the limb planes natively while keeping
+AccuRIG's clean weights. Stage doc: `pipelines/animate-ralph/stages/07-unity-humanoid-packaging.md`;
+import packet: `pipelines/animate-ralph/UNITY-IMPORT-NOTES.md`. Automatable via
+**coplay-mcp** when a Claude session is connected to a live Unity Editor; otherwise a
+documented manual GUI flow + the in-editor validator. **Mixamo has no API** — clip
+download is the one irreducibly manual web step.
+
+```json
+{
+  "id": "UH0",
+  "category": "setup",
+  "priority": 1,
+  "description": "Author the Unity-Humanoid packaging stage: stage doc (stages/07), corrected Editor validator (ValidateBarbarianHumanoid.cs — supersedes the GS4 validator for the Unity-retarget+Mixamo route), and stage the AccuRIG character + texture into the Unity project.",
+  "files": ["pipelines/animate-ralph/stages/07-unity-humanoid-packaging.md", "soapbox-unity/Assets/Editor/ValidateBarbarianHumanoid.cs", "soapbox-unity/Assets/Animations/Barbarian/Source/"],
+  "acceptance_criteria": [
+    "stages/07-unity-humanoid-packaging.md documents the full flow (stage assets, import Humanoid, Mixamo clip list, Animator, validate, cleanup) + coplay-vs-manual + the no-API Mixamo caveat",
+    "ValidateBarbarianHumanoid.cs asserts character avatar isValid&&isHuman (catches the GS4 bad-avatar regression), Mixamo clips are Humanoid+CopyFromOther onto the barbarian avatar, Animator binds motions, rig builds Humanoid; has Execute() (coplay) + RunBatch() (headless -executeMethod)",
+    "barbarian_accurig.fbx + barbarian_tex.png staged into soapbox-unity/Assets/Animations/Barbarian/Source/"
+  ],
+  "steps": ["Write the stage doc", "Write the corrected validator", "Copy the rig + texture into Assets/.../Source/"],
+  "passes": true
+}
+```
+
+```json
+{
+  "id": "UH1",
+  "category": "setup",
+  "priority": 1,
+  "description": "Establish the coplay testing environment: Unity Editor open on ../soapbox-unity with the Coplay plugin signed in, AND a Claude session where coplay-mcp (already in ~/.claude.json) connected to the live editor so its tools are available. Verify a coplay round-trip.",
+  "files": ["pipelines/animate-ralph/stages/07-unity-humanoid-packaging.md"],
+  "acceptance_criteria": [
+    "Unity Editor running on ../soapbox-unity (Unity 6000.4) with the Coplay plugin connected/signed in",
+    "A Claude session in which coplay-mcp tools are listed (handshake succeeded — note: MCP loads at session start, so the editor must be up first / the session refreshed)",
+    "Round-trip verified: a coplay call returns Unity state (e.g. runs ValidateBarbarianHumanoid.Execute() or reads the scene) — documents the reconnect procedure in the stage doc"
+  ],
+  "steps": ["Launch Unity on ../soapbox-unity (Coplay signed in)", "Start/refresh a Claude session so coplay-mcp connects", "Run a coplay round-trip and record the procedure"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "UH2",
+  "category": "feature",
+  "priority": 2,
+  "description": "Import the barbarian as a Humanoid avatar (Create From This Model) + assign barbarian_tex.png; avatar valid. Do NOT hand-write the avatar .meta (GS4 failure cause).",
+  "files": ["soapbox-unity/Assets/Animations/Barbarian/Source/barbarian_accurig.fbx"],
+  "acceptance_criteria": [
+    "barbarian_accurig.fbx: Rig Animation Type = Humanoid, Avatar Definition = Create From This Model, avatar isValid && isHuman (>=15 bones mapped)",
+    "barbarian_tex.png assigned to the body material Base Color (UVs align — no grey)",
+    "ValidateBarbarianHumanoid section 1 (character rig) passes"
+  ],
+  "steps": ["Set Rig=Humanoid, CreateFromThisModel, Apply, Configure (Enforce T-Pose if needed)", "Assign the texture", "Run the validator's character check"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "UH3",
+  "category": "feature",
+  "priority": 2,
+  "description": "Download the Mixamo core clip set (manual web, FBX Without Skin) into Assets/.../Mixamo/ and import each as Humanoid / Copy From Other Avatar = the barbarian avatar.",
+  "files": ["soapbox-unity/Assets/Animations/Barbarian/Mixamo/"],
+  "acceptance_criteria": [
+    "Core set downloaded from Mixamo: idle, walk, run, attack, hit, dodge, block, wave, celebrate (FBX Without Skin), named with the motion stem",
+    "Each clip FBX: Animation Type = Humanoid, Avatar Definition = Copy From Other Avatar -> barbarian avatar; Loop Time on idle/walk/run",
+    "ValidateBarbarianHumanoid section 2 (Mixamo clips) passes — clips retarget onto the barbarian avatar with usable AnimationClips"
+  ],
+  "steps": ["Download the core clips from mixamo.com (Without Skin)", "Import each Humanoid + Copy From Other Avatar", "Run the validator's clip check"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "UH4",
+  "category": "testing",
+  "priority": 3,
+  "description": "Build the Animator (Idle/Walk/Run + action triggers), run ValidateBarbarianHumanoid (PASS), write the manifest + VALIDATION entry, and remove the stale arms-up previz clips.",
+  "files": ["soapbox-unity/Assets/Animations/Barbarian/Barbarian.controller", "pipelines/animate-ralph/validation/VALIDATION.md"],
+  "acceptance_criteria": [
+    "Animator controller: default Idle; Speed float drives Idle<->Walk<->Run; AnyState triggers for attack/hit/dodge/block/wave/celebrate -> exit to Idle",
+    "ValidateBarbarianHumanoid returns PASS (exit 0); live play-mode (or coplay screenshot) shows natural arm/leg carriage, NOT the previz splay",
+    "ANIMATION-MANIFEST.json updated (clip -> file -> duration -> loop -> avatar); VALIDATION.md gets a Phase UH section",
+    "Stale Jun-27 hand-rolled-retarget clips removed from Assets/Animations/Barbarian/ (Humanoid set is the only shippable one)"
+  ],
+  "steps": ["Build the Animator (coplay or manual)", "Run the validator + visual check", "Write manifest/VALIDATION; delete the stale previz clips"],
+  "passes": false
+}
+```
+
+---
+
 ## Phase TX: Tile/texture foundation LoRAs (mat_tile + tile_topdown)
 
 Two material/texture-aesthetic **SDXL** LoRAs that feed the proven seamless tile path in

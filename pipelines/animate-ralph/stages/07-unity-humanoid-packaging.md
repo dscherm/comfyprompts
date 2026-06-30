@@ -1,0 +1,101 @@
+# Stage 7: Unity Humanoid Packaging (the SHIPPABLE animation route)
+
+This stage takes a **rigged character** (AccuRIG / CC_Base or any Humanoid-mappable
+skeleton) and produces a **playable, retargetable animation set in Unity** by using
+**Unity's Humanoid (Mecanim) muscle-space retargeting** with **free Mixamo clips** as
+the motion source. It is the SHIP path — it replaces the headless hand-rolled
+`retarget_mocap.py` / `batch_retarget.py` output, which is **previz-only** (it
+mishandles the limb plane; see lesson `hand-rolled-retarget-limb-plane` and
+`pipelines/animate-ralph/UNITY-IMPORT-NOTES.md`).
+
+> **Why this stage, not the headless retarget:** Unity Humanoid normalizes both the
+> source clip and the target rig through a canonical T-pose muscle space, so arm/leg
+> planes come out natural — the exact thing the hand-rolled transfer cannot do. It
+> also keeps the rigger's clean weights (AccuRIG).
+
+## Inputs
+
+| Input | Source |
+|-------|--------|
+| Rigged character FBX (Humanoid-mappable) | AccuRIG export, e.g. `barbarian_fists_textured_accurig.fbx` |
+| Albedo texture (UVs preserved by AccuRIG) | `barbarian_tex.png` (Hunyuan3D 2048²) |
+| Motion clips | **Mixamo** (free, royalty-free for embedded commercial use) — manual download, no API |
+| Unity project | `../soapbox-unity` (Unity 6000.4; Coplay plugin `com.coplaydev.coplay` present) |
+
+## Tooling: live (coplay-mcp) vs manual
+
+This stage is **automatable when coplay-mcp is connected to a live Unity Editor**
+(drive imports, avatar config, Animator build, and run the validator from Claude).
+When coplay is not connected, every step below is a documented manual GUI action plus
+the in-editor C# validator. **Establishing the coplay testing env:** open the Unity
+Editor on `../soapbox-unity` with the Coplay plugin signed in, then start/refresh a
+Claude session so `coplay-mcp` (already in `~/.claude.json`) handshakes with the live
+editor — only then do its tools appear.
+
+## Steps
+
+### 7.1 Stage assets (headless)
+Copy the rigged FBX + texture into the project:
+```
+Assets/Animations/Barbarian/Source/barbarian_accurig.fbx
+Assets/Animations/Barbarian/Source/barbarian_tex.png
+```
+
+### 7.2 Import the character as Humanoid
+- Model FBX → **Rig ▸ Animation Type = Humanoid**, **Avatar Definition = Create From
+  This Model** → Apply → **Configure…** confirm the avatar is valid/green (Enforce
+  T-Pose if a bone reads red).
+- Materials ▸ assign `barbarian_tex.png` to the body material **Base Color** (UVs align).
+- **Do NOT hand-write the avatar `.meta`** — that caused the GS4 "Transform 'Armature'
+  not found in HumanDescription" error. Let Unity build the avatar.
+- CC_Base→Mecanim bone map: see `UNITY-IMPORT-NOTES.md` §3.
+
+### 7.3 Download + import the Mixamo clip set (manual download)
+Grab the core gameplay set from mixamo.com as **FBX "Without Skin"** into
+`Assets/Animations/Barbarian/Mixamo/`:
+`idle` (Breathing Idle), `walk`, `run`, `attack` (Sword/Great Sword Slash),
+`hit` (Hit Reaction), `dodge`/`roll`, `block`, `wave`, `celebrate`/`victory`.
+For each clip FBX → **Rig ▸ Animation Type = Humanoid**, **Avatar Definition = Copy
+From Other Avatar → the barbarian's avatar** → Apply. Enable **Loop Time** on
+idle/walk/run.
+
+> Mixamo has **no API** — the download is the one irreducibly manual web step. Naming
+> the file with the motion stem (e.g. `walk.fbx`) lets the validator match it.
+
+### 7.4 Build the Animator controller
+`Assets/Animations/Barbarian/Barbarian.controller`: default **Idle**; a `Speed` float
+drives Idle↔Walk↔Run; triggers (Attack/Hit/Dodge/Block/Wave/Celebrate) fire from
+AnyState → clip → exit to Idle. Mirror the kart `package_for_unity.py` controller
+pattern, but **let Unity own the avatar** (Humanoid, retargetable/mirrorable in-engine).
+
+### 7.5 Validate
+Run `Assets/Editor/ValidateBarbarianHumanoid.cs`:
+- Live (coplay): `ValidateBarbarianHumanoid.Execute()`
+- Headless: `Unity.exe -batchmode -projectPath . -executeMethod ValidateBarbarianHumanoid.RunBatch -quit`
+  → writes `barbarian_humanoid_validation.txt`, exit 0=pass.
+
+It asserts: character avatar **isValid && isHuman** (catches the GS4 bad-avatar
+regression), each Mixamo clip is Humanoid + **Copy From Other Avatar = the barbarian
+avatar** with a usable clip, the Animator (if built) binds motions, and the rig builds
+Humanoid.
+
+### 7.6 Cleanup
+Remove the stale arms-up previz clips from `Assets/Animations/Barbarian/` (the Jun-27
+hand-rolled-retarget bake) so the Humanoid set is the only shippable one.
+
+## Gate (PASS criteria)
+- Character imports Humanoid, avatar valid, texture assigned.
+- ≥ the core clip set imported as Humanoid/Copy-From-Other onto the barbarian avatar.
+- `ValidateBarbarianHumanoid` returns PASS (exit 0).
+- Live play-mode (or coplay screenshot) shows natural arm/leg carriage — NOT the
+  previz splay.
+
+## Outputs
+- `Assets/Animations/Barbarian/Source/` (rig + texture), `.../Mixamo/` (clips),
+  `Barbarian.controller`, `ANIMATION-MANIFEST.json` (clip → file → dur → loop →
+  avatar), `barbarian_humanoid_validation.txt`.
+
+## See also
+- `pipelines/animate-ralph/UNITY-IMPORT-NOTES.md` — the import packet (paths, bone map).
+- `pipelines/animate-ralph/PROMPT.md` §"Motion Sources — Shippable vs Previz".
+- Lessons: `hand-rolled-retarget-limb-plane`, `unirig-skin-weights-melt-use-accurig`.
