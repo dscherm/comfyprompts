@@ -1,0 +1,162 @@
+[
+ {
+  "lora": null,
+  "strength": 0,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_00183_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho.safetensors",
+  "strength": 0.6,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00028_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho.safetensors",
+  "strength": 0.8,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00029_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho.safetensors",
+  "strength": 1.0,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00030_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001000.safetensors",
+  "strength": 0.6,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00031_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001000.safetensors",
+  "strength": 0.8,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00032_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001000.safetensors",
+  "strength": 1.0,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00033_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001250.safetensors",
+  "strength": 0.6,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00034_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001250.safetensors",
+  "strength": 0.8,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00035_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001250.safetensors",
+  "strength": 1.0,
+  "prompt_key": "knight",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a fantasy knight in plate armor, full body character, plain background",
+  "image": "ComfyUI_LoRA_00036_.png",
+  "caption": ""
+ },
+ {
+  "lora": null,
+  "strength": 0,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_00184_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho.safetensors",
+  "strength": 0.6,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00037_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho.safetensors",
+  "strength": 0.8,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00038_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho.safetensors",
+  "strength": 1.0,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00039_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001000.safetensors",
+  "strength": 0.6,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00040_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001000.safetensors",
+  "strength": 0.8,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00041_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001000.safetensors",
+  "strength": 1.0,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00042_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001250.safetensors",
+  "strength": 0.6,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00043_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001250.safetensors",
+  "strength": 0.8,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00044_.png",
+  "caption": ""
+ },
+ {
+  "lora": "_eval_mvortho\\mv_ortho_000001250.safetensors",
+  "strength": 1.0,
+  "prompt_key": "droid",
+  "prompt": "mv_ortho, front view, wide T-pose, arms outstretched, fingers spread, legs apart, a sci-fi battle droid robot, full body character, plain background",
+  "image": "ComfyUI_LoRA_00045_.png",
+  "caption": ""
+ }
+]

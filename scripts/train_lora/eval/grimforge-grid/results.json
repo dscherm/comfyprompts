@@ -1,0 +1,114 @@
+[
+ {
+  "lora": null,
+  "strength": 0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_00186_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1000.safetensors",
+  "strength": 0.7,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00001_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1000.safetensors",
+  "strength": 1.0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00002_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1250.safetensors",
+  "strength": 0.7,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00003_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1250.safetensors",
+  "strength": 1.0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00004_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1500.safetensors",
+  "strength": 0.7,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00005_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1500.safetensors",
+  "strength": 1.0,
+  "prompt_key": "portrait",
+  "prompt": "portrait of a woman with long red hair, forest background",
+  "image": "ComfyUI_LoRA_00006_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": null,
+  "strength": 0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_00187_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1000.safetensors",
+  "strength": 0.7,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00007_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1000.safetensors",
+  "strength": 1.0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00008_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1250.safetensors",
+  "strength": 0.7,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00009_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1250.safetensors",
+  "strength": 1.0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00010_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1500.safetensors",
+  "strength": 0.7,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00011_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ },
+ {
+  "lora": "style\\grimforge_eval_1500.safetensors",
+  "strength": 1.0,
+  "prompt_key": "scene",
+  "prompt": "a small wooden cabin by a lake at sunset",
+  "image": "ComfyUI_LoRA_00012_.png",
+  "caption": "(caption queue failed: queue failed after 4 attempts: HTTP 400 /prompt: {\"error\": {\"type\": \"invalid_pro)"
+ }
+]

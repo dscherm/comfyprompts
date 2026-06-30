@@ -1,0 +1,13 @@
+config_version=5
+
+[application]
+config/name="TilesetImportTest"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.6")
+
+[display]
+window/size/viewport_width=352
+window/size/viewport_height=240
+
+[rendering]
+textures/canvas_textures/default_texture_filter=0
