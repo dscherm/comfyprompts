@@ -486,5 +486,137 @@ def test_list_loras_unknown_family_keeps_all(monkeypatch, tmp_path):
     assert result["excluded"] == 0
 
 
+# --------------------------------------------------------------------------- #
+# normalize_model_path_separators (Windows LoRA enum-match bug)
+# --------------------------------------------------------------------------- #
+#
+# ComfyUI enumerates nested model files with the host OS separator and validates
+# a submitted lora_name by EXACT STRING MATCH. On Windows a forward-slash
+# subfoldered name (e.g. "style/Foo.safetensors") fails against the enum entry
+# "style\Foo.safetensors", raising "Prompt outputs failed validation". The
+# render chokepoint must rewrite such names to os.sep before submission.
+
+import os as _os  # noqa: E402
+
+from managers.workflow_manager import (  # noqa: E402
+    WorkflowManager,
+    normalize_model_path_separators,
+)
+from models.workflow import WorkflowParameter, WorkflowToolDefinition  # noqa: E402
+
+
+def test_normalize_forward_slash_lora_to_os_sep():
+    wf = {
+        "2": {
+            "class_type": "LoraLoader",
+            "inputs": {"lora_name": "style/berserkr_style.safetensors", "model": ["1", 0]},
+        }
+    }
+    normalize_model_path_separators(wf)
+    assert wf["2"]["inputs"]["lora_name"] == "style" + _os.sep + "berserkr_style.safetensors"
+
+
+def test_normalize_backslash_lora_to_os_sep():
+    wf = {
+        "2": {
+            "class_type": "LoraLoader",
+            "inputs": {"lora_name": "style\\berserkr_style.safetensors"},
+        }
+    }
+    normalize_model_path_separators(wf)
+    assert wf["2"]["inputs"]["lora_name"] == "style" + _os.sep + "berserkr_style.safetensors"
+
+
+def test_normalize_checkpoint_subfolder():
+    wf = {"1": {"class_type": "CheckpointLoaderSimple", "inputs": {"ckpt_name": "sub/model.safetensors"}}}
+    normalize_model_path_separators(wf)
+    assert wf["1"]["inputs"]["ckpt_name"] == "sub" + _os.sep + "model.safetensors"
+
+
+def test_normalize_leaves_node_links_and_plain_names_untouched():
+    wf = {
+        "2": {
+            "class_type": "LoraLoader",
+            "inputs": {"lora_name": "Foo.safetensors", "model": ["1", 0], "clip": ["1", 1]},
+        }
+    }
+    normalize_model_path_separators(wf)
+    # No separator -> unchanged; node-link lists -> unchanged.
+    assert wf["2"]["inputs"]["lora_name"] == "Foo.safetensors"
+    assert wf["2"]["inputs"]["model"] == ["1", 0]
+    assert wf["2"]["inputs"]["clip"] == ["1", 1]
+
+
+def test_normalize_ignores_non_model_string_inputs():
+    # A subfoldered-looking value under a non-model key must be left alone.
+    wf = {"8": {"class_type": "SaveImage", "inputs": {"filename_prefix": "out/run1"}}}
+    normalize_model_path_separators(wf)
+    assert wf["8"]["inputs"]["filename_prefix"] == "out/run1"
+
+
+def test_render_workflow_normalizes_param_lora_name():
+    """End-to-end: a forward-slash lora_name tool arg is os.sep before submit."""
+    template = {
+        "2": {
+            "class_type": "LoraLoader",
+            "inputs": {"lora_name": "PARAM_STR_LORA_NAME", "model": ["1", 0]},
+        }
+    }
+    param = WorkflowParameter(
+        name="lora_name",
+        placeholder="PARAM_STR_LORA_NAME",
+        annotation=str,
+        description="LoRA name",
+        bindings=[("2", "lora_name")],
+        required=True,
+    )
+    definition = WorkflowToolDefinition(
+        workflow_id="generate_image_lora",
+        tool_name="generate_image_lora",
+        description="test",
+        template=template,
+        parameters={"lora_name": param},
+        output_preferences=("images",),
+    )
+    mgr = WorkflowManager.__new__(WorkflowManager)  # skip filesystem __init__
+    rendered = mgr.render_workflow(definition, {"lora_name": "style/berserkr_style.safetensors"})
+    assert rendered["2"]["inputs"]["lora_name"] == "style" + _os.sep + "berserkr_style.safetensors"
+
+
+def test_render_workflow_normalizes_literal_default_lora_name():
+    """Literal (non-PARAM) model names baked in the template are normalized too."""
+    template = {
+        "2": {
+            "class_type": "LoraLoader",
+            "inputs": {
+                "lora_name": "style/PixelArtV3Flux.safetensors",  # hardcoded, no PARAM
+                "strength_model": "PARAM_FLOAT_LORA_STRENGTH",
+                "model": ["1", 0],
+            },
+            "_defaults": {"PARAM_FLOAT_LORA_STRENGTH": 0.85},
+        }
+    }
+    strength = WorkflowParameter(
+        name="lora_strength",
+        placeholder="PARAM_FLOAT_LORA_STRENGTH",
+        annotation=float,
+        description="strength",
+        bindings=[("2", "strength_model")],
+        required=False,
+        default=0.85,
+    )
+    definition = WorkflowToolDefinition(
+        workflow_id="generate_image_pixelart",
+        tool_name="generate_image_pixelart",
+        description="test",
+        template=template,
+        parameters={"lora_strength": strength},
+        output_preferences=("images",),
+    )
+    mgr = WorkflowManager.__new__(WorkflowManager)
+    rendered = mgr.render_workflow(definition, {})
+    assert rendered["2"]["inputs"]["lora_name"] == "style" + _os.sep + "PixelArtV3Flux.safetensors"
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

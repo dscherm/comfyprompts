@@ -6,7 +6,7 @@
     "class_type": "CheckpointLoaderSimple",
     "_meta": {"title": "Load Checkpoint"},
     "_defaults": {
-      "PARAM_STR_CHECKPOINT": "juggernautXL_v9Rundiffusion.safetensors"
+      "PARAM_STR_CHECKPOINT": "sd_xl_base_1.0.safetensors"
     }
   },
   "2": {
@@ -20,9 +20,18 @@
     "class_type": "LoraLoader",
     "_meta": {"title": "Load Tile LoRA"},
     "_defaults": {
-      "PARAM_STR_LORA_NAME": "style/SomeTile.safetensors",
-      "PARAM_FLOAT_LORA_STRENGTH": 0.85
+      "PARAM_STR_LORA_NAME": "dmd2_sdxl_4step_lora.safetensors",
+      "PARAM_FLOAT_LORA_STRENGTH": 0.0
     }
+  },
+  "9": {
+    "inputs": {
+      "model": ["2", 0],
+      "tiling": "enable",
+      "copy_model": "Make a copy"
+    },
+    "class_type": "SeamlessTile",
+    "_meta": {"title": "Seamless Tiling (circular conv padding)"}
   },
   "3": {
     "inputs": {
@@ -33,8 +42,8 @@
     "class_type": "EmptyLatentImage",
     "_meta": {"title": "Empty Latent Image"},
     "_defaults": {
-      "PARAM_INT_WIDTH": 512,
-      "PARAM_INT_HEIGHT": 512
+      "PARAM_INT_WIDTH": 1024,
+      "PARAM_INT_HEIGHT": 1024
     }
   },
   "4": {
@@ -53,7 +62,7 @@
     "class_type": "CLIPTextEncode",
     "_meta": {"title": "Negative Prompt"},
     "_defaults": {
-      "PARAM_NEGATIVE_PROMPT": "blurry, text, watermark, 3d render, photo"
+      "PARAM_NEGATIVE_PROMPT": "blurry, text, watermark, signature, visible seam, harsh shadows, strong directional light, vignette, perspective distortion, object, border"
     }
   },
   "6": {
@@ -61,10 +70,10 @@
       "seed": "PARAM_INT_SEED",
       "steps": "PARAM_INT_STEPS",
       "cfg": "PARAM_FLOAT_CFG",
-      "sampler_name": "euler",
-      "scheduler": "normal",
+      "sampler_name": "dpmpp_2m",
+      "scheduler": "karras",
       "denoise": 1.0,
-      "model": ["2", 0],
+      "model": ["9", 0],
       "positive": ["4", 0],
       "negative": ["5", 0],
       "latent_image": ["3", 0]
@@ -80,10 +89,11 @@
   "7": {
     "inputs": {
       "samples": ["6", 0],
-      "vae": ["1", 2]
+      "vae": ["1", 2],
+      "tiling": "enable"
     },
-    "class_type": "VAEDecode",
-    "_meta": {"title": "VAE Decode"}
+    "class_type": "CircularVAEDecode",
+    "_meta": {"title": "Circular VAE Decode (seamless)"}
   },
   "8": {
     "inputs": {

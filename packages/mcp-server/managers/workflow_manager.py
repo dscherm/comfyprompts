@@ -3,6 +3,7 @@
 import copy
 import json
 import logging
+import os
 import random
 import re
 from collections import OrderedDict
@@ -72,6 +73,71 @@ DEFAULT_OUTPUT_KEYS = ("images", "image", "gifs", "gif")
 AUDIO_OUTPUT_KEYS = ("audio", "audios", "sound", "files")
 VIDEO_OUTPUT_KEYS = ("videos", "video", "mp4", "mov", "webm")
 MESH_OUTPUT_KEYS = ("mesh", "meshes", "3d", "obj", "glb", "files")
+
+# ComfyUI node-input keys whose values are enum-validated model filenames that
+# may carry a subfolder (e.g. ``style/Foo.safetensors``). ComfyUI enumerates
+# nested model files using the host OS path separator and validates a submitted
+# name by EXACT STRING MATCH against that enum. The MCP server (and workflow
+# JSON defaults) use forward slashes, so on Windows a value like
+# ``style/Foo.safetensors`` fails validation against ComfyUI's
+# ``style\Foo.safetensors`` enum entry. We normalize every such value to the
+# OS-native separator just before submission so BOTH forward- and back-slash
+# inputs match the host's enum.
+MODEL_PATH_INPUT_KEYS = frozenset(
+    {
+        "ckpt_name",
+        "lora_name",
+        "vae_name",
+        "control_net_name",
+        "controlnet_name",
+        "unet_name",
+        "clip_name",
+        "clip_name1",
+        "clip_name2",
+        "clip_name3",
+        "style_model_name",
+        "model_name",  # UpscaleModelLoader and similar single-model loaders
+        "upscale_model",
+        "gligen_name",
+        "ipadapter_file",
+    }
+)
+
+
+def normalize_model_path_separators(workflow: Dict[str, Any]) -> Dict[str, Any]:
+    """Normalize subfoldered model-name inputs to the OS-native path separator.
+
+    ComfyUI loaders (``LoraLoader``, ``CheckpointLoaderSimple``, ``VAELoader``,
+    ``ControlNetLoader``, ...) enumerate nested model files with the host OS
+    separator and validate a submitted name by exact string match. Forward-slash
+    subfoldered names (from tool args OR hardcoded workflow JSON defaults) fail
+    that match on Windows, raising "Prompt outputs failed validation".
+
+    This pass rewrites any string value under a known model-name input key so
+    that both ``style/Foo.safetensors`` and ``style\\Foo.safetensors`` become the
+    host-native ``style<os.sep>Foo.safetensors``. Node-link inputs (lists),
+    non-string values, and names without a separator are left untouched.
+
+    Mutates and returns the same ``workflow`` dict. Running on a single
+    chokepoint (the fully rendered workflow) means it covers PARAM-substituted
+    tool arguments AND literal model names baked into the workflow template.
+    """
+    for node in workflow.values():
+        if not isinstance(node, dict):
+            continue
+        inputs = node.get("inputs")
+        if not isinstance(inputs, dict):
+            continue
+        for key, value in inputs.items():
+            if (
+                key in MODEL_PATH_INPUT_KEYS
+                and isinstance(value, str)
+                and ("/" in value or "\\" in value)
+            ):
+                # Unify to forward slash first, then to the OS separator, so the
+                # result is host-native regardless of the input's slash style.
+                inputs[key] = value.replace("\\", "/").replace("/", os.sep)
+    return workflow
 
 
 class WorkflowManager:
@@ -245,7 +311,10 @@ class WorkflowManager:
                         for node_id, input_name in param.bindings:
                             if node_id in workflow and "inputs" in workflow[node_id]:
                                 workflow[node_id]["inputs"][input_name] = default_value
-        
+
+        # Normalize subfoldered model names to the OS-native separator before
+        # the workflow is submitted to ComfyUI (exact-string enum match).
+        normalize_model_path_separators(workflow)
         return workflow
 
     def _load_workflows(self):
@@ -343,7 +412,11 @@ class WorkflowManager:
             coerced_value = self._coerce_value(raw_value, param.annotation)
             for node_id, input_name in param.bindings:
                 workflow[node_id]["inputs"][input_name] = coerced_value
-        
+
+        # Normalize subfoldered model names (lora_name, ckpt_name, ...) to the
+        # OS-native separator so they match ComfyUI's exact-string enum. Covers
+        # both PARAM-substituted args and literal model names in the template.
+        normalize_model_path_separators(workflow)
         return workflow
 
     def _extract_parameters(self, workflow: Dict[str, Any]):
