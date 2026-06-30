@@ -234,3 +234,31 @@ both a live-MCP entry (`Execute()`) and a headless batch entry (`RunBatch`, writ
   validator or asset fault). Live coplay-mcp import + play-mode transition verification is
   therefore deferred to a licensed editor session. The artifacts (validator, packaged clips,
   avatar, controller, manifest) are in place and ready to run the moment the editor opens.
+
+---
+
+## Phase UH — Unity Humanoid + Mixamo (the SHIPPABLE route): **PASS** (live coplay, 2026-06-30)
+
+Supersedes the GS4 deferral above: the live editor validation was completed via
+**coplay-mcp** against Unity `6000.4.0f1` open on `../soapbox-unity`. New validator
+`Assets/Editor/ValidateBarbarianHumanoid.cs` returns **RESULT: PASS** (all 4 sections).
+
+- **UH1 — coplay round-trip:** verified (`list_unity_project_roots` →
+  `get_unity_editor_state` → `ValidateBarbarianHumanoid.Execute()`); reconnect
+  procedure recorded in `stages/07-unity-humanoid-packaging.md`.
+- **UH2 — character:** `barbarian_accurig.fbx` → Humanoid, `CreateFromThisModel`;
+  `barbarian_accurigAvatar` isValid && isHuman, **22 bones**. Embedded URP/Lit material
+  extracted to `Source/Materials/Material_0.mat`, `barbarian_tex.png` on `_BaseMap`
+  (UVs align). §1 PASS.
+- **UH3 — Mixamo clips:** 9/9 (idle/walk/run/attack/hit/dodge/block/wave/celebrate)
+  imported **CreateFromThisModel** (own humanoid avatar; runtime muscle-space retarget).
+  **Generic Mixamo clips cannot use Copy-From-Other onto the AccuRIG avatar** — bone
+  names mismatch, no clip emits — so the validator §2 was corrected to accept
+  CreateFromThisModel OR CopyFromOther. Loop Time on idle/walk/run. §2 PASS.
+- **UH4 — Animator + validate + cleanup:** all 9 `Barbarian.controller` states bound to
+  their Mixamo clips (default `Idle`, `Speed` float + 6 AnyState triggers). Validator
+  §3/§4 PASS. **Live play-mode** capture shows **natural arm/leg carriage** (relaxed
+  idle, upright torso) — the `hand-rolled-retarget-limb-plane` previz splay (45° back-
+  lean + arms-up) is gone; sampled Mixamo walk confirms a clean stride. Stale Jun-27
+  previz FBXs deleted from `Assets/Animations/Barbarian/`; `ANIMATION-MANIFEST.json`
+  regenerated for the Mixamo set.

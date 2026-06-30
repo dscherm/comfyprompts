@@ -626,7 +626,7 @@ ValidateBarbarianHumanoid.RunBatch`).
     "Stale Jun-27 hand-rolled-retarget clips removed from Assets/Animations/Barbarian/ (Humanoid set is the only shippable one)"
   ],
   "steps": ["Build the Animator (coplay or manual)", "Run the validator + visual check", "Write manifest/VALIDATION; delete the stale previz clips"],
-  "passes": false
+  "passes": true
 }
 ```
 
