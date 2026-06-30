@@ -88,13 +88,41 @@ PALETTE: dict[str, str] = {
     # grimdark
     "bone": "c4bba2",
     "bone_pale": "d8d0bc",
+    # dark-fantasy / occult sub-palette (tuned to the grimforge_style LoRA:
+    # high-contrast, saturated accents over deep darks)
+    "charwood": "150f0a",
+    "ash": "242329",
+    "shroud": "1c1a22",
+    "rot": "32341f",
+    "blood": "5e1512",
+    "gore": "7a1f17",
+    "crimson": "9e1b1b",   # the knight's tattered cape — signature warm accent
+    "gunmetal": "23262b",  # dark armor / iron base (high contrast vs steel)
+    "steel": "9aa4ad",     # bright metal highlight
     # emissive
     "window": "ffcf6b",
     "fire": "ff8a2a",
+    # emissive occult accents (glowing eyes, forge-glow, gems, leaking light)
+    "ember": "ff4a16",     # forge-interior orange — the LoRA's iconic glow
+    "amber": "ffb12e",     # glowing creature eyes / lantern (the dire wolf)
+    "gem": "4fd4ff",       # cyan rune-gem accent (sword / treasure)
+    "witchlight": "7dff5c",
+    "ghostfire": "5cd2ff",
+    "rune": "a04dff",
 }
 
 #: Material name -> emission strength. Materials not listed are non-emissive.
-EMISSION: dict[str, float] = {"fire": 2.0, "window": 1.5}
+EMISSION: dict[str, float] = {
+    "fire": 2.0,
+    "window": 1.5,
+    # occult / dark-fantasy glows burn a little hotter so they read at scale
+    "ember": 2.5,
+    "amber": 2.5,
+    "gem": 1.6,
+    "witchlight": 2.5,
+    "ghostfire": 2.5,
+    "rune": 2.2,
+}
 
 
 def validate_palette() -> None:

@@ -88,6 +88,18 @@ def test_emission_names_are_in_palette():
     assert kitlib.EMISSION["window"] == 1.5
 
 
+def test_occult_palette_and_emissives():
+    # dark-fantasy sub-palette additions (incl. LoRA-derived accents)
+    for key in ("charwood", "ash", "shroud", "rot", "blood", "gore",
+                "crimson", "gunmetal", "steel"):
+        assert key in kitlib.PALETTE
+    # occult glow accents must be both in the palette and emissive
+    for key in ("ember", "amber", "gem", "witchlight", "ghostfire", "rune"):
+        assert key in kitlib.PALETTE
+        assert key in kitlib.EMISSION
+        assert kitlib.EMISSION[key] > 0
+
+
 def test_validate_palette_passes():
     kitlib.validate_palette()  # must not raise
 

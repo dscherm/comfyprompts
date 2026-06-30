@@ -1,0 +1,11 @@
+; GrimForge kit Godot import-verify project (template).
+; Copy this folder, drop GLBs into models/, optionally write an aesthetic.txt
+; ("medieval" or "occult"), then build + capture (see README.md).
+
+config_version=5
+
+[application]
+
+config/name="GrimForgeVerify"
+run/main_scene="res://village.tscn"
+config/features=PackedStringArray("4.6", "Forward Plus")
