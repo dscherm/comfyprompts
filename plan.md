@@ -591,7 +591,7 @@ ValidateBarbarianHumanoid.RunBatch`).
     "ValidateBarbarianHumanoid section 1 (character rig) passes"
   ],
   "steps": ["Set Rig=Humanoid, CreateFromThisModel, Apply, Configure (Enforce T-Pose if needed)", "Assign the texture", "Run the validator's character check"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1239,5 +1239,86 @@ DS1 is curate+caption only (fast).
   "steps": ["Copy + sidecar the winner", "Write dissonant_style_listing.md (distinctive-hook framing + game cross-promo)", "Flag the human-gated upload in BUSINESS-PLAN-TASKS.md"],
   "note": "DONE 2026-06-30. Final dissonant_style.safetensors deployed to ComfyUI/models/loras/style/ + .txt sidecar (trigger dissonant_style, strength 1.0, range 0.8-1.2). FREE CivitAI listing copy written: eval/dissonant_style_listing.md (distinctive retro-futurist hook, 5-sample gallery, AI-disclosure + own-game provenance, game cross-promo, NO paid gate per Flux-dev license). Human-gated upload remains (like grimforge D0.6).",
   "passes": true
+}
+```
+
+---
+
+## Phase SX: soapbox_style LoRA (own-art, augment-first)
+
+3rd distinctive own-art LoRA, from the **soapboxsabatoge** game (gritty cartoon
+junkyard-derby kart mascots). **Constraint:** the source sprites are only **64x64**
+and ~9 unique characters — too small/few for Flux directly. **Pilot (validated
+2026-06-30):** upscale->img2img at LOW denoise (~0.5-0.55) UPGRADES each 64px sprite
+to a clean 512px bold-outline cartoon while PRESERVING the character (bones=skeleton,
+punk_king=mohawk+crown); denoise >=0.7 drifts to generic. So we AUGMENT first.
+Pipeline: `scripts/train_lora/soapbox_augment.py`. Recipe = the proven one (rank 16,
+1500 steps, etc.). FREE on CivitAI (Flux-dev). Trigger: `soapbox_style`.
+
+```json
+{
+  "id": "SX0",
+  "category": "feature",
+  "priority": 2,
+  "description": "Augment the soapbox dataset: upscale the 64x64 sprites -> img2img at denoise 0.5/0.55 (preserves character) across 9 chars x 2 angles x 3 seeds, collect ~70-108 clean 512px cartoon-mascot images",
+  "files": ["scripts/train_lora/soapbox_augment.py"],
+  "acceptance_criteria": [
+    "soapbox_augment.py runs: per character, upscale front + 3/4 sprites to 512, img2img at d0.50/0.55 (the validated low-denoise range that keeps the mascot identity), several seeds",
+    "~70-108 raw augmented images collected to E:/ai-training/datasets/soapbox_raw/ (clean 512px bold-outline cartoon kart-mascots, character-faithful)",
+    "Spot-checked: the soapbox characters are recognizable (not drifted to generic Flux cartoon); drifted/duplicate frames flagged for curation in SX1"
+  ],
+  "steps": ["Run soapbox_augment.py (ComfyUI up, venv python)", "Verify the collected images keep the soapbox character", "Hand off to SX1 curation"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SX1",
+  "category": "feature",
+  "priority": 2,
+  "description": "Curate the augmented soapbox set to ~50-70 character-faithful images; prep + caption + manifest",
+  "files": ["scripts/train_lora/datasets/soapbox_style_manifest.md"],
+  "acceptance_criteria": [
+    "Curate E:/ai-training/datasets/soapbox_raw -> keep ~50-70 that read as the soapbox cartoon-mascot style (drop any that drifted generic or are near-duplicates)",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/soapbox_style (max-edge 1024)",
+    "caption.py --trigger soapbox_style; manifest records the augment provenance (64px own-game sprites -> low-denoise img2img upscale, IP-clean) + kept counts"
+  ],
+  "steps": ["Curate the raw augmented set", "prep_dataset.py", "caption.py --trigger soapbox_style; write manifest"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SX2",
+  "category": "feature",
+  "priority": 3,
+  "description": "Train the soapbox_style Flux LoRA (stop ComfyUI; proven recipe; restart after)",
+  "files": ["scripts/train_lora/configs/soapbox_style.json"],
+  "acceptance_criteria": [
+    "ComfyUI stopped; training on GPU 1 confirmed via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/soapbox_style --name soapbox_style --trigger soapbox_style --steps 1500 --rank 16 --resolutions 512,768,1024 --cuda-device 1",
+    "Checkpoints + final soapbox_style.safetensors on E:/ai-training/flux-output/soapbox_style/; ComfyUI restarted after"
+  ],
+  "steps": ["Stop ComfyUI", "launch_train.py (background); verify device 1", "Restart ComfyUI"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SX3",
+  "category": "testing",
+  "priority": 3,
+  "description": "Eval + deploy soapbox_style: base-vs-LoRA grid on NEW kart-mascot subjects, strengths 0.6/0.8/1.0; pick winner; deploy + FREE listing",
+  "files": ["scripts/train_lora/eval/soapbox_style_grid.md", "scripts/train_lora/eval/soapbox_style_listing.md", "D:/Projects/ComfyUI/models/loras/style/"],
+  "acceptance_criteria": [
+    "lora_eval_grid.py --only soapbox_style across strengths; judge reproduces the gritty cartoon-kart-mascot look on NEW characters (not just the 9 trained); pick (checkpoint, strength)",
+    "Deploy winner to ComfyUI/models/loras/style/ + sidecar; 8-sample card",
+    "FREE CivitAI listing copy (distinctive cartoon-mascot hook; cross-promote soapboxsabatoge); cross-ref a BUSINESS-PLAN-TASKS.md upload item"
+  ],
+  "steps": ["Eval on new subjects; pick winner", "Deploy + sidecar + card", "Write listing; flag the human-gated upload"],
+  "passes": false
 }
 ```
