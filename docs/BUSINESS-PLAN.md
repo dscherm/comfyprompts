@@ -108,6 +108,17 @@ Each playbook = **what you sell · who buys & where · pricing · the product ga
 - **Gate:** `LORA-PRODUCT` (§4.4).
 - **Legal:** **original IP only.** No celebrities, named characters, or living
   artists' styles — that's the fastest takedown/exposure path in the plan.
+- **⚠️ LICENSE (verified 2026-06-30, `flux-lora-edge-and-licensing.md`):**
+  **Selling a FLUX.1-dev-trained LoRA *file* is PROHIBITED** — a LoRA is a
+  "Derivative" under the FLUX.1 [dev] Non-Commercial License, restricted to
+  non-commercial use. **BUT the OUTPUT images (and assets derived from them) ARE
+  commercially sellable** — BFL claims no ownership of outputs. So:
+  **(a)** sell the *images/assets* freely (Streams A/B/C/K are clean);
+  **(b)** give Flux-dev LoRAs away FREE on CivitAI (reputation/lead-magnet);
+  **(c)** for a sellable LoRA *file* or paid custom-LoRA deliverable, train on
+  **FLUX.1-schnell (Apache-2.0)** or another permissive base, not dev. Even a
+  paid BFL commercial license appears to bar reselling the weights to third
+  parties (unresolved). **Monetize Outputs + audience, not the weights.**
 - **Production map:** curate dataset (prep_dataset.py) → caption → train (1500
   steps) → eval-grid + AI judge → pick winner ckpt/strength → deploy + trigger
   sidecar → publish card with sample grid + recommended settings.
@@ -351,6 +362,10 @@ audience are where the meaningful ceiling lives.
 
 - [ ] Toggle the platform's **AI-disclosure** flag (Fab + Unity require it).
 - [ ] **Original IP only** — no named characters, celebrities, living artists' styles.
+- [ ] **Flux-dev license:** never sell a **FLUX.1-dev-derived LoRA *file*** (it's a
+      non-commercial "Derivative"). Selling the **output images/assets** is fine.
+      For a sellable LoRA file, use **FLUX.1-schnell (Apache-2.0)** or another
+      permissive base. (See `docs/research/flux-lora-edge-and-licensing.md`.)
 - [ ] Don't market assets as "fully copyright-protected" (pure prompt→output
       likely isn't registrable; your editing/rigging strengthens but doesn't
       guarantee the claim).
@@ -378,7 +393,19 @@ audience are where the meaningful ceiling lives.
   low-poly 3D kits** (confirms Streams A/K + L5/L7). Build order:
   `stylized_game → tile_topdown → lowpoly_flat → ortho_turnaround → mat_tile`.
 
+**Resolved — pass 4 (2026-06-30)** (→ `docs/research/flux-lora-edge-and-licensing.md`):
+- [x] **FLUX.1-dev commercial licensing** — selling a Flux-dev LoRA *file* is
+  PROHIBITED (non-commercial "Derivative"); but **Outputs/assets are commercially
+  sellable**. Sell images/assets, give Flux-dev LoRAs away free, use
+  **schnell (Apache-2.0)** for any sellable LoRA file. Folded into §3 (Stream D)
+  + §7. **Materially changes D0.6/D0.7.**
+
 **Still open → next pass** (needs deeper data):
+- **Q2/Q3 from pass 4 went unanswered** (no surviving claims): Flux-vs-SDXL LoRA
+  supply ratio; whether utility/quality LoRAs lead Flux downloads; 24GB
+  ControlNet/IP-Adapter *training* feasibility; measured LoRA quality-edge factors.
+- Whether any **paid BFL tier** authorizes selling a Flux-dev LoRA file to the public.
+- Confirm **schnell (Apache-2.0)** terms + dev-vs-schnell LoRA quality tradeoff.
 - A marketplace-backed **static-vs-rigged price multiplier** (Fab/CGTrader/TurboSquid).
 - **Booth's exact fee split + payout threshold** (only AI policy + VRM pricing verified).
 - Concrete **time-to-40k CivitAI Creator Score** for a new LoRA creator.
