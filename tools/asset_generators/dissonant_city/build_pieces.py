@@ -32,8 +32,8 @@ def M(key):
         "dark": (BLACK, None, 0, 0.9, 0.0), "purple": (PURPLE, None, 0, 0.95, 0.0),
         "pink": (PINK, None, 0, 0.6, 0.0), "cyan": (CYAN, None, 0, 0.6, 0.0),
         "cream": (CREAM, None, 0, 0.8, 0.0), "chrome": (CHROME, None, 0, 0.3, 0.5),
-        "neonP": (PINK, PINK, 12, 0.4, 0.0), "neonC": (CYAN, CYAN, 12, 0.4, 0.0),
-        "win": (CREAM, "FFE9B0", 6, 0.5, 0.0),
+        "neonP": (PINK, PINK, 7, 0.4, 0.0), "neonC": (CYAN, CYAN, 7, 0.4, 0.0),
+        "win": (CREAM, "FFE9B0", 4, 0.5, 0.0),
     }[key]
     return mat(key, Hx(d[0]), Hx(d[1]) if d[1] else None, d[2], d[3], d[4])
 
@@ -175,12 +175,42 @@ def palm_retro():
 def barrier():
     box(2.0, 0.2, 0.5, (0, 0, 0.25), M("dark")); box(2.0, 0.24, 0.08, (0, 0, 0.4), M("neonP"))
 
+def tower_spiral():
+    # central cylinder shaft + neon rings + cap/spire
+    cyl(1.3, 6.0, (0, 0, 3.0), M("purple"), 12)
+    for z in (1.5, 3.0, 4.5): cyl(1.36, 0.14, (0, 0, z), M("neonC"), 12)
+    cyl(1.5, 0.4, (0, 0, 6.15), M("chrome"), 12); cone(0.45, 0.04, 1.3, (0, 0, 7.0), M("neonP"), 6)
+    # spiraling walkway (Archimedes screw): tangent box segments along a 3-turn helix
+    R, turns, seg, ztop = 1.85, 3, 54, 5.2
+    for i in range(seg):
+        a = (i / seg) * turns * 2 * math.pi
+        z = 0.5 + (i / seg) * ztop
+        wk = box(0.95, 0.4, 0.12, (R * math.cos(a), R * math.sin(a), z), M("chrome"))
+        wk.rotation_euler.z = a + math.pi / 2
+        ne = box(0.42, 0.05, 0.09, ((R + 0.42) * math.cos(a), (R + 0.42) * math.sin(a), z + 0.11), M("neonP"))
+        ne.rotation_euler.z = a + math.pi / 2
+        if i % 3 == 0:  # railing posts
+            rp = box(0.06, 0.06, 0.5, ((R + 0.42) * math.cos(a), (R + 0.42) * math.sin(a), z + 0.3), M("neonC"))
+            rp.rotation_euler.z = a + math.pi / 2
+
+def tower_prism():
+    # tall rectangular prism, dark-purple body (more depth than near-black)
+    box(2.0, 2.0, 6.0, (0, 0, 3.0), M("purple")); box(1.7, 1.7, 1.4, (0, 0, 6.4), M("purple"))
+    cyl(0.8, 0.3, (0, 0, 7.2), M("chrome"), 4); cone(0.5, 0.04, 1.2, (0, 0, 7.9), M("neonC"), 4)
+    # glowing triangular features: chevron neon triangles up each face (3-vert flat cones)
+    faces = [(0, -1.02, 0), (0, 1.02, 0), (1.02, 0, 90), (-1.02, 0, 90)]
+    for fx, fy, frot in faces:
+        for k, z in enumerate((1.2, 2.6, 4.0, 5.2)):
+            tri = cone(0.55, 0.0, 0.12, (fx, fy, z), M("neonP" if k % 2 == 0 else "neonC"), 3)
+            tri.rotation_euler = (math.radians(90), 0, math.radians(frot + (180 if k % 2 else 0)))
+
 
 PIECES = {
     "tower_tall_cyan": lambda: tower_tall("cyan", "neonP"),
     "tower_tall_purple": lambda: tower_tall("purple", "neonC"),
     "tower_short_pink": lambda: tower_short("pink", "neonC"),
-    "tower_cyl": cyl_tower, "dome_building": dome_building, "arcology": arcology,
+    "tower_cyl": cyl_tower, "tower_spiral": tower_spiral, "tower_prism": tower_prism,
+    "dome_building": dome_building, "arcology": arcology,
     "ziggurat": ziggurat,
     "slab_shop_pink": lambda: slab_shop("pink", "neonC"),
     "slab_shop_cyan": lambda: slab_shop("cyan", "neonP"),
