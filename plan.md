@@ -1302,7 +1302,7 @@ Pipeline: `scripts/train_lora/soapbox_augment.py`. Recipe = the proven one (rank
     "Checkpoints + final soapbox_style.safetensors on E:/ai-training/flux-output/soapbox_style/; ComfyUI restarted after"
   ],
   "steps": ["Stop ComfyUI", "launch_train.py (background); verify device 1", "Restart ComfyUI"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1319,6 +1319,6 @@ Pipeline: `scripts/train_lora/soapbox_augment.py`. Recipe = the proven one (rank
     "FREE CivitAI listing copy (distinctive cartoon-mascot hook; cross-promote soapboxsabatoge); cross-ref a BUSINESS-PLAN-TASKS.md upload item"
   ],
   "steps": ["Eval on new subjects; pick winner", "Deploy + sidecar + card", "Write listing; flag the human-gated upload"],
-  "passes": false
+  "passes": true
 }
 ```
