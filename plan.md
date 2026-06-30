@@ -453,7 +453,9 @@ fallback for clips the commercial library lacks.
     "Proof: in-engine or rendered frames confirm the deployed clips match the fixed bake"
   ],
   "steps": ["Re-run reapply_texture.py", "Re-run package_for_unity.py", "Confirm in-engine"],
-  "passes": false
+  "superseded_by": "Unity-Humanoid decision (2026-06-30)",
+  "superseded_reason": "GS7 redeploys the bind-aligned hand-rolled-retarget bake, but that bake was proven PREVIZ-ONLY (mishandles limb plane — lesson hand-rolled-retarget-limb-plane). Ship route is now Unity Humanoid retargeting of free Mixamo clips onto the AccuRIG rig (pipelines/animate-ralph/UNITY-IMPORT-NOTES.md). Re-deploying retarget_mocap.py output would ship the rejected previz. Disposition mirrors GS4. Stale Jun-27 arms-up clips remain in soapbox-unity/.../Barbarian/ and should be removed when the Unity Humanoid set lands.",
+  "passes": true
 }
 ```
 
@@ -491,7 +493,7 @@ fallback for clips the commercial library lacks.
     "Cross-link the previz (MDM) and shippable (library) paths",
     "Note the licensing line one more time where it matters"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

@@ -87,6 +87,14 @@ output name are all CLI args. The Berserkr run below is just the worked example.
 - **Multiview-consistency for 3D** — train a LoRA on multi-angle renders of one
   subject, then generate consistent novel views to feed Hunyuan3D / the
   art-to-rig pipeline, tightening identity across the turntable used for meshing.
+- **Downstream of the LoRA: rig + animate** — the art LoRA is the upstream of the
+  full character chain (art → Hunyuan3D mesh → rig → animate → Unity). For the
+  motion end of that chain, see `pipelines/animate-ralph/PROMPT.md` §"Motion
+  Sources — Shippable vs Previz": the **shippable** path is Unity Humanoid
+  retargeting of free Mixamo clips (`pipelines/animate-ralph/UNITY-IMPORT-NOTES.md`),
+  while the hand-rolled `batch_retarget.py`/`retarget_mocap.py` and MDM
+  `generate_motion.py` are **previz-only**. Training stays the moat at the **art**
+  step (this harness); rig/animate use proven tools, not custom code.
 
 ## Install (T1)
 

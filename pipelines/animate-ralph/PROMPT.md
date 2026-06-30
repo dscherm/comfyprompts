@@ -31,6 +31,56 @@ Stage 5: EXPORT       -> Bake, split clips, export per-platform FBX/GLB
 Stage 6: VALIDATE     -> Test imports, verify loops, check bone compatibility
 ```
 
+## Motion Sources — Shippable vs Previz (read before choosing a retarget path)
+
+There are **two motion sources**, and they are NOT interchangeable. Picking the
+wrong one is how the project shipped arms-up clips once already.
+
+| Source | Script / step | Use for | Ship? |
+|--------|---------------|---------|-------|
+| **Commercial mocap library** (Mixamo / Rokoko `references/humanoid/`) | retarget **in Unity (Humanoid)** — see below | the 9 core gameplay clips | ✅ **yes** |
+| **MDM text-to-motion** | `scripts/generate_motion.py` | novel motions the library lacks | ❌ **never** |
+
+### The shippable path is Unity Humanoid retargeting — NOT the hand-rolled script
+
+The clean, shippable route is: import the AccuRIG-rigged character as **Humanoid
+(Create From This Model)** and import **free Mixamo clips as Humanoid (Copy From
+Other Avatar)**; Unity's muscle-space retargeter maps them onto the character
+in-engine, keeping AccuRIG's clean weights. **This is the ship path.** The full
+recipe is in **`pipelines/animate-ralph/UNITY-IMPORT-NOTES.md`**.
+
+`scripts/retarget_mocap.py` and its batch wrapper `scripts/batch_retarget.py` are
+the **hand-rolled** Blender retargeter. They produce *faithful bone rotations* but
+**mishandle the limb plane** (arms splay/pull, abduction post-process windmills) —
+see lesson `hand-rolled-retarget-limb-plane`. **They are PREVIZ-ONLY.** Use them
+for a fast headless look or throwaway motion; do **not** deploy their FBX output to
+the game. (The clips currently in `soapbox-unity/.../Barbarian/` are stale previz
+from this path — they are not the ship set.)
+
+`scripts/generate_motion.py` (MDM) is for motions the commercial library has no
+match for. It is **previz / R&D only** — its output is not commercially-licensed
+clean and is never shipped.
+
+### Decision guidance
+
+1. **Need a standard gameplay motion** (idle, walk, run, attack, hit, dodge,
+   block, wave, celebrate)? → grab the free **Mixamo** clip and retarget it in
+   **Unity Humanoid** (`UNITY-IMPORT-NOTES.md`). Ship this.
+2. **Want a quick headless preview** before touching Unity? → `batch_retarget.py`
+   onto the rig. Previz only — judge timing/intent, never deploy.
+3. **Need a motion the library simply doesn't have?** → `generate_motion.py` (MDM).
+   Previz/R&D only — never ship.
+
+### Licensing
+
+Mixamo clips are free and royalty-free for **embedded** commercial use (ship the
+baked animation inside the game; don't redistribute the raw clip library).
+Rokoko-library clips follow their own license. MDM output is **not** part of the
+shippable set. This project sells **tools + assets**, not a pipeline-as-a-service
+(see project memory `project_tripo_strategy`), so a cloud tool's "no competing
+model/service" clause does not apply — but its assets still aren't shipped without
+the appropriate paid tier.
+
 ## Pipeline State
 
 Track progress in `pipelines/animate-ralph/output/pipeline-state.json`:
