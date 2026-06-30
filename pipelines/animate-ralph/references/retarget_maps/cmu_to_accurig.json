@@ -1,0 +1,23 @@
+{
+  "_comment": "CMU BVH bone names -> AccuRIG/Character-Creator (CC_Base_*) bone names. AccuRIG's pro skin weights deform far cleaner than UniRig. Head/neck omitted (stay at rest).",
+  "bone_map": {
+    "Hips": "CC_Base_Hip",
+    "Spine": "CC_Base_Spine01",
+    "Spine1": "CC_Base_Spine02",
+    "LeftShoulder": "CC_Base_L_Clavicle",
+    "LeftArm": "CC_Base_L_Upperarm",
+    "LeftForeArm": "CC_Base_L_Forearm",
+    "LeftHand": "CC_Base_L_Hand",
+    "RightShoulder": "CC_Base_R_Clavicle",
+    "RightArm": "CC_Base_R_Upperarm",
+    "RightForeArm": "CC_Base_R_Forearm",
+    "RightHand": "CC_Base_R_Hand",
+    "LeftUpLeg": "CC_Base_L_Thigh",
+    "LeftLeg": "CC_Base_L_Calf",
+    "LeftFoot": "CC_Base_L_Foot",
+    "RightUpLeg": "CC_Base_R_Thigh",
+    "RightLeg": "CC_Base_R_Calf",
+    "RightFoot": "CC_Base_R_Foot"
+  },
+  "ignored_source_bones": ["LHipJoint","RHipJoint","LowerBack","Neck","Neck1","Head","LeftToeBase","RightToeBase","LeftFingerBase","LeftHandIndex1","LThumb","RightFingerBase","RightHandIndex1","RThumb"]
+}
