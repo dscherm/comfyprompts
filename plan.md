@@ -412,9 +412,64 @@ fallback for clips the commercial library lacks.
     "Verify avatar validity, clip durations + Animator transitions",
     "Record the verdict + clip inventory + avatar notes in VALIDATION.md"
   ],
-  "status": "partial",
-  "note": "Offline artifacts complete: ValidateBarbarianAnimImport.cs authored (mirrors ValidateKartAnimImport.cs), 9 Humanoid clips + BarbarianAvatar + Barbarian.controller + ANIMATION-MANIFEST.json packaged into ../soapbox-unity, VALIDATION.md Phase GS section written. Live/headless validation DEFERRED — headless RunBatch exited 198 (no valid Unity Editor license); coplay-mcp import + play-mode transition checks need a licensed editor session.",
-  "passes": true
+  "status": "FAILED in live editor",
+  "note": "NOT DONE. Live Unity review (2026-06-28/29) surfaced two real blockers the offline package missed: (1) IMPORT ERROR — 'Copied Avatar Rig Configuration mis-match: Transform Armature not found in HumanDescription'. The hand-written .meta declares hasExtraRoot:0 but every FBX has an extra 'Armature' root above 'hips', so Unity's copied avatar can't match it. (2) ANIMATION — all clips played arms-up/frozen (retarget bind-direction bug). #2 is FIXED (commit 3eb349b, bind-direction alignment; all 9 re-baked). #1 + re-deploy + clip curation remain → GS6/GS7/GS8.",
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS6",
+  "category": "bugfix",
+  "priority": 2,
+  "description": "Fix the Unity Humanoid avatar import error (extra 'Armature' root) — prefer live coplay-mcp avatar setup over hand-written .meta",
+  "files": ["pipelines/animate-ralph/scripts/package_for_unity.py", "soapbox-unity/Assets/Animations/Barbarian/"],
+  "acceptance_criteria": [
+    "idle.fbx imports as Humanoid, CreateFromThisModel, avatar VALID (no 'Transform Armature not found' error) — either set hasExtraRoot correctly / write an explicit skeleton list, OR build the avatar live via coplay-mcp and copy back the working .meta",
+    "The other 8 clips CopyFromOther idle's avatar with no hierarchy mismatch",
+    "Best path (per the 'do both' decision): let Unity Humanoid retargeting handle rest-pose differences — import the licensed Mixamo clips as Humanoid and retarget onto the barbarian avatar in-engine"
+  ],
+  "steps": [
+    "Reproduce the import error; inspect idle.fbx hierarchy vs the .meta humanDescription",
+    "Fix extra-root handling OR configure the avatar live via coplay-mcp",
+    "Verify all 9 import clean + the avatar is valid"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS7",
+  "category": "feature",
+  "priority": 2,
+  "description": "Re-texture + redeploy the arms-fixed clips to Unity (the deployed FBXs are still the old arms-up bake)",
+  "files": ["pipelines/animate-ralph/scripts/reapply_texture.py", "soapbox-unity/Assets/Animations/Barbarian/"],
+  "acceptance_criteria": [
+    "reapply_texture.py re-run on the 9 re-baked (bind-aligned) clips -> output/export/barbarian/textured/",
+    "package_for_unity.py redeploys the fixed+textured clips; Unity shows arms-down natural motion (not the old arms-up)",
+    "Proof: in-engine or rendered frames confirm the deployed clips match the fixed bake"
+  ],
+  "steps": ["Re-run reapply_texture.py", "Re-run package_for_unity.py", "Confirm in-engine"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "GS8",
+  "category": "feature",
+  "priority": 3,
+  "description": "Source-clip curation — swap busy range-of-motion rokoko_legacy_* takes for clean single-purpose clips (now that the retarget is faithful)",
+  "files": ["pipelines/animate-ralph/output/intake/barbarian_clipset.md"],
+  "acceptance_criteria": [
+    "Audit each clip's source; flag ROM/fidgety takes (e.g. rokoko_legacy_idle reads crouchy even when correctly retargeted)",
+    "Replace flagged sources with clean clips (a simple breathing idle, a clean walk cycle, etc.) and/or tighter sub-ranges + loop seams",
+    "Re-bake (batch_retarget.py) and re-review; each clip reads as a natural, game-usable loop/one-shot"
+  ],
+  "steps": ["Review the 9 fixed clips (MP4s / live Blender)", "Pick better sources/sub-ranges for the weak ones", "Re-bake + re-review"],
+  "passes": false
 }
 ```
 
@@ -644,6 +699,163 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0).
     "README documents both tile LoRAs, their triggers/strengths, the seamless path, and how to rebuild each dataset"
   ],
   "steps": ["Copy + sidecar the winner", "Smoke-test through the Flux seamless tool", "Document both tile LoRAs in README"],
+  "passes": false
+}
+```
+
+---
+
+## Phase SL: Evidence-backed sellable style LoRAs (stylized_game + lowpoly_flat)
+
+Derived from the 2026-06-29/30 market research (3 deep-research passes; live
+CivitAI API + itch.io top-sellers). Strategy doc: `docs/BUSINESS-PLAN.md` §3
+(Stream D) + §6; full evidence: `docs/research/selling-ai-assets-followup.md` §5b.
+This is the **business-plan strategy translated into the Ralph queue** — only the
+autonomously-trainable LoRAs; the listing/funnel steps (account uploads) live in
+`docs/BUSINESS-PLAN-TASKS.md`, not here.
+
+**Why these two, in this order** (each is BOTH a sellable LoRA AND a pipeline lever):
+- **`stylized_game`** — hand-painted fantasy "game render" look, sibling to the
+  shipped GrimForge. CivitAI's #1 unsaturated style demand; the top fantasy LoRAs
+  win by **bundling many substyles** under one model (breadth = downloads =
+  Generator-Buzz). Avoid the saturated photoreal/anime/NSFW lanes.
+- **`lowpoly_flat`** — flat-shaded low-poly look. Feeds itch.io's **#2** selling
+  category (low-poly 3D kits, validates Stream K) AND improves image→3D input.
+
+Already-queued and research-validated (do NOT duplicate here): **`tile_topdown`**
+(TX5-TX8) feeds itch.io's **#1** category (16×16 RPG tiles); **`mat_tile`**
+(TX1-TX4) fills thin Flux material supply. Per the research these are now
+**high-priority** — run TX5-TX8 alongside SL. The `ortho_turnaround`/`mv_ortho`
+moat LoRA is already shipped (Phase M).
+
+**Recipe (reuse verbatim, identical to grimforge/mv_ortho/TX):** rank 16/alpha 16,
+1500 steps, lr 1e-4, adamw8bit, flowmatch, EMA 0.99, multi-res [512,768,1024],
+GPU 1 (3090 Ti) with ComfyUI stopped, then restart. IP-clean original data only;
+keep a dataset-provenance manifest. AI-disclosure ON at listing time.
+
+```json
+{
+  "id": "SL1",
+  "category": "feature",
+  "priority": 1,
+  "description": "Build the stylized_game dataset: ~120-150 curated, IP-clean hand-painted stylized fantasy game-art renders spanning multiple substyles (character/creature/environment/prop) for breadth; prep + captions + manifest",
+  "files": ["scripts/train_lora/datasets/stylized_game_manifest.md"],
+  "acceptance_criteria": [
+    "~120-150 curated ORIGINAL stylized-fantasy game-art images (no third-party IP, no named characters, no living-artist styles) — assembled the same way the grimforge set was (curated original renders), deliberately spanning substyles (characters, creatures, environments, props) so the LoRA learns a broad reusable aesthetic, not one narrow look",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/stylized_game (max-edge 1024, RGB)",
+    "Captions prefixed with trigger stylized_game + a short substyle/subject tag; Florence2 content caption appended; idempotent",
+    "Manifest records the source/provenance of each image (IP-clean origin), the substyle spread, and the count — the defensible-origin record per Stream D's legal note"
+  ],
+  "steps": [
+    "Assemble/curate the IP-clean stylized-fantasy corpus across substyles",
+    "prep_dataset.py --src ... --out E:/ai-training/datasets/stylized_game --max-edge 1024",
+    "caption.py --dir ... --trigger stylized_game; write stylized_game_manifest.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SL2",
+  "category": "feature",
+  "priority": 1,
+  "description": "Train the stylized_game Flux LoRA (stop ComfyUI first; launch_train.py with the proven recipe; collect checkpoints; restart ComfyUI)",
+  "files": ["scripts/train_lora/configs/stylized_game.json"],
+  "acceptance_criteria": [
+    "ComfyUI stopped before launch; training confirmed on GPU 1 (3090 Ti) via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/stylized_game --name stylized_game --trigger stylized_game --steps 1500 --rank 16 --resolutions 512,768,1024 --cuda-device 1",
+    "Per-checkpoint saves (every 250) + final stylized_game.safetensors on E:/ai-training/flux-output/stylized_game/",
+    "No OOM; sample images trend toward a cohesive hand-painted stylized look; ComfyUI restarted on the 3090 Ti afterwards"
+  ],
+  "steps": ["Stop ComfyUI to free the 24GB", "launch_train.py (background); verify device 1; collect checkpoints", "Restart ComfyUI (run_3090ti.ps1)"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SL3",
+  "category": "testing",
+  "priority": 2,
+  "description": "Eval stylized_game: base-vs-LoRA grid across checkpoints x strengths 0.6/0.8/1.0 + AI judge; pick the winning (checkpoint, strength); render an 8-sample product card spanning substyles",
+  "files": ["scripts/train_lora/eval/stylized_game_grid.md", "scripts/train_lora/eval/stylized_game_assets/"],
+  "acceptance_criteria": [
+    "Restart ComfyUI; lora_eval_grid.py --only stylized_game across strengths 0.6/0.8/1.0 on character/creature/environment/prop prompts at fixed seeds",
+    "AI-judge verdict: LoRA reads as a cohesive hand-painted stylized game-art look vs base; names a winning (checkpoint, strength)",
+    "8-sample 1024px product card rendered spanning substyles (proves breadth, mirroring grimforge_assets); style cohesive across >=7/8",
+    "Verdict recorded in eval/stylized_game_grid.md"
+  ],
+  "steps": ["Restart ComfyUI; run the eval grid; pick the winner", "Render the 8-sample breadth card", "Record the verdict"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SL4",
+  "category": "feature",
+  "priority": 2,
+  "description": "Deploy stylized_game + write the CivitAI/Gumroad listing copy (substyle-bundle framing per the research); AI-disclosure + provenance",
+  "files": ["scripts/train_lora/eval/stylized_game_listing.md", "D:/Projects/ComfyUI/models/loras/style/"],
+  "acceptance_criteria": [
+    "Winning stylized_game.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger stylized_game + recommended strength)",
+    "Listing copy (mirror grimforge_listing.md): name, trigger, recommended weights, tags, description that LEADS WITH the multi-substyle breadth (the CivitAI download-winner pattern), 8-sample gallery order, AI-disclosure + original-IP provenance line",
+    "Gumroad/Ko-fi mirror note (capture dollars off-CivitAI). Account upload itself stays a BUSINESS-PLAN-TASKS.md item (human-gated)"
+  ],
+  "steps": ["Copy + sidecar the winner", "Write stylized_game_listing.md (substyle-bundle framing)", "Cross-reference the BUSINESS-PLAN-TASKS listing checkbox"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SL5",
+  "category": "feature",
+  "priority": 3,
+  "description": "Build the lowpoly_flat dataset: ~80-120 flat-shaded low-poly renders (render owned/CC0 low-poly meshes via render_multiview/blender-mcp); prep + captions + manifest",
+  "files": ["scripts/train_lora/datasets/lowpoly_flat_manifest.md"],
+  "acceptance_criteria": [
+    "~80-120 flat-shaded low-poly renders (props/kits/characters) — reuse render_multiview.py / blender-mcp over owned (Stream K village kit) + CC0 low-poly meshes, flat-shaded, even lighting, neutral bg",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/lowpoly_flat",
+    "Captions prefixed with trigger lowpoly_flat + subject tag; manifest records mesh sources (owned/CC0) and counts (IP-clean origin)"
+  ],
+  "steps": ["Render flat-shaded low-poly views via render_multiview/blender-mcp over Stream K + CC0 meshes", "prep_dataset.py --src ... --out E:/ai-training/datasets/lowpoly_flat", "caption.py --trigger lowpoly_flat; write the manifest"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SL6",
+  "category": "feature",
+  "priority": 3,
+  "description": "Train the lowpoly_flat Flux LoRA (stop ComfyUI; proven recipe; collect checkpoints; restart ComfyUI)",
+  "files": ["scripts/train_lora/configs/lowpoly_flat.json"],
+  "acceptance_criteria": [
+    "ComfyUI stopped; training on GPU 1 confirmed via nvidia-smi",
+    "launch_train.py --dataset E:/ai-training/datasets/lowpoly_flat --name lowpoly_flat --trigger lowpoly_flat --steps 1500 --rank 16 --resolutions 512,768,1024 --cuda-device 1",
+    "Checkpoints + final lowpoly_flat.safetensors on E:/ai-training/flux-output/lowpoly_flat/; ComfyUI restarted afterwards"
+  ],
+  "steps": ["Stop ComfyUI", "launch_train.py (background); verify device 1", "Restart ComfyUI"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SL7",
+  "category": "testing",
+  "priority": 4,
+  "description": "Eval + deploy lowpoly_flat: base-vs-LoRA grid + AI judge; pick winner; deploy + listing copy; also note its image->3D input use",
+  "files": ["scripts/train_lora/eval/lowpoly_flat_grid.md", "scripts/train_lora/eval/lowpoly_flat_listing.md", "D:/Projects/ComfyUI/models/loras/style/"],
+  "acceptance_criteria": [
+    "lora_eval_grid.py --only lowpoly_flat across strengths 0.6/0.8/1.0; AI-judge names a winning (checkpoint, strength) that reads as a clean flat-shaded low-poly look",
+    "Winning lowpoly_flat.safetensors deployed to loras/style/ with a .txt sidecar; 8-sample card rendered",
+    "Listing copy written (mirror the grimforge/stylized_game listings); AI-disclosure + provenance; Gumroad mirror note",
+    "README/listing notes the dual use: sellable LoRA AND a cleaner silhouette source for the image->3D (Hunyuan3D) path"
+  ],
+  "steps": ["Run the eval grid; pick the winner", "Deploy + sidecar + 8-sample card", "Write lowpoly_flat_listing.md; note the image->3D use"],
   "passes": false
 }
 ```
