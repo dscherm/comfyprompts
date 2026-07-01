@@ -25,9 +25,17 @@ cleanest topology.
 - **Checkpoints on disk:** only Hunyuan3D **v2-0** (dit-v2-0 / -fast / -turbo, all
   single-view). The **multi-view checkpoint (Hunyuan3D-2mv) is NOT downloaded** — this
   is the gating dependency.
-- **Views we already produce:** `render_multiview.py` renders front, front_left,
-  front_right, left, right (front-weighted, **no back**). Hy3DGenerateMeshMultiView
-  wants the 4 cardinals **front/left/right/back**.
+- **Multi-view INPUT source already exists:** the `multiview_full_body_ipadapter`
+  MCP tool "generates FOUR separate full-body images of the same character — front,
+  left profile, right profile, back — the front view generated first and used as an
+  **IPAdapter identity** reference" for the others. That is exactly the front/left/
+  right/back set `Hy3DGenerateMeshMultiView` consumes — **no novel-view step to build.**
+  (Note: `render_multiview.py` renders EXISTING meshes to ortho views for LoRA
+  training; it is NOT the reconstruction input.)
+- **KEY RISK:** IPAdapter preserves identity/style, not exact geometry. The 4 views
+  must be geometrically consistent AND hold the wide-T-pose (separated limbs) across
+  all angles, or multi-view reconstruction gets confused. This is the main thing MV4
+  must validate.
 - **Storage:** route the new model to `E:\ai-training\` if C:/D: are tight
   (`project_training_storage`).
 
@@ -48,9 +56,13 @@ Hunyuan3D-2mv's hands aren't clean enough in the MV4 eval.
   **Hunyuan3D-2mv** to `models/` (route to E:\ if needed). Verify
   `Hy3DGenerateMeshMultiView` loads it and runs on a dummy 4-view input. Gate: node
   produces a mesh latent without error.
-- **MV2 — Render the 4 cardinal views.** Extend `render_multiview.py` (or a variant)
-  to emit **front(0°)/left(90°)/right(270°)/back(180°)** ortho views for a given mesh
-  or the generation output. Gate: 4 named PNGs, consistent framing/scale.
+- **MV2 — Produce + validate the 4 consistent character views.** Use the existing
+  `multiview_full_body_ipadapter` tool to generate front/left/right/back of one
+  character (IPAdapter identity). Validate they're consistent enough for
+  reconstruction AND hold the wide-T-pose across angles (drive with mv_ortho pose
+  tokens). Gate: 4 aligned views, same character, separated limbs in every view. If
+  IPAdapter consistency is too weak, fall back to a novel-view-synthesis step (e.g.
+  Hunyuan3D's own mv sampler / Zero123) — decided here.
 - **MV3 — Build + register the MV reconstruction workflow.** New `workflows/mcp/`
   JSON: load front/left/right/back → Hy3DModelLoader(2mv) → Hy3DGenerateMeshMultiView
   → VAE decode/export → GLB. Register an MCP tool (e.g. `hunyuan3d_2mv_image_to_3d`).

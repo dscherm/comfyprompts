@@ -1356,10 +1356,10 @@ TRELLIS.2 (stretch, better hand topology) is NOT installed.
   "id": "MV2",
   "category": "feature",
   "priority": 1,
-  "description": "Render the 4 cardinal ortho views the multiview node wants: front(0), left(90), right(270), back(180). Current render_multiview.py is front-weighted (front/front_left/front_right/left/right, no back).",
-  "files": ["scripts/train_lora/render_multiview.py"],
-  "acceptance_criteria": ["A render path emits front/left/right/back ortho PNGs with consistent framing + scale, neutral bg", "Back view included (currently excluded)"],
-  "steps": ["Add back(180) azimuth + cardinal-only mode", "Verify 4 named PNGs"],
+  "description": "Produce + validate the 4 consistent character views (front/left/right/back) via the existing multiview_full_body_ipadapter tool (front generated first, used as IPAdapter identity for the rest). Validate consistency + wide-T-pose across all angles. NOT render_multiview.py (that renders existing meshes for LoRA training).",
+  "files": ["workflows/mcp/multiview_full_body_ipadapter.json"],
+  "acceptance_criteria": ["4 aligned views of the SAME character (front/left/right/back), separated limbs in every view", "Consistent enough for reconstruction; if IPAdapter drift too high, decide on a novel-view fallback (Hunyuan3D mv sampler / Zero123)"],
+  "steps": ["Generate the 4 views with mv_ortho pose tokens", "Judge cross-view consistency + pose", "Pick input source (ipadapter vs novel-view)"],
   "passes": false
 }
 ```
