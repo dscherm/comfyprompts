@@ -347,6 +347,76 @@
       "status": "pending",
       "gate_result": null,
       "observation_id": null
+    },
+    {
+      "id": "SX0",
+      "title": "SX0",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "SX1",
+      "title": "SX1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "SX2",
+      "title": "SX2",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "SX3",
+      "title": "SX3",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MV2",
+      "title": "MV2",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MV3",
+      "title": "MV3",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MV4",
+      "title": "MV4",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MV5",
+      "title": "MV5",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MV6",
+      "title": "MV6",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "MV1",
+      "title": "MV1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
     }
   ],
   "current_task_index": 47,
@@ -364,5 +434,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-06-30T21:00:18.811555+00:00"
+  "updated_at": "2026-07-01T13:27:39.000111+00:00"
 }

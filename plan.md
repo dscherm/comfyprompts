@@ -1322,3 +1322,96 @@ Pipeline: `scripts/train_lora/soapbox_augment.py`. Recipe = the proven one (rank
   "passes": true
 }
 ```
+
+---
+
+## Phase MV3D: Multi-View 2D→3D reconstruction (kill webbed hands + limb fusion)
+
+Reconstruct the character mesh from **multiple views** (front/left/right/back) instead
+of a single front image, so Hunyuan3D can resolve finger gaps and occluded arm↔torso
+gaps — eliminating webbed hands and loose-clothing fusion **at the source** (no closed-
+fists/fitted-clothing prompt hacks, no LoRA retrain). Grounded plan + rationale:
+`pipelines/art-to-rig-ralph/docs/mv3d-reconstruction-plan.md`.
+
+Key facts: `ComfyUI-Hunyuan3DWrapper` already has a code-ready multi-view geometry node
+`Hy3DGenerateMeshMultiView` (front/left/right/back → mesh); only the Hunyuan3D **2mv**
+checkpoint is missing (v2-0 single-view is installed) and we render no `back` view yet.
+TRELLIS.2 (stretch, better hand topology) is NOT installed.
+
+```json
+{
+  "id": "MV1",
+  "category": "setup",
+  "priority": 1,
+  "description": "Acquire + verify the Hunyuan3D multi-view mesh model. Inspect Hy3DModelLoader/DownloadAndLoadHy3DModel in ComfyUI-Hunyuan3DWrapper for how it loads the mv checkpoint; download Hunyuan3D-2mv to ComfyUI models/ (route to E:/ai-training if C:/D: tight). Confirm Hy3DGenerateMeshMultiView loads it.",
+  "files": ["D:/Projects/ComfyUI/custom_nodes/ComfyUI-Hunyuan3DWrapper/nodes.py"],
+  "acceptance_criteria": ["Hunyuan3D-2mv checkpoint on disk and loadable via the wrapper's model loader", "Hy3DGenerateMeshMultiView runs on a dummy front/left/right/back input and returns a mesh latent without error"],
+  "steps": ["Read the mv model loader path", "Download the 2mv checkpoint", "Smoke-run the multiview mesh node"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MV2",
+  "category": "feature",
+  "priority": 1,
+  "description": "Render the 4 cardinal ortho views the multiview node wants: front(0), left(90), right(270), back(180). Current render_multiview.py is front-weighted (front/front_left/front_right/left/right, no back).",
+  "files": ["scripts/train_lora/render_multiview.py"],
+  "acceptance_criteria": ["A render path emits front/left/right/back ortho PNGs with consistent framing + scale, neutral bg", "Back view included (currently excluded)"],
+  "steps": ["Add back(180) azimuth + cardinal-only mode", "Verify 4 named PNGs"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MV3",
+  "category": "feature",
+  "priority": 2,
+  "description": "Build + register the multi-view reconstruction workflow: load front/left/right/back -> Hy3DModelLoader(2mv) -> Hy3DGenerateMeshMultiView -> VAE decode/export -> GLB. Register an MCP tool (hunyuan3d_2mv_image_to_3d). Use the workflow-architect flow (introspect -> draft -> validate -> smoke-test -> register).",
+  "files": ["workflows/mcp/", "packages/mcp-server/"],
+  "acceptance_criteria": ["New workflow JSON validates (validate_workflow) and smoke-tests to a GLB on GPU", "MCP tool registered and callable with 4 view images"],
+  "steps": ["Draft the API-format workflow", "Validate + GPU smoke-test", "Parameterize + register the MCP tool"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MV4",
+  "category": "testing",
+  "priority": 2,
+  "description": "A/B eval (the correctness gate): run the SAME characters (incl. spread-finger + caped cases) through (a) current single-front Hunyuan3D 2.0 and (b) multiview Hunyuan3D-2mv. Score finger separation (no webbing), arm-torso gap, and cape non-fusion on the MESH, AI-judged. Reuse scripts/lora_eval_grid.py + the Hunyuan3D separability method.",
+  "files": ["scripts/lora_eval_grid.py", "scripts/train_lora/eval/"],
+  "acceptance_criteria": ["Multiview measurably beats single-front on webbed hands + limb/cape fusion", "Overall topology + limb separation no worse than the current path", "Verdict written with mesh renders (single vs MV)"],
+  "steps": ["Pick test chars (spread fingers, cape)", "Run both paths -> meshes", "Judge hands/separation; write verdict"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MV5",
+  "category": "feature",
+  "priority": 3,
+  "description": "If MV4 wins, wire the multiview tool into the pipeline: replace the single-front reconstruction stage in art-to-rig-ralph (and animate-ralph's 3D step) with the MV tool; update stage docs.",
+  "files": ["pipelines/art-to-rig-ralph/stages/", "pipelines/animate-ralph/stages/"],
+  "acceptance_criteria": ["One character runs end-to-end generation -> multiview -> mesh with clean hands/limbs", "Stage docs updated to the multiview reconstruction step"],
+  "steps": ["Swap the reconstruction stage", "End-to-end run", "Update docs"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "MV6",
+  "category": "feature",
+  "priority": 4,
+  "description": "STRETCH (only if Hunyuan3D-2mv hands are insufficient): install ComfyUI-Trellis2 + TRELLIS.2-4B, build a parallel multiview workflow, compare against Hunyuan3D-2mv in the MV4 eval. TRELLIS.2 has the best thin-structure/open-surface topology (fingers).",
+  "files": ["D:/Projects/ComfyUI/custom_nodes/", "workflows/mcp/"],
+  "acceptance_criteria": ["ComfyUI-Trellis2 + TRELLIS.2-4B installed and running", "Parallel MV workflow compared vs Hunyuan3D-2mv on the same eval; documented winner"],
+  "steps": ["Install node + model", "Build TRELLIS MV workflow", "Compare + document"],
+  "passes": false
+}
+```
