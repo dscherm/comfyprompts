@@ -122,3 +122,6 @@ tools/asset_generators/village_kit/godot_verify/aesthetic.txt
 .ralph/ab_trial_schedule.json
 .ralph/ab_trial_results.jsonl
 .claude/.ralph-bridge-resume.md
+
+# DissonantCity turntable GIFs — large (~48MB), regenerable via turntable_render.py + turntable_assemble.py
+products/dissonant_city_v1/gallery/*.gif

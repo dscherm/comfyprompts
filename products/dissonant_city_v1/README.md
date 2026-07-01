@@ -57,6 +57,12 @@ Towers, slabs, domes, and props drop straight onto the grid.
 
 Both scenes enable Godot's glow so the neon blooms in-engine.
 
+## Gallery
+`gallery/` holds a per-piece showcase: an animated 360° **turntable GIF** and a
+matching **still PNG** for every piece (dark neon studio, bloom). `catalog.png` is
+the labelled contact-sheet built from those stills; `hero.png` is the assembled
+city. (Turntables regenerable via `turntable_render.py` + `turntable_assemble.py`.)
+
 ## License
 Royalty-free for personal & commercial projects. Do not resell or redistribute
 the raw kit files. Pieces are procedurally generated Blender geometry — minimal

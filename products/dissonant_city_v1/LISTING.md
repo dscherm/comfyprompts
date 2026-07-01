@@ -42,8 +42,11 @@ neon city). Describe honestly as "procedurally generated low-poly 3D".*
 
 ## Gallery (upload order)
 1. `hero.png` (cover — assembled neon city)
-2. `catalog.png` (all 29 pieces)
-3. (optional) in-engine screenshot from the Godot example
+2. `catalog.png` (all 29 pieces, labelled)
+3. A few animated **turntable GIFs** from `gallery/` (e.g. `tower_neon.gif`,
+   `dome_building.gif`, `hover_car.gif`) — great for itch.io / Fab which allow GIFs
+4. Per-piece stills from `gallery/*.png` for platforms that want static images
+5. (optional) in-engine screenshot from the Godot example
 
 ## Pre-publish checklist
 - [ ] Zip `models_glb/` (+ obj/fbx), `README.md`, `hero.png`, `catalog.png`.
