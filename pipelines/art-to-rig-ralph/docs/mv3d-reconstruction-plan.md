@@ -25,17 +25,23 @@ cleanest topology.
 - **Checkpoints on disk:** only Hunyuan3D **v2-0** (dit-v2-0 / -fast / -turbo, all
   single-view). The **multi-view checkpoint (Hunyuan3D-2mv) is NOT downloaded** — this
   is the gating dependency.
-- **Multi-view INPUT source already exists:** the `multiview_full_body_ipadapter`
-  MCP tool "generates FOUR separate full-body images of the same character — front,
-  left profile, right profile, back — the front view generated first and used as an
-  **IPAdapter identity** reference" for the others. That is exactly the front/left/
-  right/back set `Hy3DGenerateMeshMultiView` consumes — **no novel-view step to build.**
-  (Note: `render_multiview.py` renders EXISTING meshes to ortho views for LoRA
-  training; it is NOT the reconstruction input.)
-- **KEY RISK:** IPAdapter preserves identity/style, not exact geometry. The 4 views
-  must be geometrically consistent AND hold the wide-T-pose (separated limbs) across
-  all angles, or multi-view reconstruction gets confused. This is the main thing MV4
-  must validate.
+- **Multi-view INPUT source is the hard part — we DON'T have a good one (tested):**
+  the `multiview_full_body_ipadapter` tool uses **SD_XL_base** (not Flux/mv_ortho),
+  so it enforces **no wide-T-pose** and IPAdapter gives weak *geometric* consistency —
+  a test gen with mv_ortho pose tokens produced garbage. **No novel-view synthesis is
+  installed** (no Zero123/SV3D/MV-Adapter/Wonder3D; the wrapper's `Hy3DSampleMultiView`
+  is for texture baking, not input views). So `Hy3DGenerateMeshMultiView` has no
+  consistent front/left/right/back to feed. (`render_multiview.py` renders EXISTING
+  meshes — not usable pre-reconstruction.)
+
+## STRATEGY REVISION — try higher-fidelity SINGLE-view first
+
+Because the multi-view path has a real unmet dependency (consistent T-pose view
+synthesis), the **lower-risk first move is a better single-view model**: **TRELLIS.2**
+(SOTA "field-free" O-Voxel — best at thin structures / open surfaces = fingers) or
+**Hunyuan3D 2.5** may fix webbed hands **from the single front image via topology
+alone**, with NO view-synthesis to build. Test that FIRST. Only pursue full multi-view
+(which needs a novel-view synthesizer installed + evaluated) if single-view isn't enough.
 - **Storage:** route the new model to `E:\ai-training\` if C:/D: are tight
   (`project_training_storage`).
 
