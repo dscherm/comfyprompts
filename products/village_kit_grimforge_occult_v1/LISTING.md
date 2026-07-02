@@ -2,10 +2,10 @@
 `GrimForge Occult Vol.1 — Dark-Fantasy Kit (14 pieces)`
 
 ## Short description
-> 14 modular low-poly dark-fantasy pieces — creepy barn, dark scarecrow, crypt entrance, ritual altar, hanged tree, standing stone, dead tree, iron brazier, cauldron, skull totem, summoning circle, bone pile, grave cross, candle shrine. GLB + OBJ + FBX. Grid-modular for Godot, Unity, Unreal.
+> 14 modular low-poly dark-fantasy pieces — creepy barn, dark scarecrow, crypt entrance, ritual altar, hanged tree, standing stone, dead tree, iron brazier, cauldron, skull totem, summoning circle, bone pile, grave cross, candle shrine. GLB + glTF + OBJ + FBX + USD. Grid-modular for Godot, Unity, Unreal.
 
 ## Tags
-`low-poly`, `dark-fantasy`, `occult`, `horror`, `medieval`, `modular`, `3D`, `kit`, `game-ready`, `GLB`, `FBX`, `Godot`, `Unity`
+`low-poly`, `dark-fantasy`, `occult`, `horror`, `medieval`, `modular`, `3D`, `kit`, `game-ready`, `GLB`, `glTF`, `FBX`, `USD`, `Godot`, `Unity`
 
 ## Gallery (upload order)
 1. `hero.png`
