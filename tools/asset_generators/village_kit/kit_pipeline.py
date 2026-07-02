@@ -64,7 +64,7 @@ def _load_spec(path: str):
     return mod
 
 
-def _render_catalog(scene, out_png: str, ortho: float, profile: dict) -> None:
+def _render_catalog(scene, out_png: str, ortho: float, profile: dict, view: str = "top") -> None:
     sun = bpy.data.objects.new("Sun", bpy.data.lights.new("Sun", "SUN"))
     scene.collection.objects.link(sun)
     sun.data.energy = profile["sun_energy"]
@@ -88,8 +88,15 @@ def _render_catalog(scene, out_png: str, ortho: float, profile: dict) -> None:
     scene.camera = cam
     cam.data.type = "ORTHO"
     cam.data.ortho_scale = ortho
-    cam.location = (0, -12, 16)
-    look = mathutils.Vector((0, 0, 0)) - mathutils.Vector(cam.location)
+    if view == "3q":
+        # corner 3/4 view — for kits whose pieces are vertical (walls/parts) and
+        # would read as thin edges from the default top-down camera.
+        cam.location = (ortho * 0.42, -ortho * 0.66, ortho * 0.5)
+        target = mathutils.Vector((0, 0, ortho * 0.06))
+    else:
+        cam.location = (0, -12, 16)
+        target = mathutils.Vector((0, 0, 0))
+    look = target - mathutils.Vector(cam.location)
     cam.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()
     for engine in ("BLENDER_EEVEE_NEXT", "BLENDER_EEVEE"):
         try:

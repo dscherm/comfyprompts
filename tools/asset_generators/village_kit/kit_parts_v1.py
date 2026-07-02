@@ -13,4 +13,5 @@ from kit_parts import ALL_PARTS, house_demo  # noqa: E402
 
 TITLE = "GrimForge Modular Building Parts (22 pieces)"
 AESTHETIC = "medieval"
+HERO_VIEW = "3q"   # parts are vertical (walls) — catalog from a 3/4 corner, not top-down
 PIECES = ALL_PARTS + [("house_demo", house_demo)]

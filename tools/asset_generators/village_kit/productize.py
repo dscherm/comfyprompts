@@ -147,7 +147,8 @@ def main() -> int:
 
     k.box([], 60, 60, 0.1, (0, 0, -0.06), profile["ground"])
     catalog = os.path.join(product_dir, "catalog.png")
-    _render_catalog(k.scene, catalog, max(12.0, cols * 2.6 + 4), profile)
+    view = getattr(spec, "HERO_VIEW", "top")   # "3q" for vertical parts kits
+    _render_catalog(k.scene, catalog, max(12.0, cols * 2.6 + 4), profile, view)
     _write_docs(product_dir, getattr(spec, "TITLE", name), aesthetic, names, atlas, avail)
 
     counts = {fmt: len(os.listdir(os.path.join(product_dir, f"models_{fmt}"))) for fmt in avail}
