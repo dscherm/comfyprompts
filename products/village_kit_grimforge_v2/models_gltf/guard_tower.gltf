@@ -19,14 +19,9 @@
 		{
 			"mesh":0,
 			"name":"guard_tower",
-			"scale":[
-				0.800000011920929,
-				2.299999952316284,
-				0.800000011920929
-			],
 			"translation":[
 				0,
-				1.149999976158142,
+				1.1799999475479126,
 				0
 			]
 		}
@@ -59,7 +54,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.024",
+			"name":"Cylinder.003",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,61 +94,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":408,
+			"count":1008,
 			"max":[
-				0.5999999046325684,
-				0.6434782147407532,
-				0.5999999046325684
+				0.699999988079071,
+				1.5899999141693115,
+				0.699999988079071
 			],
 			"min":[
-				-0.5999999046325684,
-				-0.5,
-				-0.5999999046325684
+				-0.699999988079071,
+				-1.184999942779541,
+				-0.699999988079071
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":408,
+			"count":1008,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":408,
+			"count":1008,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":612,
+			"count":1584,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":4896,
+			"byteLength":12096,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4896,
-			"byteOffset":4896,
+			"byteLength":12096,
+			"byteOffset":12096,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3264,
-			"byteOffset":9792,
+			"byteLength":8064,
+			"byteOffset":24192,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1224,
-			"byteOffset":13056,
+			"byteLength":3168,
+			"byteOffset":32256,
 			"target":34963
 		}
 	],
@@ -165,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":14280,
+			"byteLength":35424,
 			"uri":"guard_tower.bin"
 		}
 	]
