@@ -55,22 +55,26 @@ Driven by `tools/asset_generators/village_kit/QUALITY_RUBRIC.md` (deep-research:
 note ComfyUI follow-ups instead. Work each kit item-by-item (village, city
 medieval + occult, characters).
 
-- [ ] Add per-piece **tri-count** to `kit_pipeline.py` output and assert the
-      KayKit band (20..~5659 tris) in `kit_quality_check.py`.
+- [x] Add per-piece **tri-count** to `kit_pipeline.py` output and assert the
+      KayKit band (20..~5659 tris) in `kit_quality_check.py`. DONE (078024e):
+      pipeline/productize write `tris.json`; the gate flags out-of-band pieces
+      (over-budget = MUST, under-20 = WARN). All shipped kits 44..2284 (in band).
 - [ ] Add a **beveled-box / edge-bevel** helper to `kitlib` and apply to primary
       silhouette edges (KayKit's soft-catch highlight) without exploding tris.
 - [ ] Add **trim helpers** (window frame, door frame + handle/hinge, roof
       ridge/eaves/gutter, base course) and apply uniformly across pieces.
 - [ ] Add a **grid-quantize + base-origin pivot** pass so environment pieces snap
       seamlessly (square grid for village/city; hex option later).
-- [~] **Color-atlas texturing** (design: `docs/kit_texturing_design.md`).
-      DONE: `Kit(atlas=True)` builds one shared gradient+AO swatch atlas
-      (`_ensure_atlas`, 128², colour+emission) and UV-maps each primitive into its
-      swatch (`_uv_swatch`, local-Z→gradient); proven on the cottage (Blender
-      render). TODO: expose an `--atlas` flag in `kit_pipeline`/`productize`; ship
-      the atlas PNG (1024²+128²) alongside GLB/glTF/OBJ + verify glTF/Godot embed;
-      convert each kit piece-by-piece; tune gradient/AO strength + emission per
-      colour. (ComfyUI follow-up: optional AI atlas art / hero normal bakes.)
+- [x] **Color-atlas texturing** (design: `docs/kit_texturing_design.md`). DONE
+      end-to-end (078024e + 519a470): `Kit(atlas=True)` builds a shared
+      gradient+AO+pattern atlas (planks/brick/straw/stained-glass) + emission and
+      per-face UV-unwraps each primitive into its swatch. `--atlas` flag now in
+      `kit_pipeline`/`productize`; `save_atlas` ships a 512² master + 128² thumb
+      (`atlas_color.png`/`atlas_emit.png`) and packs the image so GLB/glTF/USD/FBX
+      embed it (OBJ gets a copy beside the .mtl). Verified in Blender renders +
+      Godot showcases. All three spec kits (occult/village/city) reshipped in atlas
+      mode and gate-PASS. (ComfyUI follow-up: optional AI atlas art / hero normal
+      bakes.)
 - [ ] **Modular parts decomposition** (design: `docs/kit_texturing_design.md`):
       break buildings into snap parts on the grid — wall/wall_window/wall_door/
       wall_corner, door/door_frame/window, floor/roof_slope/roof_corner/chimney,
@@ -89,26 +93,36 @@ Proven end-to-end (kitlib → GLB → Godot). Helper scripts in scratchpad:
 `atlas_proof.py`. Showcases: `scratchpad/show_atlas*` (ATLAS-Village/-City/
 -Village-Med/-City-Med) — relaunch after edits (Godot locks the dir; close first).
 
-**Next steps (do in order):**
-1. `git commit` the working tree (kitlib.py + kit_village_v1.py had uncommitted
-   chapel/stained-glass/door fixes; earlier gable/thatch commit was blocked by a
-   transient classifier outage — verify with `git log`/`git status`).
-2. Wire atlas into `kit_pipeline.py` + `productize.py`: add an `--atlas` flag →
-   `Kit(atlas=True)`; after building, save `k._atlas_imgs` PNGs (color + emit) to
-   the product dir and `img.pack()` for GLB/glTF embed; upscale atlas to 512–1024
-   for the shipped master (+128² downsample) per QUALITY_RUBRIC §4.
-3. Add DAE + plain-glTF exporters to `productize.py` (rubric §8).
-4. Convert every kit product to atlas (occult/medieval village + city) and
-   re-run `kit_quality_check.py`.
-5. Then the OTHER big lever: **modular parts + 200+ density** (task above) and
-   tri-count reporting / bevels (tasks above).
+**DONE (078024e + 519a470):** steps 1-4 below complete. `--atlas` wired into
+kit_pipeline + productize; `save_atlas` ships 512²+128² atlas PNGs and packs for
+GLB/glTF/USD/FBX embed (OBJ copy beside .mtl); separate-glTF + USD exporters
+added (DAE pruned on Blender 5.0); tri-count `tris.json` + band gate; CITY
+cathedral rose `ghostfire→gem`. All three spec kits (occult/village/city)
+reshipped in atlas mode, `kit_quality_check` PASS (0 must), Godot showcases
+rebuilt + verified.
+
+**Remaining next steps (do in order):**
+1. **Legacy v1/v2 kits** — `village_kit_grimforge_v1` / `_v2` are built from
+   `kit_full.py` / `kit_vol2.py`, which are pre-spec STANDALONE scripts (no
+   `PIECES`/`TITLE`, and they run the build at import time). They can't be driven
+   by `productize --atlas` as-is. To atlas-ify: refactor each into a spec
+   (move the build/render block under `if __name__ == "__main__"`, convert the
+   global-helper builders `box(P,...)` → `fn(k)` returning a joined obj, add
+   `PIECES`/`TITLE`/`AESTHETIC`). Watch the byte-for-byte reproduction contract
+   in kitlib.py's docstring. (User asked for "all kit products" — this is the
+   remaining slice.)
+2. The OTHER big lever: **modular parts + 200+ density** (task above).
+3. **beveled-box/edge-bevel** + **trim helpers** + **grid-quantize/base-pivot**
+   passes (tasks above). Bevels feed the tri band already being reported.
 
 **Known nits to polish:** thatch pattern still reads subtly on very large roof
 faces (pattern fills one swatch per face — consider world-size UV tiling); tune
-per-colour emission strength; the CITY cathedral (`kit_city_v1`) rose/lancets may
-still use the old glow colour — apply the same `gem` swap there.
-- [ ] Extend `productize.py` exporters with **DAE + plain glTF** (KayKit ships
-      FBX/OBJ/DAE/GLTF).
+per-colour emission strength. (CITY cathedral rose gem swap: DONE.)
+- [x] Extend `productize.py` exporters with **DAE + plain glTF** (KayKit ships
+      FBX/OBJ/DAE/GLTF). DONE (078024e): added separate-glTF + USD exporters; DAE
+      is best-effort and pruned at runtime because Blender 5.0 removed the Collada
+      add-on entirely (no `io_scene_collada` module) — USD fills the same
+      interchange role natively and the gate accepts DAE-or-USD.
 - [ ] Auto-generate **per-piece gallery + hero + turntable** in `productize.py`.
 - [ ] Grow each kit toward **200+ pieces**: more small props / nature /
       modular connectors + recolor variants (recolors count toward variety).
