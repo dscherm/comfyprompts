@@ -98,3 +98,23 @@ reproducible:
 - **Moss is `leaf_dk` (green), not `rot`** (khaki). Tilt-projected appliqués on a
   sloped face (e.g. an awning sigil) go through a small local→world helper that
   adds the tilt rotation and a proud-of-surface normal offset.
+
+## Quality bar — KayKit-grade
+
+Every kit is measured against **`QUALITY_RUBRIC.md`** — an explicit, mostly-
+measurable checklist derived from the KayKit low-poly packs (Kay Lousberg). The
+cited deep-research behind it is in `../../../docs/kaykit_research.md`. Headline
+targets: **200+ discrete pieces/kit**, **20–~5.7k tris/model**, explicit
+**grid-snapping + base-origin pivots**, a **single shared gradient/palette atlas**
+(1024²→128²), and **FBX/OBJ/DAE/GLTF** export.
+
+Run the automated gate after a build/productize:
+
+```bash
+python kit_quality_check.py <product_or_build_dir>   # formats, naming, docs, palette, density
+```
+
+MUST failures exit non-zero; aspirational KayKit targets (density, DAE, gallery)
+are WARN. The subjective rows (silhouette, detail density) are scored by eye in
+the item-by-item close-up review. Open work to close the gaps is tracked in the
+repo `fix_plan.md`.

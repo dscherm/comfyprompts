@@ -47,3 +47,28 @@ May mean the custom_node pack failed to import at boot (check
 - [x] Sidecar/workflow placeholder alignment: validator normalizes type-hint prefixes and understands `prompt_template`-composed params (berserkr false positives); genuinely missing declarations added to face_id_portrait and hunyuan3d_v20_geometry_only sidecars. Zero sidecar warnings remain.
 - [x] `scripts/cache/` added to .gitignore.
 - [x] `tests/test_workflow_validation.py` added: structural validation of all workflows/mcp always; live object_info check under `@pytest.mark.integration`. Also revived the long-dead `test_workflows.py`/`test_smoke.py` fixtures (wrong workflows dir since initial monorepo commit). Full suite: 460 passed.
+
+## E. Kit quality — raise procedural kits to KayKit-grade
+
+Driven by `tools/asset_generators/village_kit/QUALITY_RUBRIC.md` (deep-research:
+`docs/kaykit_research.md`). Gate: `kit_quality_check.py`. Do NOT use ComfyUI;
+note ComfyUI follow-ups instead. Work each kit item-by-item (village, city
+medieval + occult, characters).
+
+- [ ] Add per-piece **tri-count** to `kit_pipeline.py` output and assert the
+      KayKit band (20..~5659 tris) in `kit_quality_check.py`.
+- [ ] Add a **beveled-box / edge-bevel** helper to `kitlib` and apply to primary
+      silhouette edges (KayKit's soft-catch highlight) without exploding tris.
+- [ ] Add **trim helpers** (window frame, door frame + handle/hinge, roof
+      ridge/eaves/gutter, base course) and apply uniformly across pieces.
+- [ ] Add a **grid-quantize + base-origin pivot** pass so environment pieces snap
+      seamlessly (square grid for village/city; hex option later).
+- [ ] Build a **shared gradient/palette + AO atlas** (procedural bake in
+      Blender/PIL) and UV pieces into it; downsample 1024²→128². (ComfyUI
+      follow-up: optional AI atlas art / hero normal-map bakes — NOTE ONLY.)
+- [ ] Extend `productize.py` exporters with **DAE + plain glTF** (KayKit ships
+      FBX/OBJ/DAE/GLTF).
+- [ ] Auto-generate **per-piece gallery + hero + turntable** in `productize.py`.
+- [ ] Grow each kit toward **200+ pieces**: more small props / nature /
+      modular connectors + recolor variants (recolors count toward variety).
+- [ ] Wire `kit_quality_check.py` into `productize.py` / CI as a build gate.
