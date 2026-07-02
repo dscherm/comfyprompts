@@ -63,9 +63,17 @@ medieval + occult, characters).
       ridge/eaves/gutter, base course) and apply uniformly across pieces.
 - [ ] Add a **grid-quantize + base-origin pivot** pass so environment pieces snap
       seamlessly (square grid for village/city; hex option later).
-- [ ] Build a **shared gradient/palette + AO atlas** (procedural bake in
-      Blender/PIL) and UV pieces into it; downsample 1024²→128². (ComfyUI
-      follow-up: optional AI atlas art / hero normal-map bakes — NOTE ONLY.)
+- [ ] **Color-atlas texturing** (design: `docs/kit_texturing_design.md`): add
+      `build_atlas(palette,emission)` (PIL/Blender) making a gradient+AO swatch
+      atlas; add `Kit(atlas=True)` that assigns ONE shared atlas material and
+      UV-maps each primitive's faces into its colour swatch (world-Z→gradient);
+      variants = atlas swap; ship the PNG (1024²+128²) with GLB/glTF/OBJ. (ComfyUI
+      follow-up: optional AI atlas art / hero normal bakes — NOTE ONLY.)
+- [ ] **Modular parts decomposition** (design: `docs/kit_texturing_design.md`):
+      break buildings into snap parts on the grid — wall/wall_window/wall_door/
+      wall_corner, door/door_frame/window, floor/roof_slope/roof_corner/chimney,
+      stairs/railing/post/beam — base-centre origins; keep whole buildings as
+      pre-assembled showcases built from the parts. Main lever toward 200+ pieces.
 - [ ] Extend `productize.py` exporters with **DAE + plain glTF** (KayKit ships
       FBX/OBJ/DAE/GLTF).
 - [ ] Auto-generate **per-piece gallery + hero + turntable** in `productize.py`.
