@@ -11,7 +11,7 @@ import sys
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kit_parts import ALL_PARTS, house_demo  # noqa: E402
 
-TITLE = "GrimForge Modular Building Parts (30 pieces)"
+TITLE = "GrimForge Modular Building Parts (40 pieces)"
 AESTHETIC = "medieval"
 HERO_VIEW = "3q"   # parts are vertical (walls) — catalog from a 3/4 corner, not top-down
 PIECES = ALL_PARTS + [("house_demo", house_demo)]

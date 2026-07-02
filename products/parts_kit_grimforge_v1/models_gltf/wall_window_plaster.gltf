@@ -18,16 +18,16 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"house_demo",
+			"name":"wall_window_plaster",
 			"scale":[
 				1,
-				0.30000001192092896,
-				1
+				0.3199999928474426,
+				0.1599999964237213
 			],
 			"translation":[
-				-0.5,
 				0,
-				0.5
+				0.1599999964237213,
+				0
 			]
 		}
 	],
@@ -59,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.267",
+			"name":"Cube.206",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":3378,
+			"count":288,
 			"max":[
-				1.6050000190734863,
-				5.866666793823242,
-				0.6299999952316284
+				0.5199999809265137,
+				2.625,
+				0.65625
 			],
 			"min":[
-				-0.6299999952316284,
-				-1.6666666269302368,
-				-1.6100000143051147
+				-0.5199999809265137,
+				-0.5,
+				-0.65625
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":3378,
+			"count":288,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":3378,
+			"count":288,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":5076,
+			"count":432,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":40536,
+			"byteLength":3456,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":40536,
-			"byteOffset":40536,
+			"byteLength":3456,
+			"byteOffset":3456,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":27024,
-			"byteOffset":81072,
+			"byteLength":2304,
+			"byteOffset":6912,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":10152,
-			"byteOffset":108096,
+			"byteLength":864,
+			"byteOffset":9216,
 			"target":34963
 		}
 	],
@@ -165,8 +165,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":118248,
-			"uri":"house_demo.bin"
+			"byteLength":10080,
+			"uri":"wall_window_plaster.bin"
 		}
 	]
 }

@@ -27,6 +27,9 @@ from typing import Any
 CELL = 1.0
 WT = 0.16    # wall thickness
 
+#: wall material -> trim (base course / cornice) colour, for recolour variants.
+MAT_TRIM = {"stone": "stone_dk", "plaster": "beam", "wood": "wood_dk"}
+
 
 # --------------------------------------------------------------------------- #
 # Trim helpers (base course / cornice / opening frame)
@@ -83,36 +86,48 @@ def wall_wood(k: Any) -> Any:
     return k.join(P, "wall_wood")
 
 
-def wall_window(k: Any) -> Any:
-    """Stone wall with a framed, glazed window opening."""
+def _window_wall(k: Any, mat: str, name: str) -> Any:
+    """Wall (material ``mat``) with a framed, glazed window opening."""
     P: list = []
-    k.box(P, CELL, WT, 0.32, (0, 0, 0.16), "stone")              # sill wall
-    k.box(P, CELL, WT, 0.26, (0, 0, 0.87), "stone")              # head wall
+    trim = MAT_TRIM[mat]
+    k.box(P, CELL, WT, 0.32, (0, 0, 0.16), mat)                  # sill wall
+    k.box(P, CELL, WT, 0.26, (0, 0, 0.87), mat)                  # head wall
     for x in (-0.37, 0.37):
-        k.box(P, 0.26, WT, 0.42, (x, 0, 0.53), "stone")          # jambs
-    _base_course(k, P)
-    _cornice(k, P)
+        k.box(P, 0.26, WT, 0.42, (x, 0, 0.53), mat)              # jambs
+    _base_course(k, P, color=trim)
+    _cornice(k, P, color=trim)
     k.box(P, 0.5, 0.06, 0.42, (0, 0, 0.53), "gem")               # glazing
     for x in (-0.24, 0.24):
         k.box(P, 0.05, 0.1, 0.46, (x, 0, 0.53), "wood_dk")       # frame jambs
     k.box(P, 0.54, 0.1, 0.05, (0, 0, 0.32), "wood_dk")           # sill
     k.box(P, 0.54, 0.1, 0.05, (0, 0, 0.74), "wood_dk")           # head
     k.box(P, 0.05, 0.1, 0.42, (0, 0, 0.53), "wood_dk")           # mullion
-    return k.join(P, "wall_window")
+    return k.join(P, name)
+
+
+def wall_window(k: Any) -> Any:
+    """Stone wall with a framed, glazed window opening."""
+    return _window_wall(k, "stone", "wall_window")
+
+
+def _door_wall(k: Any, mat: str, name: str) -> Any:
+    """Wall (material ``mat``) with a framed door opening (drop a ``door`` in)."""
+    P: list = []
+    trim = MAT_TRIM[mat]
+    for x in (-0.37, 0.37):
+        k.box(P, 0.26, WT, 1.0, (x, 0, 0.5), mat)                # side walls
+    k.box(P, CELL, WT, 0.22, (0, 0, 0.89), mat)                  # lintel wall
+    _base_course(k, P, color=trim)
+    _cornice(k, P, color=trim)
+    for x in (-0.27, 0.27):
+        k.box(P, 0.05, 0.12, 0.8, (x, 0, 0.4), "wood_dk")        # door frame jambs
+    k.box(P, 0.62, 0.12, 0.06, (0, 0, 0.79), "wood_dk")          # frame head
+    return k.join(P, name)
 
 
 def wall_door(k: Any) -> Any:
     """Stone wall with a framed door opening (drop a ``door`` in)."""
-    P: list = []
-    for x in (-0.37, 0.37):
-        k.box(P, 0.26, WT, 1.0, (x, 0, 0.5), "stone")            # side walls
-    k.box(P, CELL, WT, 0.22, (0, 0, 0.89), "stone")              # lintel wall
-    _base_course(k, P)
-    _cornice(k, P)
-    for x in (-0.27, 0.27):
-        k.box(P, 0.05, 0.12, 0.8, (x, 0, 0.4), "wood_dk")        # door frame jambs
-    k.box(P, 0.62, 0.12, 0.06, (0, 0, 0.79), "wood_dk")          # frame head
-    return k.join(P, "wall_door")
+    return _door_wall(k, "stone", "wall_door")
 
 
 def wall_half(k: Any) -> Any:
@@ -159,27 +174,37 @@ def foundation(k: Any) -> Any:
 # Roofs
 # --------------------------------------------------------------------------- #
 
-def roof_gable(k: Any) -> Any:
-    """A full A-frame roof unit (both slopes), sitting from z=1.0."""
+def _gable_roof(k: Any, mat: str, name: str) -> Any:
+    """A full A-frame roof unit (both slopes) in material ``mat``, from z=1.0."""
     P: list = []
-    k.gable(P, CELL, CELL, 0.62, (0, 0, 1.0), "slate", over=0.18)
+    k.gable(P, CELL, CELL, 0.62, (0, 0, 1.0), mat, over=0.18)
     sw = (CELL + 0.18) / 2
     theta = math.atan2(0.62, sw)
-    for f in (0.28, 0.6):                                        # shingle-course battens
+    for f in (0.28, 0.6):                                        # course battens / ties
         for sgn in (-1, 1):
             k.box(P, 0.03, CELL + 0.2, 0.05, (sgn * sw * (1 - f), 0, 1.0 + 0.62 * f),
                   "wood_dk", rot=(0, sgn * theta, 0))
     k.box(P, 0.08, CELL + 0.24, 0.08, (0, 0, 1.64), "wood_dk")   # ridge board
-    return k.join(P, "roof_gable")
+    return k.join(P, name)
+
+
+def roof_gable(k: Any) -> Any:
+    """A slate A-frame roof unit (both slopes), sitting from z=1.0."""
+    return _gable_roof(k, "slate", "roof_gable")
+
+
+def _slope_roof(k: Any, mat: str, name: str) -> Any:
+    """A single pitched roof panel (lean-to / half roof) in material ``mat``."""
+    P: list = []
+    ang = math.radians(36)
+    k.box(P, CELL + 0.06, 1.28, 0.1, (0, 0.0, 1.42), mat, rot=(ang, 0, 0))
+    k.box(P, CELL + 0.1, 0.1, 0.1, (0, -0.5, 1.02), "wood_dk")   # eave board
+    return k.join(P, name)
 
 
 def roof_slope(k: Any) -> Any:
-    """A single pitched roof panel (lean-to / half roof)."""
-    P: list = []
-    ang = math.radians(36)
-    k.box(P, CELL + 0.06, 1.28, 0.1, (0, 0.0, 1.42), "slate", rot=(ang, 0, 0))
-    k.box(P, CELL + 0.1, 0.1, 0.1, (0, -0.5, 1.02), "wood_dk")   # eave board
-    return k.join(P, "roof_slope")
+    """A single slate pitched roof panel (lean-to / half roof)."""
+    return _slope_roof(k, "slate", "roof_slope")
 
 
 def roof_flat(k: Any) -> Any:
@@ -513,9 +538,29 @@ STRUCT_PARTS = [
     ("pillar", pillar), ("post_beam", post_beam), ("arch", arch),
     ("stairs", stairs), ("railing", railing),
 ]
+def _variant(core, mat, name):
+    """Bind a material + name into a spec builder ``fn(kit) -> obj``."""
+    return lambda k: core(k, mat, name)
+
+
+#: Recolour variants — same geometry, different material (multiply toward 200+).
+VARIANT_PARTS: list = []
+
+
+def _add(core, mat, name):
+    VARIANT_PARTS.append((name, _variant(core, mat, name)))
+
+
+for _mat, _sfx in (("plaster", "plaster"), ("wood", "wood")):
+    _add(_window_wall, _mat, f"wall_window_{_sfx}")
+    _add(_door_wall, _mat, f"wall_door_{_sfx}")
+for _mat, _sfx in (("thatch", "thatch"), ("shake", "shake"), ("roof_red", "tile")):
+    _add(_gable_roof, _mat, f"roof_gable_{_sfx}")
+    _add(_slope_roof, _mat, f"roof_slope_{_sfx}")
+
 #: The full modular building-parts vocabulary.
 ALL_PARTS = (WALL_PARTS + FLOOR_PARTS + ROOF_PARTS + OPENING_PARTS
-             + STRUCT_PARTS + EXTRA_PARTS)
+             + STRUCT_PARTS + EXTRA_PARTS + VARIANT_PARTS)
 
 __all__ = ["WALL_PARTS", "FLOOR_PARTS", "ROOF_PARTS", "OPENING_PARTS",
-           "STRUCT_PARTS", "EXTRA_PARTS", "ALL_PARTS", "CELL", "WT"]
+           "STRUCT_PARTS", "EXTRA_PARTS", "VARIANT_PARTS", "ALL_PARTS", "CELL", "WT"]

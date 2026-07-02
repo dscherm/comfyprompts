@@ -1,8 +1,8 @@
 ## Title
-`GrimForge Modular Building Parts (30 pieces)`
+`GrimForge Modular Building Parts (40 pieces)`
 
 ## Short description
-> 30 modular low-poly dark-fantasy pieces — wall, wall plaster, wall wood, wall window, wall door, wall half, wall corner, wall arch, wall buttress, bay window, balcony, awning, floor, foundation, roof gable, roof slope, roof flat, chimney, door, door arch, window, pillar, post beam, arch, stairs, railing, porch, lean to, gate arch, house demo. GLB + glTF + OBJ + FBX + USD. Grid-modular for Godot, Unity, Unreal.
+> 40 modular low-poly dark-fantasy pieces — wall, wall plaster, wall wood, wall window, wall door, wall half, wall corner, wall arch, wall buttress, bay window, balcony, awning, floor, foundation, roof gable, roof slope, roof flat, chimney, door, door arch, window, pillar, post beam, arch, stairs, railing, porch, lean to, gate arch, wall window plaster, wall door plaster, wall window wood, wall door wood, roof gable thatch, roof slope thatch, roof gable shake, roof slope shake, roof gable tile, roof slope tile, house demo. GLB + glTF + OBJ + FBX + USD. Grid-modular for Godot, Unity, Unreal.
 
 ## Tags
 `low-poly`, `dark-fantasy`, `occult`, `horror`, `medieval`, `modular`, `3D`, `kit`, `game-ready`, `GLB`, `glTF`, `FBX`, `USD`, `Godot`, `Unity`
