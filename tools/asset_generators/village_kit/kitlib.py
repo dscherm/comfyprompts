@@ -30,6 +30,7 @@ Style contract (do not break — it is what makes a piece "GrimForge"):
 
 from __future__ import annotations
 
+import os
 from typing import Any
 
 # --------------------------------------------------------------------------- #
@@ -166,6 +167,7 @@ class Kit:
         emission: dict[str, float] | None = None,
         reset_scene: bool = False,
         atlas: bool = False,
+        atlas_size: int = 256,
     ) -> None:
         import bmesh  # noqa: F401  (imported for builders below)
         import bpy
@@ -178,7 +180,9 @@ class Kit:
         # KayKit "color-atlas" mode: one shared gradient/AO atlas + per-primitive
         # UVs into each colour's swatch (see docs/kit_texturing_design.md).
         self.use_atlas = atlas
+        self.atlas_size = atlas_size
         self._atlas_mat: Any = None
+        self._atlas_imgs: tuple = ()
         self._cells: dict[str, tuple] | None = None
         if reset_scene:
             bpy.ops.wm.read_factory_settings(use_empty=True)
@@ -210,12 +214,14 @@ class Kit:
         for p in obj.data.polygons:
             p.use_smooth = False
 
-    def _ensure_atlas(self, cols: int = 8, size: int = 256) -> Any:
+    def _ensure_atlas(self, cols: int = 8, size: int | None = None) -> Any:
         """Build (once) the shared atlas: each palette colour gets a swatch with a
         baked gradient + bottom-AO AND a material PATTERN (planks / brick / straw
         thatch / stained glass), plus an emission atlas. UV rects -> self._cells."""
         if self._atlas_mat is not None:
             return self._atlas_mat
+        if size is None:
+            size = self.atlas_size
         bpy = self._bpy
         pat_of = {}
         for pat, group in (
@@ -332,6 +338,43 @@ class Kit:
                 tt = (pts[j][1] - bmin) / brng
                 uvl[li].uv = (u0 + s * (u1 - u0), v0 + tt * (v1 - v0))
 
+    def save_atlas(self, out_dir: str, thumb: int = 128) -> list[str]:
+        """Write the shared atlas (colour + emission) to ``out_dir`` as PNGs at the
+        native master size plus a ``thumb``² downsample, and pack the images so the
+        GLB/glTF exporters embed them. No-op unless :attr:`use_atlas` and the atlas
+        has been built. Returns the paths written."""
+        if not self.use_atlas or self._atlas_mat is None:
+            return []
+        saved: list[str] = []
+        for img, base in ((self._atlas_imgs[0], "atlas_color"),
+                          (self._atlas_imgs[1], "atlas_emit")):
+            master = os.path.join(out_dir, base + ".png")
+            img.filepath_raw = master
+            img.file_format = "PNG"
+            img.save()
+            img.pack()                       # embed in GLB/glTF too
+            saved.append(master)
+            t = img.copy()
+            t.scale(thumb, thumb)
+            tp = os.path.join(out_dir, f"{base}_{thumb}.png")
+            t.filepath_raw = tp
+            t.file_format = "PNG"
+            t.save()
+            saved.append(tp)
+        return saved
+
+    def pack_atlas(self) -> None:
+        """Pack the atlas images (if built) so a GLB export embeds them without a
+        prior :meth:`save_atlas`. Used by the GLB-only pipeline."""
+        for img in self._atlas_imgs:
+            if not img.packed_file:
+                img.pack()
+
+    @staticmethod
+    def tri_count(obj: Any) -> int:
+        """Triangle count of ``obj`` (each n-gon contributes ``n - 2`` tris)."""
+        return sum(len(p.vertices) - 2 for p in obj.data.polygons)
+
     def _finish(self, parts: list, color: str) -> Any:
         obj = self._bpy.context.active_object
         if self.use_atlas:
@@ -427,23 +470,49 @@ class Kit:
         self._select_only(obj)
         self._bpy.ops.export_scene.gltf(filepath=filepath, export_format="GLB", use_selection=True)
 
-    def export_obj(self, obj: Any, filepath: str) -> None:
-        """Export ``obj`` to Wavefront ``.obj`` (+ ``.mtl``)."""
+    def export_gltf(self, obj: Any, filepath: str) -> None:
+        """Export ``obj`` to separate glTF (``.gltf`` + ``.bin`` + textures)."""
         self._select_only(obj)
-        self._bpy.ops.wm.obj_export(filepath=filepath, export_selected_objects=True)
+        self._bpy.ops.export_scene.gltf(
+            filepath=filepath, export_format="GLTF_SEPARATE", use_selection=True
+        )
+
+    def export_obj(self, obj: Any, filepath: str) -> None:
+        """Export ``obj`` to Wavefront ``.obj`` (+ ``.mtl``, copying any texture)."""
+        self._select_only(obj)
+        self._bpy.ops.wm.obj_export(
+            filepath=filepath, export_selected_objects=True, path_mode="COPY"
+        )
 
     def export_fbx(self, obj: Any, filepath: str) -> None:
-        """Export ``obj`` to Autodesk ``.fbx``."""
+        """Export ``obj`` to Autodesk ``.fbx`` (self-contained: textures embedded)."""
         self._select_only(obj)
-        self._bpy.ops.export_scene.fbx(filepath=filepath, use_selection=True)
+        self._bpy.ops.export_scene.fbx(
+            filepath=filepath, use_selection=True, path_mode="COPY", embed_textures=True
+        )
+
+    def export_usd(self, obj: Any, filepath: str) -> None:
+        """Export ``obj`` to Universal Scene Description (``.usdc``)."""
+        self._select_only(obj)
+        self._bpy.ops.wm.usd_export(filepath=filepath, selected_objects_only=True)
+
+    def export_dae(self, obj: Any, filepath: str) -> None:
+        """Export ``obj`` to COLLADA ``.dae``. Raises ``RuntimeError`` on builds
+        that dropped the Collada I/O add-on (e.g. Blender 5.0) — callers that ship
+        multiple formats should treat DAE as best-effort."""
+        self._select_only(obj)
+        self._bpy.ops.wm.collada_export(filepath=filepath, selected=True)
 
     #: format name -> (method, extension) for productization multi-format export
     @property
     def exporters(self) -> dict:
         return {
             "glb": (self.export_glb, ".glb"),
+            "gltf": (self.export_gltf, ".gltf"),
             "obj": (self.export_obj, ".obj"),
             "fbx": (self.export_fbx, ".fbx"),
+            "usd": (self.export_usd, ".usdc"),
+            "dae": (self.export_dae, ".dae"),
         }
 
 

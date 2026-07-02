@@ -212,7 +212,7 @@ def cathedral(k):
         for yy in (-0.4, 0.4, 1.0):
             _arch_win_x(k, P, yy, 1.4, s * 0.72, w=0.12, h=0.5)      # arched ember windows
     k.cyl(P, 8, 0.3, 0.04, (0, -1.79, 2.3), "stone_dk", rot=(math.radians(90), 0, 0))  # rose frame
-    k.cyl(P, 8, 0.26, 0.06, (0, -1.81, 2.3), "ghostfire", rot=(math.radians(90), 0, 0))  # glass
+    k.cyl(P, 8, 0.26, 0.06, (0, -1.81, 2.3), "gem", rot=(math.radians(90), 0, 0))  # stained glass
     k.box(P, 0.5, 0.04, 0.05, (0, -1.83, 2.3), "stone_dk")            # rose bar h
     k.box(P, 0.05, 0.04, 0.5, (0, -1.83, 2.3), "stone_dk")            # rose bar v
     _gargoyle(k, P, 0.7, -1.2, 2.0, 0.0)                             # eave gargoyles

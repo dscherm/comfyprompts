@@ -20,6 +20,7 @@ examples/godot_village builders).
 """
 
 import importlib.util
+import json
 import math
 import os
 import sys
@@ -29,6 +30,10 @@ import mathutils
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 from kitlib import EMISSION, PALETTE, Kit, hex_to_rgba  # noqa: E402
+
+# KayKit tri-count band (QUALITY_RUBRIC.md §1) — reported per piece; the gate
+# (kit_quality_check.py) reads the tris.json this writes and flags out-of-band.
+TRI_LO, TRI_HI = 20, 5659
 
 # Named aesthetic profiles — the catalog-render half of the GrimForge "look".
 # A spec selects one via ``AESTHETIC = "occult"`` (default "medieval"). The
@@ -104,10 +109,12 @@ def _render_catalog(scene, out_png: str, ortho: float, profile: dict) -> None:
 
 def main() -> int:
     argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
-    if len(argv) < 2:
-        print("PIPELINE result=FAIL reason=usage: -- <spec.py> <out_dir>")
+    atlas = "--atlas" in argv
+    pos = [a for a in argv if not a.startswith("--")]
+    if len(pos) < 2:
+        print("PIPELINE result=FAIL reason=usage: -- <spec.py> <out_dir> [--atlas]")
         return 2
-    spec_path, out_dir = argv[0], argv[1]
+    spec_path, out_dir = pos[0], pos[1]
     spec = _load_spec(spec_path)
 
     glb_dir = os.path.join(out_dir, "glb")
@@ -115,18 +122,27 @@ def main() -> int:
 
     palette = {**PALETTE, **getattr(spec, "PALETTE_OVERRIDE", {})}
     emission = {**EMISSION, **getattr(spec, "EMISSION_OVERRIDE", {})}
-    k = Kit(palette=palette, emission=emission, reset_scene=True)
+    k = Kit(palette=palette, emission=emission, reset_scene=True, atlas=atlas)
 
     aesthetic = getattr(spec, "AESTHETIC", "medieval")
     profile = PROFILES.get(aesthetic, PROFILES["medieval"])
 
     pieces = spec.PIECES
     cols = 3 if len(pieces) <= 9 else 6
+    tris: dict[str, int] = {}
     for i, (name, fn) in enumerate(pieces):
         obj = fn(k)
+        if atlas:
+            k.pack_atlas()                    # embed the shared atlas in each GLB
+        tris[name] = k.tri_count(obj)
         k.export_glb(obj, os.path.join(glb_dir, f"{name}.glb"))
         col, row = i % cols, i // cols
         obj.location = (col * 2.4 - (cols - 1) * 1.2, -row * 2.4 + 2.4, 0)
+
+    with open(os.path.join(out_dir, "tris.json"), "w", encoding="utf-8") as f:
+        json.dump(tris, f, indent=2, sort_keys=True)
+    lo, hi = min(tris.values()), max(tris.values())
+    out_of_band = sorted(n for n, t in tris.items() if not (TRI_LO <= t <= TRI_HI))
 
     # ground slab under the catalog, tinted by the aesthetic profile
     k.box([], 40, 40, 0.1, (0, 0, -0.06), profile["ground"])
@@ -138,7 +154,9 @@ def main() -> int:
     ) and os.path.isfile(catalog)
     print(
         f"PIPELINE result={'OK' if ok else 'FAIL'} title={getattr(spec, 'TITLE', '?')!r} "
-        f"aesthetic={aesthetic} pieces={len(pieces)} glb_dir={glb_dir} catalog={catalog}"
+        f"aesthetic={aesthetic} atlas={atlas} pieces={len(pieces)} "
+        f"tris={lo}..{hi} out_of_band={out_of_band or 'none'} "
+        f"glb_dir={glb_dir} catalog={catalog}"
     )
     return 0 if ok else 1
 
