@@ -110,7 +110,17 @@ rebuilt + verified.
    `village_kit_grimforge_v1` (28 pcs) + `_v2` (23 pcs) reshipped in atlas mode,
    gate PASS. **All 5 GrimForge kit products are now atlas.**
 2. The OTHER big lever: **modular parts + 200+ density** (task above).
-   - [x] Ground/path/road **tile set** started (`kit_tiles.py`, `ALL_TILES`):
+   - [x] **Building parts system** (`kit_parts.py`, spec `kit_parts_v1.py`, product
+     `parts_kit_grimforge_v1`): 21 snap-together parts on the 1-unit grid — walls
+     (plain/plaster/wood/window/door/half/corner), floor/foundation, roofs
+     (gable/slope/flat) + chimney, openings (door/door_arch/window), structure
+     (pillar/post_beam/arch/stairs/railing), + a `house_demo` assembled from parts.
+     Gate PASS. TODO toward 200+: recolour variants (stone/plaster/wood ×
+     each wall), more part types (bay window, dormer, buttress, gate, well-parts),
+     and splice parts into the building kits. **productize follow-up:** its catalog
+     camera is top-down and hides vertical wall parts — add an optional 3/4 hero
+     camera (parts shipped with a 3/4 render swapped in manually for now).
+   - [x] Ground/path/road **tile set** (`kit_tiles.py`, `ALL_TILES`):
      cobble/flagstone/gravel/moss/mud grounds, dirt path cross/tee/end, cobble
      road straight/corner/cross/tee — grid-modular 1x1, spliced into the four
      environment kits (village v1 40, v2 35, df-village/city 24 each). New atlas
