@@ -27,7 +27,7 @@ def _bind(kit):
     box, cyl, cone, gable, join = kit.box, kit.cyl, kit.cone, kit.gable, kit.join
 
 # ---------- builders ----------
-def house(name,W=1.35,Dd=1.15,floors=1,jetty=True,roof="slate",wall="plaster",framing=True,chim=True,sign=None):
+def house(name,W=1.35,Dd=1.15,floors=1,jetty=True,roof="shake",wall="plaster",framing=True,chim=True,sign=None):
     P=[]; bh=0.55
     box(P,W,Dd,bh,(0,0,bh/2),"stone")
     UW,UD=(W+0.22,Dd+0.22) if jetty else (W,Dd)
@@ -75,7 +75,7 @@ def tower():
 def blacksmith():
     P=[]; box(P,1.3,1.2,0.75,(0,0,0.375),"stone")
     box(P,1.3,1.2,0.4,(0,0,0.95),"wood")
-    gable(P,1.3,1.2,0.5,(0,0,1.15),"slate",over=0.16)
+    gable(P,1.3,1.2,0.5,(0,0,1.15),"shake",over=0.16)   # workshop -> wood shingle
     box(P,0.32,0.32,1.7,(0.5,0.4,0.85),"stone"); box(P,0.2,0,0.3,(0.5,0.4,1.75),"fire")  # forge chimney glow
     box(P,0.3,0.5,0.3,(0,-0.5,0.9),"iron")              # forge opening side
     cyl(P,8,0.12,0.16,(-0.45,-0.5,0.55),"iron"); box(P,0.18,0.32,0.1,(-0.45,-0.5,0.68),"iron")  # anvil
@@ -188,10 +188,10 @@ def gravestone():
     return join(P,"gravestone")
 
 BUILD=[
- ("cottage",lambda:house("cottage")),
- ("house_small",lambda:house("house_small",jetty=False,roof="thatch",chim=True)),
- ("house_tall",lambda:house("house_tall",W=1.1,Dd=1.0,floors=2,roof="slate")),
- ("tavern",lambda:house("tavern",W=1.6,Dd=1.3,roof="thatch",sign="gold")),
+ ("cottage",lambda:house("cottage",roof="thatch")),                      # humble -> thatch
+ ("house_small",lambda:house("house_small",jetty=False,roof="shake",chim=True)),  # dwelling -> wood shingle
+ ("house_tall",lambda:house("house_tall",W=1.1,Dd=1.0,floors=2,roof="roof_red")), # tradesman -> clay tile
+ ("tavern",lambda:house("tavern",W=1.6,Dd=1.3,roof="roof_red",sign="gold")),      # tradesman -> clay tile
  ("church",church),("barn",barn),("tower",tower),("blacksmith",blacksmith),
  ("wall",wall_seg),("wall_gate",wall_gate),("wall_corner",wall_corner),
  ("ground_grass",lambda:tile("ground_grass","grass")),("ground_dirt",lambda:tile("ground_dirt","dirt")),

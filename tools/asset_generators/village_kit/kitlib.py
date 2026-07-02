@@ -71,6 +71,7 @@ PALETTE: dict[str, str] = {
     "thatch_dk": "5e4d27",
     "slate": "3b434d",
     "roof_red": "823629",
+    "shake": "6b4a2a",     # wood-shingle / shake roof (common dwellings & workshops)
     # metal
     "iron": "474b52",
     "gold": "c8a23a",
@@ -137,6 +138,29 @@ def validate_palette() -> None:
     missing = [n for n in EMISSION if n not in PALETTE]
     if missing:
         raise ValueError(f"EMISSION names not in PALETTE: {missing}")
+
+
+#: GrimForge roof rule — the roof MATERIAL a structure should wear, keyed by its
+#: class. The material scales with the building's status: rural/humble = thatch
+#: (hay); ordinary dwellings & workshops = wood shingle (shake); tradesman /
+#: better townhouses = clay tile (roof_red); grand civic/religious/noble/fortified
+#: = slate. See ``docs`` / QUALITY_RUBRIC.md "Roof rule". A builder should pick its
+#: roof colour via ``roof_for(<class>)`` (or the matching palette name) so the look
+#: stays consistent across kits.
+ROOF_RULES: dict[str, str] = {
+    "humble": "thatch",     # cottage, hovel, barn, stable, well, farmhut, shed
+    "dwelling": "shake",    # common houses, workshop, blacksmith, mill (wood shingle)
+    "tradesman": "roof_red",  # tavern, inn, shopfront, guild stall, townhouse (clay tile)
+    "grand": "slate",       # manor, guild/town hall, church, cathedral, keep, gatehouse
+}
+
+
+def roof_for(kind: str) -> str:
+    """Return the roof palette colour for a structure ``kind`` per :data:`ROOF_RULES`.
+
+    ``kind`` is one of ``humble`` / ``dwelling`` / ``tradesman`` / ``grand``.
+    Raises ``KeyError`` on an unknown class so a typo fails loudly at build time."""
+    return ROOF_RULES[kind]
 
 
 # --------------------------------------------------------------------------- #
@@ -230,7 +254,7 @@ class Kit:
             # masonry: walls + tower battlements (crenellations) read as stonework
             ("brick", ("stone", "stone_dk", "plaster", "plaster2")),
             # sloped roofs read as boards/shingle courses, NOT stonework
-            ("shingle", ("slate", "roof_red")),
+            ("shingle", ("slate", "roof_red", "shake")),
             ("straw", ("thatch", "thatch_dk")),
             ("cobble", ("cobble",)),   # cobblestone ground + roads
             ("gravel", ("gravel",)),   # gravel ground
@@ -547,4 +571,5 @@ class Kit:
         }
 
 
-__all__ = ["Color", "hex_to_rgba", "PALETTE", "EMISSION", "validate_palette", "Kit"]
+__all__ = ["Color", "hex_to_rgba", "PALETTE", "EMISSION", "validate_palette",
+           "ROOF_RULES", "roof_for", "Kit"]

@@ -428,7 +428,7 @@ def well(k):
     for sx in (-1, 1):
         k.box(P, 0.08, 0.08, 0.85, (sx * 0.42, 0, 0.7), "charwood")
     k.box(P, 0.95, 0.08, 0.08, (0, 0, 1.12), "charwood")             # cross-beam
-    k.gable(P, 1.0, 0.7, 0.34, (0, 0, 1.16), "slate", over=0.14)
+    k.gable(P, 1.0, 0.7, 0.34, (0, 0, 1.16), "shake", over=0.14)   # well -> wood shingle
     sw = (1.0 + 0.14) / 2
     theta = math.atan2(0.34, sw)
     for i in range(4):                                              # shingle courses
@@ -590,9 +590,9 @@ def stable(k):
         for gy in (a + 0.14, mid, b - 0.14):                                 # balusters
             k.box(P, 0.08, 0.05, 0.42, (postx, gy, z0 + 0.28), "wood_dk")
         k.box(P, 0.5, abs(b - a) - 0.2, 0.1, (postx - 0.35, mid, z0 + 0.06), "thatch")  # hay bed
-    # ---- dark shingled gable roof + ridge/eave trim ----
+    # ---- thatched gable roof + ridge/eave trim (stable = humble/rural) ----
     rh = 0.72
-    k.gable(P, W, D, rh, (0, 0, z0 + fh), "slate", over=0.2)
+    k.gable(P, W, D, rh, (0, 0, z0 + fh), "thatch", over=0.2)
     sw = (W + 0.2) / 2
     theta = math.atan2(rh, sw)
     for i in range(7):                                                       # shingle courses

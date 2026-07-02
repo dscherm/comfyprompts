@@ -33,7 +33,7 @@ def _bind(kit):
 
 def windmill():
     P=[]; cyl(P,8,0.6,1.8,(0,0,0.9),"stone"); cyl(P,8,0.5,0.4,(0,0,1.9),"stone_dk")
-    cone(P,8,0.62,0,0.5,(0,0,2.25),"slate")
+    cone(P,8,0.62,0,0.5,(0,0,2.25),"shake")               # wood-boarded mill cap
     cyl(P,8,0.1,0.3,(0,-0.55,1.7),"wood",rot=(math.radians(90),0,0))   # hub
     for a in range(4):
         an=math.radians(a*90); box(P,0.08,0.05,1.1,(math.sin(an)*0.55,-0.7,1.7+math.cos(an)*0.0),"wood",rot=(0,an,0))
@@ -56,16 +56,21 @@ def stable():
     box(P,0.5,0.4,0.4,(0,0.3,0.7),"thatch_dk")           # hay loft hint
     return join(P,"stable")
 def guard_tower():
-    P=[]; box(P,0.8,0.8,2.3,(0,0,1.15),"stone")
-    box(P,0.9,0.9,0.1,(0,0,2.32),"wood")                  # platform
-    box(P,0.94,0.94,0.05,(0,0,2.30),"stone_dk")           # cap course under the parapet
-    for t in (-0.3,0.0,0.3):                              # crenellated parapet all the way around
-        box(P,0.16,0.12,0.26,(t,-0.42,2.5),"stone_dk")    # front (-Y)
-        box(P,0.16,0.12,0.26,(t, 0.42,2.5),"stone_dk")    # back (+Y)
-        box(P,0.12,0.16,0.26,(-0.42,t,2.5),"stone_dk")    # left (-X)
-        box(P,0.12,0.16,0.26,( 0.42,t,2.5),"stone_dk")    # right (+X)
-    box(P,0.28,0.05,0.32,(0,-0.41,1.3),"window")
-    box(P,0.3,0.06,0.5,(0,-0.41,0.25),"wood_dk")
+    P=[]
+    cyl(P,12,0.55,2.35,(0,0,1.18),"stone")                # round tower body
+    cyl(P,12,0.63,0.35,(0,0,0.17),"stone_dk")             # battered foot
+    for zz in (0.95,1.6):                                 # arrow-slit windows
+        for an in (0,90,180,270):
+            a=math.radians(an)
+            box(P,0.05,0.12,0.42,(math.cos(a)*0.56,math.sin(a)*0.56,zz),"soot",rot=(0,0,a))
+    for i in range(12):                                   # machicolation corbel ring
+        a=math.radians(i*30)
+        box(P,0.14,0.16,0.14,(math.cos(a)*0.63,math.sin(a)*0.63,2.3),"stone_dk",rot=(0,0,a))
+    cyl(P,12,0.66,0.1,(0,0,2.42),"stone")                 # corbel-table cap ring (wall walk)
+    for i in range(12):                                   # crenellated parapet (merlons + gaps)
+        a=math.radians(i*30)
+        box(P,0.17,0.17,0.3,(math.cos(a)*0.6,math.sin(a)*0.6,2.62),"stone",rot=(0,0,a))
+    box(P,0.32,0.08,0.6,(0,-0.6,0.3),"wood_dk")           # tower door
     return join(P,"guard_tower")
 def stone_bridge():
     P=[]; box(P,1.0,1.6,0.18,(0,0,0.5),"stone")
@@ -74,16 +79,32 @@ def stone_bridge():
     box(P,1.0,1.0,0.5,(0,0,-0.25),"water")                            # water below
     return join(P,"stone_bridge")
 def portcullis():
+    """A castle gatehouse: two flanking towers, an arched central gateway with a
+    lowered portcullis, machicolations, and a crenellated parapet all across."""
     P=[]
-    for s in (-1,1):                                       # gate towers
-        box(P,0.4,0.5,1.8,(s*0.7,0,0.9),"stone")
-        box(P,0.46,0.56,0.05,(s*0.7,0,1.8),"stone_dk")     # tower cap
-        for mx in (-0.1,0.1): box(P,0.12,0.14,0.18,(s*0.7+mx,0,1.9),"stone_dk")  # merlons
-    box(P,1.5,0.52,0.28,(0,0,1.5),"stone")                 # lintel spanning tower to tower
-    box(P,1.5,0.56,0.05,(0,0,1.66),"stone_dk")             # lintel cap course
-    for mx in (-0.45,-0.15,0.15,0.45): box(P,0.16,0.14,0.16,(mx,0,1.76),"stone_dk")  # battlement
-    for x in (-0.3,-0.1,0.1,0.3): box(P,0.05,0.1,1.25,(x,0,0.7),"iron")  # vertical bars
-    for z in (0.2,0.6,1.0,1.32): box(P,0.7,0.1,0.05,(0,0,z),"iron")       # horizontal bars
+    for s in (-1,1):                                       # two flanking square towers
+        box(P,0.6,0.7,2.4,(s*0.82,0,1.2),"stone")
+        for mx in (-0.2,0.0,0.2):
+            box(P,0.15,0.76,0.12,(s*0.82+mx,0,2.34),"stone_dk")   # machicolation corbels
+        box(P,0.68,0.78,0.08,(s*0.82,0,2.44),"stone")            # cap course
+        for mx in (-0.2,0.0,0.2):
+            box(P,0.16,0.16,0.26,(s*0.82+mx,-0.29,2.62),"stone")  # front merlons
+            box(P,0.16,0.16,0.26,(s*0.82+mx, 0.29,2.62),"stone")  # back merlons
+    box(P,1.28,0.62,0.9,(0,0,1.75),"stone")               # central gate block (over the opening)
+    for mx in (-0.4,-0.13,0.13,0.4):
+        box(P,0.15,0.68,0.12,(mx,0,2.18),"stone_dk")       # machicolation over the gateway
+    box(P,1.32,0.7,0.08,(0,0,2.28),"stone")                # cap over the gate
+    for mx in (-0.44,-0.15,0.15,0.44):
+        box(P,0.16,0.16,0.24,(mx,-0.29,2.46),"stone")      # merlons over the gate (front)
+        box(P,0.16,0.16,0.24,(mx, 0.29,2.46),"stone")      # merlons over the gate (back)
+    box(P,0.7,0.66,1.3,(0,0,0.65),"soot")                  # dark gateway passage
+    for s in (-1,1):
+        box(P,0.12,0.66,1.3,(s*0.41,0,0.65),"stone_dk")    # gateway jambs
+    box(P,0.94,0.66,0.14,(0,0,1.3),"stone_dk")             # lintel over the jambs
+    for s in (-1,1):                                       # arched (chamfered) head
+        box(P,0.26,0.66,0.26,(s*0.29,0,1.2),"stone_dk",rot=(0,math.radians(s*45),0))
+    for x in (-0.26,-0.09,0.09,0.26): box(P,0.05,0.06,1.15,(x,-0.28,0.7),"iron")  # portcullis bars
+    for z in (0.22,0.6,1.0,1.28): box(P,0.6,0.06,0.05,(0,-0.28,z),"iron")         # grille rails
     return join(P,"portcullis")
 def wall_ruined():
     P=[]; box(P,1.0,0.4,0.5,(0,0,0.25),"stone")

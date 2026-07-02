@@ -78,6 +78,27 @@ workflow (see `kit_quality_check.py` for the automated subset).
   follow-up candidate:** bake gradient/AO atlas — NOTE ONLY, do not run now.)*
 - **MUST** — one shared material set per kit; ≤ ~16 palette entries in active use.
 
+### 4a. Roof-material rule (structure → roof)
+A roof's material must match the building's **status**, not default to slate. This
+is codified in `kitlib.ROOF_RULES` / `roof_for(kind)` and enforced by construction
+(each builder picks the roof colour for its class). Sloped roofs use the atlas
+`shingle` pattern (board/tile courses) or `straw` (thatch); **stonework/masonry is
+for walls and tower battlements only — never a sloped roof.**
+
+| Structure class | Examples | Roof material |
+|---|---|---|
+| `humble` | cottage, hovel, barn, stable, well, shed | `thatch` (hay) |
+| `dwelling` | common house, workshop, blacksmith, mill cap | `shake` (wood shingle) |
+| `tradesman` | tavern, inn, shopfront, townhouse | `roof_red` (clay tile) |
+| `grand` | manor, guild/town hall, church, cathedral, keep, gatehouse | `slate` |
+
+- **MUST** — every sloped roof uses thatch / shake / roof_red / slate per the table;
+  no `stone`/`stone_dk`/`plaster` on a roof surface.
+- **SHOULD** — a kit shows ≥ 3 of the 4 roof materials so the settlement reads as a
+  mix of statuses, not a uniform row.
+- Victorian/urban kits (`kit_city_v1`) legitimately run slate-heavy (mansard roofs);
+  the rule targets village/rural kits where humble buildings were over-roofed.
+
 ## 5. Colour palette discipline
 - **MUST** — locked palette, harmonised across the kit; accents used sparingly.
   (We have this: `PALETTE` + `PALETTE_OVERRIDE`; `validate_palette()`.)
