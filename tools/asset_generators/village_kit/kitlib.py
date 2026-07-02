@@ -210,15 +210,52 @@ class Kit:
         for p in obj.data.polygons:
             p.use_smooth = False
 
-    def _ensure_atlas(self, cols: int = 8, size: int = 128) -> Any:
-        """Build (once) the shared gradient/AO colour+emission atlas and the single
-        material that samples it. Records each palette colour's UV swatch rect in
-        ``self._cells``. Returns the shared atlas material."""
+    def _ensure_atlas(self, cols: int = 8, size: int = 256) -> Any:
+        """Build (once) the shared atlas: each palette colour gets a swatch with a
+        baked gradient + bottom-AO AND a material PATTERN (planks / brick / straw
+        thatch / stained glass), plus an emission atlas. UV rects -> self._cells."""
         if self._atlas_mat is not None:
             return self._atlas_mat
         bpy = self._bpy
+        pat_of = {}
+        for pat, group in (
+            ("planks", ("wood", "wood_dk", "charwood", "beam")),
+            ("brick", ("stone", "stone_dk", "plaster", "plaster2", "slate")),
+            ("straw", ("thatch", "thatch_dk")),
+            ("glass", ("ghostfire", "gem", "rune")),  # stained-glass mosaic colours
+        ):
+            for nm in group:
+                pat_of[nm] = pat
+
+        def pm(pat, xx, yy, cw, ch):
+            if pat == "planks":
+                ph = max(3, ch // 5)
+                return 0.42 if (yy % ph) < 1 else 0.88 + 0.12 * ((yy // ph) % 2)
+            if pat == "brick":
+                rh, bw = max(3, ch // 5), max(4, cw // 3)
+                off = bw // 2 if (yy // rh) % 2 else 0
+                if (yy % rh) < 1 or ((xx + off) % bw) < 1:
+                    return 0.42
+                return 0.88 + 0.14 * ((xx // bw + yy // rh) % 2)
+            if pat == "straw":
+                return 0.68 + 0.32 * (((xx * 5 + yy * 3) % 7) / 6.0)
+            if pat == "glass":
+                pw, ph = max(3, cw // 3), max(3, ch // 3)
+                return 0.28 if ((xx % pw) < 1 or (yy % ph) < 1) else 1.3
+            return 1.0
+
+        jewels = ((0.28, 0.78, 1.0), (0.96, 0.34, 0.56), (1.0, 0.72, 0.2),
+                  (0.34, 0.95, 0.42))  # stained glass panes: blue, rose, amber, green
+
+        def glass_px(xx, yy, cw, ch):
+            pw, ph = max(3, cw // 3), max(3, ch // 3)
+            if (xx % pw) < 1 or (yy % ph) < 1:
+                return 0.05, 0.05, 0.06, False       # dark lead came
+            j = jewels[((xx // pw) + (yy // ph)) % 4]
+            return j[0], j[1], j[2], True
+
         names = list(self.palette)
-        rows = max(1, -(-len(names) // cols))  # ceil
+        rows = max(1, -(-len(names) // cols))
         cw, ch = size // cols, size // rows
         col = [0.0, 0.0, 0.0, 1.0] * (size * size)
         emit = [0.0, 0.0, 0.0, 1.0] * (size * size)
@@ -226,17 +263,25 @@ class Kit:
         for i, name in enumerate(names):
             r, g, b, _ = hex_to_rgba(self.palette[name])
             es = self.emission.get(name, 0.0)
+            pat = pat_of.get(name, "plain")
             cx, cy = (i % cols) * cw, (i // cols) * ch
             for yy in range(ch):
-                t = yy / max(1, ch - 1)                       # 0 bottom .. 1 top
-                f = (0.72 + 0.4 * t) * (0.55 + 0.45 * min(1.0, yy / (ch * 0.3)))
+                t = yy / max(1, ch - 1)
+                gr = (0.72 + 0.4 * t) * (0.55 + 0.45 * min(1.0, yy / (ch * 0.3)))
                 for xx in range(cw):
                     p = ((cy + yy) * size + (cx + xx)) * 4
-                    col[p], col[p + 1], col[p + 2] = min(1, r * f), min(1, g * f), min(1, b * f)
-                    if es > 0:
-                        emit[p], emit[p + 1], emit[p + 2] = r, g, b
-            self._cells[name] = ((cx + 1.5) / size, (cx + cw - 1.5) / size,
-                                 (cy + 1.5) / size, (cy + ch - 1.5) / size)
+                    if pat == "glass":
+                        cr, cg, cb, glow = glass_px(xx, yy, cw, ch)
+                        col[p], col[p + 1], col[p + 2] = cr * gr, cg * gr, cb * gr
+                        if es > 0 and glow:
+                            emit[p], emit[p + 1], emit[p + 2] = cr, cg, cb
+                    else:
+                        f = gr * pm(pat, xx, yy, cw, ch)
+                        col[p], col[p + 1], col[p + 2] = min(1, r * f), min(1, g * f), min(1, b * f)
+                        if es > 0:
+                            emit[p], emit[p + 1], emit[p + 2] = r, g, b
+            self._cells[name] = ((cx + 1.0) / size, (cx + cw - 1.0) / size,
+                                 (cy + 1.0) / size, (cy + ch - 1.0) / size)
         cimg = bpy.data.images.new("kit_atlas", size, size)
         cimg.colorspace_settings.name = "Non-Color"
         cimg.pixels = col
@@ -259,20 +304,29 @@ class Kit:
         return m
 
     def _uv_swatch(self, obj: Any, color: str) -> None:
-        """UV-map every face of ``obj`` into ``color``'s atlas swatch, with the
-        object's local Z spanning the swatch's vertical gradient (top = light)."""
+        """Planar-unwrap every face into ``color``'s swatch so the swatch pattern
+        (planks/brick/straw/glass) + gradient read across the face. Each face's two
+        in-plane axes map to the swatch U/V (the more-vertical axis -> V)."""
         me = obj.data
         u0, u1, v0, v1 = self._cells[color]
         if not me.uv_layers:
             me.uv_layers.new(name="UVMap")
         uvl = me.uv_layers.active.data
-        zs = [v.co.z for v in me.vertices]
-        zmin = min(zs)
-        dz = (max(zs) - zmin) or 1.0
-        um = (u0 + u1) / 2.0
-        for lp in me.loops:
-            t = (me.vertices[lp.vertex_index].co.z - zmin) / dz
-            uvl[lp.index].uv = (um, v0 + t * (v1 - v0))
+        co = [v.co for v in me.vertices]
+        for poly in me.polygons:
+            n = poly.normal
+            dom = max(range(3), key=lambda i: abs(n[i]))
+            ax = [i for i in range(3) if i != dom]
+            pts = [(co[me.loops[li].vertex_index][ax[0]],
+                    co[me.loops[li].vertex_index][ax[1]]) for li in poly.loop_indices]
+            amin = min(p[0] for p in pts)
+            arng = (max(p[0] for p in pts) - amin) or 1.0
+            bmin = min(p[1] for p in pts)
+            brng = (max(p[1] for p in pts) - bmin) or 1.0
+            for j, li in enumerate(poly.loop_indices):
+                s = (pts[j][0] - amin) / arng
+                tt = (pts[j][1] - bmin) / brng
+                uvl[li].uv = (u0 + s * (u1 - u0), v0 + tt * (v1 - v0))
 
     def _finish(self, parts: list, color: str) -> Any:
         obj = self._bpy.context.active_object
