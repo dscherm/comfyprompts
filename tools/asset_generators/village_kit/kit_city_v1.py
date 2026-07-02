@@ -8,6 +8,7 @@ Built on kitlib via kit_pipeline / productize.
 import math
 
 from kit_occult import skull as _occult_skull  # shared low-poly skull (gated below)
+from kit_tiles import ALL_TILES  # shared grid-modular ground/path/road tiles
 from kit_village_v1 import _flame_banner  # shared warding banner (sigil gated by OCCULT)
 
 TITLE = "GrimForge City Vol.1 — Dark-Fantasy Urban Kit (12 pieces)"
@@ -676,4 +677,4 @@ PIECES = [
     ("streetlamp", streetlamp),
     ("street_kiosk", street_kiosk),
     ("plague_column", plague_column),
-]
+] + ALL_TILES

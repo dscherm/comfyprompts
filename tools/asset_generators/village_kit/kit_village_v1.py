@@ -7,6 +7,7 @@ GrimForge aesthetic. Built on kitlib via kit_pipeline / productize.
 import math
 
 from kit_occult import skull as _occult_skull  # shared low-poly skull (gated below)
+from kit_tiles import ALL_TILES  # shared grid-modular ground/path/road tiles
 
 TITLE = "GrimForge Village Vol.1 — Dark-Fantasy Settlement (12 pieces)"
 AESTHETIC = "occult"
@@ -847,4 +848,4 @@ PIECES = [
     ("well", well),
     ("hovel", hovel),
     ("foot_bridge", foot_bridge),
-]
+] + ALL_TILES

@@ -58,6 +58,7 @@ PALETTE: dict[str, str] = {
     "stone": "6f756a",
     "stone_dk": "4c5249",
     "cobble": "5a5a62",
+    "gravel": "6e655a",
     # plaster / framing
     "plaster": "c9bfa6",
     "plaster2": "bcae8e",
@@ -226,8 +227,13 @@ class Kit:
         pat_of = {}
         for pat, group in (
             ("planks", ("wood", "wood_dk", "charwood", "beam")),
-            ("brick", ("stone", "stone_dk", "plaster", "plaster2", "slate")),
+            # masonry: walls + tower battlements (crenellations) read as stonework
+            ("brick", ("stone", "stone_dk", "plaster", "plaster2")),
+            # sloped roofs read as boards/shingle courses, NOT stonework
+            ("shingle", ("slate", "roof_red")),
             ("straw", ("thatch", "thatch_dk")),
+            ("cobble", ("cobble",)),   # cobblestone ground + roads
+            ("gravel", ("gravel",)),   # gravel ground
             ("glass", ("gem", "rune")),  # stained-glass mosaic colours (NOT ghostfire=water)
         ):
             for nm in group:
@@ -249,6 +255,31 @@ class Kit:
                 strand = 0.86 + 0.14 * (((xx * 7 + (yy // coh) * 5) % 5) / 4.0)
                 shadow = 0.4 if yc < 1 else (0.66 + 0.34 * (yc / max(1, coh - 1)))
                 return shadow * strand
+            if pat == "shingle":
+                rh = max(3, ch // 6)                         # roof course height
+                row, yc = yy // rh, yy % rh
+                off = (rh // 2) if (row % 2) else 0          # stagger tabs
+                tw = max(3, cw // 5)
+                lift = 0.58 + 0.42 * (yc / max(1, rh - 1))   # each course lighter downslope
+                if yc < 1:
+                    lift = 0.4                               # course overlap shadow line
+                if ((xx + off) % tw) < 1:
+                    lift *= 0.84                             # subtle tab gap
+                return lift
+            if pat == "cobble":
+                cs = max(3, cw // 5)                         # cobble sett size
+                off = cs // 2 if (yy // cs) % 2 else 0
+                gx, gy = (xx + off) % cs, yy % cs
+                if gx < 1 or gy < 1:
+                    return 0.36                              # mortar gap
+                dx = (gx - cs / 2.0) / (cs / 2.0)
+                dy = (gy - cs / 2.0) / (cs / 2.0)
+                dome = 0.72 + 0.4 * max(0.0, 1.0 - (dx * dx + dy * dy))
+                vary = 0.82 + 0.32 * ((((xx // cs) * 7 + (yy // cs) * 13) % 5) / 4.0)
+                return dome * vary
+            if pat == "gravel":
+                n = (xx * 13 + yy * 7 + (xx // 3) * 5) % 9
+                return 0.55 + 0.5 * (n / 8.0)
             if pat == "glass":
                 pw, ph = max(3, cw // 3), max(3, ch // 3)
                 return 0.28 if ((xx % pw) < 1 or (yy % ph) < 1) else 1.3

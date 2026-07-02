@@ -5,9 +5,10 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from kit_tiles import ALL_TILES  # noqa: E402
 from kitlib import Kit  # noqa: E402  (sys.path tweak above)
 
-TITLE = "GrimForge Village Vol.2 — Medieval Expansion Kit (23 pieces)"
+TITLE = "GrimForge Village Vol.2 — Medieval Expansion Kit (35 pieces)"
 AESTHETIC = "medieval"
 # Vol.2 used a lighter "bone" (d8d0bc vs the canonical c4bba2) and a brighter
 # emissive "window" (2.0 vs the default 1.5); both are preserved as spec overrides
@@ -56,9 +57,14 @@ def stable():
     return join(P,"stable")
 def guard_tower():
     P=[]; box(P,0.8,0.8,2.3,(0,0,1.15),"stone")
-    for sx in (-1,1):
-        for sy in (-1,1): box(P,0.18,0.18,0.3,(sx*0.32,sy*0.32,2.4),"stone_dk")
-    box(P,0.9,0.9,0.1,(0,0,2.32),"wood"); box(P,0.28,0.05,0.32,(0,-0.41,1.3),"window")
+    box(P,0.9,0.9,0.1,(0,0,2.32),"wood")                  # platform
+    box(P,0.94,0.94,0.05,(0,0,2.30),"stone_dk")           # cap course under the parapet
+    for t in (-0.3,0.0,0.3):                              # crenellated parapet all the way around
+        box(P,0.16,0.12,0.26,(t,-0.42,2.5),"stone_dk")    # front (-Y)
+        box(P,0.16,0.12,0.26,(t, 0.42,2.5),"stone_dk")    # back (+Y)
+        box(P,0.12,0.16,0.26,(-0.42,t,2.5),"stone_dk")    # left (-X)
+        box(P,0.12,0.16,0.26,( 0.42,t,2.5),"stone_dk")    # right (+X)
+    box(P,0.28,0.05,0.32,(0,-0.41,1.3),"window")
     box(P,0.3,0.06,0.5,(0,-0.41,0.25),"wood_dk")
     return join(P,"guard_tower")
 def stone_bridge():
@@ -69,10 +75,15 @@ def stone_bridge():
     return join(P,"stone_bridge")
 def portcullis():
     P=[]
-    for s in (-1,1): box(P,0.4,0.5,1.8,(s*0.7,0,0.9),"stone")
-    box(P,1.0,0.5,0.35,(0,0,1.95),"stone")
-    for x in (-0.3,-0.1,0.1,0.3): box(P,0.05,0.1,1.1,(x,0,0.95),"iron")  # vertical bars
-    for z in (0.55,0.95,1.35): box(P,0.7,0.1,0.05,(0,0,z),"iron")
+    for s in (-1,1):                                       # gate towers
+        box(P,0.4,0.5,1.8,(s*0.7,0,0.9),"stone")
+        box(P,0.46,0.56,0.05,(s*0.7,0,1.8),"stone_dk")     # tower cap
+        for mx in (-0.1,0.1): box(P,0.12,0.14,0.18,(s*0.7+mx,0,1.9),"stone_dk")  # merlons
+    box(P,1.5,0.52,0.28,(0,0,1.5),"stone")                 # lintel spanning tower to tower
+    box(P,1.5,0.56,0.05,(0,0,1.66),"stone_dk")             # lintel cap course
+    for mx in (-0.45,-0.15,0.15,0.45): box(P,0.16,0.14,0.16,(mx,0,1.76),"stone_dk")  # battlement
+    for x in (-0.3,-0.1,0.1,0.3): box(P,0.05,0.1,1.25,(x,0,0.7),"iron")  # vertical bars
+    for z in (0.2,0.6,1.0,1.32): box(P,0.7,0.1,0.05,(0,0,z),"iron")       # horizontal bars
     return join(P,"portcullis")
 def wall_ruined():
     P=[]; box(P,1.0,0.4,0.5,(0,0,0.25),"stone")
@@ -175,8 +186,9 @@ def _piece(fn):
     return build
 
 
-#: Spec interface consumed by kit_pipeline.py / productize.py.
-PIECES = [(nm, _piece(fn)) for nm, fn in BUILD]
+#: Spec interface consumed by kit_pipeline.py / productize.py — expansion pieces
+#: plus the shared grid-modular tile set (ground / paths / roads).
+PIECES = [(nm, _piece(fn)) for nm, fn in BUILD] + ALL_TILES
 
 
 def _main():

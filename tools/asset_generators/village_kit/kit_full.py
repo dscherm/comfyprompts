@@ -6,9 +6,10 @@ import os
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from kit_tiles import ALL_TILES  # noqa: E402
 from kitlib import Kit  # noqa: E402  (sys.path tweak above)
 
-TITLE = "GrimForge Village Vol.1 — Medieval Village Kit (28 pieces)"
+TITLE = "GrimForge Village Vol.1 — Medieval Village Kit (40 pieces)"
 AESTHETIC = "medieval"
 
 # The GrimForge primitive vocabulary lives in kitlib. kit_full uses the canonical
@@ -81,20 +82,38 @@ def blacksmith():
     return join(P,"blacksmith")
 
 def wall_seg():
-    P=[]; box(P,1.0,0.4,0.9,(0,0,0.45),"stone")
-    for x in (-0.35,0.05): box(P,0.22,0.42,0.18,(x,0,0.99),"stone_dk")
+    P=[]; box(P,1.0,0.4,0.9,(0,0,0.45),"stone")           # wall body
+    box(P,1.0,0.4,0.06,(0,0,0.93),"stone_dk")             # walkway cap course
+    for sy in (-1,1):                                     # crenellated parapet on BOTH edges
+        for mx in (-0.34,0.0,0.34):
+            box(P,0.22,0.08,0.22,(mx,sy*0.16,1.05),"stone_dk")   # merlons (gaps between)
     return join(P,"wall")
 def wall_gate():
     P=[]
-    for s in (-1,1): box(P,0.5,0.6,1.7,(s*0.7,0,0.85),"stone")
-    box(P,1.0,0.6,0.35,(0,0,1.85),"stone")               # arch top
-    for s in (-1,1):
-        for x in (-0.18,0.0,0.18): box(P,0.16,0.62,0.18,(s*0.7+x*0.0,0,2.05),"stone_dk")
-    box(P,0.9,0.3,1.3,(0,0,0.65),"wood_dk")              # gate
+    for s in (-1,1):                                      # two gate towers
+        box(P,0.5,0.6,1.9,(s*0.7,0,0.95),"stone")
+        box(P,0.56,0.66,0.06,(s*0.7,0,1.93),"stone_dk")   # tower cap course
+        for mx in (-0.15,0.0,0.15):                       # tower-top merlons (stonework)
+            box(P,0.13,0.16,0.2,(s*0.7+mx,0,2.06),"stone_dk")
+    box(P,1.5,0.62,0.3,(0,0,1.55),"stone")                # lintel spanning tower to tower
+    box(P,1.5,0.66,0.06,(0,0,1.72),"stone_dk")            # lintel cap course
+    for mx in (-0.5,-0.25,0.0,0.25,0.5):                  # battlement over the gate
+        box(P,0.16,0.16,0.18,(mx,0,1.83),"stone_dk")
+    box(P,0.9,0.32,1.35,(0,0,0.675),"wood_dk")            # timber gate (under the lintel)
+    for gz in (0.35,0.85,1.2): box(P,0.94,0.34,0.05,(0,0,gz),"iron")  # iron braces
     return join(P,"wall_gate")
 def wall_corner():
-    P=[]; box(P,0.4,1.0,0.9,(0.3,0,0.45),"stone"); box(P,1.0,0.4,0.9,(0,0.3,0.45),"stone")
-    box(P,0.4,0.4,1.05,(0,0,0.52),"stone_dk")
+    P=[]
+    box(P,0.4,1.0,0.9,(0.3,0,0.45),"stone")               # arm along Y
+    box(P,1.0,0.4,0.9,(0,0.3,0.45),"stone")               # arm along X
+    box(P,0.5,0.5,1.15,(0,0,0.575),"stone")               # corner tower
+    box(P,0.56,0.56,0.06,(0,0,1.18),"stone_dk")           # tower cap
+    for mx,my in ((-0.15,-0.15),(0.15,-0.15),(-0.15,0.15),(0.15,0.15)):
+        box(P,0.14,0.14,0.2,(mx,my,1.3),"stone_dk")       # corner-tower merlons
+    for yy in (-0.3,0.0,0.3):                             # parapet along the +Y arm outer edge
+        box(P,0.1,0.18,0.2,(0.46,yy,1.05),"stone_dk")
+    for xx in (0.0,0.3):                                  # parapet along the +X arm outer edge
+        box(P,0.18,0.1,0.2,(xx,0.46,1.05),"stone_dk")
     return join(P,"wall_corner")
 
 def tile(name,c,h=0.1):
@@ -110,6 +129,7 @@ def path_corner():
 
 def well():
     P=[]; cyl(P,8,0.5,0.5,(0,0,0.25),"stone"); cyl(P,8,0.36,0.04,(0,0,0.5),"stone_dk")
+    cyl(P,12,0.3,0.16,(0,0,0.43),"soot")                 # black shaft hole (always black)
     for s in (-1,1): box(P,0.08,0.08,0.85,(s*0.42,0,0.65),"wood")
     box(P,0.95,0.08,0.08,(0,0,1.08),"wood"); cyl(P,6,0.05,0.5,(0,0,0.95),"wood",rot=(math.radians(90),0,0))
     gable(P,1.0,0.7,0.34,(0,0,1.12),"thatch",over=0.14); box(P,0.14,0.14,0.16,(0,0,0.66),"wood_dk")
@@ -189,8 +209,9 @@ def _piece(fn):
     return build
 
 
-#: Spec interface consumed by kit_pipeline.py / productize.py.
-PIECES = [(nm, _piece(fn)) for nm, fn in BUILD]
+#: Spec interface consumed by kit_pipeline.py / productize.py. The BUILD kit
+#: plus the shared grid-modular tile set (ground / paths / roads).
+PIECES = [(nm, _piece(fn)) for nm, fn in BUILD] + ALL_TILES
 
 
 def _main():
