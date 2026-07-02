@@ -34,11 +34,23 @@ def _bind(kit):
 def windmill():
     P=[]; cyl(P,8,0.6,1.8,(0,0,0.9),"stone"); cyl(P,8,0.5,0.4,(0,0,1.9),"stone_dk")
     cone(P,8,0.62,0,0.5,(0,0,2.25),"shake")               # wood-boarded mill cap
-    cyl(P,8,0.1,0.3,(0,-0.55,1.7),"wood",rot=(math.radians(90),0,0))   # hub
-    for a in range(4):
-        an=math.radians(a*90); box(P,0.08,0.05,1.1,(math.sin(an)*0.55,-0.7,1.7+math.cos(an)*0.0),"wood",rot=(0,an,0))
-        box(P,0.3,0.04,0.9,(math.sin(an)*0.55*1.0,-0.72,1.7),"cloth",rot=(0,an,0))
-    box(P,0.3,0.05,0.5,(0,-0.6,0.25),"wood_dk")
+    # sail hub + four LATTICE sails (X, flat/vertical) with white sailcloth,
+    # on an axle anchored into the tower (mirrors the kit_village_v1 windmill)
+    hz = 1.7
+    hub = (0.0, -0.7, hz)
+    R = 1.5                                                # sail radius
+    box(P,0.1,0.5,0.1,(0,-0.45,hz),"wood_dk")             # axle beam into tower
+    cyl(P,8,0.11,0.16,(0,-0.62,hz),"wood_dk",rot=(math.radians(90),0,0))  # hub
+    for deg in (45,135):
+        an=math.radians(deg)
+        sdx,sdz=math.sin(an),math.cos(an)                 # spar direction (XZ)
+        box(P,0.05,0.05,R,hub,"wood_dk",rot=(0,an,0))     # central spar
+        box(P,0.4,0.02,R*0.92,(hub[0],hub[1]-0.03,hub[2]),"bone",rot=(0,an,0))  # white sailcloth
+        for fr in (-0.8,-0.55,-0.3,0.3,0.55,0.8):         # sail battens
+            box(P,0.44,0.02,0.04,
+                (hub[0]+fr*sdx*(R/2),hub[1]-0.05,hub[2]+fr*sdz*(R/2)),
+                "wood_dk",rot=(0,math.radians(deg+90),0))
+    box(P,0.3,0.05,0.5,(0,-0.6,0.25),"wood_dk")           # door
     return join(P,"windmill")
 def ruined_house():
     P=[]; box(P,1.3,1.1,0.2,(0,0,0.1),"stone")           # floor slab
