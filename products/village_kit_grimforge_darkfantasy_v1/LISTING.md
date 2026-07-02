@@ -2,7 +2,7 @@
 `GrimForge Village Vol.1 — Dark-Fantasy Settlement (12 pieces)`
 
 ## Short description
-> 12 modular low-poly dark-fantasy pieces — tavern, cottage, blacksmith, chapel, windmill, watchtower, stable, market stall, palisade gate, well, hovel, foot bridge. GLB + glTF + OBJ + FBX + USD. Grid-modular for Godot, Unity, Unreal.
+> 24 modular low-poly dark-fantasy pieces — tavern, cottage, blacksmith, chapel, windmill, watchtower, stable, market stall, palisade gate, well, hovel, foot bridge, ground cobble, ground flagstone, ground gravel, ground moss, ground mud, path cross, path tee, path end, road straight, road corner, road cross, road tee. GLB + glTF + OBJ + FBX + USD. Grid-modular for Godot, Unity, Unreal.
 
 ## Tags
 `low-poly`, `dark-fantasy`, `occult`, `horror`, `medieval`, `modular`, `3D`, `kit`, `game-ready`, `GLB`, `glTF`, `FBX`, `USD`, `Godot`, `Unity`

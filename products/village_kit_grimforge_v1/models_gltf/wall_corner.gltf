@@ -59,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.131",
+			"name":"Cube.147",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":72,
+			"count":312,
 			"max":[
-				0.5,
-				0.6611111164093018,
+				0.5249999165534973,
+				1.0555555820465088,
 				0.5
 			],
 			"min":[
 				-2,
-				-0.5055555105209351,
-				-0.5
+				-0.5,
+				-0.5099999904632568
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":72,
+			"count":312,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":72,
+			"count":312,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":108,
+			"count":468,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":864,
+			"byteLength":3744,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":864,
-			"byteOffset":864,
+			"byteLength":3744,
+			"byteOffset":3744,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":576,
-			"byteOffset":1728,
+			"byteLength":2496,
+			"byteOffset":7488,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":216,
-			"byteOffset":2304,
+			"byteLength":936,
+			"byteOffset":9984,
 			"target":34963
 		}
 	],
@@ -165,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":2520,
+			"byteLength":10920,
 			"uri":"wall_corner.bin"
 		}
 	]

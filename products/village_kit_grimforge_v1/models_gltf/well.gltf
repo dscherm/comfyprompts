@@ -94,7 +94,7 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":246,
+			"count":318,
 			"max":[
 				0.5699999928474426,
 				1.2100000381469727,
@@ -110,45 +110,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":246,
+			"count":318,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":246,
+			"count":318,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":396,
+			"count":528,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":2952,
+			"byteLength":3816,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2952,
-			"byteOffset":2952,
+			"byteLength":3816,
+			"byteOffset":3816,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1968,
-			"byteOffset":5904,
+			"byteLength":2544,
+			"byteOffset":7632,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":792,
-			"byteOffset":7872,
+			"byteLength":1056,
+			"byteOffset":10176,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":8664,
+			"byteLength":11232,
 			"uri":"well.bin"
 		}
 	]
