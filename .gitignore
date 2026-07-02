@@ -125,3 +125,10 @@ tools/asset_generators/village_kit/godot_verify/aesthetic.txt
 
 # DissonantCity turntable GIFs — large (~48MB), regenerable via turntable_render.py + turntable_assemble.py
 products/dissonant_city_v1/gallery/*.gif
+
+# Soapbox Kart Kit — large/regenerable binaries (rebuild via tools/asset_generators/soapbox_kart/)
+products/soapbox_kart_kit_v1/models_glb/
+products/soapbox_kart_kit_v1/models_obj/
+products/soapbox_kart_kit_v1/models_fbx/
+products/soapbox_kart_kit_v1/mascots/
+products/soapbox_kart_kit_v1/gallery/*.gif
