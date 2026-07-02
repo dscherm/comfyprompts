@@ -1,6 +1,6 @@
-# GrimForge Modular Building Parts (22 pieces)
+# GrimForge Modular Building Parts (30 pieces)
 
-22 modular low-poly 3D pieces, shaded with a shared KayKit-style color atlas (wood/stone/thatch/stained-glass patterns baked in; `atlas_color.png` + `atlas_emit.png` shipped in the root), in the GrimForge medieval palette. Procedurally generated; original work.
+30 modular low-poly 3D pieces, shaded with a shared KayKit-style color atlas (wood/stone/thatch/stained-glass patterns baked in; `atlas_color.png` + `atlas_emit.png` shipped in the root), in the GrimForge medieval palette. Procedurally generated; original work.
 
 ## Formats
 - `models_glb/` — glTF binary (Godot, Unity, Unreal, Blender)
@@ -9,7 +9,7 @@
 - `models_fbx/` — Autodesk FBX (textures embedded)
 - `models_usd/` — Universal Scene Description (`.usdc`)
 
-## Pieces (22)
+## Pieces (30)
 - wall
 - wall plaster
 - wall wood
@@ -17,6 +17,11 @@
 - wall door
 - wall half
 - wall corner
+- wall arch
+- wall buttress
+- bay window
+- balcony
+- awning
 - floor
 - foundation
 - roof gable
@@ -31,6 +36,9 @@
 - arch
 - stairs
 - railing
+- porch
+- lean to
+- gate arch
 - house demo
 
 ## License

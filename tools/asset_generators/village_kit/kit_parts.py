@@ -372,11 +372,137 @@ def house_demo(k: Any) -> Any:
     return k.join(placed, "house_demo")
 
 
+# --------------------------------------------------------------------------- #
+# Extended building parts (all grounded — pass the §4b criteria)
+# --------------------------------------------------------------------------- #
+
+def wall_arch(k: Any) -> Any:
+    """A wall with an open arched bay (arcade / loggia)."""
+    P: list = []
+    for x in (-0.4, 0.4):
+        k.box(P, 0.2, WT, 1.0, (x, 0, 0.5), "stone")             # piers
+    for i in range(7):                                           # voussoir arch
+        a = math.radians(20 + i * 23)
+        k.box(P, 0.14, WT, 0.15, (math.cos(a) * 0.32, 0, 0.72 + math.sin(a) * 0.32),
+              "stone_dk", rot=(0, 0, a - math.radians(90)))
+    k.box(P, CELL, WT, 0.16, (0, 0, 0.92), "stone")              # spandrel
+    _base_course(k, P)
+    _cornice(k, P)
+    return k.join(P, "wall_arch")
+
+
+def wall_buttress(k: Any) -> Any:
+    """A stone wall with an angled buttress (grand / church walls)."""
+    P: list = []
+    k.box(P, CELL, WT, 1.0, (0, 0, 0.5), "stone")
+    _base_course(k, P)
+    _cornice(k, P)
+    k.box(P, 0.28, 0.32, 0.78, (0, -0.2, 0.39), "stone")         # buttress body
+    k.box(P, 0.28, 0.34, 0.26, (0, -0.28, 0.84), "stone_dk",
+          rot=(math.radians(34), 0, 0))                          # sloped weathering
+    k.box(P, 0.34, 0.4, 0.12, (0, -0.22, 0.06), "stone_dk")      # buttress base
+    return k.join(P, "wall_buttress")
+
+
+def bay_window(k: Any) -> Any:
+    """A wall with a projecting, glazed bay window under a small roof."""
+    P: list = []
+    k.box(P, CELL, WT, 1.0, (0, 0, 0.5), "stone")
+    _base_course(k, P)
+    _cornice(k, P)
+    k.box(P, 0.62, 0.32, 0.08, (0, -0.24, 0.2), "stone_dk")      # corbel
+    for x in (-0.31, 0.31):
+        k.box(P, 0.06, 0.32, 0.5, (x, -0.24, 0.5), "wood_dk")    # mullion posts
+    k.box(P, 0.52, 0.06, 0.44, (0, -0.4, 0.5), "gem")            # front glazing
+    for s in (-1, 1):
+        k.box(P, 0.06, 0.28, 0.44, (s * 0.3, -0.22, 0.5), "gem")  # side glazing
+    k.box(P, 0.7, 0.4, 0.1, (0, -0.24, 0.8), "shake")            # bay roof
+    return k.join(P, "bay_window")
+
+
+def porch(k: Any) -> Any:
+    """A covered entrance porch — posts, a step, and a lean-to roof."""
+    P: list = []
+    k.box(P, CELL, 0.5, 0.12, (0, -0.35, 0.06), "stone")         # step / platform
+    for x in (-0.4, 0.4):
+        k.box(P, 0.1, 0.1, 0.85, (x, -0.55, 0.55), "wood")       # posts
+        k.box(P, 0.16, 0.1, 0.12, (x, -0.5, 0.92), "wood_dk",
+              rot=(0, 0, 0))                                      # bracket
+    k.box(P, CELL + 0.1, 0.7, 0.08, (0, -0.35, 1.02), "shake",
+          rot=(math.radians(-18), 0, 0))                         # sloped roof
+    return k.join(P, "porch")
+
+
+def lean_to(k: Any) -> Any:
+    """A lean-to shed: a low back wall, posts, and a single-slope roof."""
+    P: list = []
+    k.box(P, CELL, WT, 0.8, (0, 0.42, 0.4), "wood")              # back wall
+    for x in (-0.42, 0.42):
+        k.box(P, 0.1, 0.1, 0.6, (x, -0.35, 0.3), "wood")         # front posts
+    k.box(P, CELL + 0.12, 0.95, 0.08, (0, 0.02, 0.72), "shake",
+          rot=(math.radians(20), 0, 0))                          # slope roof
+    k.box(P, CELL, 0.8, 0.06, (0, 0.05, -0.03), "dirt")          # floor
+    return k.join(P, "lean_to")
+
+
+def gate_arch(k: Any) -> Any:
+    """A wide arched gateway with timber doors (courtyard / town gate)."""
+    P: list = []
+    for x in (-0.42, 0.42):
+        k.box(P, 0.2, 0.3, 1.2, (x, 0, 0.6), "stone")            # piers
+    for i in range(9):                                           # arch ring
+        a = math.radians(12 + i * 19)
+        k.box(P, 0.18, 0.3, 0.18, (math.cos(a) * 0.42, 0, 1.18 + math.sin(a) * 0.42),
+              "stone_dk", rot=(0, 0, a - math.radians(90)))
+    k.box(P, 0.16, 0.3, 0.16, (0, 0, 1.62), "stone")             # keystone
+    for s in (-1, 1):
+        k.box(P, 0.3, 0.08, 1.1, (s * 0.16, 0, 0.55), "wood_dk")  # door leaves
+        for gz in (0.35, 0.75):
+            k.box(P, 0.34, 0.09, 0.06, (s * 0.16, 0, gz), "wood")  # ledges
+    return k.join(P, "gate_arch")
+
+
+def awning(k: Any) -> Any:
+    """A market-stall awning on a wall — striped cloth over brackets."""
+    P: list = []
+    k.box(P, CELL, WT, 1.0, (0, 0, 0.5), "plaster")
+    _base_course(k, P)
+    for x in (-0.4, 0.4):
+        k.box(P, 0.05, 0.4, 0.05, (x, -0.2, 0.72), "wood_dk",
+              rot=(math.radians(-30), 0, 0))                     # brackets
+    k.box(P, CELL, 0.5, 0.05, (0, -0.24, 0.86), "cloth_r",
+          rot=(math.radians(-16), 0, 0))                         # awning cloth
+    for x in (-0.3, 0.0, 0.3):
+        k.box(P, 0.12, 0.5, 0.055, (x, -0.24, 0.865), "cloth",
+              rot=(math.radians(-16), 0, 0))                     # stripes
+    return k.join(P, "awning")
+
+
+def balcony(k: Any) -> Any:
+    """A wall with a projecting balcony (deck + railing on brackets)."""
+    P: list = []
+    k.box(P, CELL, WT, 1.0, (0, 0, 0.5), "stone")
+    _base_course(k, P)
+    _cornice(k, P)
+    k.box(P, 0.34, WT, 0.5, (0, 0, 0.7), "wood_dk")              # door opening frame
+    for s in (-1, 1):
+        k.box(P, 0.06, 0.34, 0.06, (s * 0.16, -0.2, 0.5), "wood_dk",
+              rot=(math.radians(38), 0, 0))                      # support brackets
+    k.box(P, 0.9, 0.4, 0.06, (0, -0.24, 0.48), "wood")          # deck
+    for x in (-0.4, 0.0, 0.4):
+        k.box(P, 0.05, 0.05, 0.28, (x, -0.42, 0.63), "wood")     # rail posts
+    k.box(P, 0.9, 0.06, 0.05, (0, -0.42, 0.75), "wood_dk")       # handrail
+    return k.join(P, "balcony")
+
+
 WALL_PARTS = [
     ("wall", wall), ("wall_plaster", wall_plaster), ("wall_wood", wall_wood),
     ("wall_window", wall_window), ("wall_door", wall_door),
     ("wall_half", wall_half), ("wall_corner", wall_corner),
+    ("wall_arch", wall_arch), ("wall_buttress", wall_buttress),
+    ("bay_window", bay_window), ("balcony", balcony), ("awning", awning),
 ]
+EXTRA_PARTS = [("porch", porch), ("lean_to", lean_to), ("gate_arch", gate_arch)]
 FLOOR_PARTS = [("floor", floor), ("foundation", foundation)]
 ROOF_PARTS = [
     ("roof_gable", roof_gable), ("roof_slope", roof_slope),
@@ -387,8 +513,9 @@ STRUCT_PARTS = [
     ("pillar", pillar), ("post_beam", post_beam), ("arch", arch),
     ("stairs", stairs), ("railing", railing),
 ]
-#: The full modular building-parts vocabulary (21 parts).
-ALL_PARTS = WALL_PARTS + FLOOR_PARTS + ROOF_PARTS + OPENING_PARTS + STRUCT_PARTS
+#: The full modular building-parts vocabulary.
+ALL_PARTS = (WALL_PARTS + FLOOR_PARTS + ROOF_PARTS + OPENING_PARTS
+             + STRUCT_PARTS + EXTRA_PARTS)
 
 __all__ = ["WALL_PARTS", "FLOOR_PARTS", "ROOF_PARTS", "OPENING_PARTS",
-           "STRUCT_PARTS", "ALL_PARTS", "CELL", "WT"]
+           "STRUCT_PARTS", "EXTRA_PARTS", "ALL_PARTS", "CELL", "WT"]
