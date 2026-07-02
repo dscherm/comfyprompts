@@ -4,27 +4,31 @@ import math
 import os
 import sys
 
-import bpy
-import mathutils
-
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from kitlib import PALETTE, Kit, hex_to_rgba as Hx  # noqa: E402  (sys.path tweak above)
+from kitlib import Kit  # noqa: E402  (sys.path tweak above)
 
-# Output dir: pass `-- <dir>` on the Blender command line, else the default.
-_argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
-D = _argv[0] if _argv else \
-    "C:/Users/scher/AppData/Local/Temp/claude/D--Projects-comfyui-toolchain/25899eda-2041-4e64-a0a8-0c83c9100526/scratchpad"
-GLB = f"{D}/kit2_glb"; os.makedirs(GLB, exist_ok=True)
+TITLE = "GrimForge Village Vol.2 — Medieval Expansion Kit (23 pieces)"
+AESTHETIC = "medieval"
+# Vol.2 used a lighter "bone" (d8d0bc vs the canonical c4bba2) and a brighter
+# emissive "window" (2.0 vs the default 1.5); both are preserved as spec overrides
+# so regenerated assets are byte-stable. kit_pipeline/productize apply these when
+# constructing the Kit.
+PALETTE_OVERRIDE = {"bone": "d8d0bc"}
+EMISSION_OVERRIDE = {"fire": 2.0, "window": 2.0}
 
-# The GrimForge primitive vocabulary now lives in kitlib. Vol.2 used a lighter
-# "bone" (d8d0bc vs the canonical c4bba2) and a brighter emissive "window"
-# (2.0 vs the default 1.5); both are preserved here so regenerated assets are
-# byte-stable. Binding the kit's methods to local names keeps every builder
-# call site below unchanged.
-k = Kit(palette={**PALETTE, "bone": "d8d0bc"},
-        emission={"fire": 2.0, "window": 2.0}, reset_scene=True)
-sc = k.scene
-box, cyl, cone, ico, gable, join = k.box, k.cyl, k.cone, k.ico, k.gable, k.join
+# The primitive helpers are bound to a Kit at build time — by productize/
+# kit_pipeline through the PIECES spec adapter (_bind), or by the standalone
+# __main__ path below — so every builder call site stays unchanged as bare
+# ``box(...)`` / ``join(...)``.
+box = cyl = cone = ico = gable = join = None
+
+
+def _bind(kit):
+    """Point the module-level primitive helpers at ``kit``'s bound methods."""
+    global box, cyl, cone, ico, gable, join
+    box, cyl, cone, ico, gable, join = (
+        kit.box, kit.cyl, kit.cone, kit.ico, kit.gable, kit.join
+    )
 
 def windmill():
     P=[]; cyl(P,8,0.6,1.8,(0,0,0.9),"stone"); cyl(P,8,0.5,0.4,(0,0,1.9),"stone_dk")
@@ -116,7 +120,7 @@ def trough():
     for x in (-0.42,0.42): box(P,0.08,0.4,0.34,(x,0,0.17),"wood_dk")
     return join(P,"trough")
 def weapon_rack():
-    P=[]; box(P,0.7,0.18,0.1,(0,0,0.05),"wood");
+    P=[]; box(P,0.7,0.18,0.1,(0,0,0.05),"wood")
     for x in (-0.28,0.28): box(P,0.06,0.06,0.9,(x,0,0.45),"wood")
     box(P,0.7,0.06,0.06,(0,0,0.85),"wood_dk")
     for x in (-0.18,0.0,0.18): cyl(P,6,0.02,0.9,(x,0,0.45),"iron")     # spears
@@ -163,26 +167,85 @@ BUILD=[("windmill",windmill),("ruined_house",ruined_house),("stable",stable),("g
  ("anvil",anvil),("trough",trough),("weapon_rack",weapon_rack),("gibbet",gibbet),("bone_pile",bone_pile),
  ("crypt",crypt),("pine",pine),("stump",stump),("rocks",rocks),("bush",bush)]
 
-placed=[]
-for i,(nm,fn) in enumerate(BUILD):
-    o=fn(); bpy.ops.object.select_all(action='DESELECT'); o.select_set(True); bpy.context.view_layer.objects.active=o
-    bpy.ops.export_scene.gltf(filepath=f"{GLB}/{nm}.glb",export_format='GLB',use_selection=True)
-    col=i%6; row=i//6; o.location=(col*2.4-6,-row*2.4+4,0); placed.append(o)
+def _piece(fn):
+    """Adapt a zero-arg BUILD builder into a spec builder ``fn(kit) -> obj``."""
+    def build(kit):
+        _bind(kit)
+        return fn()
+    return build
 
-box([],40,40,0.1,(0,0,-0.06),"stone_dk")
-sun=bpy.data.objects.new("S",bpy.data.lights.new("S",'SUN')); sc.collection.objects.link(sun)
-sun.data.energy=3.0; sun.data.angle=math.radians(5); sun.rotation_euler=(math.radians(52),math.radians(10),math.radians(35))
-fl=bpy.data.objects.new("F",bpy.data.lights.new("F",'SUN')); sc.collection.objects.link(fl)
-fl.data.energy=1.1; fl.data.use_shadow=False; fl.rotation_euler=(math.radians(62),0,math.radians(215))
-sc.world=bpy.data.worlds.new("W"); sc.world.use_nodes=True
-bg=sc.world.node_tree.nodes["Background"]; bg.inputs[1].default_value=0.55; bg.inputs[0].default_value=Hx("8a96a2")
-sc.view_settings.view_transform='Standard'
-cam=bpy.data.objects.new("C",bpy.data.cameras.new("C")); sc.collection.objects.link(cam); sc.camera=cam
-cam.data.type='ORTHO'; cam.data.ortho_scale=16; cam.location=(0,-12,16)
-look=mathutils.Vector((0,0,0))-mathutils.Vector(cam.location); cam.rotation_euler=look.to_track_quat('-Z','Y').to_euler()
-sc.render.engine='BLENDER_EEVEE'
-try: sc.eevee.taa_render_samples=48
-except Exception: pass
-sc.render.resolution_x=1500; sc.render.resolution_y=1100; sc.render.filepath=f"{D}/kit2_catalog.png"
-bpy.ops.render.render(write_still=True)
-print("VOL2 DONE pieces:",len(BUILD))
+
+#: Spec interface consumed by kit_pipeline.py / productize.py.
+PIECES = [(nm, _piece(fn)) for nm, fn in BUILD]
+
+
+def _main():
+    """Standalone catalog build (``blender -b --python kit_vol2.py -- <dir>``)."""
+    import bpy
+    import mathutils
+    from kitlib import PALETTE
+    from kitlib import hex_to_rgba as Hx
+
+    argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
+    D = argv[0] if argv else os.path.dirname(os.path.abspath(__file__))
+    glbdir = f"{D}/kit2_glb"
+    os.makedirs(glbdir, exist_ok=True)
+    k = Kit(
+        palette={**PALETTE, **PALETTE_OVERRIDE},
+        emission={"fire": 2.0, "window": 2.0, **EMISSION_OVERRIDE},
+        reset_scene=True,
+    )
+    sc = k.scene
+    _bind(k)
+    placed = []
+    for i, (nm, fn) in enumerate(BUILD):
+        o = fn()
+        bpy.ops.object.select_all(action="DESELECT")
+        o.select_set(True)
+        bpy.context.view_layer.objects.active = o
+        bpy.ops.export_scene.gltf(
+            filepath=f"{glbdir}/{nm}.glb", export_format="GLB", use_selection=True
+        )
+        col, row = i % 6, i // 6
+        o.location = (col * 2.4 - 6, -row * 2.4 + 4, 0)
+        placed.append(o)
+
+    box([], 40, 40, 0.1, (0, 0, -0.06), "stone_dk")
+    sun = bpy.data.objects.new("S", bpy.data.lights.new("S", "SUN"))
+    sc.collection.objects.link(sun)
+    sun.data.energy = 3.0
+    sun.data.angle = math.radians(5)
+    sun.rotation_euler = (math.radians(52), math.radians(10), math.radians(35))
+    fl = bpy.data.objects.new("F", bpy.data.lights.new("F", "SUN"))
+    sc.collection.objects.link(fl)
+    fl.data.energy = 1.1
+    fl.data.use_shadow = False
+    fl.rotation_euler = (math.radians(62), 0, math.radians(215))
+    sc.world = bpy.data.worlds.new("W")
+    sc.world.use_nodes = True
+    bg = sc.world.node_tree.nodes["Background"]
+    bg.inputs[1].default_value = 0.55
+    bg.inputs[0].default_value = Hx("8a96a2")
+    sc.view_settings.view_transform = "Standard"
+    cam = bpy.data.objects.new("C", bpy.data.cameras.new("C"))
+    sc.collection.objects.link(cam)
+    sc.camera = cam
+    cam.data.type = "ORTHO"
+    cam.data.ortho_scale = 16
+    cam.location = (0, -12, 16)
+    look = mathutils.Vector((0, 0, 0)) - mathutils.Vector(cam.location)
+    cam.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()
+    sc.render.engine = "BLENDER_EEVEE"
+    try:
+        sc.eevee.taa_render_samples = 48
+    except Exception:
+        pass
+    sc.render.resolution_x = 1500
+    sc.render.resolution_y = 1100
+    sc.render.filepath = f"{D}/kit2_catalog.png"
+    bpy.ops.render.render(write_still=True)
+    print("VOL2 DONE pieces:", len(BUILD))
+
+
+if __name__ == "__main__":
+    _main()

@@ -1,57 +1,43 @@
-# GrimForge Village — Low-Poly Medieval Kit (Vol. 1)
+# GrimForge Village Vol.1 — Medieval Village Kit (28 pieces)
 
-28 modular low-poly 3D pieces for building grim, weathered medieval villages.
-Solid-color flat-shaded style, grid-modular, game-ready.
-
-## Contents (28 pieces)
-
-**Buildings (8):** cottage, house_small, house_tall, tavern, church, barn,
-watchtower, blacksmith — Tudor timber framing, jetty overhangs, gable roofs,
-stone chimneys, glowing windows.
-
-**Walls & structures (3):** wall segment (crenellated), gatehouse, wall corner.
-
-**Ground & paths (4):** grass tile, dirt tile, cobble path (straight), cobble
-path (corner).
-
-**Props (13):** well, market stall, barrel, crate, fence, tree, dead tree,
-lamppost, brazier (glowing), signpost, cart, haystack, gravestone.
+28 modular low-poly 3D pieces, shaded with a shared KayKit-style color atlas (wood/stone/thatch/stained-glass patterns baked in; `atlas_color.png` + `atlas_emit.png` shipped in the root), in the GrimForge medieval palette. Procedurally generated; original work.
 
 ## Formats
-- `models_glb/` — **GLB** (recommended; native in Godot, imports to Unity/Unreal/Blender)
-- `models_obj/` — OBJ (+ .mtl)
-- `models_fbx/` — FBX
+- `models_glb/` — glTF binary (Godot, Unity, Unreal, Blender)
+- `models_gltf/` — glTF separate (`.gltf` + `.bin` + textures)
+- `models_obj/` — Wavefront OBJ + MTL
+- `models_fbx/` — Autodesk FBX (textures embedded)
+- `models_usd/` — Universal Scene Description (`.usdc`)
 
-Color is baked into **vertex colors** with a soft top-light gradient (the
-low-poly "shaded" look) — no texture files to mip-blur or break across engines.
-**GLB is recommended** (Godot/Unity/Unreal read the vertex-color shading); FBX
-also carries vertex colors; OBJ is geometry (flat — assign color in-engine or
-use GLB/FBX).
-
-## Modular system
-All pieces are built on a **1-unit grid**, centered at origin with the base at
-Y=0 (Godot) / Z=0 (Blender). Wall and path pieces tile edge-to-edge; rotate in
-90° steps to build layouts. Buildings sit on a tile.
-
-## Use
-- **Godot 4:** drag the `.glb` files into your project; instance them as scenes.
-  A ready example village scene is in `examples/godot_village/` (open `village.tscn`).
-- **Unity:** import the GLBs (glTF) or the FBX; drop prefabs on a grid.
-- **Blender / Unreal:** import GLB or FBX.
-- Flat-shaded low-poly — use a single directional light + soft ambient for the
-  intended look; the brazier/forge/windows are emissive.
-
-## Style
-GrimForge dark-fantasy palette: weathered timber, mossy stone, slate/thatch
-roofs, muted earth tones with torch-orange glow accents. Pairs with the
-GrimForge concept-art LoRA and texture pack.
+## Pieces (28)
+- cottage
+- house small
+- house tall
+- tavern
+- church
+- barn
+- tower
+- blacksmith
+- wall
+- wall gate
+- wall corner
+- ground grass
+- ground dirt
+- path straight
+- path corner
+- well
+- market stall
+- barrel
+- crate
+- fence
+- tree
+- tree dead
+- lamppost
+- brazier
+- signpost
+- cart
+- haystack
+- gravestone
 
 ## License
-Royalty-free for personal & commercial projects. Do not resell/redistribute the
-raw kit files as an asset pack. Procedurally generated; no third-party IP.
-
-## Images
-- `hero.png` — assembled village (dusk).
-- `gallery_buildings.png` — hero-building close-ups.
-- `catalog.png` — all 28 pieces.
-- `examples/godot_village/` — runnable Godot 4 scene.
+Royalty-free for commercial and personal use. Outputs are procedurally generated; disclose AI assistance where required.
