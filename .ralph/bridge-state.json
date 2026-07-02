@@ -386,9 +386,10 @@
     {
       "id": "MV3",
       "title": "MV3",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260702021725-0000000",
+      "activated_at": "2026-07-02T02:17:25.456482+00:00"
     },
     {
       "id": "MV4",
@@ -414,18 +415,19 @@
     {
       "id": "MV1",
       "title": "MV1",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260701133125-0000000",
+      "activated_at": "2026-07-01T13:31:25.294817+00:00"
     }
   ],
-  "current_task_index": 47,
+  "current_task_index": 54,
   "stats": {
-    "tasks_completed": 6,
+    "tasks_completed": 8,
     "tasks_failed": 0,
-    "gate_passes": 5,
+    "gate_passes": 7,
     "gate_fails": 0,
-    "observations_recorded": 18
+    "observations_recorded": 24
   },
   "config": {
     "interactive_mode": true,
@@ -434,5 +436,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-07-01T13:27:39.000111+00:00"
+  "updated_at": "2026-07-02T21:21:36.583099+00:00"
 }

@@ -1373,7 +1373,7 @@ TRELLIS.2 (stretch, better hand topology) is NOT installed.
   "files": ["workflows/mcp/", "packages/mcp-server/"],
   "acceptance_criteria": ["New workflow JSON validates (validate_workflow) and smoke-tests to a GLB on GPU", "MCP tool registered and callable with 4 view images"],
   "steps": ["Draft the API-format workflow", "Validate + GPU smoke-test", "Parameterize + register the MCP tool"],
-  "passes": false
+  "passes": true
 }
 ```
 

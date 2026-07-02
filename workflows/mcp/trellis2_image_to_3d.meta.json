@@ -1,0 +1,67 @@
+{
+  "name": "TRELLIS.2 Image to 3D",
+  "description": "Single-view image to 3D mesh generation using Microsoft TRELLIS.2-4B (ComfyUI-Trellis2). Geometry-only, high-quality cascaded pipeline: DINOv3 image conditioning -> sparse structure -> shape latent (1024) -> shape cascade (1536) -> mesh decode -> hole fill -> quad remesh -> simplify -> GLB export. Produces cleaner topology than single-view Hunyuan3D 2.0, which helps avoid webbed/fused fingers on spread-hand character poses. Runs on the 24GB RTX 3090 Ti. TRELLIS.2-4B auto-downloads (multi-GB) on first run.",
+  "requirements": {
+    "nodes": [
+      "Trellis2LoadModel",
+      "Trellis2LoadImageWithTransparency",
+      "Trellis2PreProcessImage",
+      "Trellis2ImageCondGenerator",
+      "Trellis2SparseGenerator",
+      "Trellis2ShapeGenerator",
+      "Trellis2ShapeCascadeGenerator",
+      "Trellis2DecodeLatents",
+      "Trellis2FillHolesWithCuMesh",
+      "Trellis2ReconstructMeshWithQuad",
+      "Trellis2SimplifyMesh",
+      "Trellis2FillHolesNicelyWithMeshlib",
+      "Trellis2MeshWithVoxelToTrimesh",
+      "Trellis2ExportMesh"
+    ],
+    "models": {
+      "trellis2": [
+        "microsoft/TRELLIS.2-4B"
+      ]
+    },
+    "custom_nodes": [
+      "ComfyUI-Trellis2"
+    ],
+    "python_dependencies": [
+      "rembg (used by Trellis2PreProcessImage when remove_background=true; present, v2.0.67)",
+      "xformers OR flash_attn (REQUIRED for the sparse windowed-attention transformer; trellis2/modules/sparse/attention/windowed_attn.py has NO torch-SDPA fallback. NOT installed in D:/Projects/ComfyUI/venv as of 2026-07-02 -> sparse generation raises 'No module named flash_attn'/'xformers'. Install one matching torch 2.9.1+cu126 into the venv and launch ComfyUI from the venv.)"
+    ],
+    "vram_minimum_gb": 12,
+    "vram_recommended_gb": 24
+  },
+  "parameters": {
+    "PARAM_STR_IMAGE_PATH": {
+      "type": "string",
+      "description": "Filename of the input image staged in the ComfyUI input directory (single-view, ideally a clean subject on a plain/transparent background).",
+      "default": "trellis_test.png",
+      "required": true
+    },
+    "PARAM_INT_SEED": {
+      "type": "int",
+      "description": "Random seed for the sparse-structure generation stage. Omit for a random seed.",
+      "default": 12345,
+      "min": 0,
+      "max": 4294967295
+    }
+  },
+  "outputs": {
+    "geometry_glb": "3D/trellis_test_*.glb"
+  },
+  "category": "3d",
+  "tags": [
+    "3d",
+    "mesh",
+    "trellis",
+    "trellis2",
+    "image-to-3d",
+    "single-view",
+    "geometry",
+    "topology"
+  ],
+  "estimated_time_seconds": 240,
+  "notes": "HighQuality preset ported from ComfyUI-Trellis2 example_workflows/MeshOnly_HighQuality.json. Geometry-only (no texture SLAT decode). Shape cascade targets 1536 resolution and simplifies to ~1M faces before GLB export. First invocation triggers a multi-GB auto-download of TRELLIS.2-4B via ComfyUI (allow 5-15 min); subsequent runs are ~2-4 min on a 3090 Ti (model is already downloaded, 16GB). Intended as an A/B against hunyuan3d single-view for the spread-finger webbing failure mode. VALIDATED (workflow_validator PASS). SMOKE TEST BLOCKED 2026-07-02: sparse generation needs xformers or flash_attn (missing from the ComfyUI environment); no code/parameter workaround exists because windowed_attn has no SDPA fallback. Two pipeline bugs were fixed during authoring: (1) set remove_background=true so Trellis2PreProcessImage works on RGB (non-alpha) inputs -- the node unconditionally indexes an alpha channel; (2) exact API input ordering restored from /object_info (UI widget order differs, and the seed 'control_after_generate' widget value must be dropped)."
+}
