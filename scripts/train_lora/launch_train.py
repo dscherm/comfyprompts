@@ -140,6 +140,10 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("--base", default=DEFAULT_BASE, help="Base model (HF repo id or local path).")
     ap.add_argument("--hf-cache", default=DEFAULT_HF_CACHE, help="HF_HUB_CACHE for the base model.")
     ap.add_argument("--cuda-device", default="1", help="Physical GPU index (PCI order). 1 = 3090 Ti.")
+    ap.add_argument("--sample-prompts", default=None,
+                    help="Semicolon-separated in-training sample prompts (use [trigger]). "
+                         "Pass DOMAIN-appropriate prompts for non-fantasy LoRAs — the default "
+                         "prompts are GrimForge/fantasy and mislead progress previews otherwise.")
     ap.add_argument("--config-out", default=None,
                     help="Where to write the config json (default scripts/train_lora/configs/<name>.json).")
     ap.add_argument("--no-launch", action="store_true",
@@ -151,9 +155,14 @@ def main(argv: list[str] | None = None) -> int:
         ap.error(f"--dataset is not a directory: {ds}")
     resolutions = [int(r) for r in args.resolutions.split(",")]
 
+    sample_prompts = None
+    if args.sample_prompts:
+        sample_prompts = [p.strip() for p in args.sample_prompts.split(";") if p.strip()]
+
     cfg = build_config(
         dataset=args.dataset, name=args.name, trigger=args.trigger, steps=args.steps,
         rank=args.rank, resolutions=resolutions, output=args.output, base=args.base,
+        sample_prompts=sample_prompts,
     )
 
     cfg_path = Path(args.config_out) if args.config_out else (
