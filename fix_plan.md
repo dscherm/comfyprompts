@@ -102,15 +102,13 @@ reshipped in atlas mode, `kit_quality_check` PASS (0 must), Godot showcases
 rebuilt + verified.
 
 **Remaining next steps (do in order):**
-1. **Legacy v1/v2 kits** — `village_kit_grimforge_v1` / `_v2` are built from
-   `kit_full.py` / `kit_vol2.py`, which are pre-spec STANDALONE scripts (no
-   `PIECES`/`TITLE`, and they run the build at import time). They can't be driven
-   by `productize --atlas` as-is. To atlas-ify: refactor each into a spec
-   (move the build/render block under `if __name__ == "__main__"`, convert the
-   global-helper builders `box(P,...)` → `fn(k)` returning a joined obj, add
-   `PIECES`/`TITLE`/`AESTHETIC`). Watch the byte-for-byte reproduction contract
-   in kitlib.py's docstring. (User asked for "all kit products" — this is the
-   remaining slice.)
+1. [x] **Legacy v1/v2 kits** — DONE (e942260). `kit_full.py` / `kit_vol2.py`
+   refactored from pre-spec standalone scripts into importable specs
+   (`PIECES`/`TITLE`/`AESTHETIC`, kit_vol2 also `PALETTE_OVERRIDE`/
+   `EMISSION_OVERRIDE`; `_bind(kit)` adapter binds the primitive helpers at build
+   time; build/render moved under `__main__`) — geometry bodies unchanged.
+   `village_kit_grimforge_v1` (28 pcs) + `_v2` (23 pcs) reshipped in atlas mode,
+   gate PASS. **All 5 GrimForge kit products are now atlas.**
 2. The OTHER big lever: **modular parts + 200+ density** (task above).
 3. **beveled-box/edge-bevel** + **trim helpers** + **grid-quantize/base-pivot**
    passes (tasks above). Bevels feed the tri band already being reported.
