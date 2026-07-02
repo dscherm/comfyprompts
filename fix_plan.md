@@ -110,6 +110,12 @@ rebuilt + verified.
    `village_kit_grimforge_v1` (28 pcs) + `_v2` (23 pcs) reshipped in atlas mode,
    gate PASS. **All 5 GrimForge kit products are now atlas.**
 2. The OTHER big lever: **modular parts + 200+ density** (task above).
+   - [x] Ground/path/road **tile set** started (`kit_tiles.py`, `ALL_TILES`):
+     cobble/flagstone/gravel/moss/mud grounds, dirt path cross/tee/end, cobble
+     road straight/corner/cross/tee — grid-modular 1x1, spliced into the four
+     environment kits (village v1 40, v2 35, df-village/city 24 each). New atlas
+     patterns: shingle (roofs), cobble, gravel. Still TODO: building parts
+     (wall/floor/door/window/roof-slope) toward 200+.
 3. **beveled-box/edge-bevel** + **trim helpers** + **grid-quantize/base-pivot**
    passes (tasks above). Bevels feed the tri band already being reported.
 
