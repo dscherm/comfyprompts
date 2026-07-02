@@ -6,10 +6,21 @@ GrimForge aesthetic. Built on kitlib via kit_pipeline / productize.
 
 import math
 
-from kit_occult import skull  # shared low-poly skull
+from kit_occult import skull as _occult_skull  # shared low-poly skull (gated below)
 
 TITLE = "GrimForge Village Vol.1 — Dark-Fantasy Settlement (12 pieces)"
 AESTHETIC = "occult"
+
+# Medieval variants import these builders and set OCCULT = False to drop the
+# occult/derelict dressing (skulls, flame-sigil banners, boarded/broken/leaning
+# elements) — see kit_village_medieval.py.
+OCCULT = True
+
+
+def skull(k, P, *args, **kwargs):
+    """Skull dressing — suppressed when OCCULT is False (medieval variants)."""
+    if OCCULT:
+        _occult_skull(k, P, *args, **kwargs)
 
 # Darken the whole kit to the grim/occult tone: remap the light building
 # material names to dark values so every piece reads grim (ember/crimson
@@ -46,8 +57,12 @@ def _ember_win_y(k, P, cx, cz, fy, w=0.22, h=0.26):
 
 
 def _boarded_win_y(k, P, cx, cz, fy, w=0.22, h=0.26):
-    """A boarded-up window: dark recess with askew planks nailed across it."""
+    """A boarded-up window (dark recess + askew planks); a clean lit window when
+    OCCULT is False."""
     k.box(P, w + 0.06, 0.05, h + 0.06, (cx, fy + 0.04, cz), "soot")
+    if not OCCULT:
+        k.box(P, w, 0.04, h, (cx, fy + 0.005, cz), "ember")          # clean lit pane
+        return
     for i, bz in enumerate((-h * 0.32, 0.0, h * 0.32)):
         k.box(P, w + 0.05, 0.05, 0.07, (cx, fy + 0.005, cz + bz), "wood_dk",
               rot=(0, math.radians((i - 1) * 7), 0))
@@ -60,8 +75,11 @@ def _ember_win_x(k, P, cy, cz, fx, w=0.22, h=0.26):
 
 
 def _boarded_win_x(k, P, cy, cz, fx, w=0.22, h=0.26):
-    """Boarded-up window on a RIGHT wall (face at x=fx, +x outward)."""
+    """Boarded-up window on a RIGHT wall; a clean lit window when OCCULT is False."""
     k.box(P, 0.05, w + 0.06, h + 0.06, (fx - 0.04, cy, cz), "soot")
+    if not OCCULT:
+        k.box(P, 0.04, w, h, (fx - 0.005, cy, cz), "ember")          # clean lit pane
+        return
     for i, bz in enumerate((-h * 0.32, 0.0, h * 0.32)):
         k.box(P, 0.06, w + 0.05, 0.07, (fx - 0.005, cy, cz + bz), "wood_dk",
               rot=(0, 0, math.radians((i - 1) * 7)))
@@ -86,14 +104,15 @@ def cottage(k):
     # side windows (flush): lit on the left, boarded on the right
     _ember_win_x(k, P, 0.05, 0.7, lfx)
     _boarded_win_x(k, P, 0.05, 0.7, rfx)
-    # --- covered FRONT PORCH: deck, posts, plates, shed roof ---
-    pd = 0.55
-    k.box(P, w, pd + 0.08, 0.14, (0, ffy - pd / 2, 0.2), "wood")               # deck
-    for px in (-w / 2 + 0.12, w / 2 - 0.12):
-        k.box(P, 0.08, 0.08, 0.74, (px, ffy - pd + 0.06, 0.6), "wood_dk")       # posts
-        k.box(P, 0.06, pd, 0.06, (px, ffy - pd / 2, 0.96), "wood_dk")           # plates
-    k.box(P, w + 0.16, pd + 0.22, 0.06, (0, ffy - pd / 2 + 0.02, 0.98),
-          "thatch_dk", rot=(math.radians(-15), 0, 0))                          # shed roof
+    # --- covered FRONT PORCH (occult cottage only): deck, posts, plates, shed roof ---
+    if OCCULT:
+        pd = 0.55
+        k.box(P, w, pd + 0.08, 0.14, (0, ffy - pd / 2, 0.2), "wood")           # deck
+        for px in (-w / 2 + 0.12, w / 2 - 0.12):
+            k.box(P, 0.08, 0.08, 0.74, (px, ffy - pd + 0.06, 0.6), "wood_dk")   # posts
+            k.box(P, 0.06, pd, 0.06, (px, ffy - pd / 2, 0.96), "wood_dk")       # plates
+        k.box(P, w + 0.16, pd + 0.22, 0.06, (0, ffy - pd / 2 + 0.02, 0.98),
+              "thatch_dk", rot=(math.radians(-15), 0, 0))                      # shed roof
     # centered plank door under the porch (slightly ajar, no glowing pane)
     dz = 0.46
     k.box(P, 0.34, 0.06, 0.66, (0, ffy + 0.06, dz), "soot")                   # dark doorway recess
@@ -112,7 +131,8 @@ def cottage(k):
               "stone" if i % 2 == 0 else "stone_dk")
     k.box(P, 0.3, 0.32, 0.08, (0, byy, 1.84), "stone")                        # cap
     obj = k.join(P, "cottage")
-    obj.rotation_euler = (math.radians(2.5), 0, math.radians(2))             # slight lean
+    if OCCULT:
+        obj.rotation_euler = (math.radians(2.5), 0, math.radians(2))         # slight lean
     return obj
 
 
@@ -131,8 +151,10 @@ def _x_window(k, P, cx, cz, fy, w=0.24, h=0.26):
     """Shuttered/leaded window with an X muntin on a -y plaster face."""
     k.box(P, w + 0.05, 0.05, h + 0.05, (cx, fy + 0.02, cz), "soot")       # recess
     k.box(P, w, 0.04, h, (cx, fy, cz), "ember")                          # warm glow
-    for dd in (1, -1):                                                   # X muntins
-        k.box(P, w, 0.03, 0.03, (cx, fy - 0.03, cz), "wood_dk", rot=(0, math.radians(dd * 45), 0))
+    if OCCULT:                                                          # X muntins (occult only)
+        for dd in (1, -1):
+            k.box(P, w, 0.03, 0.03, (cx, fy - 0.03, cz), "wood_dk",
+                  rot=(0, math.radians(dd * 45), 0))
 
 
 def tavern(k):
@@ -161,8 +183,7 @@ def tavern(k):
     z1 = bt + gh
     ufy = -ud / 2
     k.box(P, uw, ud, uh, (0, 0, z1 + uh / 2), "bone")                    # cream plaster
-    _timber_frame_front(k, P, uw, ufy, z1, uh)
-    for s in (-1, 1):                                                    # side framing
+    for s in (-1, 1):                                                    # side framing only
         k.box(P, 0.05, ud, uh, (s * uw / 2, 0, z1 + uh / 2), "charwood")
     _x_window(k, P, -0.55, z1 + 0.4, ufy)
     _x_window(k, P, 0.55, z1 + 0.4, ufy)
@@ -198,12 +219,16 @@ def tavern(k):
     k.box(P, 0.42, 0.05, 0.32, (sbx, endy, sz - 0.38), "crimson")              # board
     k.box(P, 0.22, 0.06, 0.18, (sbx, endy - 0.03, sz - 0.38), "gold")          # emblem
     obj = k.join(P, "tavern")
-    obj.rotation_euler = (math.radians(1.5), 0, math.radians(-2))       # gentle crooked lean
+    if OCCULT:
+        obj.rotation_euler = (math.radians(1.5), 0, math.radians(-2))   # gentle crooked lean
     return obj
 
 
 def _cow_skull(k, P, cx, cy, cz, s=0.12):
-    """A long ox/cow skull facing -y with two big up-and-out curved horns."""
+    """A long ox/cow skull facing -y with two big up-and-out curved horns
+    (suppressed when OCCULT is False)."""
+    if not OCCULT:
+        return
     k.box(P, s * 1.5, s * 1.4, s * 1.0, (cx, cy, cz), "bone")                  # cranium
     k.box(P, s * 0.9, s * 0.9, s * 0.7, (cx, cy - s * 0.95, cz - s * 0.35), "bone")  # snout
     for sx in (-1, 1):
@@ -306,7 +331,7 @@ def blacksmith(k):
     return obj
 
 
-def _gothic_window(k, P, cx, cz, fy, w=0.13, h=0.4, glow="ghostfire"):
+def _gothic_window(k, P, cx, cz, fy, w=0.13, h=0.4, glow="gem"):
     """A tall pointed-arch lancet window on a -y face (surround + glow + point)."""
     k.box(P, w + 0.06, 0.05, h + 0.05, (cx, fy + 0.04, cz), "stone_dk")
     k.box(P, w, 0.04, h, (cx, fy + 0.01, cz), glow)
@@ -328,7 +353,7 @@ def chapel(k):
         for yy in (ncy - 0.6, ncy + 0.2, ncy + 0.9):                       # buttresses
             k.box(P, 0.16, 0.16, nh * 0.8, (s * nw / 2, yy, bt + nh * 0.4), "stone_dk")
         for yy in (ncy - 0.3, ncy + 0.5):                                  # side lancets
-            k.box(P, 0.05, 0.12, 0.42, (s * nw / 2, yy, bt + 0.85), "ghostfire")
+            k.box(P, 0.05, 0.12, 0.42, (s * nw / 2, yy, bt + 0.85), "gem")
     # === dominant STEEPLE tower (front) ===
     tw, tz, tcy = 0.95, 3.6, -0.85
     tfy = tcy - tw / 2
@@ -341,7 +366,7 @@ def chapel(k):
     # rose window on the front
     rwz = bt + tz * 0.52
     k.cyl(P, 12, 0.28, 0.05, (0, tfy + 0.03, rwz), "stone_dk", rot=(math.radians(90), 0, 0))
-    k.cyl(P, 12, 0.22, 0.05, (0, tfy + 0.01, rwz), "ghostfire", rot=(math.radians(90), 0, 0))
+    k.cyl(P, 12, 0.22, 0.05, (0, tfy + 0.01, rwz), "gem", rot=(math.radians(90), 0, 0))
     for a in range(6):                                                    # tracery spokes
         k.box(P, 0.42, 0.03, 0.03, (0, tfy - 0.02, rwz), "stone_dk",
               rot=(0, math.radians(a * 30), 0))
@@ -352,8 +377,11 @@ def chapel(k):
             an = math.radians(180 * a / 6)
             k.box(P, 0.1, 0.1, 0.13, (math.cos(an) * rr, yy, pz + 0.18 + math.sin(an) * rr),
                   col, rot=(0, 0, an))
-    k.box(P, 0.46, 0.3, 0.62, (0, tfy + 0.16, pz - 0.05), "charwood")     # dark doorway
-    k.box(P, 0.3, 0.06, 0.5, (0, tfy - 0.02, pz - 0.05), "ghostfire")     # faint glow within
+    k.box(P, 0.46, 0.3, 0.62, (0, tfy + 0.16, pz - 0.05), "charwood")     # dark recess
+    for s in (-1, 1):                                                     # wooden double doors
+        k.box(P, 0.15, 0.06, 0.52, (s * 0.08, tfy - 0.03, pz - 0.05), "wood_dk")
+    k.box(P, 0.08, 0.04, 0.42, (0, tfy - 0.07, pz - 0.03), "wood")        # cross (vertical)
+    k.box(P, 0.26, 0.04, 0.07, (0, tfy - 0.07, pz + 0.06), "wood")        # cross (horizontal)
     # === tower top: cornice + pinnacles + central spire + cross ===
     ttz = bt + tz
     k.box(P, tw + 0.1, tw + 0.1, 0.16, (0, tcy, ttz + 0.08), "stone_dk")  # cornice
@@ -382,12 +410,13 @@ def well(k):
     for cz in (0.18, 0.38):
         k.cyl(P, 8, 0.51, 0.04, (0, 0, cz), "stone_dk")              # course band
     k.cyl(P, 8, 0.53, 0.06, (0, 0, 0.52), "stone")                   # rim lip (stone cap)
-    k.cyl(P, 12, 0.44, 0.03, (0, 0, 0.56), "ghostfire")              # glowing water ring
-    k.cyl(P, 12, 0.3, 0.05, (0, 0, 0.58), "soot")                    # black shaft hole
-    for a in (35, 150, 250):                                         # vertical cracks
-        an = math.radians(a)
-        k.box(P, 0.03, 0.02, 0.3, (math.cos(an) * 0.5, math.sin(an) * 0.5, 0.3),
-              "soot", rot=(0, 0, an))
+    k.cyl(P, 12, 0.44, 0.03, (0, 0, 0.54), "ghostfire")              # faint glow rim
+    k.cyl(P, 12, 0.42, 0.08, (0, 0, 0.56), "soot")                   # black shaft hole (inside)
+    if OCCULT:
+        for a in (35, 150, 250):                                     # vertical cracks
+            an = math.radians(a)
+            k.box(P, 0.03, 0.02, 0.3, (math.cos(an) * 0.5, math.sin(an) * 0.5, 0.3),
+                  "soot", rot=(0, 0, an))
     for a in (10, 65, 120, 175, 230, 300):                           # moss clumps around base
         an = math.radians(a)
         k.ico(P, 0.09, (math.cos(an) * 0.5, math.sin(an) * 0.5, 0.05), "leaf_dk")
@@ -461,25 +490,35 @@ def market_stall(k):
     k.box(P, 1.42, 0.98, 0.04, (0, 0.05, 1.33), "bone", rot=(at, 0, 0))      # solid awning
     for cx in (-0.62, -0.31, 0.0, 0.31, 0.62):
         k.box(P, 0.24, 0.03, 0.14, (cx, -0.45, 1.19), "bone")               # scalloped valance
-    fl = [(-0.2, 0.1), (-0.13, 0.17), (-0.06, 0.21), (0.01, 0.19),
-          (0.08, 0.14), (0.15, 0.09), (0.22, 0.04)]
-    for dv, w in fl:                                                        # blood flame sigil
-        k.box(P, w, 0.07, 0.02, _awn(max(0, dv) * 0.5, dv, 0.03), "blood", rot=(at, 0, 0))
-    k.box(P, 0.08, 0.07, 0.02, _awn(0.22, -0.16, 0.03), "blood", rot=(at, 0, 0))  # flame dot
+    if OCCULT:                                                             # blood flame sigil
+        fl = [(-0.2, 0.1), (-0.13, 0.17), (-0.06, 0.21), (0.01, 0.19),
+              (0.08, 0.14), (0.15, 0.09), (0.22, 0.04)]
+        for dv, w in fl:
+            k.box(P, w, 0.07, 0.02, _awn(max(0, dv) * 0.5, dv, 0.03), "blood", rot=(at, 0, 0))
+        k.box(P, 0.08, 0.07, 0.02, _awn(0.22, -0.16, 0.03), "blood", rot=(at, 0, 0))  # dot
     # ---- wares on the counter ----
     bz0 = 0.66
-    for i, col in enumerate(("charwood", "gore", "soot")):                  # grimoire stack
-        k.box(P, 0.22 - i * 0.02, 0.17, 0.05, (-0.42, -0.2, bz0 + 0.025 + i * 0.05), col)
-    skull(k, P, -0.42, -0.2, bz0 + 0.25, 0.1)                               # raised skull
+    if OCCULT:
+        for i, col in enumerate(("charwood", "gore", "soot")):              # grimoire stack
+            k.box(P, 0.22 - i * 0.02, 0.17, 0.05, (-0.42, -0.2, bz0 + 0.025 + i * 0.05), col)
+        skull(k, P, -0.42, -0.2, bz0 + 0.25, 0.1)                           # raised skull
+        _vial(0.2, -0.26, bz0, h=0.17)                                      # counter potions
+        _vial(0.35, -0.22, bz0, h=0.13)
+    else:
+        k.ico(P, 0.1, (-0.42, -0.2, bz0 + 0.08), "thatch")                  # sack of grain
+        for lx in (0.18, 0.34):
+            k.box(P, 0.12, 0.1, 0.16, (lx, -0.24, bz0 + 0.08), "wood_dk")   # produce crates
     k.cyl(P, 8, 0.07, 0.09, (-0.05, -0.24, bz0 + 0.045), "stone")           # mortar
     k.cyl(P, 8, 0.045, 0.05, (-0.05, -0.24, bz0 + 0.08), "soot")            # mortar hollow
     k.cyl(P, 6, 0.016, 0.13, (0.0, -0.22, bz0 + 0.11), "wood_dk", rot=(math.radians(28), 0, 0))
-    _vial(0.2, -0.26, bz0, h=0.17)                                          # counter potions
-    _vial(0.35, -0.22, bz0, h=0.13)
     k.cyl(P, 6, 0.03, 0.13, (0.5, -0.26, bz0 + 0.065), "bone")              # candle
     k.cone(P, 5, 0.035, 0, 0.08, (0.5, -0.26, bz0 + 0.16), "ember")         # candle flame
-    for i, sx3 in enumerate((-0.45, -0.27, -0.09, 0.09, 0.27, 0.45)):      # packed shelf of potions
-        _vial(sx3, 0.34, 0.885, h=0.12, liquid="amber" if i == 3 else "witchlight")
+    if OCCULT:
+        for i, sx3 in enumerate((-0.45, -0.27, -0.09, 0.09, 0.27, 0.45)):  # shelf of potions
+            _vial(sx3, 0.34, 0.885, h=0.12, liquid="amber" if i == 3 else "witchlight")
+    else:
+        for sx3 in (-0.4, -0.15, 0.15, 0.4):                               # shelf of goods
+            k.box(P, 0.16, 0.16, 0.22, (sx3, 0.34, 0.86), "thatch")
     # hung herb bundles off the front awning edge
     for hx in (-0.55, 0.55):
         k.box(P, 0.02, 0.02, 0.12, (hx, -0.44, 1.1), "wood_dk")             # twine
@@ -572,8 +611,10 @@ def stable(k):
     k.box(P, 0.03, 0.03, 0.2, (postx + 0.05, fy + 0.72, z0 + fh - 0.02), "iron")   # lantern chain
     k.box(P, 0.12, 0.12, 0.16, (postx + 0.08, fy + 0.72, z0 + fh - 0.22), "soot")  # lantern box
     k.box(P, 0.07, 0.07, 0.1, (postx + 0.08, fy + 0.72, z0 + fh - 0.22), "amber")  # lantern flame
-    for dx, dz in ((0, 0.11), (0, -0.11), (-0.08, 0), (0.08, 0)):            # witchlight rune
-        k.box(P, 0.05, 0.03, 0.05, (postx + 0.07, fy + 0.7 + dx, z0 + 0.52 + dz), "witchlight")
+    if OCCULT:
+        for dx, dz in ((0, 0.11), (0, -0.11), (-0.08, 0), (0.08, 0)):        # witchlight rune
+            k.box(P, 0.05, 0.03, 0.05, (postx + 0.07, fy + 0.7 + dx, z0 + 0.52 + dz),
+                  "witchlight")
     # ---- feed troughs of hay out front ----
     for tx, ty in ((-0.22, fy - 0.5), (0.42, fy - 0.42)):
         k.box(P, 0.34, 0.24, 0.16, (tx, ty, 0.12), "wood_dk")                # trough body
@@ -587,12 +628,19 @@ def _flame_banner(k, P, ox, oy, oz, s=1.0):
     ``s`` scales it. Shared warding standard flown by the watchtower and gate."""
     k.box(P, 0.92 * s, 0.05, 0.05, (ox, oy + 0.06, oz + 0.55 * s), "wood_dk")    # banner pole
     k.box(P, 0.8 * s, 0.02, 1.05 * s, (ox, oy, oz), "blood")                     # cloth panel
+    if not OCCULT:
+        for face_y in (oy - 0.02, oy + 0.02):                                   # heraldic lozenge
+            k.box(P, 0.3 * s, 0.02, 0.3 * s, (ox, face_y, oz), "gold",
+                  rot=(0, math.radians(45), 0))
+            k.box(P, 0.16 * s, 0.02, 0.16 * s, (ox, face_y, oz), "blood",
+                  rot=(0, math.radians(45), 0))
+        return
     for tx in (-0.3, -0.1, 0.1, 0.3):                                           # tattered tips
         k.box(P, 0.16 * s, 0.02, 0.2 * s, (ox + tx * s, oy, oz - 0.62 * s), "blood")
     fcx, fcz = ox - 0.06 * s, oz - 0.2 * s
     slices = ((-0.22, 0.12), (-0.15, 0.2), (-0.08, 0.24), (-0.01, 0.22),
               (0.06, 0.16), (0.13, 0.1), (0.2, 0.05))
-    for face_y in (oy - 0.02, oy + 0.02):                                      # sigil both faces
+    for face_y in (oy - 0.02, oy + 0.02):                                      # flame sigil
         for i, (dz, w) in enumerate(slices):
             k.box(P, w * s, 0.02, 0.08 * s,
                   (fcx + max(0, i - 3) * 0.04 * s, face_y, fcz + dz * s), "amber")
@@ -698,21 +746,19 @@ def windmill(k):
     # sail hub + four LATTICE sails (X, flat/vertical), on an axle anchored to the tower
     hz = gz + 1.3
     hub = (0.0, -0.68, hz)
-    R = 1.6
+    R = 2.1                                                            # large sails
     k.box(P, 0.12, 0.66, 0.12, (0, -0.4, hz), "wood_dk")               # axle beam into tower
-    k.cyl(P, 8, 0.11, 0.18, (0, -0.6, hz), "wood_dk", rot=(math.radians(90), 0, 0))  # hub
+    k.cyl(P, 8, 0.12, 0.18, (0, -0.6, hz), "wood_dk", rot=(math.radians(90), 0, 0))  # hub
     for deg in (45, 135):
         an = math.radians(deg)
         sdx, sdz = math.sin(an), math.cos(an)                          # spar direction (XZ)
-        px, pz = math.cos(an), -math.sin(an)                           # panel-width direction
-        k.box(P, 0.05, 0.05, R, hub, "wood_dk", rot=(0, an, 0))         # central spar
-        for side in (-1, 1):                                           # framed side rails (lattice)
-            k.box(P, 0.03, 0.04, R, (hub[0] + side * 0.14 * px, hub[1] - 0.03,
-                  hub[2] + side * 0.14 * pz), "wood", rot=(0, an, 0))
-        for fr in (-0.8, -0.55, -0.3, 0.3, 0.55, 0.8):                # lattice cross slats
-            k.box(P, 0.32, 0.03, 0.04,
-                  (hub[0] + fr * sdx * (R / 2), hub[1] - 0.03, hub[2] + fr * sdz * (R / 2)),
-                  "wood", rot=(0, math.radians(deg + 90), 0))
+        k.box(P, 0.06, 0.06, R, hub, "wood_dk", rot=(0, an, 0))         # central spar
+        k.box(P, 0.46, 0.02, R * 0.92, (hub[0], hub[1] - 0.03, hub[2]), "bone",
+              rot=(0, an, 0))                                          # white sailcloth
+        for fr in (-0.85, -0.6, -0.35, 0.35, 0.6, 0.85):              # sail battens
+            k.box(P, 0.5, 0.02, 0.04,
+                  (hub[0] + fr * sdx * (R / 2), hub[1] - 0.05, hub[2] + fr * sdz * (R / 2)),
+                  "wood_dk", rot=(0, math.radians(deg + 90), 0))
     return k.join(P, "windmill")
 
 
@@ -772,13 +818,13 @@ def foot_bridge(k):
                   color="rot", th=0.04)
     # weathered slat deck — gaps, plus askew / broken / missing planks
     for i in range(13):
-        if i in (3, 8):
-            continue                                            # missing plank (gap)
+        if OCCULT and i in (3, 8):
+            continue                                            # missing plank (occult only)
         y = -0.95 + i * 0.155
-        broken = i in (5, 10)
+        broken = OCCULT and i in (5, 10)
         w = 0.5 if broken else 0.9
         xo = 0.18 if broken else 0.0
-        pitch = math.radians(9) if i in (2, 7, 11) else 0.0     # lifted / askew planks
+        pitch = math.radians(9) if (OCCULT and i in (2, 7, 11)) else 0.0   # askew (occult)
         k.box(P, w, 0.12, 0.04, (xo, y, deckz(y) + 0.04 + (0.02 if pitch else 0)),
               "wood_dk", rot=(pitch, 0, 0))
     # lantern hung from a pylon top beam

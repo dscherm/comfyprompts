@@ -76,6 +76,37 @@ medieval + occult, characters).
       wall_corner, door/door_frame/window, floor/roof_slope/roof_corner/chimney,
       stairs/railing/post/beam — base-centre origins; keep whole buildings as
       pre-assembled showcases built from the parts. Main lever toward 200+ pieces.
+
+### Atlas — RESUME HERE (handoff for post-compaction)
+
+**Done + committed** (kitlib `Kit(atlas=True)`): shared 256² gradient+AO+emission
+atlas; per-face planar-UV into colour swatches; material PATTERNS (wood planks,
+brick/stone masonry, straw thatch courses); gable roofs routed through the atlas;
+stained glass = multicolour leaded mosaic (blue/rose/amber/green) on `gem`/`rune`
+only; `ghostfire` = plain glow (water). Chapel door rebuilt as wood doors + cross.
+Proven end-to-end (kitlib → GLB → Godot). Helper scripts in scratchpad:
+`build_atlas_kit.py <spec> <out>` (builds a spec's pieces in atlas mode) and
+`atlas_proof.py`. Showcases: `scratchpad/show_atlas*` (ATLAS-Village/-City/
+-Village-Med/-City-Med) — relaunch after edits (Godot locks the dir; close first).
+
+**Next steps (do in order):**
+1. `git commit` the working tree (kitlib.py + kit_village_v1.py had uncommitted
+   chapel/stained-glass/door fixes; earlier gable/thatch commit was blocked by a
+   transient classifier outage — verify with `git log`/`git status`).
+2. Wire atlas into `kit_pipeline.py` + `productize.py`: add an `--atlas` flag →
+   `Kit(atlas=True)`; after building, save `k._atlas_imgs` PNGs (color + emit) to
+   the product dir and `img.pack()` for GLB/glTF embed; upscale atlas to 512–1024
+   for the shipped master (+128² downsample) per QUALITY_RUBRIC §4.
+3. Add DAE + plain-glTF exporters to `productize.py` (rubric §8).
+4. Convert every kit product to atlas (occult/medieval village + city) and
+   re-run `kit_quality_check.py`.
+5. Then the OTHER big lever: **modular parts + 200+ density** (task above) and
+   tri-count reporting / bevels (tasks above).
+
+**Known nits to polish:** thatch pattern still reads subtly on very large roof
+faces (pattern fills one swatch per face — consider world-size UV tiling); tune
+per-colour emission strength; the CITY cathedral (`kit_city_v1`) rose/lancets may
+still use the old glow colour — apply the same `gem` swap there.
 - [ ] Extend `productize.py` exporters with **DAE + plain glTF** (KayKit ships
       FBX/OBJ/DAE/GLTF).
 - [ ] Auto-generate **per-piece gallery + hero + turntable** in `productize.py`.

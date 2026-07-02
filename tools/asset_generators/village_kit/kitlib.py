@@ -222,7 +222,7 @@ class Kit:
             ("planks", ("wood", "wood_dk", "charwood", "beam")),
             ("brick", ("stone", "stone_dk", "plaster", "plaster2", "slate")),
             ("straw", ("thatch", "thatch_dk")),
-            ("glass", ("ghostfire", "gem", "rune")),  # stained-glass mosaic colours
+            ("glass", ("gem", "rune")),  # stained-glass mosaic colours (NOT ghostfire=water)
         ):
             for nm in group:
                 pat_of[nm] = pat
@@ -238,7 +238,11 @@ class Kit:
                     return 0.42
                 return 0.88 + 0.14 * ((xx // bw + yy // rh) % 2)
             if pat == "straw":
-                return 0.68 + 0.32 * (((xx * 5 + yy * 3) % 7) / 6.0)
+                coh = max(4, ch // 4)                       # thatch course height
+                yc = yy % coh
+                strand = 0.86 + 0.14 * (((xx * 7 + (yy // coh) * 5) % 5) / 4.0)
+                shadow = 0.4 if yc < 1 else (0.66 + 0.34 * (yc / max(1, coh - 1)))
+                return shadow * strand
             if pat == "glass":
                 pw, ph = max(3, cw // 3), max(3, ch // 3)
                 return 0.28 if ((xx % pw) < 1 or (yy % ph) < 1) else 1.3
@@ -392,10 +396,8 @@ class Kit:
         obj = self._bpy.data.objects.new("gable", me)
         self.scene.collection.objects.link(obj)
         obj.location = loc
-        obj.data.materials.append(self.mat(color))
-        self.flat(obj)
-        parts.append(obj)
-        return obj
+        self._bpy.context.view_layer.objects.active = obj
+        return self._finish(parts, color)
 
     # -- assembly / export -------------------------------------------------- #
 

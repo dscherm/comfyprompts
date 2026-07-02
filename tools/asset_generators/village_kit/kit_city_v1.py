@@ -7,11 +7,21 @@ Built on kitlib via kit_pipeline / productize.
 
 import math
 
-from kit_occult import skull  # shared low-poly skull
-from kit_village_v1 import _flame_banner  # shared flame-sigil warding banner
+from kit_occult import skull as _occult_skull  # shared low-poly skull (gated below)
+from kit_village_v1 import _flame_banner  # shared warding banner (sigil gated by OCCULT)
 
 TITLE = "GrimForge City Vol.1 — Dark-Fantasy Urban Kit (12 pieces)"
 AESTHETIC = "occult"
+
+# Medieval variant sets OCCULT = False (here + on kit_village_v1) to drop skulls
+# and switch the banner sigil — see kit_city_medieval.py.
+OCCULT = True
+
+
+def skull(k, P, *args, **kwargs):
+    """Skull dressing — suppressed when OCCULT is False (medieval variant)."""
+    if OCCULT:
+        _occult_skull(k, P, *args, **kwargs)
 
 # Darken the whole kit to the grim/occult tone (one override darkens all
 # pieces; ember/crimson/ghost accents still pop against the dark stone).
@@ -333,9 +343,13 @@ def rowhouse(k):
         for cz in (0.7, 1.3, 1.95):
             _arch_win_x(k, P, 0.0, cz, fx, w=0.13, h=0.26)
     k.box(P, 0.3, 0.08, 0.66, (0, fy + 0.04, 0.53), "wood_dk")          # door
-    k.cyl(P, 8, 0.12, 0.5, (0.8, fy - 0.25, 0.25), "crimson")           # pillar-box
-    k.cone(P, 8, 0.13, 0.04, 0.1, (0.8, fy - 0.25, 0.55), "crimson")
-    k.box(P, 0.08, 0.02, 0.03, (0.8, fy - 0.37, 0.45), "soot")          # post slot
+    if OCCULT:
+        k.cyl(P, 8, 0.12, 0.5, (0.8, fy - 0.25, 0.25), "crimson")       # pillar-box
+        k.cone(P, 8, 0.13, 0.04, 0.1, (0.8, fy - 0.25, 0.55), "crimson")
+        k.box(P, 0.08, 0.02, 0.03, (0.8, fy - 0.37, 0.45), "soot")      # post slot
+    else:
+        k.cyl(P, 10, 0.14, 0.42, (0.8, fy - 0.25, 0.21), "wood_dk")     # water barrel
+        k.cyl(P, 10, 0.142, 0.03, (0.8, fy - 0.25, 0.34), "iron")
     for sx in (-1, 1):
         for iz in (0.5, 1.0):
             k.ico(P, 0.1, (sx * (W / 2 - 0.02), fy + 0.05, iz), "leaf_dk")
@@ -386,8 +400,8 @@ def fountain(k):
     P = []
     k.cyl(P, 10, 0.8, 0.3, (0, 0, 0.15), "stone")                  # basin wall
     k.cyl(P, 10, 0.84, 0.08, (0, 0, 0.3), "stone_dk")              # rim lip
-    k.cyl(P, 10, 0.7, 0.05, (0, 0, 0.28), "cloth")                 # dark water
-    k.cyl(P, 12, 0.5, 0.02, (0, 0, 0.3), "ghostfire")             # faint glow ring
+    k.cyl(P, 10, 0.7, 0.05, (0, 0, 0.28), "cloth")                 # water base
+    k.cyl(P, 12, 0.66, 0.02, (0, 0, 0.31), "ghostfire")           # glowing lower water
     k.cyl(P, 8, 0.18, 0.8, (0, 0, 0.65), "stone_dk")               # central column
     k.cyl(P, 8, 0.34, 0.08, (0, 0, 1.0), "stone")                 # upper basin
     k.cyl(P, 8, 0.26, 0.04, (0, 0, 1.05), "cloth")                # upper water
@@ -595,14 +609,19 @@ def street_kiosk(k):
     k.box(P, 0.72, 0.6, 0.06, (bx, 0.05, 0.86), "slate", rot=(math.radians(10), 0, 0))  # awning
     for i, px in enumerate((-0.16, 0.0, 0.16)):
         k.box(P, 0.1, 0.08, 0.02, (bx + px, -0.28, 0.6), "bone" if i % 2 else "crimson")
-    k.cyl(P, 10, 0.13, 0.6, (0.15, -0.2, 0.36), "crimson")    # pillar-box
-    k.cone(P, 10, 0.14, 0.05, 0.1, (0.15, -0.2, 0.68), "crimson")
-    k.box(P, 0.08, 0.02, 0.03, (0.15, -0.33, 0.5), "soot")   # slot
-    k.cyl(P, 8, 0.06, 0.24, (0.55, -0.28, 0.18), "gunmetal")  # fire hydrant
-    k.cone(P, 8, 0.07, 0.03, 0.06, (0.55, -0.28, 0.32), "gunmetal")
-    for s in (-1, 1):
-        k.cyl(P, 6, 0.03, 0.06, (0.55 + s * 0.07, -0.28, 0.22), "gunmetal",
-              rot=(0, math.radians(90), 0))
+    if OCCULT:
+        k.cyl(P, 10, 0.13, 0.6, (0.15, -0.2, 0.36), "crimson")    # pillar-box
+        k.cone(P, 10, 0.14, 0.05, 0.1, (0.15, -0.2, 0.68), "crimson")
+        k.box(P, 0.08, 0.02, 0.03, (0.15, -0.33, 0.5), "soot")   # slot
+        k.cyl(P, 8, 0.06, 0.24, (0.55, -0.28, 0.18), "gunmetal")  # fire hydrant
+        k.cone(P, 8, 0.07, 0.03, 0.06, (0.55, -0.28, 0.32), "gunmetal")
+        for s in (-1, 1):
+            k.cyl(P, 6, 0.03, 0.06, (0.55 + s * 0.07, -0.28, 0.22), "gunmetal",
+                  rot=(0, math.radians(90), 0))
+    else:
+        k.cyl(P, 10, 0.14, 0.4, (0.18, -0.24, 0.2), "wood_dk")    # market barrel
+        k.cyl(P, 10, 0.142, 0.03, (0.18, -0.24, 0.32), "iron")
+        k.box(P, 0.22, 0.2, 0.2, (0.56, -0.26, 0.16), "wood")     # crate
     k.box(P, 0.5, 0.16, 0.04, (0.5, 0.3, 0.26), "iron")      # bench seat
     k.box(P, 0.5, 0.04, 0.16, (0.5, 0.37, 0.36), "iron")     # bench back
     for lx in (0.3, 0.7):
