@@ -316,10 +316,34 @@ def railing(k: Any) -> Any:
 # Demo assembly — proves the parts snap together into a building
 # --------------------------------------------------------------------------- #
 
+def _house_roof(k: Any) -> Any:
+    """A gable roof spanning the 2x2 demo house (ridge along Y) + a small chimney
+    poking through the slope. Built inline so it sizes to the whole footprint."""
+    P: list = []
+    span = 2.0
+    h = 0.9
+    k.gable(P, span, span, h, (0, 0, 1.0), "slate", over=0.22)
+    sw = (span + 0.22) / 2
+    theta = math.atan2(h, sw)
+    for f in (0.3, 0.6):                                          # shingle battens
+        for sgn in (-1, 1):
+            k.box(P, 0.03, span + 0.28, 0.05, (sgn * sw * (1 - f), 0, 1.0 + h * f),
+                  "wood_dk", rot=(0, sgn * theta, 0))
+    k.box(P, 0.09, span + 0.3, 0.09, (0, 0, 1.0 + h), "wood_dk")  # ridge board
+    cx, cy = 0.62, 0.5                                            # small chimney on the slope
+    k.box(P, 0.28, 0.28, 1.0, (cx, cy, 1.2), "stone")
+    for cz in (1.0, 1.35):
+        k.box(P, 0.32, 0.32, 0.05, (cx, cy, cz), "stone_dk")
+    k.box(P, 0.36, 0.36, 0.08, (cx, cy, 1.7), "stone_dk")        # cap
+    for dx, dy in ((-0.07, -0.07), (0.07, -0.07), (-0.07, 0.07), (0.07, 0.07)):
+        k.box(P, 0.08, 0.08, 0.1, (cx + dx, cy + dy, 1.78), "charwood")  # flue pots
+    return k.join(P, "roof")
+
+
 def house_demo(k: Any) -> Any:
-    """A little house assembled entirely from the parts above (1x1 footprint):
-    plank floor, door-wall front, window-walls on the sides, plain back wall, a
-    gable roof, a door leaf in the opening, and a chimney."""
+    """A cottage assembled from the parts on a 2x2 grid: stone foundations + plank
+    floors, a door + window wall on the front, window walls on the sides, plain
+    back walls, quoined corners, a door leaf, and a full gable roof + chimney."""
     placed: list = []
 
     def put(fn, x, y, z, rz=0):
@@ -328,14 +352,22 @@ def house_demo(k: Any) -> Any:
         o.rotation_euler = (0, 0, math.radians(rz))
         placed.append(o)
 
-    put(floor, 0, 0, 0)
-    put(wall_door, 0, -0.5, 0, 0)        # front (with doorway)
-    put(wall, 0, 0.5, 0, 180)            # back
-    put(wall_window, -0.5, 0, 0, 90)     # left
-    put(wall_window, 0.5, 0, 0, 270)     # right
-    put(roof_gable, 0, 0, 0)
-    put(door, 0, -0.56, 0, 0)            # door leaf in the opening
-    put(chimney, 0.28, 0.32, 1.0)        # roof chimney
+    for cx in (-0.5, 0.5):                          # 2x2 base + floor
+        for cy in (-0.5, 0.5):
+            put(foundation, cx, cy, 0)
+            put(floor, cx, cy, 0)
+    put(wall_door, -0.5, -1.0, 0, 0)                # front: door + window
+    put(wall_window, 0.5, -1.0, 0, 0)
+    put(door, -0.5, -1.05, 0, 0)                    # door leaf in the opening
+    for cx in (-0.5, 0.5):                          # back: plain walls
+        put(wall, cx, 1.0, 0, 180)
+    for cy in (-0.5, 0.5):                          # sides: window walls
+        put(wall_window, -1.0, cy, 0, 90)
+        put(wall_window, 1.0, cy, 0, 270)
+    for cx in (-1.0, 1.0):                          # quoined corner posts
+        for cy in (-1.0, 1.0):
+            put(wall_corner, cx, cy, 0)
+    placed.append(_house_roof(k))                   # gable roof + chimney
     return k.join(placed, "house_demo")
 
 

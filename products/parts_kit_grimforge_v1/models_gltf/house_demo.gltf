@@ -21,8 +21,13 @@
 			"name":"house_demo",
 			"scale":[
 				1,
-				0.10000000149011612,
+				0.30000001192092896,
 				1
+			],
+			"translation":[
+				-0.5,
+				0,
+				0.5
 			]
 		}
 	],
@@ -94,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1506,
+			"count":3378,
 			"max":[
-				0.8899999856948853,
-				17.299999237060547,
-				0.6550000309944153
+				1.6100000143051147,
+				6.483333110809326,
+				0.6499999761581421
 			],
 			"min":[
-				-0.6050000190734863,
-				-5,
-				-0.6200000047683716
+				-0.6299999952316284,
+				-1.6666666269302368,
+				-1.649999976158142
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1506,
+			"count":3378,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1506,
+			"count":3378,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":2268,
+			"count":5076,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":18072,
+			"byteLength":40536,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":18072,
-			"byteOffset":18072,
+			"byteLength":40536,
+			"byteOffset":40536,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":12048,
-			"byteOffset":36144,
+			"byteLength":27024,
+			"byteOffset":81072,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4536,
-			"byteOffset":48192,
+			"byteLength":10152,
+			"byteOffset":108096,
 			"target":34963
 		}
 	],
@@ -160,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":52728,
+			"byteLength":118248,
 			"uri":"house_demo.bin"
 		}
 	]
