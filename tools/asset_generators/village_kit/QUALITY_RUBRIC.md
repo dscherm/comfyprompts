@@ -99,6 +99,43 @@ for walls and tower battlements only — never a sloped roof.**
 - Victorian/urban kits (`kit_city_v1`) legitimately run slate-heavy (mansard roofs);
   the rule targets village/rural kits where humble buildings were over-roofed.
 
+### 4b. House-assembly criteria (buildings & modular demos)
+Derived by benchmarking the modular `house_demo` against the shipped kit houses
+(`kit_full` cottage/house_tall, `kit_village_v1` cottage). A building — hand-built
+or assembled from `kit_parts` — is only "done" when it passes all of these.
+
+1. **Grounded — no hovering items (MUST).** The base sits on z=0; every element
+   (door, chimney, trim, porch, sign) touches a supporting surface. The chimney
+   rises *out of the roof*, not floating beside the mass; the door fills its
+   opening down to the threshold. Nothing floats in air or stands off the wall.
+2. **Closed shell — no unnatural gaps (MUST).** Four walls meet at corners with no
+   daylight holes; the only openings are intended (doors/windows). No gap between
+   the wall-top and the roof, and no step/gap between adjacent modular panels
+   (seams should read as masonry joints, not cracks).
+3. **Roof covers with modest, even eaves (MUST).** The roof spans the whole
+   footprint and overhangs by a *small, uniform* eave — not an oversized flare.
+   Ridge continuous; both slopes symmetric.
+4. **Status-appropriate roof material (MUST).** Follow §4a: a cottage/humble house
+   wears thatch or wood shake — **never slate**. Match the building's status, not
+   a default.
+5. **Textures per surface (MUST).** Walls = masonry/plaster/plank; roof =
+   shingle/thatch courses; wood trim = planks; glass = gem/stained. Never a wall/
+   roof wearing a ground pattern (cobble/gravel), never masonry on a roof.
+6. **Openings aligned & framed (MUST).** Doors reach the ground, centred in a
+   framed opening, correctly sized; windows framed + glazed at a consistent sill
+   line; inserts fit their holes (no oversize/undersize/offset/proud floating).
+7. **Believable proportions (SHOULD).** Wall ≈ one storey; for a cottage the roof
+   height is ≤ the wall height (roof must not dominate); chimney small relative to
+   the house; footprint reads as a home, not a tower.
+8. **Continuous trim (SHOULD).** Base course/plinth, cornice, eave board, and
+   ridge run continuously and align across panels; corner quoins tie the walls.
+9. **Grid-aligned, base-centre origin (SHOULD).** Footprint on the unit grid;
+   pivot at the base centre so the piece snaps and sits flush with neighbours.
+
+**Quick reject test:** if you can see *through* the house, see *under* a floating
+part, see a *masonry roof* or a *slate cottage*, or the roof *flares past* a tidy
+eave — it fails and needs another pass.
+
 ## 5. Colour palette discipline
 - **MUST** — locked palette, harmonised across the kit; accents used sparingly.
   (We have this: `PALETTE` + `PALETTE_OVERRIDE`; `validate_palette()`.)

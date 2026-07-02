@@ -321,22 +321,23 @@ def _house_roof(k: Any) -> Any:
     poking through the slope. Built inline so it sizes to the whole footprint."""
     P: list = []
     span = 2.0
-    h = 0.9
-    k.gable(P, span, span, h, (0, 0, 1.0), "slate", over=0.22)
-    sw = (span + 0.22) / 2
+    h = 0.72                                                     # roof < wall height (cottage)
+    over = 0.14                                                  # modest, even eaves
+    k.gable(P, span, span, h, (0, 0, 1.0), "thatch", over=over)  # humble -> thatch (roof rule)
+    sw = (span + over) / 2
     theta = math.atan2(h, sw)
-    for f in (0.3, 0.6):                                          # shingle battens
+    for f in (0.32, 0.64):                                        # thatch ties
         for sgn in (-1, 1):
-            k.box(P, 0.03, span + 0.28, 0.05, (sgn * sw * (1 - f), 0, 1.0 + h * f),
+            k.box(P, 0.03, span + 0.2, 0.04, (sgn * sw * (1 - f), 0, 1.0 + h * f),
                   "wood_dk", rot=(0, sgn * theta, 0))
-    k.box(P, 0.09, span + 0.3, 0.09, (0, 0, 1.0 + h), "wood_dk")  # ridge board
+    k.box(P, 0.08, span + 0.22, 0.08, (0, 0, 1.0 + h), "wood_dk")  # ridge
     cx, cy = 0.62, 0.5                                            # small chimney on the slope
-    k.box(P, 0.28, 0.28, 1.0, (cx, cy, 1.2), "stone")
-    for cz in (1.0, 1.35):
-        k.box(P, 0.32, 0.32, 0.05, (cx, cy, cz), "stone_dk")
-    k.box(P, 0.36, 0.36, 0.08, (cx, cy, 1.7), "stone_dk")        # cap
+    k.box(P, 0.26, 0.26, 0.9, (cx, cy, 1.15), "stone")
+    for cz in (0.95, 1.28):
+        k.box(P, 0.3, 0.3, 0.05, (cx, cy, cz), "stone_dk")
+    k.box(P, 0.34, 0.34, 0.08, (cx, cy, 1.62), "stone_dk")       # cap
     for dx, dy in ((-0.07, -0.07), (0.07, -0.07), (-0.07, 0.07), (0.07, 0.07)):
-        k.box(P, 0.08, 0.08, 0.1, (cx + dx, cy + dy, 1.78), "charwood")  # flue pots
+        k.box(P, 0.08, 0.08, 0.1, (cx + dx, cy + dy, 1.7), "charwood")  # flue pots
     return k.join(P, "roof")
 
 
@@ -358,7 +359,7 @@ def house_demo(k: Any) -> Any:
             put(floor, cx, cy, 0)
     put(wall_door, -0.5, -1.0, 0, 0)                # front: door + window
     put(wall_window, 0.5, -1.0, 0, 0)
-    put(door, -0.5, -1.05, 0, 0)                    # door leaf in the opening
+    put(door, -0.5, -1.0, 0, 0)                     # door leaf seated in the opening
     for cx in (-0.5, 0.5):                          # back: plain walls
         put(wall, cx, 1.0, 0, 180)
     for cy in (-0.5, 0.5):                          # sides: window walls
