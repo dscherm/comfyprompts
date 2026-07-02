@@ -63,12 +63,14 @@ medieval + occult, characters).
       ridge/eaves/gutter, base course) and apply uniformly across pieces.
 - [ ] Add a **grid-quantize + base-origin pivot** pass so environment pieces snap
       seamlessly (square grid for village/city; hex option later).
-- [ ] **Color-atlas texturing** (design: `docs/kit_texturing_design.md`): add
-      `build_atlas(palette,emission)` (PIL/Blender) making a gradient+AO swatch
-      atlas; add `Kit(atlas=True)` that assigns ONE shared atlas material and
-      UV-maps each primitive's faces into its colour swatch (world-Z→gradient);
-      variants = atlas swap; ship the PNG (1024²+128²) with GLB/glTF/OBJ. (ComfyUI
-      follow-up: optional AI atlas art / hero normal bakes — NOTE ONLY.)
+- [~] **Color-atlas texturing** (design: `docs/kit_texturing_design.md`).
+      DONE: `Kit(atlas=True)` builds one shared gradient+AO swatch atlas
+      (`_ensure_atlas`, 128², colour+emission) and UV-maps each primitive into its
+      swatch (`_uv_swatch`, local-Z→gradient); proven on the cottage (Blender
+      render). TODO: expose an `--atlas` flag in `kit_pipeline`/`productize`; ship
+      the atlas PNG (1024²+128²) alongside GLB/glTF/OBJ + verify glTF/Godot embed;
+      convert each kit piece-by-piece; tune gradient/AO strength + emission per
+      colour. (ComfyUI follow-up: optional AI atlas art / hero normal bakes.)
 - [ ] **Modular parts decomposition** (design: `docs/kit_texturing_design.md`):
       break buildings into snap parts on the grid — wall/wall_window/wall_door/
       wall_corner, door/door_frame/window, floor/roof_slope/roof_corner/chimney,

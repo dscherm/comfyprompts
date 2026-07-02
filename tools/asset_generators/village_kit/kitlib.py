@@ -165,6 +165,7 @@ class Kit:
         palette: dict[str, str] | None = None,
         emission: dict[str, float] | None = None,
         reset_scene: bool = False,
+        atlas: bool = False,
     ) -> None:
         import bmesh  # noqa: F401  (imported for builders below)
         import bpy
@@ -174,6 +175,11 @@ class Kit:
         self.palette = dict(palette) if palette is not None else dict(PALETTE)
         self.emission = dict(emission) if emission is not None else dict(EMISSION)
         self._mat_cache: dict[str, Any] = {}
+        # KayKit "color-atlas" mode: one shared gradient/AO atlas + per-primitive
+        # UVs into each colour's swatch (see docs/kit_texturing_design.md).
+        self.use_atlas = atlas
+        self._atlas_mat: Any = None
+        self._cells: dict[str, tuple] | None = None
         if reset_scene:
             bpy.ops.wm.read_factory_settings(use_empty=True)
         self.scene = bpy.context.scene
@@ -204,9 +210,79 @@ class Kit:
         for p in obj.data.polygons:
             p.use_smooth = False
 
+    def _ensure_atlas(self, cols: int = 8, size: int = 128) -> Any:
+        """Build (once) the shared gradient/AO colour+emission atlas and the single
+        material that samples it. Records each palette colour's UV swatch rect in
+        ``self._cells``. Returns the shared atlas material."""
+        if self._atlas_mat is not None:
+            return self._atlas_mat
+        bpy = self._bpy
+        names = list(self.palette)
+        rows = max(1, -(-len(names) // cols))  # ceil
+        cw, ch = size // cols, size // rows
+        col = [0.0, 0.0, 0.0, 1.0] * (size * size)
+        emit = [0.0, 0.0, 0.0, 1.0] * (size * size)
+        self._cells = {}
+        for i, name in enumerate(names):
+            r, g, b, _ = hex_to_rgba(self.palette[name])
+            es = self.emission.get(name, 0.0)
+            cx, cy = (i % cols) * cw, (i // cols) * ch
+            for yy in range(ch):
+                t = yy / max(1, ch - 1)                       # 0 bottom .. 1 top
+                f = (0.72 + 0.4 * t) * (0.55 + 0.45 * min(1.0, yy / (ch * 0.3)))
+                for xx in range(cw):
+                    p = ((cy + yy) * size + (cx + xx)) * 4
+                    col[p], col[p + 1], col[p + 2] = min(1, r * f), min(1, g * f), min(1, b * f)
+                    if es > 0:
+                        emit[p], emit[p + 1], emit[p + 2] = r, g, b
+            self._cells[name] = ((cx + 1.5) / size, (cx + cw - 1.5) / size,
+                                 (cy + 1.5) / size, (cy + ch - 1.5) / size)
+        cimg = bpy.data.images.new("kit_atlas", size, size)
+        cimg.colorspace_settings.name = "Non-Color"
+        cimg.pixels = col
+        eimg = bpy.data.images.new("kit_atlas_emit", size, size)
+        eimg.colorspace_settings.name = "Non-Color"
+        eimg.pixels = emit
+        m = bpy.data.materials.new("kit_atlas_mat")
+        m.use_nodes = True
+        nt = m.node_tree
+        bsdf = nt.nodes["Principled BSDF"]
+        bsdf.inputs["Roughness"].default_value = 0.9
+        tc = nt.nodes.new("ShaderNodeTexImage")
+        tc.image, tc.interpolation = cimg, "Closest"
+        nt.links.new(tc.outputs["Color"], bsdf.inputs["Base Color"])
+        te = nt.nodes.new("ShaderNodeTexImage")
+        te.image, te.interpolation = eimg, "Closest"
+        nt.links.new(te.outputs["Color"], bsdf.inputs["Emission Color"])
+        bsdf.inputs["Emission Strength"].default_value = 2.2
+        self._atlas_mat, self._atlas_imgs = m, (cimg, eimg)
+        return m
+
+    def _uv_swatch(self, obj: Any, color: str) -> None:
+        """UV-map every face of ``obj`` into ``color``'s atlas swatch, with the
+        object's local Z spanning the swatch's vertical gradient (top = light)."""
+        me = obj.data
+        u0, u1, v0, v1 = self._cells[color]
+        if not me.uv_layers:
+            me.uv_layers.new(name="UVMap")
+        uvl = me.uv_layers.active.data
+        zs = [v.co.z for v in me.vertices]
+        zmin = min(zs)
+        dz = (max(zs) - zmin) or 1.0
+        um = (u0 + u1) / 2.0
+        for lp in me.loops:
+            t = (me.vertices[lp.vertex_index].co.z - zmin) / dz
+            uvl[lp.index].uv = (um, v0 + t * (v1 - v0))
+
     def _finish(self, parts: list, color: str) -> Any:
         obj = self._bpy.context.active_object
-        obj.data.materials.append(self.mat(color))
+        if self.use_atlas:
+            if color not in self.palette:
+                raise KeyError(f"unknown palette color {color!r}")
+            obj.data.materials.append(self._ensure_atlas())
+            self._uv_swatch(obj, color)
+        else:
+            obj.data.materials.append(self.mat(color))
         self.flat(obj)
         parts.append(obj)
         return obj
