@@ -10,6 +10,7 @@ Keys each image to a character by filename substring, writes <stem>.txt.
     python soapbox_racers_caption.py <dataset_dir>
 """
 import os
+import re
 import sys
 
 TRIGGER = "soapbox_racers"
@@ -28,18 +29,21 @@ CHARS = {
     "smog": "a lanky chemist hidden behind a gas mask and dark green torn hazmat overcoat, breathing tubes, hood up",
     "soup_box": "a hulking wasteland brawler racer in heavy overalls",
     "soup": "a hulking wasteland brawler racer in heavy overalls",
-    "sparks": "an electric livewire woman in a blue bodysuit with lightning-yellow accents, goggles, wild light-blue hair",
+    "sparks": "an electric livewire in a black leather jacket covered in yellow lightning bolts over a blue bodysuit, goggles, wild light-blue hair",
+    "mutant": "a pink-skinned mutant brawler with a wild blue mohawk, bulging muscles, spiked blue armor pads and bolts, riding boots",
     "rookie": "the rookie, a young male racer in an orange racing jacket with black stripes, aviator goggles on his forehead, messy brown hair",
     "player": "the rookie, a young male racer in an orange racing jacket with black stripes, aviator goggles on his forehead, messy brown hair",
 }
-ORDER = ["punk_king", "soup_box", "rookie", "bones", "crank", "grit", "pip", "punk",
+ORDER = ["punk_king", "soup_box", "rookie", "mutant", "bones", "crank", "grit", "pip", "punk",
          "rust", "smog", "soup", "sparks", "player"]  # longest/most-specific first
 
 
 def caption_for(fname: str) -> str | None:
+    # match the character key only as a whole token — NOT inside another word.
+    # critical: plain "grit" in "grit" must NOT match the "gritty_" augment prefix.
     low = fname.lower()
     for key in ORDER:
-        if key in low:
+        if re.search(rf"(?<![a-z]){re.escape(key)}(?![a-z])", low):
             return f"{TRIGGER}, {STYLE}, {CHARS[key]}"
     return None
 
