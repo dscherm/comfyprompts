@@ -3,6 +3,29 @@
 **Goal:** eliminate webbed hands + loose-clothing limb-fusion at the reconstruction
 stage (not prompt hacks, not LoRA retrain). Plan: `mv3d-reconstruction-plan.md`.
 
+## UPDATE (2026-07-02 evening): TRELLIS.2 MULTI-VIEW proven end-to-end on a real character
+
+**The Rookie (player char) shipped through the full pipeline** using TRELLIS.2
+**multi-view** (front+back T-pose inputs `A_front/A_back.png`):
+
+- **Fists-vs-spread A/B settled**: fists input → thumb + separated finger masses;
+  spread input → mitten/claw collapse (confirms `project_mv_ortho_fists`). Winner:
+  `Rookie_MV_fists_00001_.glb`.
+- Full chain: mesh-prep (481k→48.8k faces, 1.8m, grounded) → UniRig (40 bones,
+  100% weights) → stray-finger fix + full weld (23.4k verts, watertight) →
+  `rename_unirig_bones.py` (19/19 role coverage) → Unity/Unreal/Blender/STL exports.
+- Package: `output/final/player_char/` (committed; see its ASSET-CARD.md).
+- **BUG FOUND — `retarget_mocap.py` (animate-ralph) is broken pipeline-wide**: the
+  idle clip mangles identically on The Rookie AND the proven barbarian rig, and the
+  committed GS1 "passing" proofs show the same mangled poses (report's own misalign
+  column reads 99-160°; only `hit` at -5.5° was truly aligned — the gate
+  rubber-stamped it). Raw source clips are fine. Until fixed: retarget in Unity via
+  Humanoid avatar (CreateFromThisModel), not in Blender.
+- IK posing (2-bone chains on forearms) proven live in Blender; Euler-on-UniRig-bones
+  remains a trap.
+- Next for MV3D: texturing stage for TRELLIS geometry-only outputs; MV4 A/B
+  (TRELLIS vs Hunyuan3D single-view) still open below.
+
 ## Where we are (2026-07-02)
 
 **Strategy landed on: try higher-fidelity SINGLE-view first (TRELLIS.2), multi-view only if needed.**
