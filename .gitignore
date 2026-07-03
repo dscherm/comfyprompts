@@ -132,3 +132,8 @@ products/soapbox_kart_kit_v1/models_obj/
 products/soapbox_kart_kit_v1/models_fbx/
 products/soapbox_kart_kit_v1/mascots/
 products/soapbox_kart_kit_v1/gallery/*.gif
+
+# --- build/agent artifacts (added by artifact-robustness pass) ---
+*.pyc
+.ralph/
+NUL
