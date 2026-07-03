@@ -1,167 +1,182 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.0.21",
-		"version":"2.0"
-	},
-	"extensionsUsed":[
-		"KHR_materials_emissive_strength"
-	],
-	"scene":0,
-	"scenes":[
-		{
-			"name":"Scene",
-			"nodes":[
-				0
-			]
-		}
-	],
-	"nodes":[
-		{
-			"mesh":0,
-			"name":"tower_square_tall",
-			"scale":[
-				0.800000011920929,
-				2.200000047683716,
-				0.800000011920929
-			]
-		}
-	],
-	"materials":[
-		{
-			"doubleSided":true,
-			"emissiveFactor":[
-				1,
-				1,
-				1
-			],
-			"emissiveTexture":{
-				"index":0
-			},
-			"extensions":{
-				"KHR_materials_emissive_strength":{
-					"emissiveStrength":1.600000023841858
-				}
-			},
-			"name":"kit_atlas_mat",
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
-				"metallicFactor":0,
-				"roughnessFactor":0.8999999761581421
-			}
-		}
-	],
-	"meshes":[
-		{
-			"name":"Cube.289",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":0,
-						"NORMAL":1,
-						"TEXCOORD_0":2
-					},
-					"indices":3,
-					"material":0
-				}
-			]
-		}
-	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"atlas_emit",
-			"uri":"atlas_emit.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"atlas_color",
-			"uri":"atlas_color.png"
-		}
-	],
-	"accessors":[
-		{
-			"bufferView":0,
-			"componentType":5126,
-			"count":912,
-			"max":[
-				0.6437499523162842,
-				1.165908932685852,
-				0.6374999284744263
-			],
-			"min":[
-				-0.6437499523162842,
-				-2.9802322387695312e-08,
-				-0.6374999284744263
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":1,
-			"componentType":5126,
-			"count":912,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":2,
-			"componentType":5126,
-			"count":912,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":3,
-			"componentType":5123,
-			"count":1368,
-			"type":"SCALAR"
-		}
-	],
-	"bufferViews":[
-		{
-			"buffer":0,
-			"byteLength":10944,
-			"byteOffset":0,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":10944,
-			"byteOffset":10944,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":7296,
-			"byteOffset":21888,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":2736,
-			"byteOffset":29184,
-			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9728,
-			"minFilter":9984
-		}
-	],
-	"buffers":[
-		{
-			"byteLength":31920,
-			"uri":"tower_square_tall.bin"
-		}
-	]
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 912,
+      "type": "VEC3",
+      "max": [
+        0.5149999695271248,
+        2.5649997075037447,
+        0.5099999503791324
+      ],
+      "min": [
+        -0.5149999695271248,
+        -6.556511067401516e-08,
+        -0.5099999503791324
+      ]
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 912,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 912,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 0,
+      "componentType": 5123,
+      "normalized": false,
+      "count": 1368,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "generator": "pygltflib@v1.16.5",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 10944,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 10944,
+      "byteLength": 10944,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 21888,
+      "byteLength": 7296,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 29184,
+      "byteLength": 2736,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "tower_square_tall.bin",
+      "byteLength": 31920
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_emissive_strength"
+  ],
+  "images": [
+    {
+      "uri": "atlas_emit.png",
+      "mimeType": "image/png",
+      "name": "atlas_emit"
+    },
+    {
+      "uri": "atlas_color.png",
+      "mimeType": "image/png",
+      "name": "atlas_color"
+    }
+  ],
+  "materials": [
+    {
+      "extensions": {
+        "KHR_materials_emissive_strength": {
+          "emissiveStrength": 1.600000023841858
+        }
+      },
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8999999761581421,
+        "baseColorTexture": {
+          "index": 1,
+          "texCoord": 0
+        }
+      },
+      "emissiveFactor": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emissiveTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "alphaMode": "OPAQUE",
+      "doubleSided": true,
+      "name": "kit_atlas_mat"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "mode": 4,
+          "material": 0
+        }
+      ],
+      "name": "Cube.289"
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "tower_square_tall"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9728,
+      "minFilter": 9984,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    }
+  ]
 }

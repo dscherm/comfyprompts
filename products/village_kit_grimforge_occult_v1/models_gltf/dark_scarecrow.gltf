@@ -1,178 +1,182 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.0.21",
-		"version":"2.0"
-	},
-	"extensionsUsed":[
-		"KHR_materials_emissive_strength"
-	],
-	"scene":0,
-	"scenes":[
-		{
-			"name":"Scene",
-			"nodes":[
-				0
-			]
-		}
-	],
-	"nodes":[
-		{
-			"mesh":0,
-			"name":"dark_scarecrow",
-			"rotation":[
-				0.026167983189225197,
-				0.0261679794639349,
-				-0.0006852328078821301,
-				0.9993147850036621
-			],
-			"scale":[
-				0.09000000357627869,
-				1.4999998807907104,
-				0.08999999612569809
-			],
-			"translation":[
-				-0.0014206116320565343,
-				-0.02862727642059326,
-				-0.045819222927093506
-			]
-		}
-	],
-	"materials":[
-		{
-			"doubleSided":true,
-			"emissiveFactor":[
-				1,
-				1,
-				1
-			],
-			"emissiveTexture":{
-				"index":0
-			},
-			"extensions":{
-				"KHR_materials_emissive_strength":{
-					"emissiveStrength":1.600000023841858
-				}
-			},
-			"name":"kit_atlas_mat",
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
-				"metallicFactor":0,
-				"roughnessFactor":0.8999999761581421
-			}
-		}
-	],
-	"meshes":[
-		{
-			"name":"Cube.074",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":0,
-						"NORMAL":1,
-						"TEXCOORD_0":2
-					},
-					"indices":3,
-					"material":0
-				}
-			]
-		}
-	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"atlas_emit",
-			"uri":"atlas_emit.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"atlas_color",
-			"uri":"atlas_color.png"
-		}
-	],
-	"accessors":[
-		{
-			"bufferView":0,
-			"componentType":5126,
-			"count":916,
-			"max":[
-				6.541109085083008,
-				1.1397665739059448,
-				3.698767900466919
-			],
-			"min":[
-				-6.541109085083008,
-				-2.9802322387695312e-08,
-				-3.69876766204834
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":1,
-			"componentType":5126,
-			"count":916,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":2,
-			"componentType":5126,
-			"count":916,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":3,
-			"componentType":5123,
-			"count":1338,
-			"type":"SCALAR"
-		}
-	],
-	"bufferViews":[
-		{
-			"buffer":0,
-			"byteLength":10992,
-			"byteOffset":0,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":10992,
-			"byteOffset":10992,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":7328,
-			"byteOffset":21984,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":2676,
-			"byteOffset":29312,
-			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9728,
-			"minFilter":9984
-		}
-	],
-	"buffers":[
-		{
-			"byteLength":31988,
-			"uri":"dark_scarecrow.bin"
-		}
-	]
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 916,
+      "type": "VEC3",
+      "max": [
+        0.58950773613486,
+        1.67999992751785,
+        0.2799999402968718
+      ],
+      "min": [
+        -0.5895077461484283,
+        -0.03132722034867308,
+        -0.2999999417437682
+      ]
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 916,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 916,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 0,
+      "componentType": 5123,
+      "normalized": false,
+      "count": 1338,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "generator": "pygltflib@v1.16.5",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 10992,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 10992,
+      "byteLength": 10992,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 21984,
+      "byteLength": 7328,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 29312,
+      "byteLength": 2676,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "dark_scarecrow.bin",
+      "byteLength": 31988
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_emissive_strength"
+  ],
+  "images": [
+    {
+      "uri": "atlas_emit.png",
+      "mimeType": "image/png",
+      "name": "atlas_emit"
+    },
+    {
+      "uri": "atlas_color.png",
+      "mimeType": "image/png",
+      "name": "atlas_color"
+    }
+  ],
+  "materials": [
+    {
+      "extensions": {
+        "KHR_materials_emissive_strength": {
+          "emissiveStrength": 1.600000023841858
+        }
+      },
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8999999761581421,
+        "baseColorTexture": {
+          "index": 1,
+          "texCoord": 0
+        }
+      },
+      "emissiveFactor": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emissiveTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "alphaMode": "OPAQUE",
+      "doubleSided": true,
+      "name": "kit_atlas_mat"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "mode": 4,
+          "material": 0
+        }
+      ],
+      "name": "Cube.074"
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "dark_scarecrow"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9728,
+      "minFilter": 9984,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    }
+  ]
 }

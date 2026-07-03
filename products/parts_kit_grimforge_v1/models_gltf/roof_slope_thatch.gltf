@@ -1,178 +1,182 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.0.21",
-		"version":"2.0"
-	},
-	"extensionsUsed":[
-		"KHR_materials_emissive_strength"
-	],
-	"scene":0,
-	"scenes":[
-		{
-			"name":"Scene",
-			"nodes":[
-				0
-			]
-		}
-	],
-	"nodes":[
-		{
-			"mesh":0,
-			"name":"roof_slope_thatch",
-			"rotation":[
-				0.30901703238487244,
-				0,
-				0,
-				0.9510565996170044
-			],
-			"scale":[
-				1.059999942779541,
-				0.10000000149011612,
-				1.2799999713897705
-			],
-			"translation":[
-				0,
-				1.3190444707870483,
-				-0.03041820228099823
-			]
-		}
-	],
-	"materials":[
-		{
-			"doubleSided":true,
-			"emissiveFactor":[
-				1,
-				1,
-				1
-			],
-			"emissiveTexture":{
-				"index":0
-			},
-			"extensions":{
-				"KHR_materials_emissive_strength":{
-					"emissiveStrength":1.600000023841858
-				}
-			},
-			"name":"kit_atlas_mat",
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
-				"metallicFactor":0,
-				"roughnessFactor":0.8999999761581421
-			}
-		}
-	],
-	"meshes":[
-		{
-			"name":"Cube.277",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":0,
-						"NORMAL":1,
-						"TEXCOORD_0":2
-					},
-					"indices":3,
-					"material":0
-				}
-			]
-		}
-	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"atlas_emit",
-			"uri":"atlas_emit.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"atlas_color",
-			"uri":"atlas_color.png"
-		}
-	],
-	"accessors":[
-		{
-			"bufferView":0,
-			"componentType":5126,
-			"count":48,
-			"max":[
-				0.5188679099082947,
-				1.4955406188964844,
-				0.5271338820457458
-			],
-			"min":[
-				-0.5188679099082947,
-				-1.3113021850585938e-06,
-				-0.5271338224411011
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":1,
-			"componentType":5126,
-			"count":48,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":2,
-			"componentType":5126,
-			"count":48,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":3,
-			"componentType":5123,
-			"count":72,
-			"type":"SCALAR"
-		}
-	],
-	"bufferViews":[
-		{
-			"buffer":0,
-			"byteLength":576,
-			"byteOffset":0,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":576,
-			"byteOffset":576,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":384,
-			"byteOffset":1152,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":144,
-			"byteOffset":1536,
-			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9728,
-			"minFilter":9984
-		}
-	],
-	"buffers":[
-		{
-			"byteLength":1680,
-			"uri":"roof_slope_thatch.bin"
-		}
-	]
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 48,
+      "type": "VEC3",
+      "max": [
+        0.5499999548129324,
+        1.8366334209974444,
+        0.5500000447057543
+      ],
+      "min": [
+        -0.5499999548129324,
+        0.9699999603363938,
+        -0.5471600874913656
+      ]
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 48,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 48,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 0,
+      "componentType": 5123,
+      "normalized": false,
+      "count": 72,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "generator": "pygltflib@v1.16.5",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 576,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 576,
+      "byteLength": 576,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 1152,
+      "byteLength": 384,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 1536,
+      "byteLength": 144,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "roof_slope_thatch.bin",
+      "byteLength": 1680
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_emissive_strength"
+  ],
+  "images": [
+    {
+      "uri": "atlas_emit.png",
+      "mimeType": "image/png",
+      "name": "atlas_emit"
+    },
+    {
+      "uri": "atlas_color.png",
+      "mimeType": "image/png",
+      "name": "atlas_color"
+    }
+  ],
+  "materials": [
+    {
+      "extensions": {
+        "KHR_materials_emissive_strength": {
+          "emissiveStrength": 1.600000023841858
+        }
+      },
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8999999761581421,
+        "baseColorTexture": {
+          "index": 1,
+          "texCoord": 0
+        }
+      },
+      "emissiveFactor": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emissiveTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "alphaMode": "OPAQUE",
+      "doubleSided": true,
+      "name": "kit_atlas_mat"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "mode": 4,
+          "material": 0
+        }
+      ],
+      "name": "Cube.277"
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "roof_slope_thatch"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9728,
+      "minFilter": 9984,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    }
+  ]
 }

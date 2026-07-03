@@ -516,7 +516,23 @@ class Kit:
         bpy.ops.object.join()
         obj = bpy.context.active_object
         obj.name = name
+        self._clean_degenerate(obj)
         return obj
+
+    def _clean_degenerate(self, obj: Any, dist: float = 1e-6) -> None:
+        """Dissolve zero-area faces / zero-length edges left by flattened
+        primitives (a box that collapsed to zero thickness contributes 8 such
+        side tris). Some importers warn or drop normals on degenerate geometry,
+        so scrub it on the way out. Visible geometry is unchanged; ``dist`` is
+        tiny enough that intentional coincident (un-welded) blocks are untouched."""
+        bmesh = self._bmesh
+        me = obj.data
+        bm = bmesh.new()
+        bm.from_mesh(me)
+        bmesh.ops.dissolve_degenerate(bm, dist=dist, edges=bm.edges[:])
+        bm.to_mesh(me)
+        bm.free()
+        me.update()
 
     def _select_only(self, obj: Any) -> None:
         bpy = self._bpy
@@ -544,13 +560,26 @@ class Kit:
         bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
         bpy.context.scene.cursor.location = (0, 0, 0)
 
+    def _bake_transforms(self, obj: Any) -> None:
+        """Bake object scale + rotation into the mesh so glTF/GLB export writes an
+        identity-oriented node. OBJ/FBX/USD bake transforms on export already, but
+        glTF preserves the node's TRS — a non-uniform node scale would ship geometry
+        that only reads correctly *after* the node transform, distorting raw vertex
+        reads and diverging from the other formats (KayKit ships applied transforms).
+        Idempotent (a scale=1/rot=0 object is unchanged); location is left alone so
+        the base pivot from :meth:`set_base_origin` is preserved."""
+        self._select_only(obj)
+        self._bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
+
     def export_glb(self, obj: Any, filepath: str) -> None:
         """Export ``obj`` (selected, alone) to a binary glTF (``.glb``)."""
+        self._bake_transforms(obj)
         self._select_only(obj)
         self._bpy.ops.export_scene.gltf(filepath=filepath, export_format="GLB", use_selection=True)
 
     def export_gltf(self, obj: Any, filepath: str) -> None:
         """Export ``obj`` to separate glTF (``.gltf`` + ``.bin`` + textures)."""
+        self._bake_transforms(obj)
         self._select_only(obj)
         self._bpy.ops.export_scene.gltf(
             filepath=filepath, export_format="GLTF_SEPARATE", use_selection=True

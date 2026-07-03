@@ -1,172 +1,182 @@
 {
-	"asset":{
-		"generator":"Khronos glTF Blender I/O v5.0.21",
-		"version":"2.0"
-	},
-	"extensionsUsed":[
-		"KHR_materials_emissive_strength"
-	],
-	"scene":0,
-	"scenes":[
-		{
-			"name":"Scene",
-			"nodes":[
-				0
-			]
-		}
-	],
-	"nodes":[
-		{
-			"mesh":0,
-			"name":"church",
-			"scale":[
-				1.2999999523162842,
-				0.8999999761581421,
-				2.200000047683716
-			],
-			"translation":[
-				0,
-				0,
-				0.048492349684238434
-			]
-		}
-	],
-	"materials":[
-		{
-			"doubleSided":true,
-			"emissiveFactor":[
-				1,
-				1,
-				1
-			],
-			"emissiveTexture":{
-				"index":0
-			},
-			"extensions":{
-				"KHR_materials_emissive_strength":{
-					"emissiveStrength":1.600000023841858
-				}
-			},
-			"name":"kit_atlas_mat",
-			"pbrMetallicRoughness":{
-				"baseColorTexture":{
-					"index":1
-				},
-				"metallicFactor":0,
-				"roughnessFactor":0.8999999761581421
-			}
-		}
-	],
-	"meshes":[
-		{
-			"name":"Cube.089",
-			"primitives":[
-				{
-					"attributes":{
-						"POSITION":0,
-						"NORMAL":1,
-						"TEXCOORD_0":2
-					},
-					"indices":3,
-					"material":0
-				}
-			]
-		}
-	],
-	"textures":[
-		{
-			"sampler":0,
-			"source":0
-		},
-		{
-			"sampler":0,
-			"source":1
-		}
-	],
-	"images":[
-		{
-			"mimeType":"image/png",
-			"name":"atlas_emit",
-			"uri":"atlas_emit.png"
-		},
-		{
-			"mimeType":"image/png",
-			"name":"atlas_color",
-			"uri":"atlas_color.png"
-		}
-	],
-	"accessors":[
-		{
-			"bufferView":0,
-			"componentType":5126,
-			"count":226,
-			"max":[
-				0.576923131942749,
-				3.07777738571167,
-				0.5674965381622314
-			],
-			"min":[
-				-0.576923131942749,
-				-2.9802322387695312e-08,
-				-0.5674965381622314
-			],
-			"type":"VEC3"
-		},
-		{
-			"bufferView":1,
-			"componentType":5126,
-			"count":226,
-			"type":"VEC3"
-		},
-		{
-			"bufferView":2,
-			"componentType":5126,
-			"count":226,
-			"type":"VEC2"
-		},
-		{
-			"bufferView":3,
-			"componentType":5123,
-			"count":330,
-			"type":"SCALAR"
-		}
-	],
-	"bufferViews":[
-		{
-			"buffer":0,
-			"byteLength":2712,
-			"byteOffset":0,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":2712,
-			"byteOffset":2712,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":1808,
-			"byteOffset":5424,
-			"target":34962
-		},
-		{
-			"buffer":0,
-			"byteLength":660,
-			"byteOffset":7232,
-			"target":34963
-		}
-	],
-	"samplers":[
-		{
-			"magFilter":9728,
-			"minFilter":9984
-		}
-	],
-	"buffers":[
-		{
-			"byteLength":7892,
-			"uri":"church.bin"
-		}
-	]
+  "accessors": [
+    {
+      "bufferView": 0,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 226,
+      "type": "VEC3",
+      "max": [
+        0.7500000440157351,
+        2.769999573760572,
+        1.2969847607014913
+      ],
+      "min": [
+        -0.7500000440157351,
+        -2.6822089438383045e-08,
+        -1.2000000613330144
+      ]
+    },
+    {
+      "bufferView": 1,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 226,
+      "type": "VEC3"
+    },
+    {
+      "bufferView": 2,
+      "byteOffset": 0,
+      "componentType": 5126,
+      "normalized": false,
+      "count": 226,
+      "type": "VEC2"
+    },
+    {
+      "bufferView": 3,
+      "byteOffset": 0,
+      "componentType": 5123,
+      "normalized": false,
+      "count": 330,
+      "type": "SCALAR"
+    }
+  ],
+  "asset": {
+    "generator": "pygltflib@v1.16.5",
+    "version": "2.0"
+  },
+  "bufferViews": [
+    {
+      "buffer": 0,
+      "byteOffset": 0,
+      "byteLength": 2712,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 2712,
+      "byteLength": 2712,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 5424,
+      "byteLength": 1808,
+      "target": 34962
+    },
+    {
+      "buffer": 0,
+      "byteOffset": 7232,
+      "byteLength": 660,
+      "target": 34963
+    }
+  ],
+  "buffers": [
+    {
+      "uri": "church.bin",
+      "byteLength": 7892
+    }
+  ],
+  "extensionsUsed": [
+    "KHR_materials_emissive_strength"
+  ],
+  "images": [
+    {
+      "uri": "atlas_emit.png",
+      "mimeType": "image/png",
+      "name": "atlas_emit"
+    },
+    {
+      "uri": "atlas_color.png",
+      "mimeType": "image/png",
+      "name": "atlas_color"
+    }
+  ],
+  "materials": [
+    {
+      "extensions": {
+        "KHR_materials_emissive_strength": {
+          "emissiveStrength": 1.600000023841858
+        }
+      },
+      "pbrMetallicRoughness": {
+        "baseColorFactor": [
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ],
+        "metallicFactor": 0.0,
+        "roughnessFactor": 0.8999999761581421,
+        "baseColorTexture": {
+          "index": 1,
+          "texCoord": 0
+        }
+      },
+      "emissiveFactor": [
+        1.0,
+        1.0,
+        1.0
+      ],
+      "emissiveTexture": {
+        "index": 0,
+        "texCoord": 0
+      },
+      "alphaMode": "OPAQUE",
+      "doubleSided": true,
+      "name": "kit_atlas_mat"
+    }
+  ],
+  "meshes": [
+    {
+      "primitives": [
+        {
+          "attributes": {
+            "POSITION": 0,
+            "NORMAL": 1,
+            "TEXCOORD_0": 2
+          },
+          "indices": 3,
+          "mode": 4,
+          "material": 0
+        }
+      ],
+      "name": "Cube.089"
+    }
+  ],
+  "nodes": [
+    {
+      "mesh": 0,
+      "name": "church"
+    }
+  ],
+  "samplers": [
+    {
+      "magFilter": 9728,
+      "minFilter": 9984,
+      "wrapS": 10497,
+      "wrapT": 10497
+    }
+  ],
+  "scene": 0,
+  "scenes": [
+    {
+      "name": "Scene",
+      "nodes": [
+        0
+      ]
+    }
+  ],
+  "textures": [
+    {
+      "sampler": 0,
+      "source": 0
+    },
+    {
+      "sampler": 0,
+      "source": 1
+    }
+  ]
 }
