@@ -32,25 +32,43 @@ CELL = 1.0
 # --------------------------------------------------------------------------- #
 
 def _crenel_round(k, P, r, z, n=12, color="stone_dk"):
-    """Merlons (with crenel gaps) around a round parapet of radius r at height z."""
-    for i in range(n):
-        an = math.radians(i * 360 / n)
-        k.box(P, 0.17, 0.14, 0.24, (math.cos(an) * r, math.sin(an) * r, z + 0.12),
+    """A round battlement: a CONTINUOUS low parapet wall (sill) all the way round,
+    with merlons rising from it. Crenel gaps stop at the sill, so the tower floor
+    is never exposed (physically-correct battlements — QUALITY_RUBRIC §4c)."""
+    m = n * 2
+    seg = 2 * math.pi * r / m * 1.35
+    for i in range(m):                                   # continuous parapet sill
+        an = math.radians(i * 360 / m)
+        k.box(P, seg, 0.11, 0.13, (math.cos(an) * r, math.sin(an) * r, z + 0.065),
+              "stone", rot=(0, 0, an))
+    for i in range(0, m, 2):                             # merlons rising from the sill
+        an = math.radians(i * 360 / m)
+        k.box(P, seg, 0.14, 0.17, (math.cos(an) * r, math.sin(an) * r, z + 0.215),
               color, rot=(0, 0, an))
 
 
 def _crenel_sq(k, P, w, d, z, color="stone_dk"):
-    """Merlons around a square parapet (w x d) at height z."""
-    nx = max(2, int(w / 0.34))
-    for i in range(nx + 1):
+    """A square battlement: a CONTINUOUS low parapet wall (sill) round all four
+    edges, with merlons rising from it. Crenel gaps stop at the sill so the floor
+    is never exposed (physically-correct — QUALITY_RUBRIC §4c)."""
+    for sy in (-1, 1):                                   # front/back sill walls
+        k.box(P, w + 0.14, 0.12, 0.13, (0, sy * d / 2, z + 0.065), "stone")
+    for sx in (-1, 1):                                   # left/right sill walls
+        k.box(P, 0.12, d + 0.14, 0.13, (sx * w / 2, 0, z + 0.065), "stone")
+    nx = max(2, int(round(w / 0.36)))
+    for i in range(nx + 1):                              # merlons along front/back
+        if i % 2:
+            continue
         x = -w / 2 + i * w / nx
-        k.box(P, 0.2, 0.12, 0.22, (x, -d / 2, z + 0.11), color)
-        k.box(P, 0.2, 0.12, 0.22, (x, d / 2, z + 0.11), color)
-    nd = max(2, int(d / 0.34))
-    for i in range(1, nd):
+        for sy in (-1, 1):
+            k.box(P, 0.19, 0.13, 0.17, (x, sy * d / 2, z + 0.215), color)
+    nd = max(2, int(round(d / 0.36)))
+    for i in range(1, nd):                               # merlons along sides
+        if i % 2:
+            continue
         y = -d / 2 + i * d / nd
-        k.box(P, 0.12, 0.2, 0.22, (-w / 2, y, z + 0.11), color)
-        k.box(P, 0.12, 0.2, 0.22, (w / 2, y, z + 0.11), color)
+        for sx in (-1, 1):
+            k.box(P, 0.13, 0.19, 0.17, (sx * w / 2, y, z + 0.215), color)
 
 
 def _machic_round(k, P, r, z, color="stone_dk"):
@@ -103,13 +121,22 @@ def _wall_body(k, P, h=1.0):
     k.box(P, CELL + 0.04, WT + 0.06, 0.06, (0, 0, h - 0.03), "stone_dk")  # string course
 
 
+def _wall_crenel(k, P, z=1.0):
+    """Battlement along a 1-unit wall top: a CONTINUOUS parapet sill on each edge
+    with merlons rising from it, so crenel gaps stop at the sill and never expose
+    the wall-walk floor (physically-correct — QUALITY_RUBRIC §4c)."""
+    for sy in (-1, 1):
+        yy = sy * (WT / 2 - 0.015)
+        k.box(P, CELL + 0.02, 0.07, 0.13, (0, yy, z + 0.065), "stone")   # continuous sill
+        for mx in (-0.34, 0.0, 0.34):
+            k.box(P, 0.2, 0.08, 0.17, (mx, yy, z + 0.205), "stone_dk")   # merlons
+
+
 def wall(k):
     """A crenellated curtain-wall segment."""
     P = []
     _wall_body(k, P, 1.0)
-    for sy in (-1, 1):
-        for mx in (-0.33, 0.0, 0.33):
-            k.box(P, 0.22, 0.09, 0.22, (mx, sy * 0.07, 1.08), "stone_dk")  # merlons
+    _wall_crenel(k, P, 1.0)
     return k.join(P, "wall")
 
 
@@ -119,9 +146,7 @@ def wall_arrow(k):
     _wall_body(k, P, 1.0)
     _arrowslit(k, P, 0, 0, 0.55)
     _arrowslit(k, P, 0, 0, 0.55, vertical=False)
-    for sy in (-1, 1):
-        for mx in (-0.33, 0.0, 0.33):
-            k.box(P, 0.22, 0.09, 0.22, (mx, sy * 0.07, 1.08), "stone_dk")
+    _wall_crenel(k, P, 1.0)
     return k.join(P, "wall_arrow")
 
 
@@ -130,9 +155,7 @@ def wall_window(k):
     P = []
     _wall_body(k, P, 1.0)
     _arch_win(k, P, 0, -WT / 2, 0.55)
-    for sy in (-1, 1):
-        for mx in (-0.33, 0.0, 0.33):
-            k.box(P, 0.22, 0.09, 0.22, (mx, sy * 0.07, 1.08), "stone_dk")
+    _wall_crenel(k, P, 1.0)
     return k.join(P, "wall_window")
 
 
@@ -142,10 +165,10 @@ def wall_machicol(k):
     _wall_body(k, P, 0.9)
     for mx in (-0.35, -0.12, 0.12, 0.35):                      # corbels front
         k.box(P, 0.12, 0.12, 0.1, (mx, -WT / 2 - 0.04, 0.9), "stone_dk")
-    k.box(P, CELL + 0.02, WT + 0.14, 0.28, (0, 0, 1.04), "stone")  # overhanging parapet
-    for sy in (-1, 1):
-        for mx in (-0.33, 0.0, 0.33):
-            k.box(P, 0.22, 0.09, 0.2, (mx, sy * 0.1, 1.28), "stone_dk")
+    k.box(P, CELL + 0.02, WT + 0.14, 0.28, (0, 0, 1.04), "stone")  # overhanging solid parapet
+    for sy in (-1, 1):                                          # merlons sit ON the parapet top
+        for mx in (-0.34, 0.0, 0.34):
+            k.box(P, 0.2, 0.09, 0.16, (mx, sy * 0.11, 1.26), "stone_dk")
     return k.join(P, "wall_machicol")
 
 
@@ -181,9 +204,7 @@ def wall_buttress(k):
     """A wall braced by an angled buttress."""
     P = []
     _wall_body(k, P, 1.0)
-    for sy in (-1, 1):
-        for mx in (-0.33, 0.0, 0.33):
-            k.box(P, 0.22, 0.09, 0.22, (mx, sy * 0.07, 1.08), "stone_dk")
+    _wall_crenel(k, P, 1.0)
     k.box(P, 0.24, 0.3, 0.85, (0, -0.2, 0.42), "stone")
     k.box(P, 0.24, 0.3, 0.24, (0, -0.28, 0.9), "stone_dk", rot=(math.radians(34), 0, 0))
     return k.join(P, "wall_buttress")
@@ -204,9 +225,7 @@ def parapet(k):
     """A standalone crenellated parapet cap (to top a plain wall)."""
     P = []
     k.box(P, CELL + 0.02, WT + 0.04, 0.08, (0, 0, 0.04), "stone_dk")
-    for sy in (-1, 1):
-        for mx in (-0.33, 0.0, 0.33):
-            k.box(P, 0.22, 0.09, 0.22, (mx, sy * 0.09, 0.19), "stone_dk")
+    _wall_crenel(k, P, 0.02)
     return k.join(P, "parapet")
 
 
@@ -221,8 +240,7 @@ def wall_gate_arch(k):
               "stone_dk", rot=(0, 0, a - R90))
     k.box(P, CELL, WT, 0.14, (0, 0, 0.95), "stone")
     k.box(P, CELL + 0.04, WT + 0.05, 0.1, (0, 0, 0.05), "stone_dk")
-    for mx in (-0.33, 0.0, 0.33):
-        k.box(P, 0.22, 0.12, 0.2, (mx, 0, 1.12), "stone_dk")
+    _wall_crenel(k, P, 1.02)
     k.box(P, 0.56, 0.06, 0.9, (0, WT / 2, 0.45), "wood_dk")    # timber gate
     for gz in (0.3, 0.7):
         k.box(P, 0.6, 0.07, 0.05, (0, WT / 2, gz), "iron")
@@ -492,10 +510,18 @@ def _machic_round_off(k, P, cx, r, z):
     k.cyl(P, 14, r + 0.08, 0.07, (cx, 0, z + 0.09), "stone")
 
 
-def _crenel_round_off(k, P, cx, r, z, n=10):
-    for i in range(n):
-        an = math.radians(i * 360 / n)
-        k.box(P, 0.15, 0.13, 0.22, (cx + math.cos(an) * r, math.sin(an) * r, z + 0.11),
+def _crenel_round_off(k, P, cx, r, z, n=10, cy=0.0):
+    """Offset round battlement — continuous parapet sill + merlons, centred at
+    (cx, cy). Crenel gaps stop at the sill, never exposing the floor (§4c)."""
+    m = n * 2
+    seg = 2 * math.pi * r / m * 1.4
+    for i in range(m):                                   # continuous parapet sill
+        an = math.radians(i * 360 / m)
+        k.box(P, seg, 0.09, 0.12, (cx + math.cos(an) * r, cy + math.sin(an) * r, z + 0.06),
+              "stone", rot=(0, 0, an))
+    for i in range(0, m, 2):                             # merlons
+        an = math.radians(i * 360 / m)
+        k.box(P, seg, 0.11, 0.16, (cx + math.cos(an) * r, cy + math.sin(an) * r, z + 0.2),
               "stone_dk", rot=(0, 0, an))
 
 
@@ -511,14 +537,8 @@ def keep(k):
             _arch_win(k, P, xx, -0.75, zz, w=0.16, h=0.32)
     k.box(P, 0.5, 0.1, 0.9, (0, -0.75, 0.45), "wood_dk")      # entrance door
     for cx, cy in ((-0.75, -0.75), (0.75, -0.75), (-0.75, 0.75), (0.75, 0.75)):
-        k.cyl(P, 10, 0.24, 3.0, (cx, cy, 1.5), "stone")       # corner turrets
-        _crenel_round_off(k, P, 0, 0.26, 3.0, n=8)  # placeholder overwritten below
-    # (re-do turret crowns properly — offset per corner)
-    for cx, cy in ((-0.75, -0.75), (0.75, -0.75), (-0.75, 0.75), (0.75, 0.75)):
-        for i in range(8):
-            an = math.radians(i * 45)
-            k.box(P, 0.13, 0.13, 0.2, (cx + math.cos(an) * 0.26, cy + math.sin(an) * 0.26, 3.05),
-                  "stone_dk", rot=(0, 0, an))
+        k.cyl(P, 10, 0.24, 3.0, (cx, cy, 1.5), "stone")       # corner turret
+        _crenel_round_off(k, P, cx, 0.26, 3.0, n=8, cy=cy)    # turret battlement (on the turret)
     _crenel_sq(k, P, 1.5, 1.5, 2.6)                            # main battlement
     k.box(P, 0.7, 0.1, 1.0, (0, 0, 3.3), "flag")              # banner from the roof
     k.cyl(P, 6, 0.03, 1.2, (0, 0, 3.5), "wood_dk")

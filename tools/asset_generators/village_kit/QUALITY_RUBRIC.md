@@ -136,6 +136,35 @@ or assembled from `kit_parts` — is only "done" when it passes all of these.
 part, see a *masonry roof* or a *slate cottage*, or the roof *flares past* a tidy
 eave — it fails and needs another pass.
 
+### 4c. Physical plausibility — structures must obey physics (MUST)
+Every piece must be buildable in stone: no element may hover, and no feature may
+sit where there is no structure beneath it. Benchmarked against real castle
+towers/gatehouses. A fortification is only "done" when it passes all of these.
+
+1. **Battlements have a continuous parapet sill (MUST).** Crenellations are
+   *merlons rising from a continuous low parapet wall*, NOT free-standing teeth on
+   the rim. The crenel gaps between merlons stop at the parapet sill — you must
+   **never see through a crenel gap down to the tower floor / wall-walk**. Build
+   the sill first (a solid ring/edge course), then the merlons on top of it.
+   *Reject signature:* a ring of teeth with full-height gaps exposing the floor.
+2. **No floating stone (MUST).** Every merlon, corbel, course, and block rests on
+   the structure below it. A ring of merlons must sit on a tower/parapet of the
+   *same radius and centre* — never orphaned around empty space (e.g. circling a
+   rooftop flag). If a decorative ring has no wall under it, it is a bug.
+   *Reject signature:* stone teeth encircling a flagpole or hovering mid-air.
+3. **Merlons touch their base (MUST).** No air-gap between a merlon and the
+   parapet/cap it stands on; no merlon proud of the wall line it defends.
+4. **Machicolations corbel out from the wall face (SHOULD).** The projecting
+   parapet rests on a continuous corbel course that grows out of the wall below —
+   the overhang is supported, not cantilevered from nothing.
+5. **Load path to the ground (SHOULD).** Towers/roofs/spires transfer onto walls
+   that reach z=0. An upper feature (spire, turret, hoarding) sits on a footprint
+   at least as wide as its base directly beneath it.
+
+**Quick reject test:** if you can see the *floor through the battlement gaps*, if
+*teeth float* around a flag or in the air, or if any block sits on *nothing* — it
+defies physics and needs another pass.
+
 ## 5. Colour palette discipline
 - **MUST** — locked palette, harmonised across the kit; accents used sparingly.
   (We have this: `PALETTE` + `PALETTE_OVERRIDE`; `validate_palette()`.)
