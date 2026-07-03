@@ -3,11 +3,11 @@
 Builds every piece once and exports it in all marketplace formats
 (GLB / glTF / OBJ+MTL / FBX / DAE), renders a catalog under the spec's aesthetic
 profile, and writes README.md + LISTING.md. With ``--atlas`` the pieces are built
-in KayKit color-atlas mode and the shared atlas PNGs are shipped alongside. The
-Godot showcase (hero.png) and per-piece gallery are rendered separately via
-godot_verify (see README).
+in KayKit color-atlas mode and the shared atlas PNGs are shipped alongside. With
+``--gallery`` it also renders a 3/4 ``hero.png`` beauty shot and a per-piece
+``gallery/<name>.png`` set, and runs the quality gate inline.
 
-    blender -b --python productize.py -- <spec.py> <product_dir> [product_name] [--atlas]
+    blender -b --python productize.py -- <spec.py> <product_dir> [name] [--atlas] [--gallery]
 """
 
 import json
@@ -16,7 +16,14 @@ import shutil
 import sys
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from kit_pipeline import PROFILES, TRI_HI, TRI_LO, _load_spec, _render_catalog  # noqa: E402
+from kit_pipeline import (  # noqa: E402
+    PROFILES,
+    TRI_HI,
+    TRI_LO,
+    _load_spec,
+    _render_catalog,
+    _render_presentation,
+)
 from kitlib import EMISSION, PALETTE, Kit  # noqa: E402
 
 # Interchange coverage matching KayKit (FBX/OBJ/DAE/GLTF) plus USD. DAE is
@@ -82,6 +89,7 @@ def _write_docs(
 def main() -> int:
     argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
     atlas = "--atlas" in argv
+    gallery = "--gallery" in argv
     pos = [a for a in argv if not a.startswith("--")]
     if len(pos) < 2:
         print("PRODUCT result=FAIL reason=usage: -- <spec.py> <product_dir> [name] [--atlas]")
@@ -149,7 +157,10 @@ def main() -> int:
     k.box([], 60, 60, 0.1, (0, 0, -0.06), profile["ground"])
     catalog = os.path.join(product_dir, "catalog.png")
     view = getattr(spec, "HERO_VIEW", "top")   # "3q" for vertical parts kits
-    _render_catalog(k.scene, catalog, max(12.0, cols * 2.6 + 4), profile, view)
+    ortho = max(12.0, cols * 2.6 + 4)
+    _render_catalog(k.scene, catalog, ortho, profile, view)
+    if gallery:                                # hero.png + per-piece gallery/*.png
+        _render_presentation(k.scene, built, product_dir, ortho)
     _write_docs(product_dir, getattr(spec, "TITLE", name), aesthetic, names, atlas, avail)
 
     counts = {fmt: len(os.listdir(os.path.join(product_dir, f"models_{fmt}"))) for fmt in avail}

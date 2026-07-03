@@ -114,6 +114,43 @@ def _render_catalog(scene, out_png: str, ortho: float, profile: dict, view: str 
     bpy.ops.render.render(write_still=True)
 
 
+def _aim(cam, target) -> None:
+    look = mathutils.Vector(target) - cam.location
+    cam.rotation_euler = look.to_track_quat("-Z", "Y").to_euler()
+
+
+def _render_presentation(scene, built: list, product_dir: str, ortho: float) -> None:
+    """Render a 3/4 hero shot of the whole kit + a per-piece gallery/<name>.png.
+    Reuses the lights/world/camera already set up by _render_catalog."""
+    cam = scene.camera
+    rx, ry = scene.render.resolution_x, scene.render.resolution_y
+    # hero: corner 3/4 of the assembled layout
+    cam.data.ortho_scale = ortho
+    cam.location = (ortho * 0.42, -ortho * 0.66, ortho * 0.5)
+    _aim(cam, (0, 0, ortho * 0.06))
+    scene.render.resolution_x, scene.render.resolution_y = 1600, 1000
+    scene.render.filepath = os.path.join(product_dir, "hero.png")
+    bpy.ops.render.render(write_still=True)
+    # per-piece gallery
+    gdir = os.path.join(product_dir, "gallery")
+    os.makedirs(gdir, exist_ok=True)
+    objs = [o for _, o in built]
+    scene.render.resolution_x, scene.render.resolution_y = 800, 800
+    for name, obj in built:
+        for o in objs:
+            o.hide_render = o is not obj
+        loc, dim = obj.location, obj.dimensions
+        s = max(dim.x, dim.y, dim.z, 0.4) * 1.7 + 0.4
+        cam.data.ortho_scale = s
+        cam.location = (loc.x + s * 0.5, loc.y - s * 0.8, loc.z + s * 0.55)
+        _aim(cam, (loc.x, loc.y, loc.z + dim.z * 0.4))
+        scene.render.filepath = os.path.join(gdir, name + ".png")
+        bpy.ops.render.render(write_still=True)
+    for o in objs:
+        o.hide_render = False
+    scene.render.resolution_x, scene.render.resolution_y = rx, ry
+
+
 def main() -> int:
     argv = sys.argv[sys.argv.index("--") + 1 :] if "--" in sys.argv else []
     atlas = "--atlas" in argv
