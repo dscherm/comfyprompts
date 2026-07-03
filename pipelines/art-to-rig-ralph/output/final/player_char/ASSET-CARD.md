@@ -63,9 +63,16 @@ An FBX input carries Blender axis-conversion baggage that AccuRIG preserves —
 the exported rig binds the mesh in a different frame than the skeleton deforms
 in (shredded mesh); a meter-unit OBJ imports as a 2cm miniature.
 
+## Texturing — COMPLETE (2026-07-03)
+Painted via **TRELLIS.2 MeshTexturing_MultiView** (the original full-res mesh +
+A_front/A_back concept views, sdpa/xformers backends, 2048 texture) -> smart-UV
+on the prepared mesh -> Cycles bake-transfer -> `mesh/player_char_v1_albedo.png`.
+Previews: `artwork/rookie_textured_front.png` / `_back2.png`. Pipeline order
+matters: **UV-unwrap BEFORE AccuRIG** (AccuRIG preserves input UVs into the FBX;
+adding UVs later would force a risky Blender round-trip of the rig). Unity binds
+the albedo via `Tools > Rookie > Assign Texture` (extracted material, _BaseMap).
+
 ## Known Issues / Next Steps
-- **No textures yet** — TRELLIS output is untextured geometry; run the texturing stage
-  (Hunyuan3D paint / blender_normal_texturing) before shipping visuals.
 - **Blender mocap retarget FIXED (2026-07-02)**: `retarget_mocap.py` was scrambling
   poses on all rigs (un-keyed pose locations + mirrored .l/.r labels + FBX stub bone
   axes — see the script docstring). Now validated on this rig (idle + walk with root
