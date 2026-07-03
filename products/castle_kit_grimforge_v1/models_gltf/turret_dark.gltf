@@ -18,12 +18,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"turret_dark",
-			"translation":[
-				0,
-				0,
-				0.011411517858505249
-			]
+			"name":"turret_dark"
 		}
 	],
 	"materials":[
@@ -54,7 +49,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.168",
+			"name":"Cylinder.159",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +89,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":420,
+			"count":1044,
 			"max":[
-				0.33717697858810425,
-				1.684999942779541,
-				0.3485884964466095
+				0.45308351516723633,
+				1.8799998760223389,
+				0.45308351516723633
 			],
 			"min":[
-				-0.33717697858810425,
+				-0.45308351516723633,
 				0,
-				-0.3485884964466095
+				-0.45308351516723633
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":420,
+			"count":1044,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":420,
+			"count":1044,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":708,
+			"count":1656,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":5040,
+			"byteLength":12528,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5040,
-			"byteOffset":5040,
+			"byteLength":12528,
+			"byteOffset":12528,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3360,
-			"byteOffset":10080,
+			"byteLength":8352,
+			"byteOffset":25056,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1416,
-			"byteOffset":13440,
+			"byteLength":3312,
+			"byteOffset":33408,
 			"target":34963
 		}
 	],
@@ -160,7 +155,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":14856,
+			"byteLength":36720,
 			"uri":"turret_dark.bin"
 		}
 	]

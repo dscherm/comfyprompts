@@ -72,6 +72,40 @@ def _machic_round(k, P, r, z, color="stone_dk"):
     k.cyl(P, 14, r + 0.09, 0.08, (0, 0, z + 0.1), "stone")   # cap course / wall-walk
 
 
+def _tower_crown(k, P, r, z, n=12, cx=0.0, cy=0.0):
+    """A complete, connected round tower-top, all one attached structure (§4c):
+      1. a flared machicolation corbel course that GROWS OUT of the tower wall,
+      2. corbel ribs on the flare (the machicolation brackets, attached),
+      3. a recessed wall-walk floor — the POCKET the guards stand in,
+      4. a continuous parapet ring wall (overlapping segments, hollow centre),
+      5. merlons with embrasures (crenels) between, all the same stone.
+    The whole ring sits ON the tower — nothing floats, nothing is upside-down."""
+    ro = r + 0.09
+    m = max(16, n * 2)
+    # 1. flared corbel course, attached to the wall (bottom = wall radius)
+    k.cone(P, m, ro + 0.02, r - 0.01, 0.15, (cx, cy, z + 0.075), "stone")
+    # 2. corbel ribs (machicolation brackets) sitting on the flare
+    for i in range(n):
+        an = math.radians(i * 360 / n)
+        rx, ry = cx + math.cos(an) * (ro - 0.04), cy + math.sin(an) * (ro - 0.04)
+        k.box(P, 0.06, 0.11, 0.13, (rx, ry, z + 0.085), "stone", rot=(0, 0, an))
+    # 3. recessed wall-walk floor (pocket bottom), inset from the parapet
+    k.cyl(P, m, ro - 0.08, 0.05, (cx, cy, z + 0.18), "stone")
+    # 4. continuous parapet ring wall — overlapping boxes => no gaps, open centre
+    seg = 2 * math.pi * ro / m * 1.5
+    for i in range(m):
+        an = math.radians(i * 360 / m)
+        px, py = cx + math.cos(an) * ro, cy + math.sin(an) * ro
+        k.box(P, seg, 0.08, 0.14, (px, py, z + 0.27), "stone", rot=(0, 0, an))
+    # 5. merlons + embrasures on the parapet
+    seg2 = 2 * math.pi * ro / n * 0.52
+    for i in range(n):
+        an = math.radians(i * 360 / n)
+        px, py = cx + math.cos(an) * ro, cy + math.sin(an) * ro
+        k.box(P, seg2, 0.1, 0.14, (px, py, z + 0.41),
+              "stone", rot=(0, 0, an))
+
+
 def _cone(k, P, r, h, z, color="slate", vn=8):
     """A conical spire roof of base radius r, height h, from z."""
     k.cone(P, vn, r, 0, h, (0, 0, z + h / 2), color)
@@ -178,7 +212,7 @@ def wall_corner(k):
     P = []
     k.cyl(P, 10, 0.24, 1.0, (0, 0, 0.5), "stone")
     _batter(k, P, 0.24)
-    _crenel_round(k, P, 0.24, 1.0, n=8)
+    _tower_crown(k, P, 0.24, 1.0, n=8)
     k.cyl(P, 10, 0.27, 0.06, (0, 0, 0.98), "stone_dk")
     return k.join(P, "wall_corner")
 
@@ -250,8 +284,7 @@ def tower_round(k):
     _batter(k, P, 0.42)
     for zz in (0.5, 0.85):
         _arrowslit(k, P, 0, -0.4, zz)
-    _machic_round(k, P, 0.42, 1.1)
-    _crenel_round(k, P, 0.44, 1.24, n=12)
+    _tower_crown(k, P, 0.42, 1.1, n=12)
     return k.join(P, "tower_round")
 
 
@@ -264,8 +297,7 @@ def tower_round_tall(k):
         k.cyl(P, 12, 0.44, 0.05, (0, 0, cz), "stone_dk")      # course bands
     for zz in (0.7, 1.35, 1.9):
         _arrowslit(k, P, 0, -0.4, zz)
-    _machic_round(k, P, 0.42, 2.1)
-    _crenel_round(k, P, 0.44, 2.24, n=12)
+    _tower_crown(k, P, 0.42, 2.1, n=12)
     return k.join(P, "tower_round_tall")
 
 
@@ -313,7 +345,7 @@ def turret(k):
     """A slim corner turret / bartizan."""
     P = []
     k.cyl(P, 10, 0.26, 1.4, (0, 0, 0.7), "stone")
-    _crenel_round(k, P, 0.28, 1.4, n=8)
+    _tower_crown(k, P, 0.26, 1.4, n=8)
     _arrowslit(k, P, 0, -0.25, 0.8)
     return k.join(P, "turret")
 
@@ -335,8 +367,7 @@ def tower_gate(k):
     k.box(P, 0.3, 0.16, 0.8, (0, -0.4, 0.5), "soot")          # gate recess
     for zz in (1.0, 1.35):
         _arrowslit(k, P, 0, -0.42, zz)
-    _machic_round(k, P, 0.45, 1.6)
-    _crenel_round(k, P, 0.47, 1.74, n=12)
+    _tower_crown(k, P, 0.45, 1.6, n=12)
     return k.join(P, "tower_gate")
 
 
@@ -430,8 +461,7 @@ def cap_pyramid_red(k):
 def cap_crenel(k):
     """A crenellated flat cap (battlement top) for a round tower."""
     P = []
-    _machic_round(k, P, 0.42, 1.0)
-    _crenel_round(k, P, 0.44, 1.14, n=12)
+    _tower_crown(k, P, 0.42, 1.0, n=12)
     return k.join(P, "cap_crenel")
 
 
@@ -468,8 +498,7 @@ def gatehouse(k):
         k.cyl(P, 12, 0.4, 2.0, (s * GT, 0, 1.0), "stone")
         for zz in (0.75, 1.35):                              # guard-room windows
             _arch_win(k, P, s * GT, -0.38, zz, w=0.14, h=0.26)
-        _machic_round_off(k, P, s * GT, 0.4, 2.0)
-        _crenel_round_off(k, P, s * GT, 0.42, 2.14, n=10)
+        _tower_crown(k, P, 0.4, 2.0, n=10, cx=s * GT)
     # gate curtain wall between the towers
     k.box(P, 2 * GT, 0.42, 1.35, (0, 0, 0.675), "stone")
     k.box(P, 2 * GT + 0.06, 0.5, 0.12, (0, 0, 0.06), "stone_dk")   # plinth
@@ -535,7 +564,7 @@ def keep(k):
     k.box(P, 0.5, 0.1, 0.9, (0, -0.75, 0.45), "wood_dk")      # entrance door
     for cx, cy in ((-0.75, -0.75), (0.75, -0.75), (-0.75, 0.75), (0.75, 0.75)):
         k.cyl(P, 10, 0.24, 3.0, (cx, cy, 1.5), "stone")       # corner turret
-        _crenel_round_off(k, P, cx, 0.26, 3.0, n=8, cy=cy)    # turret battlement (on the turret)
+        _tower_crown(k, P, 0.24, 3.0, n=8, cx=cx, cy=cy)      # turret crown (on the turret)
     _crenel_sq(k, P, 1.5, 1.5, 2.6)                            # main battlement
     k.box(P, 0.7, 0.1, 1.0, (0, 0, 3.3), "flag")              # banner from the roof
     k.cyl(P, 6, 0.03, 1.2, (0, 0, 3.5), "wood_dk")
@@ -840,15 +869,7 @@ def round_keep(k):
         an = math.radians(i * 90 - 45)
         _arch_win(k, P, math.cos(an) * 0.72, math.sin(an) * 0.72 - 0.02, 1.2, w=0.16, h=0.34)
     k.box(P, 0.5, 0.1, 0.9, (0, -0.74, 0.45), "wood_dk")      # door
-    for i in range(16):                                       # machicolation ring
-        an = math.radians(i * 22.5)
-        k.box(P, 0.14, 0.16, 0.14, (math.cos(an) * 0.82, math.sin(an) * 0.82, 2.4),
-              "stone_dk", rot=(0, 0, an))
-    k.cyl(P, 16, 0.86, 0.08, (0, 0, 2.5), "stone")
-    for i in range(16):
-        an = math.radians(i * 22.5)
-        k.box(P, 0.17, 0.14, 0.26, (math.cos(an) * 0.8, math.sin(an) * 0.8, 2.66),
-              "stone_dk", rot=(0, 0, an))
+    _tower_crown(k, P, 0.75, 2.4, n=16)                       # connected crown + pocket
     return k.join(P, "round_keep")
 
 

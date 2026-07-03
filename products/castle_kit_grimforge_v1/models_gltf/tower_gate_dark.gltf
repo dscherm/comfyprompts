@@ -49,7 +49,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.165",
+			"name":"Cylinder.157",
 			"primitives":[
 				{
 					"attributes":{
@@ -89,61 +89,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1020,
+			"count":1656,
 			"max":[
-				0.5799999833106995,
-				2.0250000953674316,
-				0.5799999833106995
+				0.6460287570953369,
+				2.080000162124634,
+				0.6460287570953369
 			],
 			"min":[
-				-0.5799999833106995,
+				-0.6460287570953369,
 				0,
-				-0.5799999833106995
+				-0.6460287570953369
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1020,
+			"count":1656,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1020,
+			"count":1656,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":1668,
+			"count":2652,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":12240,
+			"byteLength":19872,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":12240,
-			"byteOffset":12240,
+			"byteLength":19872,
+			"byteOffset":19872,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":8160,
-			"byteOffset":24480,
+			"byteLength":13248,
+			"byteOffset":39744,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3336,
-			"byteOffset":32640,
+			"byteLength":5304,
+			"byteOffset":52992,
 			"target":34963
 		}
 	],
@@ -155,7 +155,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":35976,
+			"byteLength":58296,
 			"uri":"tower_gate_dark.bin"
 		}
 	]

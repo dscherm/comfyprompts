@@ -49,7 +49,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.193",
+			"name":"Cylinder.182",
 			"primitives":[
 				{
 					"attributes":{
@@ -89,61 +89,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1788,
+			"count":2844,
 			"max":[
-				0.8899999856948853,
-				2.7899999618530273,
-				0.8899999856948853
+				0.9637001752853394,
+				2.880000114440918,
+				0.9637001752853394
 			],
 			"min":[
-				-0.8899999856948853,
+				-0.9637001752853394,
 				0,
-				-0.8899999856948853
+				-0.9637001752853394
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1788,
+			"count":2844,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1788,
+			"count":2844,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":2832,
+			"count":4548,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":21456,
+			"byteLength":34128,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":21456,
-			"byteOffset":21456,
+			"byteLength":34128,
+			"byteOffset":34128,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":14304,
-			"byteOffset":42912,
+			"byteLength":22752,
+			"byteOffset":68256,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5664,
-			"byteOffset":57216,
+			"byteLength":9096,
+			"byteOffset":91008,
 			"target":34963
 		}
 	],
@@ -155,7 +155,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":62880,
+			"byteLength":100104,
 			"uri":"round_keep_dark.bin"
 		}
 	]
