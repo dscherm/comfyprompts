@@ -94,10 +94,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":400,
+			"count":432,
 			"max":[
 				0.14000000059604645,
-				1.090000033378601,
+				1.1755390167236328,
 				0.04253200441598892
 			],
 			"min":[
@@ -110,45 +110,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":400,
+			"count":432,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":400,
+			"count":432,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":582,
+			"count":636,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":4800,
+			"byteLength":5184,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4800,
-			"byteOffset":4800,
+			"byteLength":5184,
+			"byteOffset":5184,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3200,
-			"byteOffset":9600,
+			"byteLength":3456,
+			"byteOffset":10368,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1164,
-			"byteOffset":12800,
+			"byteLength":1272,
+			"byteOffset":13824,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":13964,
+			"byteLength":15096,
 			"uri":"sword.bin"
 		}
 	]

@@ -37,15 +37,27 @@ def _haft(k, P, z0, z1, r=0.03, color="wood_dk"):
     k.cyl(P, 8, r, z1 - z0, (0, 0, (z0 + z1) / 2), color)
 
 
+def _blade(k, P, w, th, z0, z_body, z_tip, color="steel", fuller="gunmetal"):
+    """ONE connected flat blade: a parallel body, a fuller groove, and a flat
+    tapered tip made of same-thickness slats that narrow to the point — reads as a
+    single blade, not a box with a stuck-on cone."""
+    bh = z_body - z0
+    k.box(P, w, th, bh, (0, 0, z0 + bh / 2), color)                   # blade body
+    k.box(P, w * 0.26, th + 0.004, bh * 0.92, (0, 0, z0 + bh / 2), fuller)  # fuller groove
+    # flat tapered point: two angled edge-planes converging (reads as one clean blade)
+    th_ = z_tip - z_body
+    for s in (-1, 1):
+        k.box(P, w * 0.62, th, th_ * 1.02, (s * w * 0.19, 0, z_body + th_ * 0.5),
+              color, rot=(0, math.radians(-s * 13), 0))
+
+
 def _axe_bit(k, P, cx, cz, sgn=1):
-    """A single axe blade (dark cheek at the haft flaring to a bright steel edge),
-    bit facing ±x per ``sgn``."""
-    k.box(P, 0.06, 0.11, 0.24, (cx, 0, cz), "gunmetal")               # eye / cheek
-    k.box(P, 0.2, 0.03, 0.3, (cx + sgn * 0.15, 0, cz), "steel")       # blade plate
-    for zsgn in (-1, 1):                                              # crescent bevels
-        k.box(P, 0.09, 0.032, 0.09, (cx + sgn * 0.24, 0, cz + zsgn * 0.12),
-              "steel", rot=(0, sgn * zsgn * math.radians(30), 0))
-    k.box(P, 0.03, 0.036, 0.34, (cx + sgn * 0.26, 0, cz), "gunmetal")  # edge spine
+    """A single axe bit — a solid connected wedge: an eye block that wraps the haft,
+    a flat blade that flares out to a thicker cutting edge. No detached bevels."""
+    k.box(P, 0.09, 0.14, 0.3, (cx, 0, cz), "gunmetal")               # eye / cheek block
+    k.box(P, 0.22, 0.035, 0.32, (cx + sgn * 0.16, 0, cz), "steel")   # flat blade, flares out
+    k.box(P, 0.05, 0.05, 0.4, (cx + sgn * 0.27, 0, cz), "steel")     # thick bearded cutting edge
+    k.box(P, 0.05, 0.06, 0.34, (cx + sgn * 0.05, 0, cz), "gunmetal")  # reinforced spine at the eye
 
 
 # --------------------------------------------------------------------------- #
@@ -59,9 +71,7 @@ def sword(k):
     _grip(k, P, 0.05, 0.26)
     k.box(P, 0.28, 0.055, 0.05, (0, 0, 0.28), "iron")                # crossguard
     k.ico(P, 0.03, (0, 0, 0.28), "crimson")                          # guard gem
-    k.box(P, 0.09, 0.03, 0.6, (0, 0, 0.6), "steel")                  # blade
-    k.box(P, 0.018, 0.034, 0.58, (0, 0, 0.6), "gunmetal")            # fuller
-    k.cone(P, 4, 0.046, 0, 0.16, (0, 0, 0.98), "steel", rot=(0, 0, R45))  # tip
+    _blade(k, P, 0.09, 0.03, 0.31, 0.9, 1.14)                        # one connected blade
     return k.join(P, "sword")
 
 
@@ -73,9 +83,7 @@ def greatsword(k):
     k.box(P, 0.34, 0.06, 0.06, (0, 0, 0.42), "gunmetal")            # guard
     for s in (-1, 1):
         k.ico(P, 0.03, (s * 0.15, 0, 0.42), "crimson")             # guard gems
-    k.box(P, 0.12, 0.035, 0.9, (0, 0, 0.92), "steel")              # blade
-    k.box(P, 0.02, 0.04, 0.88, (0, 0, 0.92), "gunmetal")           # fuller
-    k.cone(P, 4, 0.06, 0, 0.2, (0, 0, 1.47), "steel", rot=(0, 0, R45))
+    _blade(k, P, 0.12, 0.035, 0.46, 1.35, 1.62)                    # one connected broad blade
     return k.join(P, "greatsword")
 
 
@@ -87,9 +95,7 @@ def dagger(k):
     for zz in (0.06, 0.14):
         k.cyl(P, 8, 0.034, 0.012, (0, 0, zz), "gold")            # grip rings
     k.box(P, 0.14, 0.04, 0.035, (0, 0, 0.18), "gunmetal")        # dark guard
-    k.box(P, 0.06, 0.022, 0.28, (0, 0, 0.33), "steel")           # blade
-    k.box(P, 0.016, 0.026, 0.26, (0, 0, 0.33), "gunmetal")       # fuller
-    k.cone(P, 4, 0.032, 0, 0.1, (0, 0, 0.5), "steel", rot=(0, 0, R45))
+    _blade(k, P, 0.06, 0.024, 0.2, 0.44, 0.56)                   # one connected blade
     return k.join(P, "dagger")
 
 
@@ -99,8 +105,9 @@ def axe(k):
     _haft(k, P, 0.0, 0.95, 0.028, "wood")
     k.cyl(P, 8, 0.032, 0.06, (0, 0, 0.05), "iron")                # butt cap
     zc = 0.82
-    _axe_bit(k, P, 0.03, zc, 1)
-    k.box(P, 0.045, 0.045, 0.15, (-0.02, 0, zc + 0.18), "steel")  # top spike
+    _axe_bit(k, P, 0.02, zc, 1)
+    k.box(P, 0.06, 0.06, 0.13, (0.02, 0, zc + 0.2), "gunmetal")   # spike base on the eye
+    k.cone(P, 4, 0.04, 0, 0.12, (0.02, 0, zc + 0.32), "steel", rot=(0, 0, R45))  # top spike
     return k.join(P, "axe")
 
 
@@ -325,16 +332,35 @@ def amulet(k):
 # --------------------------------------------------------------------------- #
 
 def chest(k):
-    """A banded treasure chest with a gold lock (lid ajar, glowing within)."""
+    """A detailed treasure chest — planked body with iron corner-posts / bands /
+    bun feet, an ajar planked lid, a bed of glowing gold with spilling coins and
+    gems, and an ornate lock plate + hasp + keyhole."""
     P = []
-    k.box(P, 0.4, 0.3, 0.22, (0, 0, 0.11), "wood")            # body
-    for x in (-0.15, 0.15):
-        k.box(P, 0.04, 0.32, 0.24, (x, 0, 0.11), "iron")     # bands
-    k.box(P, 0.42, 0.32, 0.03, (0, 0, 0.02), "iron")         # foot band
-    k.box(P, 0.4, 0.3, 0.1, (0, 0.02, 0.28), "wood_dk", rot=(math.radians(-22), 0, 0))  # lid ajar
-    k.box(P, 0.42, 0.05, 0.11, (0, 0.14, 0.26), "iron", rot=(math.radians(-22), 0, 0))
-    k.box(P, 0.08, 0.04, 0.08, (0, -0.16, 0.14), "gold")     # lock
-    k.box(P, 0.34, 0.24, 0.02, (0, 0, 0.2), "amber")        # glowing gold within
+    W, D = 0.44, 0.32
+    k.box(P, W, D, 0.2, (0, 0, 0.11), "wood")                        # planked body
+    for px in (-0.14, 0.0, 0.14):
+        k.box(P, 0.016, D + 0.006, 0.2, (px, 0, 0.11), "wood_dk")    # plank grooves
+    for x in (-0.2, 0.2):                                            # iron corner posts
+        for y in (-0.15, 0.15):
+            k.box(P, 0.05, 0.05, 0.22, (x, y, 0.11), "iron")
+    k.box(P, W + 0.03, D + 0.03, 0.035, (0, 0, 0.025), "iron")       # foot band
+    for x in (-0.17, 0.17):                                          # bun feet
+        for y in (-0.12, 0.12):
+            k.box(P, 0.05, 0.05, 0.04, (x, y, 0.02), "wood_dk")
+    k.box(P, W - 0.08, D - 0.08, 0.04, (0, 0, 0.2), "amber")         # glowing gold bed
+    for cx, cy in ((0.1, 0.03), (-0.09, 0.05), (0.02, -0.05), (0.13, -0.03), (-0.02, -0.01)):
+        k.cyl(P, 8, 0.03, 0.018, (cx, cy, 0.22), "gold")            # spilling coins
+    k.ico(P, 0.03, (0.0, 0.03, 0.24), "crimson")                    # gem
+    k.ico(P, 0.022, (-0.1, -0.02, 0.23), "gem")                     # gem 2
+    tilt = math.radians(-32)                                        # ajar planked lid
+    k.box(P, W, D, 0.07, (0, 0.03, 0.31), "wood", rot=(tilt, 0, 0))
+    for px in (-0.14, 0.0, 0.14):
+        k.box(P, 0.016, D, 0.075, (px, 0.03, 0.31), "wood_dk", rot=(tilt, 0, 0))  # lid grooves
+    for x in (-0.19, 0.19):
+        k.box(P, 0.045, D + 0.01, 0.08, (x, 0.03, 0.31), "iron", rot=(tilt, 0, 0))  # lid bands
+    k.box(P, 0.11, 0.05, 0.12, (0, -0.16, 0.16), "gold")            # lock plate
+    k.box(P, 0.13, 0.04, 0.05, (0, -0.17, 0.24), "iron")           # hasp over the seam
+    k.box(P, 0.03, 0.03, 0.045, (0, -0.185, 0.15), "gunmetal")     # keyhole
     return k.join(P, "chest")
 
 

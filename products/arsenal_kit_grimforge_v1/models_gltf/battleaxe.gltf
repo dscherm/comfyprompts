@@ -89,61 +89,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":360,
+			"count":312,
 			"max":[
-				0.32147112488746643,
+				0.3149999976158142,
 				1.0799999237060547,
-				0.054999999701976776
+				0.07000000029802322
 			],
 			"min":[
-				-0.32147112488746643,
+				-0.3149999976158142,
 				0,
-				-0.054999999701976776
+				-0.07000000029802322
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":360,
+			"count":312,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":360,
+			"count":312,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":564,
+			"count":492,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":4320,
+			"byteLength":3744,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4320,
-			"byteOffset":4320,
+			"byteLength":3744,
+			"byteOffset":3744,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2880,
-			"byteOffset":8640,
+			"byteLength":2496,
+			"byteOffset":7488,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1128,
-			"byteOffset":11520,
+			"byteLength":984,
+			"byteOffset":9984,
 			"target":34963
 		}
 	],
@@ -155,7 +155,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":12648,
+			"byteLength":10968,
 			"uri":"battleaxe.bin"
 		}
 	]

@@ -94,10 +94,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":460,
+			"count":492,
 			"max":[
 				0.17683275043964386,
-				1.6050000190734863,
+				1.6625388860702515,
 				0.046785201877355576
 			],
 			"min":[
@@ -110,45 +110,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":460,
+			"count":492,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":460,
+			"count":492,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":642,
+			"count":696,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":5520,
+			"byteLength":5904,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5520,
-			"byteOffset":5520,
+			"byteLength":5904,
+			"byteOffset":5904,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3680,
-			"byteOffset":11040,
+			"byteLength":3936,
+			"byteOffset":11808,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1284,
-			"byteOffset":14720,
+			"byteLength":1392,
+			"byteOffset":15744,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":16004,
+			"byteLength":17136,
 			"uri":"greatsword.bin"
 		}
 	]

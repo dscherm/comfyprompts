@@ -94,10 +94,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":292,
+			"count":324,
 			"max":[
 				0.07000000029802322,
-				0.5649999976158142,
+				0.5788155198097229,
 				0.03400000184774399
 			],
 			"min":[
@@ -110,45 +110,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":292,
+			"count":324,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":292,
+			"count":324,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":438,
+			"count":492,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":3504,
+			"byteLength":3888,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3504,
-			"byteOffset":3504,
+			"byteLength":3888,
+			"byteOffset":3888,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2336,
-			"byteOffset":7008,
+			"byteLength":2592,
+			"byteOffset":7776,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":876,
-			"byteOffset":9344,
+			"byteLength":984,
+			"byteOffset":10368,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":10220,
+			"byteLength":11352,
 			"uri":"dagger.bin"
 		}
 	]
