@@ -47,16 +47,21 @@ Player character for Soapbox Sabotage (kart racer). Companion kart asset:
 - `mesh/player_char_v1_print.stl` — 3D-print STL (mm units, 1800mm tall — scale to taste)
 - `rigged/` — platform rigged models
 
-## Ship Path for Animation (decided 2026-07-03)
-The UniRig rig in this package animates poorly (UniRig skin weights melt under
-motion — lesson `unirig-skin-weights-melt-use-accurig`; the headless retarget is
-previz-only — lesson `hand-rolled-retarget-limb-plane`). **Shippable animation
-follows the barbarian-verified route** (`animate-ralph/stages/07-unity-humanoid-
-packaging.md`): AccuRIG 2 rig (manual GUI; input prepared at
-`output/prepared/player_char_v1_for_accurig.fbx`, welded 23.4k verts, T-pose)
--> Unity Humanoid import (Create From This Model) -> reuse the 9 Generic Mixamo
-clips already in soapbox-unity (muscle-space retarget at runtime; no new
-downloads) -> Animator + ValidateBarbarianHumanoid-style gate via coplay-mcp.
+## Ship Path for Animation — COMPLETE (2026-07-03, validated PASS)
+The UniRig rig in this package is previz-only (weights melt under motion —
+lesson `unirig-skin-weights-melt-use-accurig`; headless retarget limb-plane —
+lesson `hand-rolled-retarget-limb-plane`). **The shippable animation package
+lives in soapbox-unity** (commit 8eb43af): `Assets/Animations/Rookie/` —
+AccuRIG 2 rig (Humanoid avatar isValid/isHuman, 22 bones, rolls consistent),
+`Rookie.controller` (Idle default, Speed-driven locomotion, 6 triggers), clips
+from the shared Generic Mixamo set. `ValidateRookieHumanoid` = **PASS**
+(9/9 clips, 27/27 sampled poses under the strict 3-layer protocol).
+
+AccuRIG input gotcha (cost 3 export rounds): feed AccuRIG a plain **OBJ in
+CENTIMETERS** (`output/prepared/player_char_v1_for_accurig.obj`, 180 units).
+An FBX input carries Blender axis-conversion baggage that AccuRIG preserves —
+the exported rig binds the mesh in a different frame than the skeleton deforms
+in (shredded mesh); a meter-unit OBJ imports as a 2cm miniature.
 
 ## Known Issues / Next Steps
 - **No textures yet** — TRELLIS output is untextured geometry; run the texturing stage
