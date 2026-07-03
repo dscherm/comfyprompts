@@ -51,14 +51,21 @@ from mathutils import Matrix, Vector
 a = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 RIG, MOCAP, MAP, OUT = a[0], a[1], a[2], a[3]
 F0, F1 = int(a[4]), int(a[5])
-# "auto" (default) = derive facing yaw from bind poses; a number = manual degrees.
+# "auto" (default) = yaw from bind-pose facings; "auto_travel" = yaw so the CLIP'S
+# TRAVEL aligns to the target's forward (use for locomotion — ROM takes have an
+# arbitrary heading; the actor faces his travel, so this gives a straight,
+# game-forward walk); a number = manual degrees.
 SRC_Z = "auto"
-if len(a) > 6 and a[6].strip().lower() != "auto":
-    SRC_Z = math.radians(float(a[6]))
+if len(a) > 6:
+    _v = a[6].strip().lower()
+    SRC_Z = _v if _v in ("auto", "auto_travel") else math.radians(float(_v))
 # root motion: "transfer" (default) replays the source hips' world travel onto the
-# target hips (scaled to the target's leg length); "off" = in-place (legacy); a float
-# = synthesize a constant forward speed (target units/frame) for in-place sources.
+# target hips (scaled to the target's leg length); "straight" = transfer with the
+# XY offsets projected onto the mean travel axis (kills the lateral wander of ROM
+# takes; Z bob kept); "off" = in-place (legacy); a float = synthesize a constant
+# forward speed (target units/frame) for in-place sources.
 ROOT_MOTION = a[7] if len(a) > 7 else "transfer"
+STRAIGHT = ROOT_MOTION == "straight"   # straight is transfer + axis projection
 # bind alignment: aim each target bone's rest to the source bone's rest DIRECTION before
 # transfer, so limb directions track the source (fixes the arms-up/frozen artifact from the
 # wide-T UniRig bind). "on" (default) | "off" (legacy full-quaternion transfer).
@@ -131,15 +138,43 @@ def main():
     def _tgt_facing():
         return _feet_facing(tgt, ["foot.l", "foot.r"])
 
-    if SRC_Z == "auto":
+    def _src_travel(f0, f1):
+        """Source hip XY travel (direction, length) over [f0,f1], pre-yaw world."""
+        s_hips_n = next((s for s, r in bone_map.items() if r == "hips"), None)
+        hb = src.pose.bones.get(s_hips_n) if s_hips_n else None
+        if hb is None:
+            return None, 0.0
+        sc0 = bpy.context.scene
+        sc0.frame_set(f0)
+        bpy.context.view_layer.update()
+        p0 = (src.matrix_world @ hb.matrix).translation.copy()
+        sc0.frame_set(f1)
+        bpy.context.view_layer.update()
+        p1 = (src.matrix_world @ hb.matrix).translation.copy()
+        tr = p1 - p0
+        tr.z = 0.0
+        return (math.atan2(tr.y, tr.x) if tr.length > 1e-6 else None), tr.length
+
+    if SRC_Z in ("auto", "auto_travel"):
         t_f = _tgt_facing()
-        s_f = _src_facing()
-        yaw = (t_f - s_f) if (t_f is not None and s_f is not None) else 0.0
-        src.rotation_euler.z += yaw
-        print(f"SRC_Z auto: facing yaw={math.degrees(yaw):.1f} deg "
-              f"(tgt={math.degrees(t_f):.1f} src={math.degrees(s_f):.1f})")
+        yaw = 0.0
+        how = "facing"
+        if SRC_Z == "auto_travel":
+            s_dir, s_len = _src_travel(F0, F1)
+            if s_dir is not None and t_f is not None and s_len > 0.05:
+                yaw = t_f - s_dir      # clip travel -> target forward
+                how = f"travel(len={s_len:.3f})"
+        if how == "facing":
+            s_f = _src_facing()
+            yaw = (t_f - s_f) if (t_f is not None and s_f is not None) else 0.0
+        # DELTA rotation, not rotation_euler: the source armature OBJECT carries
+        # keyed transforms from the FBX import, so frame_set() would overwrite a
+        # base-rotation yaw during the bake (rest would see the yaw, frames not —
+        # a constant spurious delta). delta_rotation composes on top of the keys.
+        src.delta_rotation_euler.z += yaw
+        print(f"SRC_Z {SRC_Z}: yaw={math.degrees(yaw):.1f} deg via {how}")
     else:
-        src.rotation_euler.z += SRC_Z
+        src.delta_rotation_euler.z += SRC_Z
     bpy.context.view_layer.update()
 
     # side-consistency: if (after yaw) the source's Left leg sits on the OPPOSITE
@@ -285,10 +320,24 @@ def main():
             src_leg = _leg(src, hsb, src_foot) if src_foot else None
             tgt_leg = _leg(tgt, htb, "foot.r")
             root_scale = (tgt_leg / src_leg) if (src_leg and tgt_leg and src_leg > 1e-6) else 1.0
+            # "straight": project XY travel onto the clip's mean travel axis so ROM
+            # takes don't wander laterally (Z bob is kept as-is).
+            axis_v = None
+            if STRAIGHT:
+                sc.frame_set(F1)
+                tr = (src.matrix_world @ hsb.matrix).translation - src_hip_f0
+                tr.z = 0.0
+                axis_v = tr.normalized() if tr.length > 1e-6 else None
+                sc.frame_set(F0)
             def root_off_fn(f):
                 now = (src.matrix_world @ hsb.matrix).translation
-                return (now - src_hip_f0) * root_scale
-            print(f"ROOT_MOTION transfer src_leg={src_leg} tgt_leg={tgt_leg} scale={root_scale:.4f}")
+                off = (now - src_hip_f0) * root_scale
+                if axis_v is not None:
+                    off = axis_v * Vector((off.x, off.y, 0.0)).dot(axis_v) \
+                          + Vector((0.0, 0.0, off.z))
+                return off
+            print(f"ROOT_MOTION {'straight' if STRAIGHT else 'transfer'} "
+                  f"src_leg={src_leg} tgt_leg={tgt_leg} scale={root_scale:.4f}")
     else:
         print("ROOT_MOTION off (in-place)")
 
@@ -314,6 +363,14 @@ def main():
             tb.keyframe_insert("rotation_quaternion", frame=f - F0)
             tb.keyframe_insert("location", frame=f - F0)  # key ALL channels the pose uses
 
+
+    # transfer-fidelity handshake: the exported clip's hip travel should match this
+    # (frame F1 root offset). batch_retarget parses it and measures the actual
+    # travel on the exported FBX — direction error ~0 and magnitude ratio ~1 is the
+    # honest gate (unlike the old bind-facing "misalign", which was noise).
+    sc.frame_set(F1)
+    _exp = root_off_fn(F1)
+    print(f"EXPECTED_TRAVEL {_exp.x:.4f} {_exp.y:.4f} {_exp.z:.4f}")
 
     # drop EVERYTHING imported with the mocap — the source armature AND any skinned
     # source mesh it brought in — keeping only the target rig+mesh (the objects present

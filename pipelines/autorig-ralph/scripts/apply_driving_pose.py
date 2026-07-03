@@ -100,12 +100,19 @@ def auto_detect_and_rename(armature):
     left_v = Vector((0.0, 0.0, 1.0)).cross(fwd)
     root_head = armature.matrix_world @ root[0].head_local
 
-    def side_of(bone):
-        off = (armature.matrix_world @ bone.head_local) - root_head
+    def side_of(bone, ref=None):
+        off = (armature.matrix_world @ bone.head_local) - (ref if ref is not None else root_head)
         return "L" if off.dot(left_v) > 0 else "R"
 
+    def chain_side(chain):
+        # judge by the chain's MOST-LATERAL bone: chain roots (hip connectors)
+        # sit on the centerline where the sign is noise.
+        best = max(chain, key=lambda b: abs(
+            ((armature.matrix_world @ b.head_local) - root_head).dot(left_v)))
+        return side_of(best)
+
     for chain in leg_chains:
-        side = side_of(chain[0])
+        side = chain_side(chain)
         if f"hip_{side}" not in roles:
             for i, label in enumerate(["hip", "upperleg", "lowerleg", "foot"]):
                 if i < len(chain):
@@ -132,7 +139,9 @@ def auto_detect_and_rename(armature):
                                 roles["head"] = gc.name
                 # Goes sideways = arm
                 elif abs(ch.x - sp_h.x) > 0.02:
-                    side = side_of(child)          # facing-aware (see legs above)
+                    # facing-aware, relative to the branching spine bone (shoulder
+                    # heads sit close to the centerline; root-relative is noisy)
+                    side = side_of(child, ref=sp_h)
                     if f"shoulder_{side}" not in roles:
                         roles[f"shoulder_{side}"] = child.name
                         arm_chain = []

@@ -87,12 +87,19 @@ def auto_detect_and_rename(armature):
     print(f"FACING fwd=({fwd.x:.2f},{fwd.y:.2f},{fwd.z:.2f}) "
           f"left=({left_v.x:.2f},{left_v.y:.2f},{left_v.z:.2f})")
 
-    def side_of(bone):
-        off = (armature.matrix_world @ bone.head_local) - root_head
+    def side_of(bone, ref=None):
+        off = (armature.matrix_world @ bone.head_local) - (ref if ref is not None else root_head)
         return "L" if off.dot(left_v) > 0 else "R"
 
+    def chain_side(chain):
+        # judge by the chain's MOST-LATERAL bone: chain roots (hip connectors)
+        # sit on the centerline where the sign is noise.
+        best = max(chain, key=lambda b: abs(
+            ((armature.matrix_world @ b.head_local) - root_head).dot(left_v)))
+        return side_of(best)
+
     for chain in leg_chains:
-        side = side_of(chain[0])
+        side = chain_side(chain)
         if f"hip_{side}" not in roles:
             for i, label in enumerate(["hip", "upperleg", "lowerleg", "foot"]):
                 if i < len(chain):
@@ -116,7 +123,9 @@ def auto_detect_and_rename(armature):
                             if (armature.matrix_world @ gc.head_local).z > ch.z:
                                 roles["head"] = gc.name
                 elif abs(ch.x - sp_h.x) > 0.02:
-                    side = side_of(child)          # facing-aware (see legs above)
+                    # facing-aware, relative to the branching spine bone (shoulder
+                    # heads sit close to the centerline; root-relative is noisy)
+                    side = side_of(child, ref=sp_h)
                     if f"shoulder_{side}" not in roles:
                         roles[f"shoulder_{side}"] = child.name
                         arm_chain = []; cur = child
@@ -141,12 +150,29 @@ def auto_detect_and_rename(armature):
         for part in ("upperleg", "lowerleg", "foot", "shoulder", "upperarm", "lowerarm", "hand"):
             rename_map[f"{part}_{sl}"] = f"{part}{sx}"
 
+    # TWO-PHASE rename so the script is safely RE-RUNNABLE on already-renamed
+    # rigs (e.g. re-labeling pre-2026-07 mirrored .l/.r rigs): renaming directly
+    # collides with existing role names and Blender silently .001-suffixes them.
+    # Phase 1 parks every role bone on a unique temp name; phase 2 assigns the
+    # final names; squatters (non-role bones already holding a target name) are
+    # shunted aside. Bone renames auto-sync matching vertex groups in Blender,
+    # so the vg pass below is a no-op safety net for detached meshes.
     renamed = {}
+    plan = []
+    planned_bones = set()
     for role, old in roles.items():
         new = rename_map.get(role)
-        if new and old in armature.data.edit_bones:
-            armature.data.edit_bones[old].name = new
-            renamed[role] = (old, new)
+        if new and old in armature.data.edit_bones and old not in planned_bones:
+            plan.append((role, old, new))
+            planned_bones.add(old)   # a bone can back only one role (first wins)
+    for i, (role, old, new) in enumerate(plan):
+        armature.data.edit_bones[old].name = f"TMP_ROLE_{i}"
+    for i, (role, old, new) in enumerate(plan):
+        squatter = armature.data.edit_bones.get(new)
+        if squatter is not None:
+            squatter.name = new + ".unassigned"
+        armature.data.edit_bones[f"TMP_ROLE_{i}"].name = new
+        renamed[role] = (old, new)
     bpy.ops.object.mode_set(mode='OBJECT')
 
     for obj in bpy.data.objects:
@@ -219,9 +245,17 @@ def detect_arms_by_position(armature):
     if edits:
         bpy.context.view_layer.objects.active = armature
         bpy.ops.object.mode_set(mode='EDIT')
-        for old, new in edits.items():
-            if old in armature.data.edit_bones:
-                armature.data.edit_bones[old].name = new
+        # TWO-PHASE (see auto_detect_and_rename): on already-labeled rigs the
+        # targets collide with existing names and Blender .001-suffixes them.
+        plan = [(old, new) for old, new in edits.items()
+                if old in armature.data.edit_bones]
+        for i, (old, new) in enumerate(plan):
+            armature.data.edit_bones[old].name = f"TMP_ARM_{i}"
+        for i, (old, new) in enumerate(plan):
+            squatter = armature.data.edit_bones.get(new)
+            if squatter is not None:
+                squatter.name = new + ".unassigned"
+            armature.data.edit_bones[f"TMP_ARM_{i}"].name = new
         bpy.ops.object.mode_set(mode='OBJECT')
         for obj in bpy.data.objects:
             if obj.type == 'MESH' and obj.parent == armature:
