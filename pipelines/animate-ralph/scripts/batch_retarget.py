@@ -38,6 +38,7 @@ RETARGET_PY = HERE / "retarget_mocap.py"
 RENDER_PY = HERE / "render_rootmotion.py"
 DIAG_PY = HERE / "diag_facing.py"
 DIAG_HIP_PY = HERE / "diag_hip_travel.py"
+MESH_GATE_PY = HERE / "validate_animation_mesh.py"
 
 BLENDER = os.environ.get("BLENDER_EXE", r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe")
 DEFAULT_RIG = os.environ.get("BARBARIAN_RIG", r"E:\ai-training\_animtest\barbarian_renamed.glb")
@@ -130,6 +131,15 @@ def fidelity(fbx: str, expected: tuple[float, float, float]) -> tuple[float, flo
     return err, ratio, ("OK" if ok else "MISMATCH")
 
 
+def mesh_gate(fbx: str) -> tuple[str, float]:
+    """Mesh-integrity under motion (validate_animation_mesh.py): catches weight
+    melting and scramble that travel/bone metrics miss. Calibrated 2026-07-03:
+    AccuRIG walk p99=1.80 (OK) vs UniRig walk 2.76 / crossed-skin 18.6 (MELT)."""
+    out = blender(MESH_GATE_PY, [fbx])
+    m = re.search(r"MESH_VERDICT\s+(\w+)\s+p99_worst=([\d.]+)", out)
+    return (m.group(1), float(m.group(2))) if m else ("NO_MEASURE", float("nan"))
+
+
 def proof(fbx: str, clip: str, length: int) -> None:
     # 4 frames spread across the retargeted clip (0 .. length-1)
     fs = sorted({0, length // 3, (2 * length) // 3, length - 1})
@@ -170,13 +180,16 @@ def main() -> None:
 
         out_fbx, matched, expected = retarget(args.rig, src_fbx, out_glb, f0, f1, src_z, root)
         err, ratio, verdict = fidelity(out_fbx, expected)
+        mesh_v, p99 = mesh_gate(out_fbx)
         proof(out_fbx, clip, length)
-        ok = matched >= 18 and verdict.startswith("OK")
+        ok = matched >= 18 and verdict.startswith("OK") and mesh_v == "OK"
         log(f"{clip}: {matched}/20 bones, frames {f0}-{f1} ({length}), root={root}, "
-            f"src_z={src_z}, fidelity={verdict} (dir_err={err:.1f} deg, mag={ratio:.2f})")
+            f"src_z={src_z}, fidelity={verdict} (dir_err={err:.1f} deg, mag={ratio:.2f}), "
+            f"mesh={mesh_v} (p99={p99:.2f})")
         results.append({**r, "ok": ok, "matched": matched,
                         "frames": length, "win": f"{f0}-{f1}", "src_z": src_z,
-                        "err": err, "ratio": ratio, "verdict": verdict})
+                        "err": err, "ratio": ratio, "verdict": verdict,
+                        "mesh": mesh_v, "p99": p99})
 
     # clean probes
     for p in OUTDIR.glob("_probe_*"):
@@ -184,22 +197,26 @@ def main() -> None:
 
     # report
     lines = ["# GS1 — barbarian batch-retarget report", "",
-             "| clip | bones | window (src f) | frames | root motion | src_z | fidelity | dir err | mag | ok |",
-             "|------|:-----:|:--------------:|:------:|-------------|:-----:|:--------:|:-------:|:---:|:--:|"]
+             "| clip | bones | window (src f) | frames | root motion | src_z | fidelity | dir err | mag | mesh | p99 | ok |",
+             "|------|:-----:|:--------------:|:------:|-------------|:-----:|:--------:|:-------:|:---:|:----:|:---:|:--:|"]
     for r in results:
         if "matched" in r:
             lines.append(f"| {r['clip']} | {r['matched']}/20 | {r['win']} | {r['frames']} | "
                          f"{r['root']} | {r['src_z']} | {r['verdict']} | {r['err']:.1f} | "
-                         f"{r['ratio']:.2f} | {'YES' if r['ok'] else 'NO'} |")
+                         f"{r['ratio']:.2f} | {r['mesh']} | {r['p99']:.2f} | "
+                         f"{'YES' if r['ok'] else 'NO'} |")
         else:
             lines.append(f"| {r['clip']} | — | — | — | {r['root']} | — | — | NO ({r.get('note','')}) |")
     lines += ["", f"Output FBX: `output/export/barbarian/<clip>.fbx`  ·  "
               f"Proof frames: `validation/retarget/gs1_barbarian/`", "",
-              "`fidelity` compares the exported clip's hip travel against the",
-              "transfer's own EXPECTED_TRAVEL: dir err <= 15 deg and mag 0.7-1.4",
-              "for travelling clips; in-place clips just must not drift. This is",
-              "the gate (plus bones >= 18) — still eyeball the proof frames for",
-              "pose quality.", ""]
+              "GATE (all three required): bones >= 18; `fidelity` (exported hip",
+              "travel vs the transfer's EXPECTED_TRAVEL: dir err <= 15 deg, mag",
+              "0.7-1.4; in-place clips must not drift); `mesh` (integrity under",
+              "motion: p99 edge stretch <= 2.0 and bounds within [0.5, 1.8] of",
+              "rest — catches weight melting/scramble; calibrated: AccuRIG walk",
+              "1.80 OK vs UniRig walk 2.76 MELT vs crossed-skin 18.6 MELT).",
+              "Proof frames remain a REQUIRED human check for pose naturalness",
+              "(limb plane) — no numeric gate covers it.", ""]
     REPORT.write_text("\n".join(lines), encoding="utf-8")
     log(f"report -> {REPORT}")
     log("DONE " + "  ".join(f"{r['clip']}={r.get('matched','x')}" for r in results))

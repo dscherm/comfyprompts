@@ -262,3 +262,19 @@ Supersedes the GS4 deferral above: the live editor validation was completed via
   lean + arms-up) is gone; sampled Mixamo walk confirms a clean stride. Stale Jun-27
   previz FBXs deleted from `Assets/Animations/Barbarian/`; `ANIMATION-MANIFEST.json`
   regenerated for the Mixamo set.
+
+## Strict animation validation protocol (2026-07-03)
+
+Adopted after the GS1 rubber-stamp incident (gates passed, every clip scrambled)
+and the UniRig weight-melt discovery. Three layers, ALL required per clip/char:
+
+| Layer | Tool | Asserts | Catches |
+|-------|------|---------|---------|
+| 1 previz | `batch_retarget.py` per-clip gate | bones>=18; travel fidelity (dir<=15°, mag 0.7–1.4); **mesh p99 edge stretch <= 2.0**, bounds 0.5–1.8× rest (`validate_animation_mesh.py`) | wrong pairing, broken export, root-motion drift, **weight melting/scramble** |
+| 2 ship | `ValidateBarbarianHumanoid` / `ValidateRookieHumanoid` (exit 0) | avatar isValid+isHuman; clips Humanoid+usable; Animator bound; **§5 pose sampling at 25/50/75%** (head/feet/hands/span plausibility) | bad avatar, silent no-clip imports, collapsed/arms-up retargets |
+| 3 human | proof renders / play-mode | natural limb carriage | limb-plane quality (no numeric gate exists) |
+
+Mesh-gate calibration (2026-07-03): AccuRIG walk p99=1.80 OK · UniRig walk
+p99=2.76 MELT · crossed-skin scramble p99=18.6 MELT. Threshold 2.0 splits the
+rigger classes cleanly; expect UniRig-rigged previz clips to FAIL this gate —
+that is the honest verdict, and the reason the ship path is AccuRIG.

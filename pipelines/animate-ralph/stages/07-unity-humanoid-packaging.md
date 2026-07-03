@@ -139,12 +139,25 @@ Humanoid.
 Remove the stale arms-up previz clips from `Assets/Animations/Barbarian/` (the Jun-27
 hand-rolled-retarget bake) so the Humanoid set is the only shippable one.
 
-## Gate (PASS criteria)
-- Character imports Humanoid, avatar valid, texture assigned.
-- ≥ the core clip set imported as Humanoid/Copy-From-Other onto the barbarian avatar.
-- `ValidateBarbarianHumanoid` returns PASS (exit 0).
-- Live play-mode (or coplay screenshot) shows natural arm/leg carriage — NOT the
-  previz splay.
+## Gate (PASS criteria) — STRICT animation validation protocol
+Three layers, ALL required; no layer may be skipped or eyeballed away
+(the 2026-07-02 GS1 report "passed" while every clip was scrambled — gates
+that don't measure the animation itself rubber-stamp):
+
+1. **Blender/previz layer** (`batch_retarget.py`, automatic per clip): bones
+   matched >= 18, travel fidelity (dir err <= 15°, mag 0.7–1.4 vs
+   EXPECTED_TRAVEL), and **mesh integrity under motion**
+   (`validate_animation_mesh.py`: p99 edge stretch <= 2.0, bounds within
+   [0.5, 1.8] of rest — catches weight melting/scramble; calibrated AccuRIG
+   walk 1.80 OK vs UniRig walk 2.76 MELT).
+2. **Unity/ship layer** (`ValidateBarbarianHumanoid` / `ValidateRookieHumanoid`,
+   exit 0 required): character avatar isValid+isHuman, clips Humanoid with
+   usable motion, Animator states bound, **§5 sampled-pose sanity** — every
+   clip sampled onto the avatar at 25/50/75% with joint plausibility asserted
+   (head above hips, feet below, hands within 1.6× body span, span ratio
+   0.35–1.4). A visually-broken retarget fails §5 headlessly.
+3. **Human layer** (required, not optional): live play-mode or proof renders
+   show natural arm/leg carriage — limb-plane quality has no numeric gate.
 
 ## Outputs
 - `Assets/Animations/Barbarian/Source/` (rig + texture), `.../Mixamo/` (clips),
