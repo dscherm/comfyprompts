@@ -8,9 +8,9 @@ in the forensic record.
 
 ## Behavior
 
-1. If `.ralph/blind_tdd/active_session.json` does not exist, passthrough.
+1. If `.themis/blind_tdd/active_session.json` does not exist, passthrough.
 2. Otherwise, append one JSONL record per tool call to
-   `.ralph/blind_audit/<session_id>.jsonl`.
+   `.themis/blind_audit/<session_id>.jsonl`.
 3. Always exit 0 — audit logging must never block tool execution.
 
 ## Input format
@@ -26,7 +26,7 @@ Reads JSON on stdin with the Claude Code PostToolUse hook schema:
 
 ## Output
 
-Audit records written to `.ralph/blind_audit/<session_id>.jsonl`:
+Audit records written to `.themis/blind_audit/<session_id>.jsonl`:
 ```json
 {
   "timestamp": "2026-04-10T...",
@@ -58,7 +58,7 @@ def _repo_root() -> Path:
 
 
 def _load_session() -> dict | None:
-    p = _repo_root() / ".ralph" / "blind_tdd" / "active_session.json"
+    p = _repo_root() / ".themis" / "blind_tdd" / "active_session.json"
     if not p.exists():
         return None
     try:
@@ -140,7 +140,7 @@ def main() -> int:
         "source": "posttooluse_hook",
     }
 
-    audit_dir = _repo_root() / ".ralph" / "blind_audit"
+    audit_dir = _repo_root() / ".themis" / "blind_audit"
     try:
         audit_dir.mkdir(parents=True, exist_ok=True)
         session_id = session.get("session_id", "unknown")

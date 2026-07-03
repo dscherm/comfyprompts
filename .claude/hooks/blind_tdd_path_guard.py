@@ -6,7 +6,7 @@ Installed as a PreToolUse hook on Read/Grep/Glob/Edit/Write/NotebookEdit.
 
 ## Behavior
 
-1. If `.ralph/blind_tdd/active_session.json` does not exist, passthrough (allow all).
+1. If `.themis/blind_tdd/active_session.json` does not exist, passthrough (allow all).
 2. If it exists, load the session config with its `allowed_paths` and `blocked_paths`
    patterns (gitignore-style).
 3. Extract the target path from the tool input.
@@ -93,7 +93,7 @@ def _repo_root() -> Path:
 
 
 def _session_file() -> Path:
-    return _repo_root() / ".ralph" / "blind_tdd" / "active_session.json"
+    return _repo_root() / ".themis" / "blind_tdd" / "active_session.json"
 
 
 def _load_session() -> dict | None:
@@ -224,10 +224,66 @@ def _extract_path(tool_name: str, tool_input: dict) -> str | None:
     return None
 
 
+# Tools that can modify a file. Used by the BT1 locked-test write rule.
+_WRITE_TOOLS = {"Edit", "Write", "NotebookEdit"}
+
+
+def _locked_test_files() -> set[str]:
+    """Repo-relative POSIX paths of every test file hash-locked by a red phase.
+
+    Read from `.themis/blind_tdd/red_state/*.json` (written by
+    gate_integration.save_red_state). Empty set when no red phase is pending.
+    """
+    red_dir = _repo_root() / ".themis" / "blind_tdd" / "red_state"
+    locked: set[str] = set()
+    if not red_dir.is_dir():
+        return locked
+    for state_file in red_dir.glob("*.json"):
+        try:
+            state = json.loads(state_file.read_text(encoding="utf-8"))
+        except (json.JSONDecodeError, OSError):
+            continue
+        for rel in (state.get("test_file_hashes") or {}):
+            # red_state keys may use the host's native separator (backslashes
+            # on Windows). Normalize to POSIX so they match the forward-slash
+            # form produced by _normalize_path for incoming tool-call paths —
+            # otherwise the deny-wins rule silently no-ops on Windows.
+            locked.add(str(PurePosixPath(str(rel).replace("\\", "/"))))
+    return locked
+
+
+def _write_tamper_attempt(session: dict, tool_name: str, path: str,
+                          reason: str) -> None:
+    """Append a BT1 tamper-attempt record for a denied touch of a locked test.
+
+    Stdlib-only on purpose — this hook cannot import project tools. The records
+    are folded into the observation stream by pre_commit_gate.py at the next
+    commit attempt and the file is then truncated.
+    """
+    out_dir = _repo_root() / ".themis" / "blind_tdd"
+    out_dir.mkdir(parents=True, exist_ok=True)
+    record = {
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "session_id": session.get("session_id"),
+        "agent_role": session.get("agent_role"),
+        "task_id": session.get("task_id"),
+        "tool_name": tool_name,
+        "path": path,
+        "reason": reason,
+        "source": "path-guard-deny",
+    }
+    try:
+        with (out_dir / "tamper_attempts.jsonl").open("a", encoding="utf-8") as f:
+            f.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except OSError:
+        print("[blind-tdd] warning: could not write tamper_attempts.jsonl",
+              file=sys.stderr)
+
+
 def _write_audit_attempt(session: dict, tool_name: str, path: str,
                          allowed: bool, reason: str) -> None:
     """Append a line to the blind audit log (Layer 3)."""
-    audit_dir = _repo_root() / ".ralph" / "blind_audit"
+    audit_dir = _repo_root() / ".themis" / "blind_audit"
     audit_dir.mkdir(parents=True, exist_ok=True)
     session_id = session.get("session_id", "unknown")
     audit_file = audit_dir / f"{session_id}.jsonl"
@@ -287,10 +343,30 @@ def main() -> int:
     path_norm = _normalize_path(path_raw)
     allowed, reason = _check_path(path_norm, session)
 
+    # BT1: a hash-locked test file must never be modified by a blind agent
+    # other than the test writer (the writer legitimately edits tests when a
+    # red phase resumes after an arbiter ruling, and is re-hashed afterward).
+    # This deny wins even when allowed_paths (e.g. the runner's `tests/**`)
+    # would have permitted the write.
+    locked: set[str] | None = None
+    if (allowed and tool_name in _WRITE_TOOLS
+            and session.get("agent_role") != "test_writer"):
+        locked = _locked_test_files()
+        if path_norm in locked:
+            allowed = False
+            reason = "write to hash-locked test file (red_state)"
+
     _write_audit_attempt(session, tool_name, path_norm, allowed, reason)
 
     if allowed:
         return 0
+
+    # Denied touches of locked test files are tamper attempts — record them
+    # for the observation stream (folded in by pre_commit_gate at commit).
+    if locked is None:
+        locked = _locked_test_files()
+    if path_norm in locked:
+        _write_tamper_attempt(session, tool_name, path_norm, reason)
 
     # Block the tool call
     session_id = session.get("session_id", "?")
