@@ -40,8 +40,8 @@ DIAG_PY = HERE / "diag_facing.py"
 BLENDER = os.environ.get("BLENDER_EXE", r"C:\Program Files\Blender Foundation\Blender 5.0\blender.exe")
 DEFAULT_RIG = os.environ.get("BARBARIAN_RIG", r"E:\ai-training\_animtest\barbarian_renamed.glb")
 
-FACE_SLOPE = 1.08          # facing response (deg facing / deg src_z), measured in Phase MT
-TRAVEL_CLIPS = {"walk", "dodge"}   # only these get --auto-face
+# facing is now solved inside retarget_mocap.py (src_z="auto", bind-pose derived,
+# label-safe) — the old probe/measure/FACE_SLOPE solve for TRAVEL_CLIPS is gone.
 
 # Representative frame sub-ranges (0-indexed into the 250-frame source takes). Loops get a
 # multi-cycle window; one-shots a window around the action. Loop-seam fine-tuning is a GS3
@@ -93,7 +93,7 @@ def parse_manifest() -> list[dict]:
 
 
 def retarget(rig: str, src_fbx: str, out_glb: str, f0: int, f1: int,
-             src_z: float, root: str) -> tuple[str, int]:
+             src_z: float | str, root: str) -> tuple[str, int]:
     out = blender(RETARGET_PY, [rig, src_fbx, str(MAP), out_glb,
                                 str(f0), str(f1), str(src_z), root])
     m = re.search(r"MATCHED (\d+)/\d+", out)
@@ -142,14 +142,8 @@ def main() -> None:
         length = f1 - f0 + 1
         out_glb = str(OUTDIR / f"{clip}.glb")
 
-        # facing: auto-calibrate travelling clips, else src_z=0
-        src_z = 0.0
-        if clip in TRAVEL_CLIPS:
-            probe_fbx, _ = retarget(args.rig, src_fbx, str(OUTDIR / f"_probe_{clip}.glb"),
-                                    f0, f1, 0.0, root)
-            mis0 = measure(probe_fbx)
-            src_z = round(-mis0 / FACE_SLOPE, 1)
-            log(f"{clip}: auto-face misalign@0={mis0:.1f} -> src_z={src_z}")
+        # facing: retarget_mocap.py derives the yaw from the bind poses ("auto")
+        src_z = "auto"
 
         out_fbx, matched = retarget(args.rig, src_fbx, out_glb, f0, f1, src_z, root)
         mis = measure(out_fbx)

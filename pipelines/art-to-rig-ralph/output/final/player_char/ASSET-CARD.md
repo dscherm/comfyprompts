@@ -50,10 +50,10 @@ Player character for Soapbox Sabotage (kart racer). Companion kart asset:
 ## Known Issues / Next Steps
 - **No textures yet** — TRELLIS output is untextured geometry; run the texturing stage
   (Hunyuan3D paint / blender_normal_texturing) before shipping visuals.
-- **Blender mocap retarget currently broken** (`retarget_mocap.py` mangles poses on ALL
-  rigs incl. the GS1 barbarian set — pre-existing bug, misalign column 99-160° was
-  rubber-stamped). Until fixed, do animation retargeting in Unity via the Humanoid
-  avatar (Mixamo → CreateFromThisModel), not in Blender.
+- **Blender mocap retarget FIXED (2026-07-02)**: `retarget_mocap.py` was scrambling
+  poses on all rigs (un-keyed pose locations + mirrored .l/.r labels + FBX stub bone
+  axes — see the script docstring). Now validated on this rig (idle + walk with root
+  motion, src_z=auto). Unity Humanoid retarget remains a fine alternative path.
 - IK posing works in Blender (2-bone chains on forearms proven live); direct Euler
   rotation of UniRig bones remains a trap (arbitrary local axes).
 

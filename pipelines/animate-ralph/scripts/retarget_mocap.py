@@ -1,31 +1,47 @@
 """retarget_mocap — transfer a Mixamo/Rokoko (Character1_*) mocap clip onto a
 renamed UniRig rig (role names from rename_unirig_bones.py).
 
-STATUS: rotation transfer WORKING (proven live via blender-mcp — an upright,
-walking barbarian; see validation/retarget/walk_f*.png). The earlier collapse was
-a SCALE bug: the source is scaled 0.01 (Mixamo cm->m) and .to_3x3() baked that
-into the rotation matrices. Pure quaternions (below) fix it.
+STATUS (2026-07-02 rewrite): the GS1-era output was scrambled on EVERY rig; three
+stacked root causes were found and fixed (validated on The Rookie, idle + walk):
 
-ROOT MOTION: the body now translates forward (see the optional <root_motion> arg).
-"transfer" (default) replays the source hips' world travel onto the target hips,
-scaled by the leg-length ratio so the stride matches the character's size; "off"
-restores the legacy in-place behavior; a float synthesizes a constant forward
-speed (target units/frame) for genuinely in-place source clips.
+1. UN-KEYED POSE LOCATIONS. The old transfer pinned every bone's world head at its
+   rest position via `tb.matrix = ...` — which writes large per-bone pose LOCATIONS
+   that were never keyframed. The in-scene pose looked right (hence the old "proven
+   live" note), but the FBX export baked each frame's rotations against the LAST
+   frame's stale locations — scrambled body. Fix: rotation-only transfer (children
+   inherit position through the hierarchy) and key location on every bone.
+2. MIRRORED SIDE LABELS. rename_unirig_bones.py assigns .l/.r by raw +/-X, which is
+   anatomically mirrored on rigs that bind facing -Y (all TRELLIS/UniRig rigs here).
+   Pairing source Left <-> target .l then CROSSES the limbs, and ALIGN aims each
+   limb 180 deg into the body. Fix: bind-pose side-consistency check; swap the
+   map's .l/.r roles when conventions differ.
+3. FBX STUB BONE AXES. Rokoko/Mixamo FBX joints carry arbitrary joint-orient axes
+   AND importer-synthesized stub tails, so neither quaternion@Y nor head->tail is
+   the limb direction on the SOURCE. ALIGN now uses joint-to-CHILD-JOINT bind
+   positions resolved via the role chain (spine + arm/leg chains) —
+   orientation-proof on every skeleton.
+
+FACING: src_z accepts "auto" (default): yaw = target facing (from foot-bone
+geometry, real on glTF rigs) minus source facing (from its anatomically-
+trustworthy Left/Right leg labels). Manual degrees still accepted.
+
+ROOT MOTION: "transfer" (default) replays the source hips' world travel onto the
+target hips, scaled by the leg-length ratio so the stride matches the character's
+size; "off" = in place; a float synthesizes a constant forward speed
+(target units/frame) for genuinely in-place source clips.
 
 EXPORT: use FBX, not glTF. Blender's glTF exporter DROPS this baked armature
-animation (exports a static rest pose); FBX retains it (verified: distinct walk
-poses across frames). Output imports at ~0.01 scale (UniRig bind pose) — set the
-engine's FBX import Scale Factor (~100), same as stock Mixamo FBX.
+animation (exports a static rest pose), while FBX retains it. Output imports at
+~0.01 scale (UniRig bind pose) — set the engine's FBX import Scale Factor (~100),
+same as stock Mixamo FBX.
 
-Rest-pose-relative WORLD-rotation transfer: for each mapped bone, the source's
-rotation *relative to its own rest* (in world space) is applied to the target's
-rest — so differing bone orientations between the two skeletons are handled. A
-src_z facing offset (degrees) aligns the source's facing to the target's; that
-same alignment carries the root-motion translation, so forward is forward.
+KNOWN LIMITS: end-of-chain bones (hands, feet) have no chain child to align by and
+keep their bind orientation (slight foot tilt); minimal-arc alignment leaves elbow/
+knee twist unconstrained (slight elbow kink); source hip bob is not transferred
+when root_motion=off.
 
 Usage (headless):
-    blender --background --python retarget_mocap.py -- \
-        <renamed_rig.glb> <mocap.fbx> <map.json> <out.glb> <f0> <f1> [src_z_deg] [root_motion]
+    blender --background --python retarget_mocap.py --         <renamed_rig.glb> <mocap.fbx> <map.json> <out.glb> <f0> <f1> [src_z_deg|auto] [root_motion]
 
     root_motion: transfer (default) | off | <float speed/frame>
 """
@@ -35,7 +51,10 @@ from mathutils import Matrix, Vector
 a = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 RIG, MOCAP, MAP, OUT = a[0], a[1], a[2], a[3]
 F0, F1 = int(a[4]), int(a[5])
-SRC_Z = math.radians(float(a[6])) if len(a) > 6 else 0.0
+# "auto" (default) = derive facing yaw from bind poses; a number = manual degrees.
+SRC_Z = "auto"
+if len(a) > 6 and a[6].strip().lower() != "auto":
+    SRC_Z = math.radians(float(a[6]))
 # root motion: "transfer" (default) replays the source hips' world travel onto the
 # target hips (scaled to the target's leg length); "off" = in-place (legacy); a float
 # = synthesize a constant forward speed (target units/frame) for in-place sources.
@@ -65,10 +84,99 @@ def main():
     pre = set(bpy.data.objects)
     imp(MOCAP)
     src = next(o for o in bpy.data.objects if o.type == 'ARMATURE' and o not in pre)
-    src.rotation_euler.z += SRC_Z
-    bpy.context.view_layer.update()
 
     bone_map = json.load(open(MAP, encoding="utf-8"))["bone_map"]
+
+    # --- facing + side-convention calibration (bind poses, label-independent) ----
+    # Facing comes from the FEET (bone head->tail = heel->toe = forward), which is
+    # front/back-unambiguous and independent of .l/.r naming. UniRig rigs renamed by
+    # rename_unirig_bones.py have their .l/.r labels assigned by raw +/-X (viewer
+    # side), which is anatomically MIRRORED on rigs that bind facing -Y — so labels
+    # cannot be trusted for facing, and the map pairing may cross limbs (see below).
+    def _bind_pos(arm, pb):
+        return (arm.matrix_world @ pb.bone.matrix_local).translation
+
+    def _feet_facing(arm, foot_names):
+        # geometric foot direction (head->tail). Valid for glTF/UniRig targets whose
+        # bones have real tails; NOT valid for FBX stub-tail sources.
+        fwd = Vector((0.0, 0.0, 0.0))
+        for n in foot_names:
+            pb = arm.pose.bones.get(n)
+            if pb:
+                h = arm.matrix_world @ pb.bone.head_local
+                t = arm.matrix_world @ pb.bone.tail_local
+                v = t - h
+                v.z = 0.0
+                if v.length > 1e-9:
+                    fwd += v.normalized()
+        return math.atan2(fwd.y, fwd.x) if fwd.length > 1e-9 else None
+
+    def _label_facing(arm, name_l, name_r):
+        # facing from anatomically-trustworthy .l/.r labels (Mixamo/Rokoko sources):
+        # fwd = (left - right) x up.
+        bl, br = arm.pose.bones.get(name_l), arm.pose.bones.get(name_r)
+        if not (bl and br):
+            return None
+        pl = (arm.matrix_world @ bl.bone.matrix_local).translation
+        pr = (arm.matrix_world @ br.bone.matrix_local).translation
+        fwd = (pl - pr).cross(Vector((0.0, 0.0, 1.0)))
+        return math.atan2(fwd.y, fwd.x) if fwd.length > 1e-9 else None
+
+    s_lleg = next((s for s, r in bone_map.items() if r == "upperleg.l"), None)
+    s_rleg = next((s for s, r in bone_map.items() if r == "upperleg.r"), None)
+
+    def _src_facing():
+        return _label_facing(src, s_lleg or "", s_rleg or "")
+
+    def _tgt_facing():
+        return _feet_facing(tgt, ["foot.l", "foot.r"])
+
+    if SRC_Z == "auto":
+        t_f = _tgt_facing()
+        s_f = _src_facing()
+        yaw = (t_f - s_f) if (t_f is not None and s_f is not None) else 0.0
+        src.rotation_euler.z += yaw
+        print(f"SRC_Z auto: facing yaw={math.degrees(yaw):.1f} deg "
+              f"(tgt={math.degrees(t_f):.1f} src={math.degrees(s_f):.1f})")
+    else:
+        src.rotation_euler.z += SRC_Z
+    bpy.context.view_layer.update()
+
+    # side-consistency: if (after yaw) the source's Left leg sits on the OPPOSITE
+    # side of the body from the target's ".l" leg, the label conventions differ —
+    # pairing left<->.l would cross the limbs (ALIGN then aims each limb 180 deg
+    # into the body: the classic scrambled result). Swap .l/.r roles in the map.
+    def _lat_offset(arm, hips_pb, limb_pb, fwd_ang):
+        off = _bind_pos(arm, limb_pb) - _bind_pos(arm, hips_pb)
+        # lateral = component along (up x fwd) = character's left axis
+        fwd_v = Vector((math.cos(fwd_ang), math.sin(fwd_ang), 0.0))
+        left_v = Vector((0.0, 0.0, 1.0)).cross(fwd_v)
+        return off.dot(left_v)
+
+    s_hips = next((s for s, r in bone_map.items() if r == "hips"), None)
+    swap_sides = False
+    if s_hips and s_lleg:
+        t_f2 = _tgt_facing()
+        s_f2 = _src_facing()
+        t_hips = tgt.pose.bones.get("hips")
+        t_lleg = tgt.pose.bones.get("upperleg.l")
+        sb_h = src.pose.bones.get(s_hips)
+        sb_l = src.pose.bones.get(s_lleg)
+        if all((t_hips, t_lleg, sb_h, sb_l)) and t_f2 is not None and s_f2 is not None:
+            s_side = _lat_offset(src, sb_h, sb_l, s_f2)
+            t_side = _lat_offset(tgt, t_hips, t_lleg, t_f2)
+            swap_sides = (s_side * t_side) < 0
+    if swap_sides:
+        def _flip(role):
+            if role.endswith(".l"):
+                return role[:-2] + ".r"
+            if role.endswith(".r"):
+                return role[:-2] + ".l"
+            return role
+        bone_map = {s: _flip(r) for s, r in bone_map.items()}
+        print("SIDE_SWAP on: target .l/.r labels are mirrored vs source — map crossed to match anatomy")
+    else:
+        print("SIDE_SWAP off: label conventions agree")
     # UniRig's auto-rename mis-detects the upper spine on some rigs ("neck" ends up
     # being the arm-branch bone, "head" hangs off an unnamed bone), so retargeting
     # head/neck swings the head into a stretched artifact. Leave them at rest — a
@@ -97,8 +205,27 @@ def main():
     # diverges from the source pose — the "arms forced up / frozen" artifact. Aiming each
     # target bind to point the SAME world direction as the source bind makes target_dir(f)
     # track source_dir(f). A no-op where binds already align (legs).
+    # ALIGN uses JOINT-TO-CHILD-JOINT bind directions — the only orientation-proof
+    # limb axis. FBX sources (Rokoko/Mixamo) have BOTH arbitrary joint-orient axes
+    # (quaternion@Y is garbage) AND synthesized stub tails (head->tail is garbage);
+    # child-joint POSITIONS are real on every skeleton. Resolved via the role chain.
+    CHAIN_CHILD = {"hips": "spine", "spine": "chest", "chest": "neck",
+                   "shoulder.l": "upperarm.l", "upperarm.l": "lowerarm.l",
+                   "lowerarm.l": "hand.l",
+                   "shoulder.r": "upperarm.r", "upperarm.r": "lowerarm.r",
+                   "lowerarm.r": "hand.r",
+                   "upperleg.l": "lowerleg.l", "lowerleg.l": "foot.l",
+                   "upperleg.r": "lowerleg.r", "lowerleg.r": "foot.r"}
+    inv_map = {}
+    for s, r in bone_map.items():
+        inv_map.setdefault(r, s)
+
+    def _head_w(arm, bone):
+        return arm.matrix_world @ bone.head_local
+
     Y = Vector((0.0, 1.0, 0.0))
     rest = {}
+    aligned_n = 0
     for sb, tb in pairs:
         sbind = src.matrix_world @ sb.bone.matrix_local
         tbind = tgt.matrix_world @ tb.bone.matrix_local
@@ -106,10 +233,21 @@ def main():
         rest[("t", tb.name)] = tbind                        # matrix: rest position (+ root motion)
         tq_rest = tbind.to_quaternion()
         if ALIGN:
-            sdir = (sbind.to_quaternion() @ Y).normalized()
-            tdir = (tq_rest @ Y).normalized()
-            tq_rest = tdir.rotation_difference(sdir) @ tq_rest   # aim target bind -> source bind dir
+            child_role = CHAIN_CHILD.get(tb.name)
+            s_child = src.pose.bones.get(inv_map.get(child_role, "")) if child_role else None
+            t_child = tgt.pose.bones.get(child_role) if child_role else None
+            if s_child and t_child:
+                sdir = _head_w(src, s_child.bone) - _head_w(src, sb.bone)
+                tdir = _head_w(tgt, t_child.bone) - _head_w(tgt, tb.bone)
+                if sdir.length > 1e-9 and tdir.length > 1e-9:
+                    # aim the target's VISUAL bone axis (pose-matrix Y = head->tail,
+                    # real on Blender-built/glTF bones) along the source's bind limb:
+                    # then dir(f) = delta @ sdir_bind tracks the source limb exactly.
+                    tvis = (tq_rest @ Y).normalized()
+                    tq_rest = tvis.rotation_difference(sdir.normalized()) @ tq_rest
+                    aligned_n += 1
         rest[("tq", tb.name)] = tq_rest                     # aligned rest ORIENTATION
+    print(f"ALIGN chain-child: {aligned_n}/{len(pairs)} bones aligned")
 
     sc = bpy.context.scene
 
@@ -161,13 +299,21 @@ def main():
             sq = (src.matrix_world @ sb.matrix).to_quaternion()
             delta = sq @ rest[("s", sb.name)].inverted()          # world rotation from rest
             tq = delta @ rest[("tq", tb.name)]                    # apply to aligned target rest
-            loc = rest[("t", tb.name)].translation + root_off     # rigid forward shift
+            # ROTATION-ONLY transfer: children inherit position through the posed
+            # hierarchy (standard retarget). Pinning every bone's world head at its
+            # rest position (the old behavior) required large per-bone pose LOCATIONS
+            # that were never keyed — the FBX export then baked each frame's rotations
+            # against the LAST frame's stale locations, scrambling the body.
+            if tb is root_hips:
+                loc = rest[("t", tb.name)].translation + root_off  # root carries travel
+            else:
+                loc = (tgt.matrix_world @ tb.matrix).translation   # inherit from posed parent
             tw = Matrix.Translation(loc) @ tq.to_matrix().to_4x4()
             tb.matrix = tgt.matrix_world.inverted() @ tw
             bpy.context.view_layer.update()  # parent posed before child reads it
             tb.keyframe_insert("rotation_quaternion", frame=f - F0)
-            if tb is root_hips and ROOT_MOTION != "off":
-                tb.keyframe_insert("location", frame=f - F0)      # only the hips carries translation
+            tb.keyframe_insert("location", frame=f - F0)  # key ALL channels the pose uses
+
 
     # drop EVERYTHING imported with the mocap — the source armature AND any skinned
     # source mesh it brought in — keeping only the target rig+mesh (the objects present

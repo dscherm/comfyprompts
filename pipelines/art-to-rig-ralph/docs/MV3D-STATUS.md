@@ -15,12 +15,15 @@ stage (not prompt hacks, not LoRA retrain). Plan: `mv3d-reconstruction-plan.md`.
   100% weights) → stray-finger fix + full weld (23.4k verts, watertight) →
   `rename_unirig_bones.py` (19/19 role coverage) → Unity/Unreal/Blender/STL exports.
 - Package: `output/final/player_char/` (committed; see its ASSET-CARD.md).
-- **BUG FOUND — `retarget_mocap.py` (animate-ralph) is broken pipeline-wide**: the
-  idle clip mangles identically on The Rookie AND the proven barbarian rig, and the
-  committed GS1 "passing" proofs show the same mangled poses (report's own misalign
-  column reads 99-160°; only `hit` at -5.5° was truly aligned — the gate
-  rubber-stamped it). Raw source clips are fine. Until fixed: retarget in Unity via
-  Humanoid avatar (CreateFromThisModel), not in Blender.
+- **BUG FOUND AND FIXED — `retarget_mocap.py` (animate-ralph) was broken pipeline-wide**
+  (GS1 "passing" proofs were mangled; gate rubber-stamped 99-160° misalign). Three
+  stacked root causes, all fixed 2026-07-02 (see the script's docstring): (1) un-keyed
+  pose locations — export baked rotations against stale last-frame locations; (2)
+  rename_unirig_bones assigns .l/.r by raw ±X, anatomically MIRRORED on -Y-facing
+  rigs, crossing limbs vs the anatomical Mixamo map (now auto-detected + map swapped);
+  (3) FBX stub bone axes — ALIGN now uses joint-to-child-joint bind directions.
+  src_z="auto" derives facing from bind poses. Validated: Rookie idle+walk, barbarian
+  idle — upright, tracking, root motion works. GS1 batch re-run still pending.
 - IK posing (2-bone chains on forearms) proven live in Blender; Euler-on-UniRig-bones
   remains a trap.
 - Next for MV3D: texturing stage for TRELLIS geometry-only outputs; MV4 A/B
