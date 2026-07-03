@@ -130,13 +130,50 @@ def wall_door(k: Any) -> Any:
     return _door_wall(k, "stone", "wall_door")
 
 
+def _half_wall(k: Any, mat: str, name: str) -> Any:
+    """Half-height wall (material ``mat``) — yard walls, parapets."""
+    P: list = []
+    trim = MAT_TRIM[mat]
+    k.box(P, CELL, WT, 0.5, (0, 0, 0.25), mat)
+    _base_course(k, P, color=trim)
+    k.box(P, CELL + 0.04, WT + 0.06, 0.06, (0, 0, 0.5), trim)     # capstone
+    return k.join(P, name)
+
+
 def wall_half(k: Any) -> Any:
     """Half-height stone wall (yard walls, parapets)."""
+    return _half_wall(k, "stone", "wall_half")
+
+
+def gable_wall(k: Any) -> Any:
+    """A gable-end wall: a storey with a stepped masonry gable above, to close
+    the end of a pitched roof."""
     P: list = []
-    k.box(P, CELL, WT, 0.5, (0, 0, 0.25), "stone")
+    k.box(P, CELL, WT, 1.0, (0, 0, 0.5), "stone")               # storey
     _base_course(k, P)
-    k.box(P, CELL + 0.04, WT + 0.06, 0.06, (0, 0, 0.5), "stone_dk")  # capstone
-    return k.join(P, "wall_half")
+    _cornice(k, P)
+    for i in range(6):                                          # stepped triangular gable
+        w = max(0.1, CELL * (1 - i / 6.0))
+        k.box(P, w, WT, 0.12, (0, 0, 1.06 + i * 0.11), "stone")
+    return k.join(P, "gable_wall")
+
+
+def wall_shop(k: Any) -> Any:
+    """A shopfront: an open counter bay under a striped awning, wall above."""
+    P: list = []
+    for x in (-0.42, 0.42):
+        k.box(P, 0.16, WT, 1.0, (x, 0, 0.5), "wood")            # timber posts
+    k.box(P, CELL, WT, 0.34, (0, 0, 0.83), "plaster")           # wall above the opening
+    _base_course(k, P, color="wood_dk")
+    _cornice(k, P, color="beam")
+    k.box(P, 0.7, 0.3, 0.16, (0, -0.06, 0.42), "wood_dk")       # counter
+    k.box(P, 0.72, 0.32, 0.06, (0, -0.06, 0.52), "wood")        # counter top
+    k.box(P, CELL, 0.4, 0.05, (0, -0.24, 0.72), "cloth_r",
+          rot=(math.radians(-16), 0, 0))                        # awning
+    for x in (-0.3, 0.0, 0.3):
+        k.box(P, 0.12, 0.4, 0.055, (x, -0.24, 0.725), "cloth",
+              rot=(math.radians(-16), 0, 0))                    # stripes
+    return k.join(P, "wall_shop")
 
 
 def wall_corner(k: Any) -> Any:
@@ -527,7 +564,8 @@ WALL_PARTS = [
     ("wall_arch", wall_arch), ("wall_buttress", wall_buttress),
     ("bay_window", bay_window), ("balcony", balcony), ("awning", awning),
 ]
-EXTRA_PARTS = [("porch", porch), ("lean_to", lean_to), ("gate_arch", gate_arch)]
+EXTRA_PARTS = [("porch", porch), ("lean_to", lean_to), ("gate_arch", gate_arch),
+               ("gable_wall", gable_wall), ("wall_shop", wall_shop)]
 FLOOR_PARTS = [("floor", floor), ("foundation", foundation)]
 ROOF_PARTS = [
     ("roof_gable", roof_gable), ("roof_slope", roof_slope),
@@ -554,6 +592,7 @@ def _add(core, mat, name):
 for _mat, _sfx in (("plaster", "plaster"), ("wood", "wood")):
     _add(_window_wall, _mat, f"wall_window_{_sfx}")
     _add(_door_wall, _mat, f"wall_door_{_sfx}")
+    _add(_half_wall, _mat, f"wall_half_{_sfx}")
 for _mat, _sfx in (("thatch", "thatch"), ("shake", "shake"), ("roof_red", "tile")):
     _add(_gable_roof, _mat, f"roof_gable_{_sfx}")
     _add(_slope_roof, _mat, f"roof_slope_{_sfx}")
