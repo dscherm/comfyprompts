@@ -22,11 +22,9 @@ def place(o, x, y, z=0, rz=0):
     return o
 
 
-def spired_tower(k, x, y, cap, storeys=2):
-    for s in range(storeys):
-        m = C._recolor(k, C.tower_round_mid, "mid", C._DARK) if DARK else C.tower_round_mid(k)
-        place(m, x, y, s * 1.0)
-    place(cap(k), x, y, storeys * 1.0)
+def spire(k, fn, x, y):
+    """Place a self-contained spired tower (dark-recoloured when DARK)."""
+    place(C._recolor(k, fn, "sp", C._DARK) if DARK else fn(k), x, y, 0)
 
 
 def build(k):
@@ -36,14 +34,12 @@ def build(k):
     keep = C.keep_dark if DARK else C.keep
     hall = C.great_hall_dark if DARK else C.great_hall
     chapel = C.chapel_dark if DARK else C.chapel
-    cap = C.cap_cone_dark if DARK else C.cap_cone_slate
-    cap2 = C.cap_cone_tall_red if DARK else C.cap_cone_red
 
-    # four corner spired towers (enclosure corners at (+-2, +-2))
-    spired_tower(k, -2, -2, cap, 2)
-    spired_tower(k, 2, -2, cap, 2)
-    spired_tower(k, -2, 2, cap2, 3)      # taller rear towers
-    spired_tower(k, 2, 2, cap2, 3)
+    # four corner spired towers (self-contained; enclosure corners at (+-2, +-2))
+    spire(k, C.tower_spire, -2, -2)
+    spire(k, C.tower_spire, 2, -2)
+    spire(k, C.tower_spire_tall, -2, 2)      # taller rear towers
+    spire(k, C.tower_spire_tall, 2, 2)
 
     # front curtain wall + central gatehouse
     place(gate(k), 0, -2, 0)
@@ -57,21 +53,21 @@ def build(k):
         place(wall(k), -2, y, 0, 90)
         place(wall(k), 2, y, 0, 90)
 
-    # central keep + inner ward buildings
-    place(keep(k), 0, 0.7, 0)
-    place(hall(k), -1.0, -0.5, 0, 90)
-    place(chapel(k), 1.05, -0.3, 0, -90)
+    # central keep + inner ward buildings (spaced clear of keep + walls)
+    place(keep(k), 0, 0.85, 0)
+    place(hall(k), -1.15, -0.85, 0, 90)
+    place(chapel(k), 1.25, -0.7, 0)
 
     # courtyard dressing
+    place(C.banner_pole(k), -1.4, 1.15, 0)
+    place(C.pennant_pole(k), 1.4, 1.15, 0)
     if DARK:
-        place(C.brazier_witch(k), -0.7, -1.1, 0)
-        place(C.brazier_witch(k), 0.7, -1.1, 0)
-        place(C.banner_pole(k), 0.8, 0.9, 0)
+        place(C.brazier_witch(k), -0.55, -1.55, 0)
+        place(C.brazier_witch(k), 0.55, -1.55, 0)
     else:
-        place(C.well(k), 0.7, -1.0, 0)
-        place(C.market_stall(k), -0.9, 1.0, 0)
-        place(C.banner_pole(k), 0.85, 1.0, 0)
-        place(C.tree(k), -1.1, 1.2, 0)
+        place(C.well(k), 0.0, -1.2, 0)
+        place(C.brazier(k), -0.55, -1.55, 0)
+        place(C.brazier(k), 0.55, -1.55, 0)
 
 
 k = Kit(palette=dict(PALETTE), emission=EMISSION, reset_scene=True, atlas=True)
