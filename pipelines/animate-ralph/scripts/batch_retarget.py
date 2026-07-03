@@ -169,7 +169,10 @@ def main() -> None:
         else:
             lines.append(f"| {r['clip']} | — | — | — | {r['root']} | — | — | NO ({r.get('note','')}) |")
     lines += ["", f"Output FBX: `output/export/barbarian/<clip>.fbx`  ·  "
-              f"Proof frames: `validation/retarget/gs1_barbarian/`", ""]
+              f"Proof frames: `validation/retarget/gs1_barbarian/`", "",
+              "NOTE: `misalign` (diag_facing travel-vs-feet angle) is noise for",
+              "in-place clips and unreliable in general — judge the proof frames,",
+              "do not gate on this column.", ""]
     REPORT.write_text("\n".join(lines), encoding="utf-8")
     log(f"report -> {REPORT}")
     log("DONE " + "  ".join(f"{r['clip']}={r.get('matched','x')}" for r in results))
