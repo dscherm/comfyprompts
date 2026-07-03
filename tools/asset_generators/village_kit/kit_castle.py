@@ -31,44 +31,36 @@ CELL = 1.0
 # shared castle helpers
 # --------------------------------------------------------------------------- #
 
-def _crenel_round(k, P, r, z, n=12, color="stone_dk"):
-    """A round battlement: a CONTINUOUS low parapet wall (sill) all the way round,
-    with merlons rising from it. Crenel gaps stop at the sill, so the tower floor
-    is never exposed (physically-correct battlements — QUALITY_RUBRIC §4c)."""
-    m = n * 2
-    seg = 2 * math.pi * r / m * 1.35
-    for i in range(m):                                   # continuous parapet sill
-        an = math.radians(i * 360 / m)
-        k.box(P, seg, 0.11, 0.13, (math.cos(an) * r, math.sin(an) * r, z + 0.065),
-              "stone", rot=(0, 0, an))
-    for i in range(0, m, 2):                             # merlons rising from the sill
-        an = math.radians(i * 360 / m)
-        k.box(P, seg, 0.14, 0.17, (math.cos(an) * r, math.sin(an) * r, z + 0.215),
+def _crenel_round(k, P, r, z, n=12, color="stone"):
+    """A round battlement: a SOLID continuous parapet drum (sill) with merlons of the
+    SAME stone rising from it. The parapet ring is truly continuous and the crenel
+    gaps stop at the drum top, never exposing the floor (QUALITY_RUBRIC §4c)."""
+    k.cyl(P, max(24, n * 2), r + 0.01, 0.13, (0, 0, z + 0.065), color)   # continuous drum
+    seg = 2 * math.pi * r / n * 0.52
+    for i in range(n):                                                   # merlons (teeth)
+        an = math.radians(i * 360 / n)
+        k.box(P, seg, 0.16, 0.16, (math.cos(an) * r, math.sin(an) * r, z + 0.205),
               color, rot=(0, 0, an))
 
 
-def _crenel_sq(k, P, w, d, z, color="stone_dk"):
-    """A square battlement: a CONTINUOUS low parapet wall (sill) round all four
-    edges, with merlons rising from it. Crenel gaps stop at the sill so the floor
-    is never exposed (physically-correct — QUALITY_RUBRIC §4c)."""
+def _crenel_sq(k, P, w, d, z, color="stone"):
+    """A square battlement: a CONTINUOUS solid parapet sill round all four edges,
+    with same-stone merlons rising from it. Merlons are spaced ~0.26 apart (dense,
+    even count per side including corners). Crenel gaps stop at the sill (§4c)."""
     for sy in (-1, 1):                                   # front/back sill walls
-        k.box(P, w + 0.14, 0.12, 0.13, (0, sy * d / 2, z + 0.065), "stone")
+        k.box(P, w + 0.14, 0.12, 0.13, (0, sy * d / 2, z + 0.065), color)
     for sx in (-1, 1):                                   # left/right sill walls
-        k.box(P, 0.12, d + 0.14, 0.13, (sx * w / 2, 0, z + 0.065), "stone")
-    nx = max(2, int(round(w / 0.36)))
-    for i in range(nx + 1):                              # merlons along front/back
-        if i % 2:
-            continue
+        k.box(P, 0.12, d + 0.14, 0.13, (sx * w / 2, 0, z + 0.065), color)
+    nx = max(4, int(round(w / 0.26)) // 2 * 2)          # even # of gaps
+    for i in range(0, nx + 1, 2):                        # merlons along front/back
         x = -w / 2 + i * w / nx
         for sy in (-1, 1):
-            k.box(P, 0.19, 0.13, 0.17, (x, sy * d / 2, z + 0.215), color)
-    nd = max(2, int(round(d / 0.36)))
-    for i in range(1, nd):                               # merlons along sides
-        if i % 2:
-            continue
+            k.box(P, 0.15, 0.13, 0.16, (x, sy * d / 2, z + 0.205), color)
+    nd = max(4, int(round(d / 0.26)) // 2 * 2)
+    for i in range(2, nd, 2):                            # merlons along sides (skip corners)
         y = -d / 2 + i * d / nd
         for sx in (-1, 1):
-            k.box(P, 0.13, 0.19, 0.17, (sx * w / 2, y, z + 0.215), color)
+            k.box(P, 0.13, 0.15, 0.16, (sx * w / 2, y, z + 0.205), color)
 
 
 def _machic_round(k, P, r, z, color="stone_dk"):
@@ -127,9 +119,9 @@ def _wall_crenel(k, P, z=1.0):
     the wall-walk floor (physically-correct — QUALITY_RUBRIC §4c)."""
     for sy in (-1, 1):
         yy = sy * (WT / 2 - 0.015)
-        k.box(P, CELL + 0.02, 0.07, 0.13, (0, yy, z + 0.065), "stone")   # continuous sill
-        for mx in (-0.34, 0.0, 0.34):
-            k.box(P, 0.2, 0.08, 0.17, (mx, yy, z + 0.205), "stone_dk")   # merlons
+        k.box(P, CELL + 0.02, 0.08, 0.13, (0, yy, z + 0.065), "stone")   # continuous sill
+        for mx in (-0.36, -0.12, 0.12, 0.36):
+            k.box(P, 0.18, 0.09, 0.17, (mx, yy, z + 0.205), "stone")     # merlons (same stone)
 
 
 def wall(k):
@@ -167,8 +159,8 @@ def wall_machicol(k):
         k.box(P, 0.12, 0.12, 0.1, (mx, -WT / 2 - 0.04, 0.9), "stone_dk")
     k.box(P, CELL + 0.02, WT + 0.14, 0.28, (0, 0, 1.04), "stone")  # overhanging solid parapet
     for sy in (-1, 1):                                          # merlons sit ON the parapet top
-        for mx in (-0.34, 0.0, 0.34):
-            k.box(P, 0.2, 0.09, 0.16, (mx, sy * 0.11, 1.26), "stone_dk")
+        for mx in (-0.36, -0.12, 0.12, 0.36):
+            k.box(P, 0.18, 0.09, 0.16, (mx, sy * 0.11, 1.26), "stone")
     return k.join(P, "wall_machicol")
 
 
@@ -467,38 +459,47 @@ def finial(k):
 # --------------------------------------------------------------------------- #
 
 def gatehouse(k):
-    """A twin-tower gatehouse with an arched gateway + portcullis + battlements."""
+    """A twin-tower gatehouse: two round guard towers linked by a crenellated
+    WALL-WALK over an arched gate (timber doors + portcullis + machicolations).
+    The walkway floor connects the towers so a defender can walk the parapet."""
     P = []
-    for s in (-1, 1):                                         # flanking round towers
-        k.cyl(P, 12, 0.4, 1.7, (s * 0.85, 0, 0.85), "stone")
-        _machic_round_off(k, P, s * 0.85, 0.4, 1.7)
-        _crenel_round_off(k, P, s * 0.85, 0.42, 1.84)
-        for zz in (1.0, 1.4):
-            k.box(P, 0.06, 0.42, 0.28, (s * 0.85, -0.36, zz), "soot")
-    k.box(P, 1.3, 0.5, 1.2, (0, 0, 1.4), "stone")             # gate block above
-    for mx in (-0.4, -0.13, 0.13, 0.4):
-        k.box(P, 0.15, 0.56, 0.12, (mx, 0, 2.04), "stone_dk")  # machicolation over gate
-    k.box(P, 1.35, 0.58, 0.06, (0, 0, 2.14), "stone")
-    for mx in (-0.42, -0.14, 0.14, 0.42):
-        k.box(P, 0.16, 0.14, 0.2, (mx, 0, 2.28), "stone_dk")
-    for x in (-0.44, 0.44):
-        k.box(P, 0.16, 0.5, 1.4, (x, 0, 0.7), "stone")        # gateway jambs
-    for i in range(7):                                        # voussoir arch over the gate
+    GT = 0.92                                                 # guard-tower centre offset
+    for s in (-1, 1):                                         # flanking guard towers
+        k.cyl(P, 12, 0.4, 2.0, (s * GT, 0, 1.0), "stone")
+        for zz in (0.75, 1.35):                              # guard-room windows
+            _arch_win(k, P, s * GT, -0.38, zz, w=0.14, h=0.26)
+        _machic_round_off(k, P, s * GT, 0.4, 2.0)
+        _crenel_round_off(k, P, s * GT, 0.42, 2.14, n=10)
+    # gate curtain wall between the towers
+    k.box(P, 2 * GT, 0.42, 1.35, (0, 0, 0.675), "stone")
+    k.box(P, 2 * GT + 0.06, 0.5, 0.12, (0, 0, 0.06), "stone_dk")   # plinth
+    for x in (-0.42, 0.42):                                  # gateway jambs
+        k.box(P, 0.18, 0.44, 1.15, (x, 0, 0.6), "stone")
+    for i in range(7):                                       # voussoir arch
         a = math.radians(20 + i * 23)
-        k.box(P, 0.12, 0.5, 0.12, (math.cos(a) * 0.36, 0, 1.28 + math.sin(a) * 0.36),
+        k.box(P, 0.12, 0.44, 0.12, (math.cos(a) * 0.36, 0, 1.16 + math.sin(a) * 0.36),
               "stone_dk", rot=(0, 0, a - R90))
-    k.box(P, 0.7, 0.32, 1.3, (0, 0.16, 0.66), "soot")         # shallow inner recess (not a void)
-    for dx in (-0.17, 0.17):                                  # closed studded timber doors
-        k.box(P, 0.33, 0.07, 1.28, (dx, -0.2, 0.66), "wood_dk")
+    k.box(P, 0.72, 0.3, 1.2, (0, 0.14, 0.62), "soot")        # shallow recess (not a void)
+    for dx in (-0.17, 0.17):                                 # closed studded timber doors
+        k.box(P, 0.33, 0.07, 1.18, (dx, -0.19, 0.62), "wood_dk")
         for px in (-0.09, 0.0, 0.09):
-            k.box(P, 0.025, 0.085, 1.22, (dx + px, -0.2, 0.66), "wood")
-    for z in (0.32, 0.72, 1.12):                              # iron cross-bands
-        k.box(P, 0.7, 0.085, 0.06, (0, -0.21, z), "iron")
-    for dx in (-0.24, 0.24):                                  # ring handles
-        k.cyl(P, 8, 0.045, 0.03, (dx, -0.25, 0.72), "iron", rot=(R90, 0, 0))
-    for gx in (-0.24, -0.08, 0.08, 0.24):                     # raised portcullis in the arch
-        k.box(P, 0.04, 0.06, 0.22, (gx, -0.18, 1.46), "steel")
-    k.box(P, 0.62, 0.06, 0.04, (0, -0.18, 1.56), "steel")
+            k.box(P, 0.025, 0.085, 1.12, (dx + px, -0.19, 0.62), "wood")
+    for z in (0.3, 0.66, 1.02):                              # iron cross-bands
+        k.box(P, 0.7, 0.085, 0.06, (0, -0.2, z), "iron")
+    for dx in (-0.24, 0.24):                                 # ring handles
+        k.cyl(P, 8, 0.045, 0.03, (dx, -0.24, 0.66), "iron", rot=(R90, 0, 0))
+    for gx in (-0.24, -0.08, 0.08, 0.24):                    # raised portcullis in the arch
+        k.box(P, 0.04, 0.06, 0.2, (gx, -0.17, 1.32), "steel")
+    k.box(P, 0.62, 0.06, 0.04, (0, -0.17, 1.42), "steel")
+    for sy in (-1, 1):                                       # machicolation corbels under walk
+        for mx in (-0.62, -0.37, -0.12, 0.12, 0.37, 0.62):
+            k.box(P, 0.1, 0.12, 0.12, (mx, sy * 0.24, 1.36), "stone_dk")
+    k.box(P, 2 * GT, 0.58, 0.1, (0, 0, 1.44), "stone")       # WALL-WALK floor (links towers)
+    for sy in (-1, 1):                                       # crenellated parapets on the walk
+        yy = sy * 0.25
+        k.box(P, 2 * GT - 0.04, 0.08, 0.14, (0, yy, 1.56), "stone")     # continuous sill
+        for mx in (-0.66, -0.4, -0.13, 0.13, 0.4, 0.66):
+            k.box(P, 0.16, 0.09, 0.16, (mx, yy, 1.7), "stone")          # merlons
     return k.join(P, "gatehouse")
 
 
@@ -511,18 +512,14 @@ def _machic_round_off(k, P, cx, r, z):
 
 
 def _crenel_round_off(k, P, cx, r, z, n=10, cy=0.0):
-    """Offset round battlement — continuous parapet sill + merlons, centred at
-    (cx, cy). Crenel gaps stop at the sill, never exposing the floor (§4c)."""
-    m = n * 2
-    seg = 2 * math.pi * r / m * 1.4
-    for i in range(m):                                   # continuous parapet sill
-        an = math.radians(i * 360 / m)
-        k.box(P, seg, 0.09, 0.12, (cx + math.cos(an) * r, cy + math.sin(an) * r, z + 0.06),
+    """Offset round battlement — SOLID continuous parapet drum + same-stone merlons,
+    centred at (cx, cy). Crenel gaps stop at the drum top (§4c)."""
+    k.cyl(P, max(20, n * 2), r + 0.01, 0.12, (cx, cy, z + 0.06), "stone")   # continuous drum
+    seg = 2 * math.pi * r / n * 0.52
+    for i in range(n):                                                       # merlons
+        an = math.radians(i * 360 / n)
+        k.box(P, seg, 0.14, 0.15, (cx + math.cos(an) * r, cy + math.sin(an) * r, z + 0.19),
               "stone", rot=(0, 0, an))
-    for i in range(0, m, 2):                             # merlons
-        an = math.radians(i * 360 / m)
-        k.box(P, seg, 0.11, 0.16, (cx + math.cos(an) * r, cy + math.sin(an) * r, z + 0.2),
-              "stone_dk", rot=(0, 0, an))
 
 
 def keep(k):
