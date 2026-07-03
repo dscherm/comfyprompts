@@ -21,8 +21,8 @@
 			"name":"finial",
 			"translation":[
 				0,
-				-0.019999995827674866,
-				-0.06798720359802246
+				0,
+				-0.005000002682209015
 			]
 		}
 	],
@@ -54,7 +54,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.030",
+			"name":"Cylinder.049",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +94,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":120,
+			"count":132,
 			"max":[
-				0.03577699884772301,
-				0.42000001668930054,
-				0.10201280564069748
+				0.1599999964237213,
+				0.8199999928474426,
+				0.16499999165534973
 			],
 			"min":[
-				-0.03577699884772301,
+				-0.1599999964237213,
 				0,
-				-0.10201279819011688
+				-0.16499999165534973
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":120,
+			"count":132,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":120,
+			"count":132,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":156,
+			"count":210,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1440,
+			"byteLength":1584,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1440,
-			"byteOffset":1440,
+			"byteLength":1584,
+			"byteOffset":1584,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":960,
-			"byteOffset":2880,
+			"byteLength":1056,
+			"byteOffset":3168,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":312,
-			"byteOffset":3840,
+			"byteLength":420,
+			"byteOffset":4224,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":4152,
+			"byteLength":4644,
 			"uri":"finial.bin"
 		}
 	]

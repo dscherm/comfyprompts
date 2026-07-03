@@ -20,14 +20,14 @@
 			"mesh":0,
 			"name":"balcony",
 			"scale":[
-				0.6000000238418579,
-				0.07999999821186066,
-				0.30000001192092896
+				0.7200000286102295,
+				0.949999988079071,
+				0.1599999964237213
 			],
 			"translation":[
 				0,
-				-0.14196151494979858,
-				0.16098076105117798
+				0,
+				0.06098075211048126
 			]
 		}
 	],
@@ -59,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.588",
+			"name":"Cube.646",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":264,
+			"count":456,
 			"max":[
-				0.5099679231643677,
-				6.087018966674805,
-				0.5366024971008301
+				0.5277777314186096,
+				1.0052632093429565,
+				1.5061297416687012
 			],
 			"min":[
-				-0.5099679231643677,
+				-0.5277777314186096,
 				0,
-				-0.5366024971008301
+				-1.5061297416687012
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":264,
+			"count":456,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":264,
+			"count":456,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":420,
+			"count":708,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":3168,
+			"byteLength":5472,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3168,
-			"byteOffset":3168,
+			"byteLength":5472,
+			"byteOffset":5472,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2112,
-			"byteOffset":6336,
+			"byteLength":3648,
+			"byteOffset":10944,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":840,
-			"byteOffset":8448,
+			"byteLength":1416,
+			"byteOffset":14592,
 			"target":34963
 		}
 	],
@@ -165,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":9288,
+			"byteLength":16008,
 			"uri":"balcony.bin"
 		}
 	]

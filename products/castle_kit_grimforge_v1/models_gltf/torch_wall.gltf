@@ -20,14 +20,14 @@
 			"mesh":0,
 			"name":"torch_wall",
 			"scale":[
-				0.10000000149011612,
-				0.10000000149011612,
-				0.10000000149011612
+				0.30000001192092896,
+				0.8999999761581421,
+				0.20000000298023224
 			],
 			"translation":[
 				0,
-				-0.05000000074505806,
-				0.11500000208616257
+				0,
+				0.040000006556510925
 			]
 		}
 	],
@@ -59,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.757",
+			"name":"Cube.830",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":120,
+			"count":168,
 			"max":[
-				0.5196152329444885,
-				5.199999809265137,
-				1.25
+				0.5666666626930237,
+				1.0777778625488281,
+				1.1999999284744263
 			],
 			"min":[
-				-0.5196152329444885,
+				-0.5666666626930237,
 				0,
-				-1.25
+				-1.1999999284744263
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":120,
+			"count":168,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":120,
+			"count":168,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":186,
+			"count":258,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1440,
+			"byteLength":2016,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1440,
-			"byteOffset":1440,
+			"byteLength":2016,
+			"byteOffset":2016,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":960,
-			"byteOffset":2880,
+			"byteLength":1344,
+			"byteOffset":4032,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":372,
-			"byteOffset":3840,
+			"byteLength":516,
+			"byteOffset":5376,
 			"target":34963
 		}
 	],
@@ -165,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":4212,
+			"byteLength":5892,
 			"uri":"torch_wall.bin"
 		}
 	]

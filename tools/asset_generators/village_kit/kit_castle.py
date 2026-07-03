@@ -343,6 +343,37 @@ def watchtower(k):
     return k.join(P, "watchtower")
 
 
+def _spire_tower(k, name, roof, storeys=2):
+    """A self-contained round tower with an integrated conical spire (base-origin,
+    so it drops onto the grid without stacking)."""
+    r = 0.42
+    h = storeys * 1.0
+    P = []
+    k.cyl(P, 12, r, h, (0, 0, h / 2), "stone")
+    _batter(k, P, r)
+    for i in range(storeys):
+        k.cyl(P, 12, r + 0.02, 0.05, (0, 0, i * 1.0 + 0.03), "stone_dk")   # course band
+        _arch_win(k, P, 0, -r + 0.03, i * 1.0 + 0.55, w=0.16, h=0.3)       # window
+    k.cyl(P, 12, r + 0.05, 0.07, (0, 0, h), "wood_dk")                     # eave ring
+    _cone(k, P, r + 0.07, 0.75, h, roof, vn=12)                            # spire
+    return k.join(P, name)
+
+
+def tower_spire(k):
+    """A round tower crowned with a blue-slate conical spire (self-contained)."""
+    return _spire_tower(k, "tower_spire", "slate", 2)
+
+
+def tower_spire_red(k):
+    """A round tower crowned with a red-tile conical spire."""
+    return _spire_tower(k, "tower_spire_red", "roof_red", 2)
+
+
+def tower_spire_tall(k):
+    """A tall three-storey round tower with a slate spire."""
+    return _spire_tower(k, "tower_spire_tall", "slate", 3)
+
+
 # --------------------------------------------------------------------------- #
 # TOWER CAPS / SPIRE ROOFS  (place on top of a tower of matching footprint)
 # --------------------------------------------------------------------------- #
@@ -404,11 +435,12 @@ def cap_dome(k):
 
 
 def finial(k):
-    """A spire finial with a heraldic pennant (tops a roof)."""
+    """A pinnacle finial — a small slate spire topped with a heraldic pennant."""
     P = []
-    k.cyl(P, 6, 0.02, 0.4, (0, 0, 0.2), "gold")
-    k.ico(P, 0.04, (0, 0, 0.02), "gold")
-    k.box(P, 0.02, 0.16, 0.1, (0, 0.09, 0.34), "flag")
+    k.cyl(P, 8, 0.16, 0.05, (0, 0, 0.025), "stone_dk")         # base ring
+    k.cone(P, 6, 0.14, 0, 0.42, (0, 0, 0.26), "slate")         # small spire
+    k.cyl(P, 6, 0.02, 0.4, (0, 0, 0.62), "gold")               # spike
+    k.box(P, 0.02, 0.16, 0.1, (0, 0.09, 0.74), "flag")         # pennant
     return k.join(P, "finial")
 
 
@@ -431,13 +463,24 @@ def gatehouse(k):
     k.box(P, 1.35, 0.58, 0.06, (0, 0, 2.14), "stone")
     for mx in (-0.42, -0.14, 0.14, 0.42):
         k.box(P, 0.16, 0.14, 0.2, (mx, 0, 2.28), "stone_dk")
-    for x in (-0.42, 0.42):
-        k.box(P, 0.16, 0.5, 1.3, (x, 0, 0.65), "stone")       # gateway jambs
-    k.box(P, 0.72, 0.55, 1.5, (0, 0, 0.75), "soot")           # dark passage
-    for x in (-0.24, -0.08, 0.08, 0.24):                      # portcullis bars
-        k.box(P, 0.05, 0.06, 1.1, (x, -0.24, 0.65), "iron")
-    for z in (0.25, 0.7, 1.1):
-        k.box(P, 0.62, 0.06, 0.05, (0, -0.24, z), "iron")
+    for x in (-0.44, 0.44):
+        k.box(P, 0.16, 0.5, 1.4, (x, 0, 0.7), "stone")        # gateway jambs
+    for i in range(7):                                        # voussoir arch over the gate
+        a = math.radians(20 + i * 23)
+        k.box(P, 0.12, 0.5, 0.12, (math.cos(a) * 0.36, 0, 1.28 + math.sin(a) * 0.36),
+              "stone_dk", rot=(0, 0, a - R90))
+    k.box(P, 0.7, 0.32, 1.3, (0, 0.16, 0.66), "soot")         # shallow inner recess (not a void)
+    for dx in (-0.17, 0.17):                                  # closed studded timber doors
+        k.box(P, 0.33, 0.07, 1.28, (dx, -0.2, 0.66), "wood_dk")
+        for px in (-0.09, 0.0, 0.09):
+            k.box(P, 0.025, 0.085, 1.22, (dx + px, -0.2, 0.66), "wood")
+    for z in (0.32, 0.72, 1.12):                              # iron cross-bands
+        k.box(P, 0.7, 0.085, 0.06, (0, -0.21, z), "iron")
+    for dx in (-0.24, 0.24):                                  # ring handles
+        k.cyl(P, 8, 0.045, 0.03, (dx, -0.25, 0.72), "iron", rot=(R90, 0, 0))
+    for gx in (-0.24, -0.08, 0.08, 0.24):                     # raised portcullis in the arch
+        k.box(P, 0.04, 0.06, 0.22, (gx, -0.18, 1.46), "steel")
+    k.box(P, 0.62, 0.06, 0.04, (0, -0.18, 1.56), "steel")
     return k.join(P, "gatehouse")
 
 
@@ -606,14 +649,17 @@ def pillar(k):
 
 
 def balcony(k):
-    """A projecting stone balcony (wall-mount)."""
+    """A projecting stone balcony on a wall panel."""
     P = []
-    k.box(P, 0.6, 0.3, 0.08, (0, -0.15, 0.04), "stone")        # floor slab
-    for cx in (-0.24, 0.0, 0.24):
-        k.box(P, 0.1, 0.12, 0.12, (cx, -0.24, -0.06), "stone_dk", rot=(math.radians(30), 0, 0))
+    k.box(P, 0.72, 0.16, 0.95, (0, 0.08, 0.475), "stone")      # wall backing
+    k.box(P, 0.76, 0.2, 0.08, (0, 0.08, 0.04), "stone_dk")     # plinth
+    _arch_win(k, P, 0, 0.0, 0.66, w=0.18, h=0.34)              # doorway onto the balcony
+    k.box(P, 0.6, 0.32, 0.08, (0, -0.14, 0.34), "stone")       # floor slab
+    for cx in (-0.24, 0.0, 0.24):                              # corbels under
+        k.box(P, 0.1, 0.12, 0.12, (cx, -0.22, 0.24), "stone_dk", rot=(math.radians(30), 0, 0))
     for cx in (-0.28, -0.09, 0.09, 0.28):                      # balusters
-        k.cyl(P, 6, 0.03, 0.22, (cx, -0.27, 0.19), "stone")
-    k.box(P, 0.6, 0.06, 0.05, (0, -0.27, 0.32), "stone_dk")    # rail
+        k.cyl(P, 6, 0.03, 0.2, (cx, -0.27, 0.48), "stone")
+    k.box(P, 0.6, 0.06, 0.05, (0, -0.27, 0.6), "stone_dk")     # rail
     return k.join(P, "balcony")
 
 
@@ -627,23 +673,29 @@ def arrow_loop(k):
 
 
 def corbel_strip(k):
-    """A machicolation corbel course (1-unit; sits under a parapet)."""
+    """A machicolated parapet course on a wall stub (crowns a curtain wall)."""
     P = []
-    for mx in (-0.4, -0.2, 0.0, 0.2, 0.4):
-        k.box(P, 0.12, 0.16, 0.12, (mx, 0, 0.06), "stone_dk")
-    k.box(P, CELL + 0.02, 0.22, 0.1, (0, 0, 0.17), "stone")
+    k.box(P, CELL, WT, 0.55, (0, 0, 0.275), "stone")           # wall stub
+    k.box(P, CELL + 0.04, WT + 0.05, 0.08, (0, 0, 0.04), "stone_dk")
+    for mx in (-0.4, -0.2, 0.0, 0.2, 0.4):                     # corbels project front
+        k.box(P, 0.12, 0.14, 0.12, (mx, -WT / 2 - 0.03, 0.55), "stone_dk")
+    k.box(P, CELL + 0.02, WT + 0.14, 0.1, (0, 0, 0.66), "stone")   # overhang course
+    for mx in (-0.33, 0.0, 0.33):                              # merlons
+        k.box(P, 0.22, 0.1, 0.2, (mx, -0.04, 0.81), "stone_dk")
     return k.join(P, "corbel_strip")
 
 
 def banner(k):
-    """A hanging heraldic banner (wall-mount)."""
+    """A heraldic banner hung on a stone wall panel."""
     P = []
-    k.cyl(P, 6, 0.02, 0.5, (0, -0.06, 0.5), "wood_dk", rot=(0, R90, 0))  # cross-pole
-    k.box(P, 0.34, 0.02, 0.6, (0, -0.05, 0.4), "crimson")
-    k.box(P, 0.34, 0.03, 0.12, (0, -0.05, 0.14), "crimson", rot=(math.radians(12), 0, 0))
+    k.box(P, 0.5, WT, 1.0, (0, 0.08, 0.5), "stone")            # wall backing
+    k.box(P, 0.54, WT + 0.05, 0.1, (0, 0.08, 0.05), "stone_dk")  # plinth
+    k.cyl(P, 6, 0.02, 0.44, (0, -0.03, 0.82), "wood_dk", rot=(0, R90, 0))  # cross-pole
+    k.box(P, 0.34, 0.02, 0.6, (0, -0.02, 0.52), "crimson")
+    k.box(P, 0.34, 0.03, 0.12, (0, -0.02, 0.26), "crimson", rot=(math.radians(12), 0, 0))
     for tx in (-0.1, 0.1):                                     # dagged tails
-        k.cone(P, 3, 0.06, 0, 0.12, (tx, -0.05, 0.06), "crimson", rot=(math.radians(180), 0, 0))
-    k.ico(P, 0.05, (0, -0.06, 0.42), "gold")                  # emblem
+        k.cone(P, 3, 0.06, 0, 0.12, (tx, -0.02, 0.18), "crimson", rot=(math.radians(180), 0, 0))
+    k.ico(P, 0.05, (0, -0.03, 0.54), "gold")                  # emblem
     return k.join(P, "banner")
 
 
@@ -819,12 +871,14 @@ def brazier(k):
 
 
 def torch_wall(k):
-    """A wall-bracket torch."""
+    """A wall-bracket torch on a stone wall pier."""
     P = []
-    k.box(P, 0.1, 0.1, 0.1, (0, -0.04, 0.0), "iron")          # bracket
-    k.cyl(P, 6, 0.02, 0.3, (0, -0.12, 0.16), "wood_dk", rot=(math.radians(20), 0, 0))
-    k.cyl(P, 6, 0.05, 0.06, (0, -0.18, 0.32), "iron")
-    k.cone(P, 6, 0.06, 0, 0.14, (0, -0.18, 0.4), "fire")
+    k.box(P, 0.3, WT, 0.9, (0, 0.08, 0.45), "stone")          # wall pier
+    k.box(P, 0.34, WT + 0.04, 0.08, (0, 0.08, 0.04), "stone_dk")
+    k.box(P, 0.1, 0.1, 0.1, (0, -0.08, 0.5), "iron")          # bracket
+    k.cyl(P, 6, 0.02, 0.3, (0, -0.16, 0.66), "wood_dk", rot=(math.radians(20), 0, 0))
+    k.cyl(P, 6, 0.05, 0.06, (0, -0.22, 0.82), "iron")
+    k.cone(P, 6, 0.06, 0, 0.14, (0, -0.22, 0.9), "fire")
     return k.join(P, "torch_wall")
 
 
@@ -895,12 +949,17 @@ def tree(k):
 
 
 def shield(k):
-    """A heraldic wall shield."""
+    """A heraldic shield mounted on crossed spears on a wall panel."""
     P = []
-    k.box(P, 0.34, 0.05, 0.4, (0, 0, 0.25), "steel")
-    k.cone(P, 3, 0.19, 0, 0.18, (0, -0.01, 0.08), "steel", rot=(math.radians(180), 0, 0))
-    k.box(P, 0.24, 0.06, 0.28, (0, -0.02, 0.28), "crimson")
-    k.ico(P, 0.06, (0, -0.05, 0.3), "gold")
+    k.box(P, 0.44, WT, 0.9, (0, 0.08, 0.45), "stone")         # wall backing
+    k.box(P, 0.48, WT + 0.04, 0.08, (0, 0.08, 0.04), "stone_dk")
+    for s in (-1, 1):                                         # crossed spears behind
+        k.box(P, 0.03, 0.03, 0.8, (0, -0.02, 0.5), "wood_dk", rot=(0, math.radians(s * 28), 0))
+        k.cone(P, 4, 0.04, 0, 0.12, (s * 0.38, -0.02, 0.86), "steel", rot=(0, 0, R45))
+    k.box(P, 0.34, 0.05, 0.4, (0, -0.06, 0.52), "steel")     # shield body
+    k.cone(P, 3, 0.19, 0, 0.18, (0, -0.07, 0.35), "steel", rot=(math.radians(180), 0, 0))
+    k.box(P, 0.24, 0.06, 0.28, (0, -0.08, 0.55), "crimson")
+    k.ico(P, 0.06, (0, -0.11, 0.57), "gold")
     return k.join(P, "shield")
 
 
@@ -1175,6 +1234,8 @@ PIECES = [
     ("tower_round_mid", tower_round_mid), ("tower_square", tower_square),
     ("tower_square_tall", tower_square_tall), ("turret", turret), ("tower_base", tower_base),
     ("tower_gate", tower_gate), ("watchtower", watchtower),
+    ("tower_spire", tower_spire), ("tower_spire_red", tower_spire_red),
+    ("tower_spire_tall", tower_spire_tall),
     ("cap_cone_slate", cap_cone_slate), ("cap_cone_red", cap_cone_red),
     ("cap_cone_tall", cap_cone_tall), ("cap_pyramid_slate", cap_pyramid_slate),
     ("cap_pyramid_red", cap_pyramid_red), ("cap_crenel", cap_crenel),
@@ -1209,12 +1270,12 @@ PIECES = [
     ("turret_dark", turret_dark), ("tower_base_dark", tower_base_dark),
     ("watchtower_dark", watchtower_dark), ("gatehouse_dark", gatehouse_dark),
     ("keep_dark", keep_dark), ("round_keep_dark", round_keep_dark),
-    ("barbican_dark", barbican_dark), ("gate_arch_dark", gate_arch_dark),
+    ("barbican_dark", barbican_dark),
     ("great_hall_dark", great_hall_dark), ("chapel_dark", chapel_dark),
     ("great_hall_red", great_hall_red), ("chapel_red", chapel_red),
-    ("tower_house_slate", tower_house_slate), ("stable_slate", stable_slate),
+    ("tower_house_slate", tower_house_slate),
     ("cap_cone_green", cap_cone_green), ("cap_cone_dark", cap_cone_dark),
-    ("cap_cone_tall_red", cap_cone_tall_red), ("cap_pyramid_green", cap_pyramid_green),
+    ("cap_cone_tall_red", cap_cone_tall_red),
     ("cap_dome_gold", cap_dome_gold), ("cap_dome_red", cap_dome_red),
     ("brazier_witch", brazier_witch),
 ]

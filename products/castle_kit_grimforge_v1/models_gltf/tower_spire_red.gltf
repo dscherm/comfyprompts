@@ -18,18 +18,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"cap_pyramid_green",
-			"rotation":[
-				0,
-				0.3826834559440613,
-				0,
-				0.9238795638084412
-			],
-			"translation":[
-				0,
-				0.9750000238418579,
-				0
-			]
+			"name":"tower_spire_red"
 		}
 	],
 	"materials":[
@@ -60,7 +49,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cone.046",
+			"name":"Cylinder.026",
 			"primitives":[
 				{
 					"attributes":{
@@ -100,61 +89,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":76,
+			"count":804,
 			"max":[
-				0.6010408401489258,
-				0.9049999713897705,
-				0.6010408401489258
+				0.5400000214576721,
+				2.9000000953674316,
+				0.5400000214576721
 			],
 			"min":[
-				-0.6010408401489258,
-				-2.9802322387695312e-08,
-				-0.6010408401489258
+				-0.5400000214576721,
+				0,
+				-0.5400000214576721
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":76,
+			"count":804,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":76,
+			"count":804,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":114,
+			"count":1350,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":912,
+			"byteLength":9648,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":912,
-			"byteOffset":912,
+			"byteLength":9648,
+			"byteOffset":9648,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":608,
-			"byteOffset":1824,
+			"byteLength":6432,
+			"byteOffset":19296,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":228,
-			"byteOffset":2432,
+			"byteLength":2700,
+			"byteOffset":25728,
 			"target":34963
 		}
 	],
@@ -166,8 +155,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":2660,
-			"uri":"cap_pyramid_green.bin"
+			"byteLength":28428,
+			"uri":"tower_spire_red.bin"
 		}
 	]
 }

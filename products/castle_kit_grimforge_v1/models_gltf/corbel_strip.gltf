@@ -20,9 +20,14 @@
 			"mesh":0,
 			"name":"corbel_strip",
 			"scale":[
-				0.11999999731779099,
-				0.11999999731779099,
-				0.1599999964237213
+				1,
+				0.550000011920929,
+				0.20000000298023224
+			],
+			"translation":[
+				0,
+				0,
+				0.014999995939433575
 			]
 		}
 	],
@@ -54,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.596",
+			"name":"Cube.662",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":144,
+			"count":264,
 			"max":[
-				4.249999523162842,
-				1.8333332538604736,
-				0.6875
+				0.5199999213218689,
+				1.6545453071594238,
+				0.9249998927116394
 			],
 			"min":[
-				-4.249999523162842,
-				0,
-				-0.6875
+				-0.5199999213218689,
+				-2.9802322387695312e-08,
+				-0.9249998927116394
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":144,
+			"count":264,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":144,
+			"count":264,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":216,
+			"count":396,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":1728,
+			"byteLength":3168,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1728,
-			"byteOffset":1728,
+			"byteLength":3168,
+			"byteOffset":3168,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1152,
-			"byteOffset":3456,
+			"byteLength":2112,
+			"byteOffset":6336,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":432,
-			"byteOffset":4608,
+			"byteLength":792,
+			"byteOffset":8448,
 			"target":34963
 		}
 	],
@@ -160,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":5040,
+			"byteLength":9240,
 			"uri":"corbel_strip.bin"
 		}
 	]

@@ -18,17 +18,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"gate_arch_dark",
-			"scale":[
-				0.30000001192092896,
-				1.2999999523162842,
-				0.5
-			],
-			"translation":[
-				0.003201007843017578,
-				0,
-				0
-			]
+			"name":"tower_spire"
 		}
 	],
 	"materials":[
@@ -59,7 +49,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.1292",
+			"name":"Cylinder.020",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,14 +89,14 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":432,
+			"count":804,
 			"max":[
-				2.327117443084717,
-				1.461538553237915,
+				0.5400000214576721,
+				2.9000000953674316,
 				0.5400000214576721
 			],
 			"min":[
-				-2.3271172046661377,
+				-0.5400000214576721,
 				0,
 				-0.5400000214576721
 			],
@@ -115,45 +105,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":432,
+			"count":804,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":432,
+			"count":804,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":648,
+			"count":1350,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":5184,
+			"byteLength":9648,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5184,
-			"byteOffset":5184,
+			"byteLength":9648,
+			"byteOffset":9648,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3456,
-			"byteOffset":10368,
+			"byteLength":6432,
+			"byteOffset":19296,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1296,
-			"byteOffset":13824,
+			"byteLength":2700,
+			"byteOffset":25728,
 			"target":34963
 		}
 	],
@@ -165,8 +155,8 @@
 	],
 	"buffers":[
 		{
-			"byteLength":15120,
-			"uri":"gate_arch_dark.bin"
+			"byteLength":28428,
+			"uri":"tower_spire.bin"
 		}
 	]
 }

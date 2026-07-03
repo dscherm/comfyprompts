@@ -19,16 +19,15 @@
 		{
 			"mesh":0,
 			"name":"banner",
-			"rotation":[
-				0,
-				0,
-				-0.7071068286895752,
-				0.7071068286895752
+			"scale":[
+				0.5,
+				1,
+				0.20000000298023224
 			],
 			"translation":[
-				-0.25,
-				0.3500000238418579,
-				0.06373399496078491
+				0,
+				0,
+				-0.0625
 			]
 		}
 	],
@@ -60,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.059",
+			"name":"Cube.673",
 			"primitives":[
 				{
 					"attributes":{
@@ -100,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":168,
+			"count":216,
 			"max":[
-				0.3500000238418579,
-				0.5,
-				0.04626600816845894
+				0.5400000214576721,
+				1,
+				0.7124999761581421
 			],
 			"min":[
-				-0.3499999940395355,
+				-0.5400000214576721,
 				0,
-				-0.04626600071787834
+				-0.7124999761581421
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":168,
+			"count":216,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":168,
+			"count":216,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":216,
+			"count":288,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":2016,
+			"byteLength":2592,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2016,
-			"byteOffset":2016,
+			"byteLength":2592,
+			"byteOffset":2592,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1344,
-			"byteOffset":4032,
+			"byteLength":1728,
+			"byteOffset":5184,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":432,
-			"byteOffset":5376,
+			"byteLength":576,
+			"byteOffset":6912,
 			"target":34963
 		}
 	],
@@ -166,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":5808,
+			"byteLength":7488,
 			"uri":"banner.bin"
 		}
 	]
