@@ -154,8 +154,11 @@ per-colour emission strength. (CITY cathedral rose gem swap: DONE.)
       `productize --gallery` renders a 3/4 `hero.png` beauty shot + a
       `gallery/<name>.png` per piece (via `_render_presentation`). Generated for
       all 6 products (181 per-piece renders + 6 heroes); clears the hero/gallery
-      gate warnings. (Turntable GIF still a follow-up — needs frame-sequence +
-      gif assembly.)
+      gate warnings.
+- [x] **Turntable GIFs** — DONE: `turntable.py` (Blender) orbits a single hero
+      piece 20 frames; a PIL pass assembles `products/<kit>/turntable.gif`
+      (~1.5 MB, 96-colour, looped). Shipped for all 6 kits (occult=creepy_barn,
+      df-village=chapel, city=cathedral, v1=church, v2=windmill, parts=house_demo).
 - [ ] Grow each kit toward **200+ pieces**: more small props / nature /
       modular connectors + recolor variants (recolors count toward variety).
 - [x] Wire `kit_quality_check.py` into `productize.py` as a build gate — DONE:
