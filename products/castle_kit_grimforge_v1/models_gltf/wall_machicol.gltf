@@ -59,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.035",
+			"name":"Cube.047",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,10 +99,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":336,
+			"count":384,
 			"max":[
 				0.5199999809265137,
-				1.533333420753479,
+				1.4888889789581299,
 				0.925000011920929
 			],
 			"min":[
@@ -115,45 +115,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":336,
+			"count":384,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":336,
+			"count":384,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":504,
+			"count":576,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":4032,
+			"byteLength":4608,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4032,
-			"byteOffset":4032,
+			"byteLength":4608,
+			"byteOffset":4608,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2688,
-			"byteOffset":8064,
+			"byteLength":3072,
+			"byteOffset":9216,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1008,
-			"byteOffset":10752,
+			"byteLength":1152,
+			"byteOffset":12288,
 			"target":34963
 		}
 	],
@@ -165,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":11760,
+			"byteLength":13440,
 			"uri":"wall_machicol.bin"
 		}
 	]

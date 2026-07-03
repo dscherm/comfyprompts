@@ -54,7 +54,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.1366",
+			"name":"Cube.1446",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +94,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":504,
+			"count":600,
 			"max":[
-				0.6000000238418579,
-				1.2857143878936768,
-				0.6000000238418579
+				0.574999988079071,
+				1.3321428298950195,
+				0.6166666746139526
 			],
 			"min":[
-				-0.6000000238418579,
+				-0.574999988079071,
 				0,
-				-0.6000000238418579
+				-0.6166666746139526
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":504,
+			"count":600,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":504,
+			"count":600,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":756,
+			"count":900,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6048,
+			"byteLength":7200,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6048,
-			"byteOffset":6048,
+			"byteLength":7200,
+			"byteOffset":7200,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4032,
-			"byteOffset":12096,
+			"byteLength":4800,
+			"byteOffset":14400,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1512,
-			"byteOffset":16128,
+			"byteLength":1800,
+			"byteOffset":19200,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":17640,
+			"byteLength":21000,
 			"uri":"barbican_dark.bin"
 		}
 	]

@@ -49,7 +49,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.146",
+			"name":"Cylinder.160",
 			"primitives":[
 				{
 					"attributes":{
@@ -89,10 +89,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1020,
+			"count":1164,
 			"max":[
 				0.550000011920929,
-				2.4800000190734863,
+				2.5250000953674316,
 				0.550000011920929
 			],
 			"min":[
@@ -105,45 +105,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1020,
+			"count":1164,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1020,
+			"count":1164,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":1656,
+			"count":1932,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":12240,
+			"byteLength":13968,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":12240,
-			"byteOffset":12240,
+			"byteLength":13968,
+			"byteOffset":13968,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":8160,
-			"byteOffset":24480,
+			"byteLength":9312,
+			"byteOffset":27936,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3312,
-			"byteOffset":32640,
+			"byteLength":3864,
+			"byteOffset":37248,
 			"target":34963
 		}
 	],
@@ -155,7 +155,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":35952,
+			"byteLength":41112,
 			"uri":"tower_round_tall_dark.bin"
 		}
 	]

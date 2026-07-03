@@ -59,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.308",
+			"name":"Cube.345",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,10 +99,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":660,
+			"count":804,
 			"max":[
 				3.9285709857940674,
-				3.2142858505249023,
+				3.535714864730835,
 				3.437500238418579
 			],
 			"min":[
@@ -115,45 +115,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":660,
+			"count":804,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":660,
+			"count":804,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":1020,
+			"count":1296,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":7920,
+			"byteLength":9648,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":7920,
-			"byteOffset":7920,
+			"byteLength":9648,
+			"byteOffset":9648,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":5280,
-			"byteOffset":15840,
+			"byteLength":6432,
+			"byteOffset":19296,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2040,
-			"byteOffset":21120,
+			"byteLength":2592,
+			"byteOffset":25728,
 			"target":34963
 		}
 	],
@@ -165,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":23160,
+			"byteLength":28320,
 			"uri":"cap_crenel.bin"
 		}
 	]

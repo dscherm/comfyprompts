@@ -27,7 +27,7 @@
 			"translation":[
 				0,
 				-0.004999995231628418,
-				0.17072941362857819
+				0.170729398727417
 			]
 		}
 	],
@@ -59,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.068",
+			"name":"Cube.082",
 			"primitives":[
 				{
 					"attributes":{
@@ -99,10 +99,10 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":264,
+			"count":360,
 			"max":[
 				0.5199999809265137,
-				1.1950000524520874,
+				1.2950000762939453,
 				1.5036470890045166
 			],
 			"min":[
@@ -115,45 +115,45 @@
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":264,
+			"count":360,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":264,
+			"count":360,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":396,
+			"count":540,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":3168,
+			"byteLength":4320,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3168,
-			"byteOffset":3168,
+			"byteLength":4320,
+			"byteOffset":4320,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2112,
-			"byteOffset":6336,
+			"byteLength":2880,
+			"byteOffset":8640,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":792,
-			"byteOffset":8448,
+			"byteLength":1080,
+			"byteOffset":11520,
 			"target":34963
 		}
 	],
@@ -165,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":9240,
+			"byteLength":12600,
 			"uri":"wall_buttress.bin"
 		}
 	]

@@ -18,12 +18,7 @@
 	"nodes":[
 		{
 			"mesh":0,
-			"name":"gatehouse_dark",
-			"translation":[
-				0,
-				0,
-				0.027500003576278687
-			]
+			"name":"gatehouse_dark"
 		}
 	],
 	"materials":[
@@ -54,7 +49,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cylinder.159",
+			"name":"Cylinder.176",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +89,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":2424,
+			"count":3600,
 			"max":[
-				1.3650000095367432,
-				2.380000114440918,
-				0.5425000190734863
+				1.434999942779541,
+				2.4049999713897705,
+				0.5149999856948853
 			],
 			"min":[
-				-1.3650000095367432,
+				-1.434999942779541,
 				0,
-				-0.5425000190734863
+				-0.5149999856948853
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":2424,
+			"count":3600,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":2424,
+			"count":3600,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":3768,
+			"count":5628,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":29088,
+			"byteLength":43200,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":29088,
-			"byteOffset":29088,
+			"byteLength":43200,
+			"byteOffset":43200,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":19392,
-			"byteOffset":58176,
+			"byteLength":28800,
+			"byteOffset":86400,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":7536,
-			"byteOffset":77568,
+			"byteLength":11256,
+			"byteOffset":115200,
 			"target":34963
 		}
 	],
@@ -160,7 +155,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":85104,
+			"byteLength":126456,
 			"uri":"gatehouse_dark.bin"
 		}
 	]

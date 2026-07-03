@@ -54,7 +54,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.085",
+			"name":"Cube.103",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +94,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":168,
+			"count":264,
 			"max":[
 				0.5,
-				3.75,
-				0.5625000596046448
+				3.875,
+				0.5416666865348816
 			],
 			"min":[
 				-0.5,
 				0,
-				-0.5625000596046448
+				-0.5416666865348816
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":168,
+			"count":264,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":168,
+			"count":264,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":252,
+			"count":396,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":2016,
+			"byteLength":3168,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":2016,
-			"byteOffset":2016,
+			"byteLength":3168,
+			"byteOffset":3168,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1344,
-			"byteOffset":4032,
+			"byteLength":2112,
+			"byteOffset":6336,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":504,
-			"byteOffset":5376,
+			"byteLength":792,
+			"byteOffset":8448,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":5880,
+			"byteLength":9240,
 			"uri":"parapet.bin"
 		}
 	]
