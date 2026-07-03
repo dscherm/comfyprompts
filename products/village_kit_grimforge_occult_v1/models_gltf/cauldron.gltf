@@ -45,7 +45,7 @@
 			},
 			"extensions":{
 				"KHR_materials_emissive_strength":{
-					"emissiveStrength":2.200000047683716
+					"emissiveStrength":1.600000023841858
 				}
 			},
 			"name":"kit_atlas_mat",

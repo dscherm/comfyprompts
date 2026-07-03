@@ -328,6 +328,10 @@ class Kit:
         for i, name in enumerate(names):
             r, g, b, _ = hex_to_rgba(self.palette[name])
             es = self.emission.get(name, 0.0)
+            ef = min(1.0, es / 2.5)      # per-material emission, normalised to the
+            #                              hottest accent so window/gem glow warm
+            #                              (not blown white) while ember/ghostfire
+            #                              stay bright — see atlas Emission Strength.
             pat = pat_of.get(name, "plain")
             cx, cy = (i % cols) * cw, (i // cols) * ch
             for yy in range(ch):
@@ -339,12 +343,12 @@ class Kit:
                         cr, cg, cb, glow = glass_px(xx, yy, cw, ch)
                         col[p], col[p + 1], col[p + 2] = cr * gr, cg * gr, cb * gr
                         if es > 0 and glow:
-                            emit[p], emit[p + 1], emit[p + 2] = cr, cg, cb
+                            emit[p], emit[p + 1], emit[p + 2] = cr * ef, cg * ef, cb * ef
                     else:
                         f = gr * pm(pat, xx, yy, cw, ch)
                         col[p], col[p + 1], col[p + 2] = min(1, r * f), min(1, g * f), min(1, b * f)
                         if es > 0:
-                            emit[p], emit[p + 1], emit[p + 2] = r, g, b
+                            emit[p], emit[p + 1], emit[p + 2] = r * ef, g * ef, b * ef
             self._cells[name] = ((cx + 1.0) / size, (cx + cw - 1.0) / size,
                                  (cy + 1.0) / size, (cy + ch - 1.0) / size)
         cimg = bpy.data.images.new("kit_atlas", size, size)
@@ -364,7 +368,7 @@ class Kit:
         te = nt.nodes.new("ShaderNodeTexImage")
         te.image, te.interpolation = eimg, "Closest"
         nt.links.new(te.outputs["Color"], bsdf.inputs["Emission Color"])
-        bsdf.inputs["Emission Strength"].default_value = 2.2
+        bsdf.inputs["Emission Strength"].default_value = 1.6   # emit atlas pre-scaled per material
         self._atlas_mat, self._atlas_imgs = m, (cimg, eimg)
         return m
 
