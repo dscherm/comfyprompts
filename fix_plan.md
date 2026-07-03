@@ -150,7 +150,12 @@ per-colour emission strength. (CITY cathedral rose gem swap: DONE.)
       is best-effort and pruned at runtime because Blender 5.0 removed the Collada
       add-on entirely (no `io_scene_collada` module) — USD fills the same
       interchange role natively and the gate accepts DAE-or-USD.
-- [ ] Auto-generate **per-piece gallery + hero + turntable** in `productize.py`.
+- [x] Auto-generate **per-piece gallery + hero** in `productize.py` — DONE:
+      `productize --gallery` renders a 3/4 `hero.png` beauty shot + a
+      `gallery/<name>.png` per piece (via `_render_presentation`). Generated for
+      all 6 products (181 per-piece renders + 6 heroes); clears the hero/gallery
+      gate warnings. (Turntable GIF still a follow-up — needs frame-sequence +
+      gif assembly.)
 - [ ] Grow each kit toward **200+ pieces**: more small props / nature /
       modular connectors + recolor variants (recolors count toward variety).
 - [x] Wire `kit_quality_check.py` into `productize.py` as a build gate — DONE:
