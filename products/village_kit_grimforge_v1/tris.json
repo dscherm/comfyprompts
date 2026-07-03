@@ -32,11 +32,11 @@
   "road_tee": 60,
   "signpost": 32,
   "tavern": 260,
-  "tower": 148,
+  "tower": 684,
   "tree": 44,
   "tree_dead": 68,
-  "wall": 96,
-  "wall_corner": 156,
-  "wall_gate": 252,
+  "wall": 120,
+  "wall_corner": 216,
+  "wall_gate": 492,
   "well": 176
 }

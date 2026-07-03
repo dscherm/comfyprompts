@@ -94,61 +94,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1008,
+			"count":1800,
 			"max":[
-				0.699999988079071,
-				2.7749998569488525,
-				0.699999988079071
+				0.7656636834144592,
+				2.765000104904175,
+				0.7656636834144592
 			],
 			"min":[
-				-0.699999988079071,
+				-0.7656636834144592,
 				0,
-				-0.699999988079071
+				-0.7656636834144592
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1008,
+			"count":1800,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1008,
+			"count":1800,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":1584,
+			"count":2868,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":12096,
+			"byteLength":21600,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":12096,
-			"byteOffset":12096,
+			"byteLength":21600,
+			"byteOffset":21600,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":8064,
-			"byteOffset":24192,
+			"byteLength":14400,
+			"byteOffset":43200,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3168,
-			"byteOffset":32256,
+			"byteLength":5736,
+			"byteOffset":57600,
 			"target":34963
 		}
 	],
@@ -160,7 +160,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":35424,
+			"byteLength":63336,
 			"uri":"guard_tower.bin"
 		}
 	]

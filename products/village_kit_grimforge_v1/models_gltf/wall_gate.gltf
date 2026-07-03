@@ -23,6 +23,11 @@
 				0.5,
 				1.899999976158142,
 				0.6000000238418579
+			],
+			"translation":[
+				-0.002499997615814209,
+				0,
+				0
 			]
 		}
 	],
@@ -54,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.126",
+			"name":"Cube.160",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":504,
+			"count":984,
 			"max":[
-				1.959999918937683,
-				1.1368420124053955,
-				0.550000011920929
+				2.0250000953674316,
+				1.1394736766815186,
+				0.6000000238418579
 			],
 			"min":[
-				-1.9600000381469727,
+				-2.0250000953674316,
 				0,
-				-0.550000011920929
+				-0.6000000238418579
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":504,
+			"count":984,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":504,
+			"count":984,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":756,
+			"count":1476,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":6048,
+			"byteLength":11808,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":6048,
-			"byteOffset":6048,
+			"byteLength":11808,
+			"byteOffset":11808,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":4032,
-			"byteOffset":12096,
+			"byteLength":7872,
+			"byteOffset":23616,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":1512,
-			"byteOffset":16128,
+			"byteLength":2952,
+			"byteOffset":31488,
 			"target":34963
 		}
 	],
@@ -160,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":17640,
+			"byteLength":34440,
 			"uri":"wall_gate.bin"
 		}
 	]

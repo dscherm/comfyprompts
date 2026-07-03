@@ -23,6 +23,11 @@
 				0.6000000238418579,
 				2.4000000953674316,
 				0.699999988079071
+			],
+			"translation":[
+				-0.0025000572204589844,
+				0,
+				0
 			]
 		}
 	],
@@ -54,7 +59,7 @@
 	],
 	"meshes":[
 		{
-			"name":"Cube.070",
+			"name":"Cube.094",
 			"primitives":[
 				{
 					"attributes":{
@@ -94,61 +99,61 @@
 		{
 			"bufferView":0,
 			"componentType":5126,
-			"count":1200,
+			"count":1176,
 			"max":[
-				1.933333158493042,
-				1.145833134651184,
-				0.5571427345275879
+				1.9874998331069946,
+				1.1187498569488525,
+				0.5999999046325684
 			],
 			"min":[
-				-1.933333158493042,
+				-1.9874998331069946,
 				0,
-				-0.5571427345275879
+				-0.5999999046325684
 			],
 			"type":"VEC3"
 		},
 		{
 			"bufferView":1,
 			"componentType":5126,
-			"count":1200,
+			"count":1176,
 			"type":"VEC3"
 		},
 		{
 			"bufferView":2,
 			"componentType":5126,
-			"count":1200,
+			"count":1176,
 			"type":"VEC2"
 		},
 		{
 			"bufferView":3,
 			"componentType":5123,
-			"count":1800,
+			"count":1764,
 			"type":"SCALAR"
 		}
 	],
 	"bufferViews":[
 		{
 			"buffer":0,
-			"byteLength":14400,
+			"byteLength":14112,
 			"byteOffset":0,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":14400,
-			"byteOffset":14400,
+			"byteLength":14112,
+			"byteOffset":14112,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":9600,
-			"byteOffset":28800,
+			"byteLength":9408,
+			"byteOffset":28224,
 			"target":34962
 		},
 		{
 			"buffer":0,
-			"byteLength":3600,
-			"byteOffset":38400,
+			"byteLength":3528,
+			"byteOffset":37632,
 			"target":34963
 		}
 	],
@@ -160,7 +165,7 @@
 	],
 	"buffers":[
 		{
-			"byteLength":42000,
+			"byteLength":41160,
 			"uri":"portcullis.bin"
 		}
 	]

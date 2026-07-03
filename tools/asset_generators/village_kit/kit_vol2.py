@@ -31,6 +31,49 @@ def _bind(kit):
         kit.box, kit.cyl, kit.cone, kit.ico, kit.gable, kit.join
     )
 
+
+def _crown(P, r, z, n=12, cx=0.0, cy=0.0):
+    """Connected round tower-top (QUALITY_RUBRIC §4c): a flared corbel course that
+    grows out of the wall, corbel ribs, a recessed wall-walk POCKET, a continuous
+    parapet ring, and same-stone merlons with embrasures. Nothing floats."""
+    ro = r + 0.09
+    m = max(16, n * 2)
+    cone(P, m, ro + 0.02, r - 0.01, 0.15, (cx, cy, z + 0.075), "stone")   # flared corbel course
+    for i in range(n):                                                   # corbel ribs
+        a = math.radians(i * 360 / n)
+        rx, ry = cx + math.cos(a) * (ro - 0.04), cy + math.sin(a) * (ro - 0.04)
+        box(P, 0.06, 0.11, 0.13, (rx, ry, z + 0.085), "stone", rot=(0, 0, a))
+    cyl(P, m, ro - 0.08, 0.05, (cx, cy, z + 0.18), "stone")              # pocket floor
+    seg = 2 * math.pi * ro / m * 1.5
+    for i in range(m):                                                   # parapet ring
+        a = math.radians(i * 360 / m)
+        px, py = cx + math.cos(a) * ro, cy + math.sin(a) * ro
+        box(P, seg, 0.08, 0.14, (px, py, z + 0.27), "stone", rot=(0, 0, a))
+    seg2 = 2 * math.pi * ro / n * 0.52
+    for i in range(n):                                                   # merlons
+        a = math.radians(i * 360 / n)
+        px, py = cx + math.cos(a) * ro, cy + math.sin(a) * ro
+        box(P, seg2, 0.1, 0.14, (px, py, z + 0.41), "stone", rot=(0, 0, a))
+
+
+def _crown_sq(P, w, d, z, cx=0.0, cy=0.0):
+    """Connected square tower-top: continuous sill frame with same-stone merlons;
+    the tower-box top is the recessed wall-walk pocket (§4c)."""
+    for sy in (-1, 1):
+        box(P, w + 0.14, 0.12, 0.13, (cx, cy + sy * d / 2, z + 0.065), "stone")
+    for sx in (-1, 1):
+        box(P, 0.12, d + 0.14, 0.13, (cx + sx * w / 2, cy, z + 0.065), "stone")
+    nx = max(3, int(round(w / 0.26)))
+    for i in range(0, nx + 1, 2):
+        x = -w / 2 + i * w / nx
+        for sy in (-1, 1):
+            box(P, 0.15, 0.13, 0.16, (cx + x, cy + sy * d / 2, z + 0.205), "stone")
+    nd = max(3, int(round(d / 0.26)))
+    for i in range(2, nd, 2):
+        y = -d / 2 + i * d / nd
+        for sx in (-1, 1):
+            box(P, 0.13, 0.15, 0.16, (cx + sx * w / 2, cy + y, z + 0.205), "stone")
+
 def windmill():
     P=[]; cyl(P,8,0.6,1.8,(0,0,0.9),"stone"); cyl(P,8,0.5,0.4,(0,0,1.9),"stone_dk")
     cone(P,8,0.62,0,0.5,(0,0,2.25),"shake")               # wood-boarded mill cap
@@ -75,13 +118,7 @@ def guard_tower():
         for an in (0,90,180,270):
             a=math.radians(an)
             box(P,0.05,0.12,0.42,(math.cos(a)*0.56,math.sin(a)*0.56,zz),"soot",rot=(0,0,a))
-    for i in range(12):                                   # machicolation corbel ring
-        a=math.radians(i*30)
-        box(P,0.14,0.16,0.14,(math.cos(a)*0.63,math.sin(a)*0.63,2.3),"stone_dk",rot=(0,0,a))
-    cyl(P,12,0.66,0.1,(0,0,2.42),"stone")                 # corbel-table cap ring (wall walk)
-    for i in range(12):                                   # crenellated parapet (merlons + gaps)
-        a=math.radians(i*30)
-        box(P,0.17,0.17,0.3,(math.cos(a)*0.6,math.sin(a)*0.6,2.62),"stone",rot=(0,0,a))
+    _crown(P, 0.55, 2.28, n=12)                           # connected crown + guard pocket
     box(P,0.32,0.08,0.6,(0,-0.6,0.3),"wood_dk")           # tower door
     return join(P,"guard_tower")
 def stone_bridge():
@@ -96,19 +133,9 @@ def portcullis():
     P=[]
     for s in (-1,1):                                       # two flanking square towers
         box(P,0.6,0.7,2.4,(s*0.82,0,1.2),"stone")
-        for mx in (-0.2,0.0,0.2):
-            box(P,0.15,0.76,0.12,(s*0.82+mx,0,2.34),"stone_dk")   # machicolation corbels
-        box(P,0.68,0.78,0.08,(s*0.82,0,2.44),"stone")            # cap course
-        for mx in (-0.2,0.0,0.2):
-            box(P,0.16,0.16,0.26,(s*0.82+mx,-0.29,2.62),"stone")  # front merlons
-            box(P,0.16,0.16,0.26,(s*0.82+mx, 0.29,2.62),"stone")  # back merlons
+        _crown_sq(P, 0.6, 0.7, 2.4, cx=s*0.82)            # connected crown + guard pocket
     box(P,1.28,0.62,0.9,(0,0,1.75),"stone")               # central gate block (over the opening)
-    for mx in (-0.4,-0.13,0.13,0.4):
-        box(P,0.15,0.68,0.12,(mx,0,2.18),"stone_dk")       # machicolation over the gateway
-    box(P,1.32,0.7,0.08,(0,0,2.28),"stone")                # cap over the gate
-    for mx in (-0.44,-0.15,0.15,0.44):
-        box(P,0.16,0.16,0.24,(mx,-0.29,2.46),"stone")      # merlons over the gate (front)
-        box(P,0.16,0.16,0.24,(mx, 0.29,2.46),"stone")      # merlons over the gate (back)
+    _crown_sq(P, 1.28, 0.56, 2.2)                          # wall-walk parapet linking the towers
     box(P,0.7,0.66,1.3,(0,0,0.65),"soot")                  # dark gateway passage
     for s in (-1,1):
         box(P,0.12,0.66,1.3,(s*0.41,0,0.65),"stone_dk")    # gateway jambs
