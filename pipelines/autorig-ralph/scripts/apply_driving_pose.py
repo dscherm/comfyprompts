@@ -61,7 +61,11 @@ def auto_detect_and_rename(armature):
 
     spine_names = set(b.name for b in spine_chain)
 
-    # Find legs (children of spine bones that go DOWN, excluding spine itself)
+    # Find legs (children of spine bones that go DOWN, excluding spine itself).
+    # Collect chains first, then assign sides FACING-AWARE: the old rule
+    # (side = "R" if x > 0) assumed a +Y-facing bind; TRELLIS/UniRig rigs bind
+    # facing -Y, which mirrored every L/R label anatomically.
+    leg_chains = []
     for sp in spine_chain[:3]:
         for child in sp.children:
             if child.name in spine_names:
@@ -78,12 +82,34 @@ def auto_detect_and_rename(armature):
                 else:
                     break
             if len(chain) >= 3:
-                x = (armature.matrix_world @ child.head_local).x
-                side = "R" if x > 0 else "L"
-                if f"hip_{side}" not in roles:
-                    for i, label in enumerate(["hip", "upperleg", "lowerleg", "foot"]):
-                        if i < len(chain):
-                            roles[f"{label}_{side}"] = chain[i].name
+                leg_chains.append(chain)
+
+    # bind facing from the leg-chain END bones (feet, toe-ward tails)
+    fwd = Vector((0.0, 0.0, 0.0))
+    for chain in leg_chains:
+        end = chain[-1]
+        v = (armature.matrix_world @ end.tail_local) - (armature.matrix_world @ end.head_local)
+        v.z = 0.0
+        if v.length > 1e-9:
+            fwd += v.normalized()
+    if fwd.length > 1e-9:
+        fwd.normalize()
+    else:
+        fwd = Vector((0.0, -1.0, 0.0))  # this shop's TRELLIS/UniRig bind convention
+        print("WARN facing undetectable from feet; assuming -Y bind facing")
+    left_v = Vector((0.0, 0.0, 1.0)).cross(fwd)
+    root_head = armature.matrix_world @ root[0].head_local
+
+    def side_of(bone):
+        off = (armature.matrix_world @ bone.head_local) - root_head
+        return "L" if off.dot(left_v) > 0 else "R"
+
+    for chain in leg_chains:
+        side = side_of(chain[0])
+        if f"hip_{side}" not in roles:
+            for i, label in enumerate(["hip", "upperleg", "lowerleg", "foot"]):
+                if i < len(chain):
+                    roles[f"{label}_{side}"] = chain[i].name
 
     # Assign spine roles
     if len(spine_chain) >= 2: roles["spine"] = spine_chain[1].name
@@ -106,7 +132,7 @@ def auto_detect_and_rename(armature):
                                 roles["head"] = gc.name
                 # Goes sideways = arm
                 elif abs(ch.x - sp_h.x) > 0.02:
-                    side = "R" if ch.x > sp_h.x else "L"
+                    side = side_of(child)          # facing-aware (see legs above)
                     if f"shoulder_{side}" not in roles:
                         roles[f"shoulder_{side}"] = child.name
                         arm_chain = []

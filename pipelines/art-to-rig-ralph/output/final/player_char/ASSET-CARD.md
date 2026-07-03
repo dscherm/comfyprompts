@@ -54,6 +54,10 @@ Player character for Soapbox Sabotage (kart racer). Companion kart asset:
   poses on all rigs (un-keyed pose locations + mirrored .l/.r labels + FBX stub bone
   axes — see the script docstring). Now validated on this rig (idle + walk with root
   motion, src_z=auto). Unity Humanoid retarget remains a fine alternative path.
+- **Side labels corrected (2026-07-03)**: rename_unirig_bones.py is now facing-aware;
+  this rig was re-renamed and re-exported, so `.l`/`LeftUpperArm` etc. are anatomically
+  true (`hand.l` = character's left hand, +X on this -Y-facing bind). Retarget logs
+  `SIDE_SWAP off` against the Mixamo map.
 - IK posing works in Blender (2-bone chains on forearms proven live); direct Euler
   rotation of UniRig bones remains a trap (arbitrary local axes).
 

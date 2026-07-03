@@ -15,6 +15,7 @@ Usage (headless; blender-mcp not required):
     blender --background --python rename_unirig_bones.py -- input.fbx output.glb
 """
 import bpy, sys
+from mathutils import Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:] if "--" in sys.argv else []
 if len(argv) < 2:
@@ -46,7 +47,11 @@ def auto_detect_and_rename(armature):
         spine_chain.append(up[0]); current = up[0]
     spine_names = set(b.name for b in spine_chain)
 
-    # legs: children of low spine that descend in Z
+    # legs: children of low spine that descend in Z — collect chains first, then
+    # assign sides FACING-AWARE. The old rule (side = "R" if x > 0) assumed the
+    # character binds facing +Y; every TRELLIS/UniRig rig here binds facing -Y,
+    # which mirrored every .l/.r label anatomically (crossed limbs downstream).
+    leg_chains = []
     for sp in spine_chain[:3]:
         for child in sp.children:
             if child.name in spine_names:
@@ -61,12 +66,37 @@ def auto_detect_and_rename(armature):
                 else:
                     break
             if len(chain) >= 3:
-                x = (armature.matrix_world @ child.head_local).x
-                side = "R" if x > 0 else "L"
-                if f"hip_{side}" not in roles:
-                    for i, label in enumerate(["hip", "upperleg", "lowerleg", "foot"]):
-                        if i < len(chain):
-                            roles[f"{label}_{side}"] = chain[i].name
+                leg_chains.append(chain)
+
+    # bind facing from the leg-chain END bones (feet): their tails point toe-ward
+    # on UniRig/glTF rigs, which disambiguates front/back. left = up x forward.
+    fwd = Vector((0.0, 0.0, 0.0))
+    for chain in leg_chains:
+        end = chain[-1]
+        v = (armature.matrix_world @ end.tail_local) - (armature.matrix_world @ end.head_local)
+        v.z = 0.0
+        if v.length > 1e-9:
+            fwd += v.normalized()
+    if fwd.length > 1e-9:
+        fwd.normalize()
+    else:
+        fwd = Vector((0.0, -1.0, 0.0))  # every TRELLIS/UniRig rig in this shop binds -Y
+        print("WARN facing undetectable from feet; assuming -Y bind facing")
+    left_v = Vector((0.0, 0.0, 1.0)).cross(fwd)
+    root_head = armature.matrix_world @ root[0].head_local
+    print(f"FACING fwd=({fwd.x:.2f},{fwd.y:.2f},{fwd.z:.2f}) "
+          f"left=({left_v.x:.2f},{left_v.y:.2f},{left_v.z:.2f})")
+
+    def side_of(bone):
+        off = (armature.matrix_world @ bone.head_local) - root_head
+        return "L" if off.dot(left_v) > 0 else "R"
+
+    for chain in leg_chains:
+        side = side_of(chain[0])
+        if f"hip_{side}" not in roles:
+            for i, label in enumerate(["hip", "upperleg", "lowerleg", "foot"]):
+                if i < len(chain):
+                    roles[f"{label}_{side}"] = chain[i].name
 
     if len(spine_chain) >= 2: roles["spine"] = spine_chain[1].name
     if len(spine_chain) >= 3: roles["chest"] = spine_chain[2].name
@@ -86,7 +116,7 @@ def auto_detect_and_rename(armature):
                             if (armature.matrix_world @ gc.head_local).z > ch.z:
                                 roles["head"] = gc.name
                 elif abs(ch.x - sp_h.x) > 0.02:
-                    side = "R" if ch.x > sp_h.x else "L"
+                    side = side_of(child)          # facing-aware (see legs above)
                     if f"shoulder_{side}" not in roles:
                         roles[f"shoulder_{side}"] = child.name
                         arm_chain = []; cur = child
@@ -128,31 +158,57 @@ def auto_detect_and_rename(armature):
     return renamed
 
 
+def bind_left_axis(armature):
+    """Character-left axis from bind geometry: forward = averaged foot-bone
+    direction (toe-ward tails on UniRig/glTF rigs), left = up x forward.
+    Falls back to -Y facing (this shop's TRELLIS/UniRig bind convention)."""
+    mw = armature.matrix_world
+    fwd = Vector((0.0, 0.0, 0.0))
+    for n in ("foot.l", "foot.r"):
+        b = armature.data.bones.get(n)
+        if b:
+            v = (mw @ b.tail_local) - (mw @ b.head_local)
+            v.z = 0.0
+            if v.length > 1e-9:
+                fwd += v.normalized()
+    if fwd.length < 1e-9:
+        fwd = Vector((0.0, -1.0, 0.0))
+    return Vector((0.0, 0.0, 1.0)).cross(fwd.normalized())
+
+
 def detect_arms_by_position(armature):
     """Fallback: the topology heuristic above misses arms on some UniRig rigs.
-    Arms are unambiguous by position — bones out to the side (large |x|) at
-    upper-body height. Walk each side's chain outward and map shoulder/upperarm/
-    lowerarm/hand. Renames bones + vertex groups in place; returns {role:(old,new)}."""
+    Arms are unambiguous by position — bones far out laterally at upper-body
+    height. Sides are FACING-AWARE (lateral = offset along the character-left
+    axis), not raw +/-X. Walk each side's chain outward and map shoulder/
+    upperarm/lowerarm/hand. Renames bones + vertex groups in place."""
     mw = armature.matrix_world
+    left_v = bind_left_axis(armature)
+    root_b = next((b for b in armature.data.bones if b.parent is None), None)
+    origin = (mw @ root_b.head_local) if root_b else Vector((0.0, 0.0, 0.0))
+
+    def lat(b):
+        return ((mw @ b.head_local) - origin).dot(left_v)
+
     heads = {b.name: (mw @ b.head_local) for b in armature.data.bones}
     zmax = max(h.z for h in heads.values())
-    xmax = max(abs(h.x) for h in heads.values()) or 1.0
+    latmax = max(abs(lat(b)) for b in armature.data.bones) or 1.0
     renamed = {}
     edits = {}  # old -> new
-    for sx, sign in [(".r", 1), (".l", -1)]:
+    for sx, sign in [(".l", 1), (".r", -1)]:
         cands = [b for b in armature.data.bones
-                 if (mw @ b.head_local).x * sign > 0.15 * xmax
+                 if lat(b) * sign > 0.15 * latmax
                  and (mw @ b.head_local).z > 0.45 * zmax]
         if len(cands) < 2:
             continue
-        root = min(cands, key=lambda b: abs((mw @ b.head_local).x))  # innermost = shoulder
+        root = min(cands, key=lambda b: abs(lat(b)))  # innermost = shoulder
         chain = [root]; cur = root
         while True:
             nxt = [c for c in cur.children
-                   if abs((mw @ c.head_local).x) > abs((mw @ cur.head_local).x) + 0.01]
+                   if abs(lat(c)) > abs(lat(cur)) + 0.01]
             if not nxt:
                 break
-            cur = max(nxt, key=lambda c: abs((mw @ c.head_local).x)); chain.append(cur)
+            cur = max(nxt, key=lambda c: abs(lat(c))); chain.append(cur)
         if len(chain) < 2:
             continue
         picks = {"shoulder": chain[0], "upperarm": chain[1] if len(chain) > 1 else chain[0],
