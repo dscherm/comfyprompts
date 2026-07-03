@@ -117,7 +117,7 @@ rebuilt + verified.
      (pillar/post_beam/arch/stairs/railing), + a `house_demo` assembled from parts.
      Gate PASS. TODO toward 200+: recolour variants (stone/plaster/wood ×
      each wall), more part types (bay window, dormer, buttress, gate, well-parts),
-     and splice parts into the building kits. Now **40 parts** — base building
+     and splice parts into the building kits. Now **44 parts** — base building
      parts + arch/buttress/bay/balcony/awning/porch/lean-to/gate + **recolour
      variants** (wall_window/door in plaster/wood via MAT_TRIM; roof_gable/slope
      in thatch/shake/tile) + a `house_demo` cottage passing the §4b criteria.
@@ -125,7 +125,7 @@ rebuilt + verified.
      to more density with no new authoring risk. **productize 3/4 catalog camera:
      DONE** — `HERO_VIEW="3q"` renders a corner 3/4 catalog (no manual swap).
      Remaining toward 200+: recolour the plain/half/corner/arch walls too, and
-     splice parts into the building kits. Toolchain total now ~177 pieces across
+     splice parts into the building kits. Toolchain total now ~181 pieces across
      6 products.
    - [x] Ground/path/road **tile set** (`kit_tiles.py`, `ALL_TILES`):
      cobble/flagstone/gravel/moss/mud grounds, dirt path cross/tee/end, cobble
