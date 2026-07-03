@@ -112,6 +112,7 @@ def main() -> int:
     # that fails on the first piece (e.g. DAE on Blender 5.0) is pruned for the run.
     names, tris, avail, dropped = [], {}, list(FORMATS), {}
     for idx, (pname, obj) in enumerate(built):
+        k.set_base_origin(obj)                 # KayKit-style base pivot (grid snap)
         tris[pname] = k.tri_count(obj)
         for fmt in list(avail):
             method, ext = k.exporters[fmt]
@@ -157,6 +158,11 @@ def main() -> int:
         f"tris={lo}..{hi} out_of_band={out_of_band or 'none'} "
         f"formats={counts} dropped={dropped or 'none'} dir={product_dir}"
     )
+    try:                                       # run the quality gate as a build check
+        from kit_quality_check import check as _gate
+        _gate(product_dir)
+    except Exception as exc:                    # noqa: BLE001
+        print(f"GATE skipped: {exc}")
     return 0
 
 

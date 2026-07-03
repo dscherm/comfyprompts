@@ -59,12 +59,18 @@ medieval + occult, characters).
       KayKit band (20..~5659 tris) in `kit_quality_check.py`. DONE (078024e):
       pipeline/productize write `tris.json`; the gate flags out-of-band pieces
       (over-budget = MUST, under-20 = WARN). All shipped kits 44..2284 (in band).
-- [ ] Add a **beveled-box / edge-bevel** helper to `kitlib` and apply to primary
-      silhouette edges (KayKit's soft-catch highlight) without exploding tris.
+- [x] **Edge bevel** — EVALUATED, NOT ADOPTED. Tested a Bevel modifier on the
+      joined mesh (cottage/church/wall): at a useful width it's invisible on our
+      models (the atlas gradient already provides KayKit's soft-catch highlight),
+      and at a visible width it ~4× the tris (city cathedral 2284 → ~8000, out of
+      the KayKit band). Our union-of-primitives + gradient-atlas approach fills the
+      edge-highlight role without geometry bevels.
 - [ ] Add **trim helpers** (window frame, door frame + handle/hinge, roof
       ridge/eaves/gutter, base course) and apply uniformly across pieces.
-- [ ] Add a **grid-quantize + base-origin pivot** pass so environment pieces snap
-      seamlessly (square grid for village/city; hex option later).
+- [x] **Base-origin pivot** pass — DONE: `Kit.set_base_origin(obj)` moves each
+      piece's origin to its footprint base-centre (min-Z, centred X/Y); productize
+      calls it before export so every shipped piece has a consistent KayKit-style
+      base pivot and snaps on the grid. All six products regenerated + gate PASS.
 - [x] **Color-atlas texturing** (design: `docs/kit_texturing_design.md`). DONE
       end-to-end (078024e + 519a470): `Kit(atlas=True)` builds a shared
       gradient+AO+pattern atlas (planks/brick/straw/stained-glass) + emission and
@@ -147,4 +153,6 @@ per-colour emission strength. (CITY cathedral rose gem swap: DONE.)
 - [ ] Auto-generate **per-piece gallery + hero + turntable** in `productize.py`.
 - [ ] Grow each kit toward **200+ pieces**: more small props / nature /
       modular connectors + recolor variants (recolors count toward variety).
-- [ ] Wire `kit_quality_check.py` into `productize.py` / CI as a build gate.
+- [x] Wire `kit_quality_check.py` into `productize.py` as a build gate — DONE:
+      productize runs `check(product_dir)` after export and prints the RESULT line
+      inline, so every build reports its gate status.

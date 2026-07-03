@@ -524,6 +524,26 @@ class Kit:
         obj.select_set(True)
         bpy.context.view_layer.objects.active = obj
 
+    def set_base_origin(self, obj: Any) -> None:
+        """Move ``obj``'s origin to its footprint base-centre (min-Z, centred X/Y)
+        so the piece sits on the ground and snaps on the grid with a consistent
+        pivot (KayKit-style base pivots; QUALITY_RUBRIC §3). Call before export."""
+        import mathutils
+
+        bpy = self._bpy
+        me = obj.data
+        xs = [v.co.x for v in me.vertices]
+        ys = [v.co.y for v in me.vertices]
+        zs = [v.co.z for v in me.vertices]
+        if not xs:
+            return
+        centre = mathutils.Vector((
+            (min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, min(zs)))
+        self._select_only(obj)
+        bpy.context.scene.cursor.location = obj.matrix_world @ centre
+        bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
+        bpy.context.scene.cursor.location = (0, 0, 0)
+
     def export_glb(self, obj: Any, filepath: str) -> None:
         """Export ``obj`` (selected, alone) to a binary glTF (``.glb``)."""
         self._select_only(obj)
