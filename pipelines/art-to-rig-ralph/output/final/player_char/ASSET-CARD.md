@@ -47,6 +47,17 @@ Player character for Soapbox Sabotage (kart racer). Companion kart asset:
 - `mesh/player_char_v1_print.stl` — 3D-print STL (mm units, 1800mm tall — scale to taste)
 - `rigged/` — platform rigged models
 
+## Ship Path for Animation (decided 2026-07-03)
+The UniRig rig in this package animates poorly (UniRig skin weights melt under
+motion — lesson `unirig-skin-weights-melt-use-accurig`; the headless retarget is
+previz-only — lesson `hand-rolled-retarget-limb-plane`). **Shippable animation
+follows the barbarian-verified route** (`animate-ralph/stages/07-unity-humanoid-
+packaging.md`): AccuRIG 2 rig (manual GUI; input prepared at
+`output/prepared/player_char_v1_for_accurig.fbx`, welded 23.4k verts, T-pose)
+-> Unity Humanoid import (Create From This Model) -> reuse the 9 Generic Mixamo
+clips already in soapbox-unity (muscle-space retarget at runtime; no new
+downloads) -> Animator + ValidateBarbarianHumanoid-style gate via coplay-mcp.
+
 ## Known Issues / Next Steps
 - **No textures yet** — TRELLIS output is untextured geometry; run the texturing stage
   (Hunyuan3D paint / blender_normal_texturing) before shipping visuals.
