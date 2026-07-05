@@ -41,9 +41,12 @@ regenerate the concept images with clearer fists; do not proceed.
 
 ## Phase 2 — Mesh prep
 ```
-Blender --background --python pipelines/art-to-rig-ralph/scripts/mesh_prep.py -- \
+Blender --background --python pipelines/art-to-rig-ralph/scripts/prep_character.py -- \
   --input <phase1.glb> --output output/prepared/<name>_v1_prepared.glb \
-  --target-height 1.8 --max-faces 80000 --target-faces 50000
+  --report output/prepared/<name>_v1_prepared_report.json
+# NOT the kart-era mesh_prep.py: its island pass deletes TRELLIS triangle-soup
+# imports entirely. prep_character.py welds first, always keeps the main island.
+# Single-view sources: phase 3 uses --workflow MeshTexturing (front image only).
 ```
 **Gate**: report shows ≤80k faces, 1.8m height, grounded. Show a front render.
 

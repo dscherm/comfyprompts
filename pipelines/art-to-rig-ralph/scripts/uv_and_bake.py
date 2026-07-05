@@ -75,6 +75,24 @@ mat.node_tree.nodes.active = node
 tgt.data.materials.clear()
 tgt.data.materials.append(mat)
 
+# Zero the METALLIC influence before a DIFFUSE-color bake: TRELLIS texturing
+# ships a metallic/roughness map, and metals have no diffuse — they bake BLACK
+# (pip came out charcoal). Unlinking Metallic makes every surface bake its base
+# color. (An EMIT bake was tried instead and writes LINEAR radiance — saved
+# PNGs come out dark; the DIFFUSE COLOR pass handles the transform correctly.)
+for smat in src.data.materials:            # NB: do not shadow `mat` (bake target)
+    if not smat or not smat.use_nodes:
+        continue
+    nt = smat.node_tree
+    bsdf = next((n for n in nt.nodes if n.type == "BSDF_PRINCIPLED"), None)
+    if bsdf is None:
+        continue
+    met = bsdf.inputs["Metallic"]
+    for lk in list(met.links):
+        nt.links.remove(lk)
+    met.default_value = 0.0
+    print(f"METALLIC_ZEROED {smat.name}")
+
 scene = bpy.context.scene
 scene.render.engine = "CYCLES"
 scene.cycles.device = "CPU"          # GPU is busy with ComfyUI
