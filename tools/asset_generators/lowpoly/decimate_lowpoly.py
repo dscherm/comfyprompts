@@ -1,19 +1,25 @@
-"""Decimate a raw image-to-3D mesh (TRELLIS/Hunyuan3D, ~20k+ tris) down to a
-game-ready low-poly budget, with the full cleanup the low-poly skill's Stage 3
-requires: join -> collapse-decimate to target -> merge-by-distance -> recalc
-normals -> degenerate scrub -> base-centre pivot -> bake scale/rotation ->
-export GLB (baked texture preserved). Headless so a factory-reset scene can't
-touch the user's live Blender session.
+"""Take a raw image-to-3D mesh down to a game-ready low-poly budget, then export
+GLB. Path chosen by source density:
+
+* TEXTURED (UV + image, e.g. Hunyuan PBR / kart meshes): pre-weld exact-coincident
+  verts, then iterative collapse-decimate (preserves UVs).
+* DENSE scan mesh (TRELLIS reconstructions, >100k faces): non-manifold / tiny-island
+  topology that collapse can't reduce past a ~11k floor and that slivers badly —
+  VOXEL-REMESH to clean manifold topology first, then collapse to target. These
+  arrive uncoloured (Blender's glTF importer drops COLOR_0); colour is added
+  downstream by a TRELLIS texture-paint + UV/bake pass, not here.
+
+Common tail: base-centre pivot, bake scale+rotation (identity glTF node), flat
+shading, export, self-verify. Headless so a factory-reset scene can't wipe the
+user's live session.
 
     blender -b --python decimate_lowpoly.py -- <in.glb> <out.glb> <target_tris>
-
-Prints DECIMATE_OK with before/after tris, degenerate count, node scale, and
-whether an image texture survived — self-verification for the pipeline.
 """
 import sys
 
 import bmesh
 import bpy
+from mathutils import Vector
 
 argv = sys.argv[sys.argv.index("--") + 1:]
 SRC, DST = argv[0], argv[1]
@@ -44,25 +50,39 @@ def clean(obj):
     bm = bmesh.new()
     bm.from_mesh(me)
     bmesh.ops.remove_doubles(bm, verts=bm.verts[:], dist=1e-5)
-    # drop zero-area faces (same criterion as kitlib._clean_degenerate)
-    degen = [f for f in bm.faces if f.calc_area() < 1e-9]
-    if degen:
-        bmesh.ops.delete(bm, geom=degen, context="FACES")
+    bmesh.ops.dissolve_degenerate(bm, dist=1e-5, edges=bm.edges[:])
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     bm.to_mesh(me)
     bm.free()
     me.update()
 
 
-def set_base_origin(obj):
-    import mathutils
+def collapse_to(obj, target):
+    """Iterative collapse (<=8x per pass, clean between) to `target`, stopping on a
+    topological floor."""
+    for _ in range(10):
+        n = tri_count(obj)
+        if n <= target * 1.05:
+            break
+        select_only(obj)
+        dec = obj.modifiers.new("dec", "DECIMATE")
+        dec.decimate_type = "COLLAPSE"
+        dec.ratio = max(0.125, target / n)
+        dec.use_collapse_triangulate = True
+        bpy.ops.object.modifier_apply(modifier="dec")
+        clean(obj)
+        if tri_count(obj) >= n:
+            break
+
+
+def base_origin(obj):
     me = obj.data
     xs = [v.co.x for v in me.vertices]
     ys = [v.co.y for v in me.vertices]
     zs = [v.co.z for v in me.vertices]
     if not xs:
         return
-    c = mathutils.Vector(((min(xs)+max(xs))/2, (min(ys)+max(ys))/2, min(zs)))
+    c = Vector(((min(xs) + max(xs)) / 2, (min(ys) + max(ys)) / 2, min(zs)))
     select_only(obj)
     bpy.context.scene.cursor.location = obj.matrix_world @ c
     bpy.ops.object.origin_set(type="ORIGIN_CURSOR")
@@ -82,37 +102,36 @@ if len(meshes) > 1:
     obj = bpy.context.active_object
 
 before = tri_count(obj)
-mat = obj.data.materials[0].name if obj.data.materials else None
-has_tex_before = any(
-    n.type == "TEX_IMAGE"
-    for m in obj.data.materials if m and m.use_nodes
-    for n in m.node_tree.nodes)
+has_tex = any(n.type == "TEX_IMAGE"
+              for m in obj.data.materials if m and m.use_nodes
+              for n in m.node_tree.nodes)
+# Dense scan meshes (TRELLIS/Hunyuan reconstructions) have non-manifold / tiny-
+# island topology that collapse can't reduce past a floor and that slivers badly —
+# voxel-remesh to clean manifold first. Detected by source density, NOT colour:
+# Blender's glTF importer drops COLOR_0, so colour is added downstream by the
+# TRELLIS texture-paint + UV/bake pass, not here.
+mode = "textured" if has_tex else ("dense" if before > 100_000 else "plain")
 
-# PRE-WELD: image-to-3D shells ship split/unwelded verts; collapse-decimate
-# tears those into shards. Welding first (larger dist) makes collapse behave.
-pre = bmesh.new()
-pre.from_mesh(obj.data)
-bmesh.ops.remove_doubles(pre, verts=pre.verts[:], dist=1e-3)
-pre.to_mesh(obj.data)
-pre.free()
-obj.data.update()
+if mode == "dense":
+    select_only(obj)
+    diag = (Vector(obj.dimensions)).length or 1.0
+    rem = obj.modifiers.new("remesh", "REMESH")
+    rem.mode = "VOXEL"
+    rem.voxel_size = max(diag / 220.0, 1e-4)   # ~medium-poly manifold, then collapse
+    rem.adaptivity = 0.0
+    bpy.ops.object.modifier_apply(modifier="remesh")
+    clean(obj)
+    collapse_to(obj, TARGET)
+else:
+    # textured / plain: weld exact-coincident verts then iterative collapse
+    clean(obj)
+    collapse_to(obj, TARGET)
 
-# collapse-decimate to the target ratio (organic image-to-3D meshes)
-select_only(obj)
-if tri_count(obj) > TARGET:
-    dec = obj.modifiers.new("dec", "DECIMATE")
-    dec.decimate_type = "COLLAPSE"
-    dec.ratio = max(0.01, min(1.0, TARGET / tri_count(obj)))
-    dec.use_collapse_triangulate = True
-    bpy.ops.object.modifier_apply(modifier="dec")
-
-clean(obj)
-set_base_origin(obj)
-# bake scale+rotation so glTF ships an identity node (matches kitlib exporters)
+base_origin(obj)
 select_only(obj)
 bpy.ops.object.transform_apply(location=False, rotation=True, scale=True)
 for p in obj.data.polygons:
-    p.use_smooth = False  # flat low-poly shading
+    p.use_smooth = False
 
 after = tri_count(obj)
 select_only(obj)
@@ -121,17 +140,15 @@ bpy.ops.export_scene.gltf(filepath=DST, export_format="GLB", use_selection=True)
 # --- self-verify ---
 reset()
 v = import_glb(DST)[0]
-degen = 0
 me = v.data
+degen = 0
 for poly in me.polygons:
     vs = [me.vertices[i].co for i in poly.vertices]
     o = vs[0]
     n = (vs[1] - o).cross(vs[2] - o)
     if n.length < 1e-6:
         degen += 1
-has_tex = any(n.type == "TEX_IMAGE" for m in v.data.materials if m and m.use_nodes
-              for n in m.node_tree.nodes)
+has_vc = bool(me.color_attributes)
 scale = tuple(round(s, 4) for s in v.scale)
-print(f"DECIMATE_OK src_tris={before} -> out_tris={after} target={TARGET} "
-      f"degenerate={degen} node_scale={scale} material={mat} "
-      f"tex_before={has_tex_before} tex_after={has_tex}")
+print(f"DECIMATE_OK mode={mode} src_tris={before} -> out_tris={after} target={TARGET} "
+      f"degenerate={degen} node_scale={scale} vertex_colors={has_vc}")
