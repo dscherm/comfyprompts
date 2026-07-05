@@ -17,6 +17,18 @@ images in `D:/Projects/ComfyUI/input/` (wide T-pose, separated limbs,
 `project_mv_ortho_fists`). Character descriptions for Soapbox live in
 `pipelines/art-to-rig-ralph/output/intake/characters-intake.json`.
 
+**Image generation rules** (winning recipe in
+`pipelines/art-to-rig-ralph/docs/CHARACTER-BATCH-RESUME.md`; mv_ortho LoRA
+strength 1.0, 768×1024, pose tokens FIRST and LAST):
+- **No thin bare limbs** — bare arms vanish in TRELLIS sparse reconstruction
+  (punk_king lost both arms 3 times until re-concepted with thick studded
+  sleeves + gauntlets; the cape was a red herring). Sleeve/armor every limb.
+- **Keep negatives LIGHT** (`open palms, spread fingers, arms lowered, arms at
+  sides, A-pose` + at most a couple more) — piling on pose negatives collapses
+  the T into an A-pose.
+- No large cloth sheets spanning behind limbs (capes must hang inside the
+  arm silhouette or stop at the waist).
+
 **Key paths** (all scripts under `pipelines/art-to-rig-ralph/scripts/` unless
 noted; Blender = `"C:/Program Files/Blender Foundation/Blender 5.0/blender.exe"`;
 Unity project = `D:/Projects/soapbox-unity`).
@@ -34,10 +46,15 @@ py -3.11 pipelines/art-to-rig-ralph/scripts/trellis_queue.py \
   --prefix <Name>_MV --seed 12345
 ```
 (User prefers watching in the ComfyUI UI — the queued job is visible there.)
-**Gate**: script exits 0 and prints `OUTPUT <glb>`. Then render hand close-ups
-(camera at the mesh's ±X extremes, front+top ortho) and show the user —
-fingers must read as thumb + separated masses, not a mitten. If mitten:
-regenerate the concept images with clearer fists; do not proceed.
+**Gate**: script exits 0 and prints `OUTPUT <glb>`. Two checks:
+1. **W/H bbox ratio ≥ ~0.7** (mesh width / height, world bbox across all mesh
+   objects) — confirms the arms reconstructed. Good: pip 0.81, rust 0.85;
+   lost-arms failures read 0.37/0.59. If arms are missing, a seed reroll will
+   NOT fix it — regenerate the concept images with thicker/sleeved limbs.
+2. Render front + hand close-ups (camera at the mesh's ±X extremes, front+top
+   ortho) and show the user — fingers must read as thumb + separated masses,
+   not a mitten. If mitten: regenerate the concept images with clearer fists;
+   do not proceed.
 
 ## Phase 2 — Mesh prep
 ```
@@ -71,31 +88,46 @@ AccuRIG input OBJ (welded, **cm scale, WITH UVs** — the order matters: UVs
 must exist BEFORE AccuRIG; memory `project-accurig-input-format`).
 **Gate (visual checkpoint)**: show the user both preview renders — the
 character must be recognizably painted per the concept. Copy the albedo to
-`D:/Projects/soapbox-unity/Assets/Animations/<Name>/Source/<name>_albedo.png`.
+`D:/Projects/soapbox-unity/Assets/Animations/<name>/Source/<name>_albedo.png`.
+**Dir case trap**: per-character Unity dirs are the LOWERCASE id (`pip/`,
+`punk_king/`, `rust/`) — the exact paths the generated editor tools use. On
+Windows `Pip`→`pip` silently aliases, but `PunkKing` vs `punk_king` are two
+DIFFERENT dirs; a split here made a stale rig validate PASS while the fresh
+one sat unused.
 
 ## Phase 5 — AccuRIG (MANUAL, user, ~2 min)
 Ask the user to: open AccuRIG (`D:\Program Files\AccuRIG\`), load the
 `_for_accurig.obj` (appears ~180cm), auto-rig, export FBX to
-`D:\Projects\soapbox-unity\Assets\Animations\<Name>\Source\<name>_accurig.fbx`.
+`D:\Projects\soapbox-unity\Assets\Animations\<name>\Source\<name>_accurig.fbx`
+(**lowercase id dir** — must match the generated editor tools' paths exactly).
 **Gate** (run immediately when they say done):
 ```
 Blender --background --python pipelines/art-to-rig-ralph/scripts/check_accurig_fbx.py -- <fbx>
 ```
 Must print `ACCURIG_FBX OK` (height ~1.8m, real UVs, rigid bind). If FAIL, the
-error line says exactly what to fix. Also do a bind-pose render via
-`pipelines/animate-ralph/scripts/render_rootmotion.py` and eyeball it (T-pose
-lying down = normal Y-up view). Optionally check arm rolls (consistent within
-~10° per side is fine; if wildly inconsistent run
+error line says exactly what to fix. The gate measures the BIND (it clears the
+embedded single-frame `0_T-Pose` action AccuRIG ships in every FBX before
+measuring — that action re-poses to AccuRIG's canonical T and used to read as
+spread 9–16 "shred" on perfectly rigid binds; two needless re-exports were
+demanded before this was fixed on 2026-07-05). A slight A-pose bind is fine —
+AccuRIG and Unity Humanoid both handle it. Optionally check arm rolls
+(consistent within ~10° per side is fine; if wildly inconsistent run
 `pipelines/animate-ralph/tools/normalize_rig_rolls_for_unity.py`).
 
 ## Phase 6 — Unity packaging + strict validation
 Generate the per-character editor tools from the Rookie templates in
 `D:/Projects/soapbox-unity/Assets/Editor/` (copy each file, replace
-`Rookie`→`<Name>` and `rookie`→`<name>` throughout):
+`Rookie`→`<Name>` for class names/menu labels and `rookie`→`<name>` for file
+names, and make ALL asset paths use the lowercase id:
+`Assets/Animations/<name>/...` — NOT `<Name>`):
 `SetupRookieImport.cs`, `BuildRookieAnimator.cs`, `AssignRookieTexture.cs`,
-`ValidateRookieHumanoid.cs`. The Mixamo clip set is SHARED from
-`Assets/Animations/Barbarian/Mixamo` (Generic clips retarget onto any Humanoid
-at runtime — no downloads).
+`ValidateRookieHumanoid.cs`. The clip set is SHARED from
+`Assets/Animations/Barbarian/Mixamo` (Humanoid clips retarget onto any
+Humanoid avatar — no per-character downloads). **Locomotion clips (walk/run)
+are ActorCore natives** for the CC_Base skeleton — Mixamo locomotion causes a
+left-foot flop through the cross-skeleton retarget (memory
+`project_unity_foot_flap`; swap procedure documented there: overwrite the FBX
+in place, remap the meta's `takeName`/`lastFrame`, keep clip name/internalID).
 
 Then either (a) user clicks in the open editor: `Tools ▸ <Name> ▸ Setup
 Humanoid Import` → `Build Animator` → `Assign Texture` → `Validate Humanoid
@@ -111,9 +143,13 @@ sane (dodge inversion is exempted as acrobatic). §5 failing = stop and
 diagnose; do not hand-wave.
 
 ## Phase 7 — Package + commit
-- Copy deliverables into
-  `pipelines/art-to-rig-ralph/output/final/<name>/` (albedo, previews,
-  ASSET-CARD.md modeled on player_char's).
+- Copy deliverables into `pipelines/art-to-rig-ralph/output/final/<name>/`
+  with subdirs `artwork/` (T-pose inputs), `mesh/` (prepared glb + AccuRIG
+  OBJ), `rigged/` (AccuRIG FBX), `textures/` (albedo + previews), plus
+  ASSET-CARD.md (model: pip/punk_king/rust cards).
+- Add the character to the lineup viewer's `Characters` array in
+  `Assets/Editor/BuildCharacterLineup.cs` (`Tools ▸ Characters ▸ Preview
+  Lineup` — side-by-side Play-mode animation check across all racers).
 - Commit soapbox-unity (rig+albedo+material+controller+editor tools) and
   comfyui-toolchain (package; `git add -f` past the output/ ignore, commit
   **with an explicit pathspec** — parallel sessions stage unrelated work).
@@ -121,7 +157,25 @@ diagnose; do not hand-wave.
 ## Known traps (cost real time — read before improvising)
 - flash_attn is NOT installed: TRELLIS backends must be sdpa/xformers
   (trellis_queue.py forces this).
+- **Thin bare limbs vanish in TRELLIS reconstruction** — sleeve/armor every
+  limb in the concept images; W/H bbox gate catches it (punk_king took 4 mesh
+  attempts, 2026-07-05).
+- **Heavy pose negatives collapse the T into an A-pose** — keep the negative
+  list light, pose tokens first+last in the positive.
+- prep_character.py's manifold pass is guarded against double-shell TRELLIS
+  meshes (unguarded `select_interior_faces` once deleted a mesh 50k→451 faces
+  silently) — if PREP_DONE reports a tiny face count or short height, the
+  destruction gate now exits 1 instead.
 - AccuRIG input: plain OBJ, cm, UVs included. FBX input = shredded bind.
+- AccuRIG FBXs embed a single-frame `0_T-Pose` action — it is NOT the bind;
+  the gate clears it before measuring. Don't demand re-exports for old-style
+  spread failures.
+- **Unity dir case**: per-character dirs are the lowercase id; `PunkKing` vs
+  `punk_king` are different dirs on Windows and a split silently validates
+  stale rigs.
+- **Locomotion clips must be ActorCore CC_Base natives** — Mixamo walk/run
+  flop the left foot through the cross-skeleton retarget; Foot IK + muscle
+  clamps made it worse (memory `project_unity_foot_flap`).
 - Never Blender-round-trip the rigged FBX (bind desync); UVs/rolls are fixed
   BEFORE AccuRIG, texture binds in Unity.
 - UniRig/retarget_mocap is previz-only (weights melt; limb plane) — ship path
