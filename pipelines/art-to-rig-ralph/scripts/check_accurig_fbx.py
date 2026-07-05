@@ -54,6 +54,21 @@ else:
     # bind sanity: at rest the armature deform must be RIGID. A rigid offset
     # (Y-up conventions) is fine; SHREDDING (axis-baggage input) stretches
     # edges — measure per-edge stretch, same principle as the animation gate.
+    #
+    # IMPORTANT (2026-07-05): AccuRIG embeds a single-frame "0_T-Pose" action
+    # that re-poses the skeleton to its CANONICAL T — often far from the bind
+    # (rust read 16.2, punk_king 9.4 from the action alone while their binds
+    # were perfectly rigid). Unity never plays that clip; the avatar comes
+    # from the bind skeleton. So measure the BIND: clear the imported action
+    # and reset the pose before evaluating.
+    if arm.animation_data:
+        arm.animation_data_clear()
+    for pb in arm.pose.bones:
+        pb.location = (0, 0, 0)
+        pb.rotation_quaternion = (1, 0, 0, 0)
+        pb.rotation_euler = (0, 0, 0)
+        pb.scale = (1, 1, 1)
+    bpy.context.view_layer.update()
     dg = bpy.context.evaluated_depsgraph_get()
     ev = mesh.evaluated_get(dg).to_mesh()
     ratios = []

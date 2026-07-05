@@ -125,6 +125,10 @@ obj.location.z -= lowest
 bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
 
 # 6. manifold cleanup pass (post-decimate)
+# NOTE: on double-shell TRELLIS meshes the remove_doubles below can fuse the
+# shells so that EVERY edge gains >2 face users — select_interior_faces then
+# selects the whole mesh (pip 2026-07-05: 50k faces -> 451). Interior-face
+# deletion is therefore guarded: skip it when it would remove >10% of faces.
 bpy.ops.object.mode_set(mode="EDIT")
 bpy.ops.mesh.select_all(action="SELECT")
 bpy.ops.mesh.delete_loose(use_verts=True, use_edges=True, use_faces=False)
@@ -132,13 +136,26 @@ bpy.ops.mesh.select_all(action="SELECT")
 bpy.ops.mesh.remove_doubles(threshold=0.0008)
 bpy.ops.mesh.select_all(action="DESELECT")
 bpy.ops.mesh.select_interior_faces()
-bpy.ops.mesh.delete(type="FACE")
 bpy.ops.object.mode_set(mode="OBJECT")
+interior = sum(1 for p in obj.data.polygons if p.select)
+fc6 = len(obj.data.polygons)
+if 0 < interior <= 0.10 * fc6:
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.delete(type="FACE")
+    bpy.ops.object.mode_set(mode="OBJECT")
+    ops_log.append({"op": "interior_faces", "removed": interior})
+else:
+    ops_log.append({"op": "interior_faces", "skipped": True,
+                    "would_remove": interior, "of": fc6})
 
 after = {"vertices": len(obj.data.vertices), "faces": len(obj.data.polygons),
          "bbox_m": [round(d, 4) for d in obj.dimensions]}
-if after["vertices"] == 0:
-    print("ERROR: prep destroyed the mesh — aborting export")
+post_decimate = next((o["after"] for o in ops_log if o["op"] == "decimate"),
+                     before["faces"])
+if (after["vertices"] == 0 or after["faces"] < 0.5 * post_decimate
+        or after["bbox_m"][2] < 0.9 * args.target_height):
+    print(f"ERROR: prep destroyed the mesh (faces {after['faces']}/{post_decimate}, "
+          f"height {after['bbox_m'][2]}) — aborting export")
     sys.exit(1)
 
 bpy.ops.object.select_all(action="DESELECT")
