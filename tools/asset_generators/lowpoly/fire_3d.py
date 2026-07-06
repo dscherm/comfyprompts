@@ -18,7 +18,7 @@ import urllib.request
 
 COMFY = "http://localhost:8188"
 COMFY_OUT = r"D:/Projects/ComfyUI/output"
-TIMEOUT = 1200
+TIMEOUT = 2400  # TRELLIS dual-contouring reconstruction can run 13+ min on complex meshes
 HEARTBEAT = 20
 
 

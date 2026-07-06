@@ -1,0 +1,15 @@
+# Godot editor import caches (regenerated on import)
+.godot/
+# heavy working scratch — regenerable by re-running the pipeline
+_mesh/
+_concepts/
+_anim/unity/
+_anim/godot/
+_anim/*.png
+_anim/*.glb
+_anim_viewer/tex/
+_anim_viewer/chars/
+_godot_viewer/models/
+_godot_viewer/*.png
+__pycache__/
+*.blend1

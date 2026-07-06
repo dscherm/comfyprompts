@@ -1,0 +1,23 @@
+{
+  "bone_map": {
+    "mixamorig1:Hips": "hips",
+    "mixamorig1:Spine": "spine",
+    "mixamorig1:Spine1": "chest",
+    "mixamorig1:Neck": "neck",
+    "mixamorig1:Head": "head",
+    "mixamorig1:LeftShoulder": "shoulder.l",
+    "mixamorig1:LeftArm": "upperarm.l",
+    "mixamorig1:LeftForeArm": "lowerarm.l",
+    "mixamorig1:LeftHand": "hand.l",
+    "mixamorig1:RightShoulder": "shoulder.r",
+    "mixamorig1:RightArm": "upperarm.r",
+    "mixamorig1:RightForeArm": "lowerarm.r",
+    "mixamorig1:RightHand": "hand.r",
+    "mixamorig1:LeftUpLeg": "upperleg.l",
+    "mixamorig1:LeftLeg": "lowerleg.l",
+    "mixamorig1:LeftFoot": "foot.l",
+    "mixamorig1:RightUpLeg": "upperleg.r",
+    "mixamorig1:RightLeg": "lowerleg.r",
+    "mixamorig1:RightFoot": "foot.r"
+  }
+}

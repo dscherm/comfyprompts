@@ -1,0 +1,32 @@
+{
+  "kit": "grimforge_bestiary_v1",
+  "workflow": "generate_image_lora2",
+  "loras": {
+    "biped": {"pose": "style\\mv_ortho.safetensors", "style": "style\\grimforge_style.safetensors"},
+    "quad":  {"pose": "style\\mv_ortho_quad.safetensors", "style": "style\\grimforge_style.safetensors"}
+  },
+  "strength": {"pose": 0.85, "style": 0.55},
+  "gen": {"width": 1024, "height": 1024, "review_view": {"biped": "front view", "quad": "side view"}},
+  "scaffold": {
+    "biped_prefix": "mv_ortho, PARAM_VIEW, full body, wide T-pose, both arms fully outstretched straight out horizontally to the sides, legs apart, ",
+    "quad_prefix": "mv_quad, PARAM_VIEW, quadruped, neutral standing stance, four legs apart, ",
+    "suffix": ", dark-fantasy occult, grimforge_style, centered, plain flat neutral-grey background, orthographic, even studio lighting, no cast shadow, no ground plane",
+    "negative": "arms down, arms at sides, relaxed pose, open palms, obese, fat belly, muscular, ogre, orc, bright saturated green, blurry, motion blur, busy background, floor, ground plane, held weapon, text, watermark, multiple characters"
+  },
+  "pieces": [
+    {"name": "skeleton_mage",    "type": "biped", "subject": "a robed skeletal mage, tattered dark cloak, glowing eye sockets, empty bony hands", "tris": 3000},
+    {"name": "ghoul",            "type": "biped", "subject": "an emaciated rotting ghoul, grey mottled flesh, clawed hands, hunched", "tris": 3000},
+    {"name": "wraith",           "type": "biped", "subject": "a ghostly wraith, tattered flowing spectral shroud, gaunt skeletal arms extended from ragged sleeves, hollow dark void inside the hood, ethereal", "tris": 2600},
+    {"name": "necromancer",      "type": "biped", "subject": "a dark-robed necromancer, bone amulet, deep hood, empty gesturing hands", "tris": 3000},
+    {"name": "cultist",          "type": "biped", "subject": "a hooded cultist acolyte in ragged sackcloth robe, occult sigil, empty hands", "tris": 2600},
+    {"name": "bone_golem",       "type": "biped", "subject": "a hulking bone golem, oversized skeletal construct of fused bones and iron", "tris": 4000},
+    {"name": "lich_king",        "type": "biped", "subject": "a crowned skeletal lich king, regal tattered cloak, ornate rusted crown, empty hands", "tris": 3800},
+    {"name": "plague_zombie",    "type": "biped", "subject": "a gaunt emaciated rotting undead zombie, sunken decaying grey-green flesh, exposed ribs and bone, torn filthy rags, shambling corpse", "tris": 3000},
+    {"name": "revenant_knight",  "type": "biped", "subject": "an armored undead revenant knight, rusted dented full plate, faceplate, empty gauntlets", "tris": 3400},
+    {"name": "imp",              "type": "biped", "subject": "a small horned imp demon, thin membranous wings folded, mischievous, empty hands", "tris": 2000, "flag": "thin wings — decimate gentler / raise tris"},
+    {"name": "hell_hound",       "type": "quad",  "subject": "a gaunt undead hell hound war-dog, exposed ribs, tattered hide, ember eyes", "tris": 3000},
+    {"name": "bone_hound",       "type": "quad",  "subject": "a skeletal bone hound, fleshless canine skeleton, hunched stance", "tris": 2800},
+    {"name": "grave_boar",       "type": "quad",  "subject": "an undead grave boar, rotting tusked hog, patchy bristled hide", "tris": 3000},
+    {"name": "dire_rat",         "type": "quad",  "subject": "a giant plague dire rat, matted mangy fur, long naked tail, diseased", "tris": 2600}
+  ]
+}
