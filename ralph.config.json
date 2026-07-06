@@ -51,6 +51,41 @@
         "database",
         "breaking-change"
       ]
+    },
+    "blind_tdd": {
+      "enabled": true,
+      "enforcement": "warn",
+      "spawner": "manual",
+      "preflight": "warn",
+      "test_dirs": [
+        "tests/contracts/",
+        "tests/integration/"
+      ],
+      "public_api_file": "public_api.md",
+      "routing": {
+        "mode": "selective",
+        "path_globs": [
+          "**/auth/**",
+          "**/security/**",
+          "**/secrets/**",
+          "**/billing/**",
+          "**/payment/**"
+        ],
+        "keywords": [
+          "password",
+          "token",
+          "secret",
+          "credential",
+          "authentication",
+          "payment",
+          "encrypt"
+        ],
+        "min_severity": "critical"
+      },
+      "suppression_audit": true,
+      "security_ac_pack": {
+        "enabled": true
+      }
     }
   },
   "harness": {
