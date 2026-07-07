@@ -13,3 +13,6 @@ _godot_viewer/models/
 _godot_viewer/*.png
 __pycache__/
 *.blend1
+*.blend
+*.npz
+_quadrig/*_skeleton/
