@@ -24,9 +24,9 @@ const ARENA_CLAMP := 7.5     # failsafe only — wall colliders are the real bou
 # Sword grip (arsenal_kit sword.glb -> CC_Base_R_Hand). Tunable at runtime via
 # --wpos=x,y,z --wrot=x,y,z --wscale=s for iteration.
 const WEAPON_BONE := "CC_Base_R_Hand"
-# blade lowered + angled forward, tip clear of the ground (grip candidate d)
+# blade raised up-and-forward (~70 deg above the ground), grip in the fist
 var _weapon_pos := Vector3(0.0, 0.06, 0.0)
-var _weapon_rot := Vector3(25.0, 0.0, 0.0)
+var _weapon_rot := Vector3(150.0, 0.0, 0.0)
 var _weapon_scale := 0.8
 
 var _ap: AnimationPlayer
