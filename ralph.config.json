@@ -12,7 +12,7 @@
     ],
     "test_runner": {
       "python": {
-        "command": "python -m pytest",
+        "command": "D:/Projects/comfyui-toolchain/.venv/Scripts/python.exe -m pytest",
         "test_dir": "tests/",
         "targeted_flags": [
           "-v",
@@ -63,7 +63,7 @@
       ],
       "public_api_file": "public_api.md",
       "routing": {
-        "mode": "selective",
+        "mode": "all",
         "path_globs": [
           "**/auth/**",
           "**/security/**",
@@ -80,7 +80,8 @@
           "payment",
           "encrypt"
         ],
-        "min_severity": "critical"
+        "min_severity": "critical",
+        "_ab_experiment_note": "mode set to all for the per-trap A/B window (2026-07-06); revert to selective when the experiment concludes \u2014 predicates below are preserved"
       },
       "suppression_audit": true,
       "security_ac_pack": {

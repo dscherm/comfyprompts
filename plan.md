@@ -1415,3 +1415,126 @@ TRELLIS.2 (stretch, better hand topology) is NOT installed.
   "passes": false
 }
 ```
+
+## Phase KD: GrimForge playable Godot demo (knight + arrow keys)
+
+Human request (2026-07-09): Godot scene from GrimForge castle kit tiles/buildings,
+bestiary characters placed in it, revenant_knight player-controlled with arrow keys
+and walking animation. Runs via ralph-universal interactive bridge (this session).
+Proven pipeline: Unity Humanoid bake -> binary FBX -> Godot native ufbx
+(memory: project_ccbase_retarget_scramble). Locomotion clip source = ActorCore
+walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accurig".
+
+```json
+{
+  "id": "KD1",
+  "category": "feature",
+  "priority": 1,
+  "description": "Bake revenant_knight locomotion clips (idle + walk) in Unity (soapbox-unity project via coplay-mcp) and export binary FBX for Godot. Walk source = ActorCore walk-relaxed-loop-378936.fbx (C:/Users/scher/Downloads); idle source = existing retargeted idle clip set in soapbox-unity. Use the proven bake: Humanoid import (CreateFromThisModel), AnimationMode.SampleAnimationClip per frame, record per-bone localRotation + hips localPosition only, set clip .name, ModelExporter Binary FBX.",
+  "files": ["products/grimforge_playable_demo_v1/chars/revenant_knight_idle.fbx", "products/grimforge_playable_demo_v1/chars/revenant_knight_walk.fbx"],
+  "acceptance_criteria": [
+    "Both FBX files exist and are BINARY FBX (header starts 'Kaydara FBX Binary')",
+    "Each FBX contains exactly one AnimStack, named 'idle' / 'walk' respectively",
+    "Godot 4.6 headless import of both files succeeds (godot --headless --import exits 0, .import sidecars created)",
+    "Scramble check: with the walk anim seeked to mid-clip, Skeleton3D bone-position bbox stays character-sized (< 3m extent), not exploded"
+  ],
+  "steps": [
+    "Verify Unity editor is open on soapbox-unity via coplay-mcp get_unity_editor_state; if not, file bridge human-request",
+    "Copy ActorCore walk FBX into Assets/Animations/revenant_knight/ActorCore/ and set Humanoid import",
+    "Bake idle + walk onto the revenant_knight Humanoid avatar (rotation-only + hips position), export two binary FBXs",
+    "Copy exports into products/grimforge_playable_demo_v1/chars/ and validate in Godot headless"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD2",
+  "category": "feature",
+  "priority": 1,
+  "description": "Create Godot 4.6 project products/grimforge_playable_demo_v1/ and build the castle environment from castle_kit_grimforge_v1 GLBs: tiled ground (floor_cobble/floor_flagstone/floor_grass), walls/towers perimeter, gatehouse, chapel, great_hall, props (barrel, crate, cart, brazier). Environment built by env.gd which instances res:// GLBs from a layout table at runtime (same pattern as _anim_viewer/main.gd). Copy only the needed GLBs into the project.",
+  "files": ["products/grimforge_playable_demo_v1/project.godot", "products/grimforge_playable_demo_v1/main.tscn", "products/grimforge_playable_demo_v1/scripts/env.gd"],
+  "acceptance_criteria": [
+    "godot --headless --path products/grimforge_playable_demo_v1 --import exits 0 with no missing-resource errors",
+    "Runtime screenshot (get_viewport().get_texture().get_image().save_png() after 1s) shows a tiled ground plane and at least 3 distinct buildings with textures",
+    "DirectionalLight3D + WorldEnvironment present (scene is lit, not black)",
+    "No per-frame errors in the run log (first 5 seconds)"
+  ],
+  "steps": [
+    "Scaffold project.godot (Godot 4.6, Forward+), main.tscn with root Node3D + env.gd",
+    "Copy selected castle-kit GLBs into res://env/",
+    "Author layout table: ground grid ~20x20 tiles, perimeter walls, 3+ buildings, props",
+    "Headless import, then windowed run with auto-screenshot; iterate until AC met"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD3",
+  "category": "feature",
+  "priority": 1,
+  "description": "Populate the scene with bestiary characters: the 10 animated bipeds from grimforge_bestiary_v1/_anim_viewer/chars (single-clip FBXs, looped, albedo re-applied from tex/) placed at courtyard/wall spots, plus the 4 quadrupeds using their _quad_viewer walk GLBs patrolling. Reuse the carousel's load/instantiate/loop + albedo-override pattern.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/bestiary.gd"],
+  "acceptance_criteria": [
+    "At least 8 bipedal bestiary characters placed in the scene, each textured (albedo applied) and looping its baked clip",
+    "At least 2 quadrupeds present playing their walk cycle",
+    "Runtime screenshot shows characters distributed around the castle (not stacked at origin)",
+    "No load warnings for character assets in the run log"
+  ],
+  "steps": [
+    "Copy chars FBXs + tex PNGs and quad walk GLBs into res://chars/",
+    "bestiary.gd: placement table (position, rotation, character), instantiate + loop clip + apply albedo",
+    "Run + screenshot verification"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD4",
+  "category": "feature",
+  "priority": 1,
+  "description": "Player-controlled knight: CharacterBody3D wrapping the revenant_knight rig with idle+walk AnimationPlayer clips (from KD1; merge the walk Animation into the idle scene's AnimationPlayer at runtime — identical scene tree so track paths match). Arrow keys move the knight on the ground plane, knight rotates to face movement direction, walk clip plays while moving, idle when stopped. Third-person follow camera.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/player.gd", "products/grimforge_playable_demo_v1/project.godot"],
+  "acceptance_criteria": [
+    "project.godot defines move_left/move_right/move_up/move_down input actions bound to the arrow keys",
+    "player.gd: velocity from input, rotate toward movement direction, AnimationPlayer plays 'walk' (looped) when moving and 'idle' when still, walk playback speed matched to move speed (no moonwalk/skate)",
+    "Follow camera keeps the knight in frame while moving",
+    "Two runtime screenshots >=1s apart during simulated input show the knight displaced and in a mid-walk pose",
+    "Knight is textured (revenant_knight_albedo.png applied)"
+  ],
+  "steps": [
+    "Define input actions in project.godot",
+    "player.gd: CharacterBody3D + anim state switch + camera rig",
+    "Simulated-input run (Input.action_press in a test script) + screenshots",
+    "Human playtest request: user confirms arrow-key feel"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD5",
+  "category": "polish",
+  "priority": 2,
+  "description": "Ship polish + docs: simple box collisions for buildings/walls so the knight cannot walk through them, scene bounds, README with controls and launch command, hero screenshot, commit through the bridge gate.",
+  "files": ["products/grimforge_playable_demo_v1/README.md"],
+  "acceptance_criteria": [
+    "Knight collides with buildings and perimeter walls (cannot pass through; verified by driving into a wall via simulated input and observing clamped position)",
+    "README documents: what the demo is, controls (arrow keys), launch command (godot --path products/grimforge_playable_demo_v1), asset provenance (castle kit + bestiary + ActorCore clips)",
+    "Hero screenshot saved at products/grimforge_playable_demo_v1/hero.png showing knight + castle + bestiary",
+    "smart_gate passes and work is committed"
+  ],
+  "steps": [
+    "StaticBody3D + BoxShape3D from mesh AABBs for buildings/walls",
+    "README + hero.png",
+    "Gate + commit"
+  ],
+  "passes": false
+}
+```
