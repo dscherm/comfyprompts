@@ -8,16 +8,26 @@ extends CharacterBody3D
 # travel direction, walk/idle clips switch with motion.
 
 const TARGET_H := 0.85       # miniature-world knight height (walls are 1.3m)
-const MOVE_SPEED := 0.6      # m/s — matched to the walk clip, see below
+const WALK_SPEED := 0.6      # m/s — matched to the walk clip (measure_walk.gd)
+const RUN_SPEED := 1.4       # m/s — hold Shift
 const TURN_SPEED := 10.0     # rad/s toward travel direction
 # measure_walk.gd: the ActorCore relaxed-walk covers ~0.18-0.31 m/s of ground
 # at 1.0x at knight scale; 0.6 m/s at 2.0x playback sits on the stride-envelope
 # estimate (0.30), so feet track the ground instead of skating.
 const WALK_ANIM_SPEED := 2.0
+const RUN_ANIM_SPEED := 1.5
 const CAM_YAW := 45.0
 const CAM_PITCH := -35.0
 const CAM_SIZE := 6.0
 const ARENA_CLAMP := 7.5     # failsafe only — wall colliders are the real bounds
+
+# Sword grip (arsenal_kit sword.glb -> CC_Base_R_Hand). Tunable at runtime via
+# --wpos=x,y,z --wrot=x,y,z --wscale=s for iteration.
+const WEAPON_BONE := "CC_Base_R_Hand"
+# blade lowered + angled forward, tip clear of the ground (grip candidate d)
+var _weapon_pos := Vector3(0.0, 0.06, 0.0)
+var _weapon_rot := Vector3(25.0, 0.0, 0.0)
+var _weapon_scale := 0.8
 
 var _ap: AnimationPlayer
 var _cam: Camera3D
@@ -25,6 +35,7 @@ var _rig: Node3D
 var _state := "idle"
 var _drive_left := 0.0       # seconds of simulated input remaining
 var _drive_actions: PackedStringArray = ["move_up"]
+var _force_run := false
 var _log_accum := 0.0
 
 func _ready() -> void:
@@ -49,6 +60,8 @@ func _ready() -> void:
 				_drive_left = float(parts[1])
 			else:
 				_drive_left = float(spec)
+		elif a == "--run":
+			_force_run = true
 
 func _build_rig() -> void:
 	var idle_scene: PackedScene = load("res://chars/revenant_knight_idle.fbx")
@@ -80,24 +93,99 @@ func _build_rig() -> void:
 		push_warning("player: no AnimationPlayer in idle fbx")
 		return
 	_set_loop(_ap, "idle")
-	var walk_scene: PackedScene = load("res://chars/revenant_knight_walk.fbx")
-	if walk_scene:
-		var tmp: Node3D = walk_scene.instantiate()
-		var aps := _find_all(tmp, "AnimationPlayer")
-		if aps.size() > 0:
-			var wap := aps[0] as AnimationPlayer
-			if wap.has_animation("walk"):
-				var walk_anim: Animation = wap.get_animation("walk").duplicate(true)
-				walk_anim.loop_mode = Animation.LOOP_LINEAR
-				var lib := AnimationLibrary.new()
-				lib.add_animation("walk", walk_anim)
-				_ap.add_animation_library("loco", lib)
-		tmp.free()
-	if _ap.has_animation("loco/walk"):
-		print("PLAYER_CLIPS idle+walk ready")
-	else:
-		push_warning("player: walk clip merge failed")
+	var has_walk := _merge_clip("res://chars/revenant_knight_walk.fbx", "walk", "loco")
+	var has_run := _merge_clip("res://chars/revenant_knight_run.fbx", "run", "run")
+	print("PLAYER_CLIPS idle walk=%s run=%s" % [has_walk, has_run])
+	_apply_weapon_overrides()
+	_attach_weapon()
 	_ap.play("idle")
+
+# Merge a clip from a twin FBX export into the idle rig's AnimationPlayer.
+# Remaps the clip's leading track-path segment to the target rig's prefix so
+# tracks resolve even when the two FBXs were baked with different root names.
+func _merge_clip(path: String, clip_name: String, lib_name: String) -> bool:
+	var scene: PackedScene = load(path)
+	if scene == null:
+		return false
+	var tmp: Node3D = scene.instantiate()
+	var aps := _find_all(tmp, "AnimationPlayer")
+	var ok := false
+	if aps.size() > 0 and (aps[0] as AnimationPlayer).has_animation(clip_name):
+		var anim: Animation = (aps[0] as AnimationPlayer).get_animation(clip_name).duplicate(true)
+		anim.loop_mode = Animation.LOOP_LINEAR
+		var prefix := _rig_prefix(_rig)
+		if prefix != "":
+			_remap_track_prefix(anim, prefix)
+		var lib := AnimationLibrary.new()
+		lib.add_animation(clip_name, anim)
+		_ap.add_animation_library(lib_name, lib)
+		ok = true
+	tmp.free()
+	return ok
+
+func _apply_weapon_overrides() -> void:
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--wpos="):
+			_weapon_pos = _parse_vec3(a.trim_prefix("--wpos="))
+		elif a.begins_with("--wrot="):
+			_weapon_rot = _parse_vec3(a.trim_prefix("--wrot="))
+		elif a.begins_with("--wscale="):
+			_weapon_scale = float(a.trim_prefix("--wscale="))
+
+func _attach_weapon() -> void:
+	var skels := _find_all(_rig, "Skeleton3D")
+	if skels.is_empty():
+		push_warning("player: no skeleton for weapon")
+		return
+	var skel := skels[0] as Skeleton3D
+	if skel.find_bone(WEAPON_BONE) < 0:
+		push_warning("player: no bone %s" % WEAPON_BONE)
+		return
+	var sword_scene: PackedScene = load("res://weapons/sword.glb")
+	if sword_scene == null:
+		push_warning("player: sword.glb missing")
+		return
+	var ba := BoneAttachment3D.new()
+	ba.bone_name = WEAPON_BONE
+	skel.add_child(ba)
+	var sword: Node3D = sword_scene.instantiate()
+	ba.add_child(sword)
+	sword.position = _weapon_pos
+	sword.rotation_degrees = _weapon_rot
+	sword.scale = Vector3.ONE * _weapon_scale
+	print("PLAYER_WEAPON attached sword pos=%s rot=%s scale=%.2f" % [_weapon_pos, _weapon_rot, _weapon_scale])
+
+func _parse_vec3(s: String) -> Vector3:
+	var p := s.split(",")
+	if p.size() != 3:
+		return Vector3.ZERO
+	return Vector3(float(p[0]), float(p[1]), float(p[2]))
+
+func _rig_prefix(rig: Node) -> String:
+	var sk := _find_all(rig, "Skeleton3D")
+	if sk.is_empty():
+		return ""
+	var n: Node = sk[0]
+	while n.get_parent() != null and n.get_parent() != rig:
+		n = n.get_parent()
+	return String(n.name)
+
+func _remap_track_prefix(anim: Animation, target_prefix: String) -> void:
+	for ti in range(anim.get_track_count()):
+		var p := anim.track_get_path(ti)
+		if p.get_name_count() == 0:
+			continue
+		var names := PackedStringArray()
+		for i in range(p.get_name_count()):
+			names.append(String(p.get_name(i)))
+		names[0] = target_prefix
+		var s := "/".join(names)
+		if p.get_subname_count() > 0:
+			var subs := PackedStringArray()
+			for i in range(p.get_subname_count()):
+				subs.append(String(p.get_subname(i)))
+			s += ":" + ":".join(subs)
+		anim.track_set_path(ti, NodePath(s))
 
 func _build_camera() -> void:
 	_cam = Camera3D.new()
@@ -126,14 +214,16 @@ func _physics_process(delta: float) -> void:
 	var iv := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	# camera-relative: rotate screen input by the camera yaw
 	var dir3 := Vector3(iv.x, 0.0, iv.y).rotated(Vector3.UP, deg_to_rad(CAM_YAW))
-	velocity = dir3 * MOVE_SPEED
+	var moving := dir3.length() > 0.01
+	var running := moving and (_force_run or Input.is_physical_key_pressed(KEY_SHIFT))
+	velocity = dir3 * (RUN_SPEED if running else WALK_SPEED)
 	move_and_slide()
 	global_position.x = clampf(global_position.x, -ARENA_CLAMP, ARENA_CLAMP)
 	global_position.z = clampf(global_position.z, -ARENA_CLAMP, ARENA_CLAMP)
-	if dir3.length() > 0.01 and _rig:
+	if moving and _rig:
 		var target_yaw := atan2(dir3.x, dir3.z)
 		_rig.rotation.y = lerp_angle(_rig.rotation.y, target_yaw, minf(TURN_SPEED * delta, 1.0))
-	_set_anim_state("walk" if dir3.length() > 0.01 else "idle")
+	_set_anim_state("run" if running else ("walk" if moving else "idle"))
 	_update_camera()
 	_log_accum += delta
 	if _log_accum >= 0.5:
@@ -144,10 +234,19 @@ func _set_anim_state(s: String) -> void:
 	if s == _state or _ap == null:
 		return
 	_state = s
-	if s == "walk" and _ap.has_animation("loco/walk"):
-		_ap.play("loco/walk", 0.2, WALK_ANIM_SPEED)
-	else:
-		_ap.play("idle", 0.2)
+	match s:
+		"run":
+			if _ap.has_animation("run/run"):
+				_ap.play("run/run", 0.15, RUN_ANIM_SPEED)
+			elif _ap.has_animation("loco/walk"):
+				_ap.play("loco/walk", 0.15, WALK_ANIM_SPEED)
+		"walk":
+			if _ap.has_animation("loco/walk"):
+				_ap.play("loco/walk", 0.2, WALK_ANIM_SPEED)
+			else:
+				_ap.play("idle", 0.2)
+		_:
+			_ap.play("idle", 0.2)
 
 func _set_loop(ap: AnimationPlayer, name: String) -> void:
 	if ap.has_animation(name):
