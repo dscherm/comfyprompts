@@ -8,9 +8,12 @@ extends CharacterBody3D
 # travel direction, walk/idle clips switch with motion.
 
 const TARGET_H := 0.85       # miniature-world knight height (walls are 1.3m)
-const MOVE_SPEED := 0.9      # m/s
+const MOVE_SPEED := 0.6      # m/s — matched to the walk clip, see below
 const TURN_SPEED := 10.0     # rad/s toward travel direction
-const WALK_ANIM_SPEED := 1.6 # playback scale so feet match ground speed
+# measure_walk.gd: the ActorCore relaxed-walk covers ~0.18-0.31 m/s of ground
+# at 1.0x at knight scale; 0.6 m/s at 2.0x playback sits on the stride-envelope
+# estimate (0.30), so feet track the ground instead of skating.
+const WALK_ANIM_SPEED := 2.0
 const CAM_YAW := 45.0
 const CAM_PITCH := -35.0
 const CAM_SIZE := 6.0
