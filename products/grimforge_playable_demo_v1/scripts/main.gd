@@ -14,9 +14,16 @@ func _ready() -> void:
 	_setup_lighting()
 	var env_root := EnvBuilder.build()
 	add_child(env_root)
-	if not ("--flat" in OS.get_cmdline_user_args()):
+	var args := OS.get_cmdline_user_args()
+	if not ("--flat" in args):
 		add_child(BestiaryBuilder.build())
 	_setup_overview_camera()
+	if not ("--flat" in args) and not ("--topdown" in args) and not ("--overview" in args):
+		var player := CharacterBody3D.new()
+		player.name = "Player"
+		player.set_script(load("res://scripts/player.gd"))
+		player.position = Vector3(0.0, 0.0, 2.5)
+		add_child(player)
 	_handle_cli()
 
 func _setup_lighting() -> void:
@@ -60,18 +67,23 @@ func _setup_overview_camera() -> void:
 	_overview_cam.current = true
 
 func _handle_cli() -> void:
-	var shot_name := ""
+	var shots: Array = []      # entries: [name, delay]
 	var shot_delay := 1.5
 	var quit_after := 0.0
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--shot="):
-			shot_name = a.trim_prefix("--shot=")
+			var spec := a.trim_prefix("--shot=")
+			if ":" in spec:
+				var parts := spec.rsplit(":", true, 1)
+				shots.append([parts[0], float(parts[1])])
+			else:
+				shots.append([spec, -1.0])
 		elif a.begins_with("--shot-delay="):
 			shot_delay = float(a.trim_prefix("--shot-delay="))
 		elif a.begins_with("--quit-after="):
 			quit_after = float(a.trim_prefix("--quit-after="))
-	if shot_name != "":
-		_take_shot(shot_name, shot_delay)
+	for s in shots:
+		_take_shot(s[0], s[1] if s[1] >= 0.0 else shot_delay)
 	if quit_after > 0.0:
 		get_tree().create_timer(quit_after).timeout.connect(func(): get_tree().quit())
 
