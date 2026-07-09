@@ -1,0 +1,4 @@
+[gd_scene load_steps=2 format=3 uid="uid://bdiagbuild"]
+[ext_resource type="Script" path="res://scripts/diag_buildings.gd" id="1"]
+[node name="DiagBuildings" type="Node3D"]
+script = ExtResource("1")

@@ -32,49 +32,56 @@ static func build() -> Node3D:
 	if flat:
 		return root
 
-	# --- perimeter walls on the grass ring edge ---
+	# --- perimeter wall ring (seamless: step with slight overlap, no gaps) ---
+	# Kit door/opening convention (verified via diag_buildings): the door faces
+	# local +Z at rotation 0. So a wall panel at rot 0 faces +Z; the ring uses
+	# 0/90/180/270 so each side's panels face outward and tile corner-to-corner.
 	var wall_scene: PackedScene = load("res://kit/wall.glb")
 	var wl := _footprint(wall_scene)
-	var wpitch: float = maxf(maxf(wl.x, wl.z), 0.5)
+	var wpitch: float = maxf(wl.x, 0.5)
 	var edge := half + pitch * 0.5
-	var n := int(ceil((edge * 2.0) / wpitch)) - 1
-	for i in range(1, n):
-		var t := -edge + float(i) * wpitch
-		_place(root, "wall", Vector3(t, 0.0, -edge), 0.0)
-		# south row leaves a center gap for the gatehouse
-		if absf(t) > wpitch * 1.4:
-			_place(root, "wall", Vector3(t, 0.0, edge), 180.0)
-		_place(root, "wall", Vector3(-edge, 0.0, t), 90.0)
-		_place(root, "wall", Vector3(edge, 0.0, t), -90.0)
+	var span := edge * 2.0
+	var count := int(ceil(span / (wpitch * 0.97)))   # overlap ~3% so no seams
+	var step := span / float(count)
+	var gate_half := 1.3                              # south gap for the gatehouse
+	for i in range(count + 1):
+		var t := -edge + float(i) * step
+		_place(root, "wall", Vector3(t, 0.0, -edge), 0.0)          # north side
+		if absf(t) > gate_half:
+			_place(root, "wall", Vector3(t, 0.0, edge), 180.0)    # south side (gap)
+		_place(root, "wall", Vector3(-edge, 0.0, t), 90.0)         # west side
+		_place(root, "wall", Vector3(edge, 0.0, t), 270.0)        # east side
 	for c in [Vector3(-edge, 0, -edge), Vector3(edge, 0, -edge), Vector3(-edge, 0, edge), Vector3(edge, 0, edge)]:
 		_place(root, "wall_corner", c, 0.0)
+	# gatehouse fills the south gap, door facing -Z (into the courtyard)
 	_place(root, "gatehouse", Vector3(0.0, 0.0, edge), 180.0)
+	_place(root, "tower_round", Vector3(-edge, 0.0, -edge), 0.0)   # back corners
+	_place(root, "tower_square", Vector3(edge, 0.0, -edge), 0.0)
 
-	# --- buildings ---
-	_place(root, "keep", Vector3(0.0, 0.0, -half + pitch * 1.2), 180.0)
-	_place(root, "great_hall", Vector3(-half + pitch * 1.6, 0.0, -pitch * 1.0), 90.0)
-	_place(root, "chapel", Vector3(half - pitch * 1.6, 0.0, -pitch * 1.0), -90.0)
-	_place(root, "stable", Vector3(-half + pitch * 1.8, 0.0, half - pitch * 2.6), 90.0)
-	_place(root, "market_stall", Vector3(half - pitch * 2.2, 0.0, half - pitch * 2.8), -120.0)
-	_place(root, "well", Vector3(pitch * 1.5, 0.0, pitch * 1.2), 0.0)
-	_place(root, "tower_round", Vector3(-half + pitch * 0.8, 0.0, -half + pitch * 0.8), 0.0)
-	_place(root, "tower_square", Vector3(half - pitch * 0.8, 0.0, -half + pitch * 0.8), 0.0)
+	# --- buildings: grid-aligned, doors (+Z local) rotated to face the center ---
+	# rot_y: 0 door->+Z, 90 door->+X, 180 door->-Z, 270 door->-X
+	_place(root, "keep", Vector3(0.0, 0.0, -5.0), 0.0)            # north, faces path south
+	_place(root, "great_hall", Vector3(-5.0, 0.0, -1.5), 90.0)   # west, faces +X inward
+	_place(root, "stable", Vector3(-5.0, 0.0, 3.0), 90.0)        # west, faces +X inward
+	_place(root, "chapel", Vector3(5.0, 0.0, -1.5), 270.0)       # east, faces -X inward
+	_place(root, "market_stall", Vector3(5.0, 0.0, 3.0), 270.0)  # east, faces -X inward
+	_place(root, "well", Vector3(2.0, 0.0, 2.0), 0.0)            # off the central cross
 
-	# --- props ---
-	_place(root, "cart", Vector3(-pitch * 1.8, 0.0, half - pitch * 3.2), 30.0)
-	_place(root, "barrel", Vector3(-half + pitch * 2.6, 0.0, half - pitch * 2.2), 0.0)
-	_place(root, "barrel", Vector3(-half + pitch * 2.9, 0.0, half - pitch * 2.4), 40.0)
-	_place(root, "crate", Vector3(half - pitch * 2.8, 0.0, half - pitch * 2.2), 15.0)
-	_place(root, "crate", Vector3(half - pitch * 3.1, 0.0, half - pitch * 2.5), 60.0)
-	_place(root, "brazier", Vector3(-pitch * 1.2, 0.0, edge - pitch * 0.9), 0.0)
-	_place(root, "brazier", Vector3(pitch * 1.2, 0.0, edge - pitch * 0.9), 0.0)
-	_place(root, "statue", Vector3(0.0, 0.0, -half + pitch * 3.0), 180.0)
-	_place(root, "banner_pole", Vector3(-pitch * 0.8, 0.0, -half + pitch * 3.6), 0.0)
-	_place(root, "banner_pole", Vector3(pitch * 0.8, 0.0, -half + pitch * 3.6), 0.0)
-	_place(root, "tree", Vector3(-half + pitch * 0.9, 0.0, pitch * 2.0), 0.0)
-	_place(root, "tree", Vector3(half - pitch * 0.9, 0.0, pitch * 2.5), 70.0)
-	_place(root, "stairs_stone", Vector3(pitch * 3.0, 0.0, -pitch * 2.5), -90.0)
-	_place(root, "torch_wall", Vector3(0.0, 0.0, -half + pitch * 1.9), 180.0)
+	# --- props: flank the gate, dress the courtyard, corners ---
+	_place(root, "brazier", Vector3(-1.5, 0.0, edge - 1.0), 0.0)
+	_place(root, "brazier", Vector3(1.5, 0.0, edge - 1.0), 0.0)
+	_place(root, "statue", Vector3(-2.0, 0.0, -4.5), 0.0)
+	_place(root, "banner_pole", Vector3(-1.2, 0.0, -3.6), 0.0)
+	_place(root, "banner_pole", Vector3(1.2, 0.0, -3.6), 0.0)
+	_place(root, "cart", Vector3(-3.0, 0.0, 4.5), 0.0)
+	_place(root, "barrel", Vector3(-3.2, 0.0, 1.2), 0.0)
+	_place(root, "barrel", Vector3(-2.7, 0.0, 1.4), 0.0)
+	_place(root, "crate", Vector3(3.2, 0.0, 1.2), 0.0)
+	_place(root, "crate", Vector3(2.7, 0.0, 1.5), 0.0)
+	_place(root, "tree", Vector3(-5.5, 0.0, 5.5), 0.0)
+	_place(root, "tree", Vector3(5.5, 0.0, 5.5), 0.0)
+	_place(root, "torch_wall", Vector3(-3.0, 0.0, -5.0), 90.0)
+	_place(root, "torch_wall", Vector3(3.0, 0.0, -5.0), 270.0)
 
 	return root
 
