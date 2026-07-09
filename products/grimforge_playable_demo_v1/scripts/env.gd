@@ -80,6 +80,8 @@ static func build() -> Node3D:
 
 static var _flat_cache := {}
 
+const NON_SOLID := ["floor_cobble", "floor_grass", "floor_flagstone", "floor_dirt", "torch_wall", "banner_pole"]
+
 static func _place(parent: Node3D, model: String, pos: Vector3, yrot_deg: float) -> Node3D:
 	var scene: PackedScene = load("res://kit/%s.glb" % model)
 	if scene == null:
@@ -90,7 +92,26 @@ static func _place(parent: Node3D, model: String, pos: Vector3, yrot_deg: float)
 	inst.rotation_degrees = Vector3(0.0, yrot_deg, 0.0)
 	_flatten_normals(inst)
 	parent.add_child(inst)
+	if not (model in NON_SOLID):
+		_add_collision(inst)
 	return inst
+
+# Box collider from the model's AABB so the player cannot walk through
+# buildings, walls, or props. Floors and thin decor stay non-solid.
+static func _add_collision(inst: Node3D) -> void:
+	# cancel inst's own transform — the body is parented under inst, so the
+	# AABB must be in inst-local space or position/rotation apply twice
+	var aabb := _subtree_aabb(inst, inst.transform.affine_inverse())
+	if aabb.size.length() < 0.01:
+		return
+	var body := StaticBody3D.new()
+	var shape := CollisionShape3D.new()
+	var box := BoxShape3D.new()
+	box.size = aabb.size
+	shape.shape = box
+	shape.position = aabb.get_center()
+	body.add_child(shape)
+	inst.add_child(body)
 
 # The kit GLBs ship smoothed vertex normals that bend over hard box edges,
 # pillow-shading every flat surface (worst on floor tiles). Rebuild each mesh

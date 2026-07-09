@@ -22,7 +22,7 @@ func _ready() -> void:
 		var player := CharacterBody3D.new()
 		player.name = "Player"
 		player.set_script(load("res://scripts/player.gd"))
-		player.position = Vector3(0.0, 0.0, 2.5)
+		player.position = Vector3(0.0, 0.1, 2.5)  # floor tile tops sit at ~0.1
 		add_child(player)
 	_handle_cli()
 

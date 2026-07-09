@@ -54,7 +54,7 @@ static func _spawn_quad(parent: Node3D, name: String, target_h: float, pos: Vect
 	var s := target_h / maxf(aabb.size.y, 0.01)
 	var pivot := Node3D.new()
 	parent.add_child(pivot)
-	pivot.position = Vector3(pos.x, 0.0, pos.y)
+	pivot.position = Vector3(pos.x, 0.1, pos.y)  # floor tile tops sit at ~0.1
 	pivot.rotation_degrees = Vector3(0.0, yrot, 0.0)
 	model.scale = Vector3(s, s, s)
 	var c := aabb.get_center()
@@ -73,7 +73,7 @@ static func _spawn(parent: Node3D, path: String, target_h: float, pos: Vector2, 
 	var s := target_h / h
 	var pivot := Node3D.new()
 	parent.add_child(pivot)
-	pivot.position = Vector3(pos.x, 0.0, pos.y)
+	pivot.position = Vector3(pos.x, 0.1, pos.y)  # floor tile tops sit at ~0.1
 	pivot.rotation_degrees = Vector3(0.0, yrot, 0.0)
 	inst.scale = Vector3(s, s, s)
 	var c := aabb.get_center()

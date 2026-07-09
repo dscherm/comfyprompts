@@ -14,13 +14,14 @@ const WALK_ANIM_SPEED := 1.6 # playback scale so feet match ground speed
 const CAM_YAW := 45.0
 const CAM_PITCH := -35.0
 const CAM_SIZE := 6.0
-const ARENA_CLAMP := 6.2     # keep inside walls until KD5 collisions
+const ARENA_CLAMP := 7.5     # failsafe only — wall colliders are the real bounds
 
 var _ap: AnimationPlayer
 var _cam: Camera3D
 var _rig: Node3D
 var _state := "idle"
-var _drive_left := 0.0       # seconds of simulated up-input remaining
+var _drive_left := 0.0       # seconds of simulated input remaining
+var _drive_actions: PackedStringArray = ["move_up"]
 var _log_accum := 0.0
 
 func _ready() -> void:
@@ -35,7 +36,16 @@ func _ready() -> void:
 	add_child(shape)
 	for a in OS.get_cmdline_user_args():
 		if a.begins_with("--drive="):
-			_drive_left = float(a.trim_prefix("--drive="))
+			# --drive=2.5  or  --drive=up+left:12
+			var spec := a.trim_prefix("--drive=")
+			if ":" in spec:
+				var parts := spec.split(":")
+				_drive_actions.clear()
+				for d in parts[0].split("+"):
+					_drive_actions.append("move_%s" % d)
+				_drive_left = float(parts[1])
+			else:
+				_drive_left = float(spec)
 
 func _build_rig() -> void:
 	var idle_scene: PackedScene = load("res://chars/revenant_knight_idle.fbx")
@@ -90,6 +100,9 @@ func _build_camera() -> void:
 	_cam = Camera3D.new()
 	_cam.projection = Camera3D.PROJECTION_ORTHOGONAL
 	_cam.size = CAM_SIZE
+	for a in OS.get_cmdline_user_args():
+		if a.begins_with("--camsize="):
+			_cam.size = float(a.trim_prefix("--camsize="))
 	add_child(_cam)
 	_cam.rotation_degrees = Vector3(CAM_PITCH, CAM_YAW, 0.0)
 	_update_camera()
@@ -102,9 +115,11 @@ func _update_camera() -> void:
 func _physics_process(delta: float) -> void:
 	if _drive_left > 0.0:
 		_drive_left -= delta
-		Input.action_press("move_up")
+		for act in _drive_actions:
+			Input.action_press(act)
 		if _drive_left <= 0.0:
-			Input.action_release("move_up")
+			for act in _drive_actions:
+				Input.action_release(act)
 	var iv := Input.get_vector("move_left", "move_right", "move_up", "move_down")
 	# camera-relative: rotate screen input by the camera yaw
 	var dir3 := Vector3(iv.x, 0.0, iv.y).rotated(Vector3.UP, deg_to_rad(CAM_YAW))
