@@ -24,9 +24,12 @@ const ARENA_CLAMP := 7.5     # failsafe only — wall colliders are the real bou
 # Sword grip (arsenal_kit sword.glb -> CC_Base_R_Hand). Tunable at runtime via
 # --wpos=x,y,z --wrot=x,y,z --wscale=s for iteration.
 const WEAPON_BONE := "CC_Base_R_Hand"
-# blade raised up-and-forward (~70 deg above the ground), grip in the fist
-var _weapon_pos := Vector3(0.0, 0.06, 0.0)
-var _weapon_rot := Vector3(150.0, 0.0, 0.0)
+# The sword pivots around a grip node seated in the fist: _weapon_grip slides
+# the mesh so its handle (not its pommel) sits at the pivot, then _weapon_rot
+# aims it up-and-forward. All CLI-tunable: --wpos --wrot --wscale --wgrip.
+var _weapon_pos := Vector3(0.0, 0.02, 0.0)   # pivot offset from the hand bone
+var _weapon_grip := Vector3(0.0, -0.06, 0.0) # sword-local: move grip to pivot
+var _weapon_rot := Vector3(120.0, 0.0, 0.0)  # up-and-forward
 var _weapon_scale := 0.8
 
 var _ap: AnimationPlayer
@@ -131,6 +134,8 @@ func _apply_weapon_overrides() -> void:
 			_weapon_rot = _parse_vec3(a.trim_prefix("--wrot="))
 		elif a.begins_with("--wscale="):
 			_weapon_scale = float(a.trim_prefix("--wscale="))
+		elif a.begins_with("--wgrip="):
+			_weapon_grip = _parse_vec3(a.trim_prefix("--wgrip="))
 
 func _attach_weapon() -> void:
 	var skels := _find_all(_rig, "Skeleton3D")
@@ -148,12 +153,16 @@ func _attach_weapon() -> void:
 	var ba := BoneAttachment3D.new()
 	ba.bone_name = WEAPON_BONE
 	skel.add_child(ba)
+	# pivot at the fist: rotation/scale here so the sword turns about its grip
+	var pivot := Node3D.new()
+	ba.add_child(pivot)
+	pivot.position = _weapon_pos
+	pivot.rotation_degrees = _weapon_rot
+	pivot.scale = Vector3.ONE * _weapon_scale
 	var sword: Node3D = sword_scene.instantiate()
-	ba.add_child(sword)
-	sword.position = _weapon_pos
-	sword.rotation_degrees = _weapon_rot
-	sword.scale = Vector3.ONE * _weapon_scale
-	print("PLAYER_WEAPON attached sword pos=%s rot=%s scale=%.2f" % [_weapon_pos, _weapon_rot, _weapon_scale])
+	pivot.add_child(sword)
+	sword.position = _weapon_grip  # slide handle onto the pivot (the fist)
+	print("PLAYER_WEAPON sword pos=%s grip=%s rot=%s scale=%.2f" % [_weapon_pos, _weapon_grip, _weapon_rot, _weapon_scale])
 
 func _parse_vec3(s: String) -> Vector3:
 	var p := s.split(",")
