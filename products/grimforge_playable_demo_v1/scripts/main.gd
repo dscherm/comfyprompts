@@ -6,6 +6,7 @@ extends Node3D
 #   godot --path . -- --shot=name.png --shot-delay=1.5 --quit-after=3
 
 const EnvBuilder := preload("res://scripts/env.gd")
+const BestiaryBuilder := preload("res://scripts/bestiary.gd")
 
 var _overview_cam: Camera3D
 
@@ -13,6 +14,8 @@ func _ready() -> void:
 	_setup_lighting()
 	var env_root := EnvBuilder.build()
 	add_child(env_root)
+	if not ("--flat" in OS.get_cmdline_user_args()):
+		add_child(BestiaryBuilder.build())
 	_setup_overview_camera()
 	_handle_cli()
 
