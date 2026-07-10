@@ -2,8 +2,9 @@
 
 A playable isometric castle-courtyard scene assembled entirely from GrimForge
 kit assets: castle tiles/buildings from **castle_kit_grimforge_v1**, populated
-with **grimforge_bestiary_v1** creatures, and a player-controlled
-**revenant knight** with baked idle/walk animation.
+with wandering **grimforge_bestiary_v1** creatures, and a player-controlled
+**revenant knight** (sword-armed, with idle/walk/run animation) from
+**arsenal_kit_grimforge_v1**.
 
 ![hero](hero.png)
 
@@ -20,21 +21,25 @@ godot --path products/grimforge_playable_demo_v1
 | Key | Action |
 |---|---|
 | Arrow keys | Move the knight (camera-relative, isometric) |
+| Hold Shift | Run |
 
-The knight plays its walk cycle while moving and returns to idle when you
-stop. Buildings, walls, and props are solid.
+The knight carries a sword and plays walk / run cycles while moving, idle when
+stopped. Buildings, walls, and props are solid.
 
 ## Scene contents
 
-- **Environment** (`scripts/env.gd`): 14x14 measured-pitch tile grid (cobble
-  court, flagstone cross, grass ring), perimeter walls + corner towers +
-  gatehouse, keep, great hall, chapel, stable, market stall, well, props.
+- **Environment** (`scripts/env.gd`): measured-pitch tile grid (cobble court,
+  flagstone cross paths, grass ring), a seamless perimeter wall ring with
+  corner towers + gatehouse, and grid-aligned buildings (keep, great hall,
+  chapel, stable, market stall, well) whose doors face the courtyard paths.
   Isometric orthographic camera (35 deg pitch / 45 deg yaw).
-- **Bestiary** (`scripts/bestiary.gd`): 9 animated bipeds (Unity-baked clips,
-  albedo re-applied) + 4 quadrupeds (UniRig + Blender walk cycles via
-  runtime GLTFDocument load).
-- **Player** (`scripts/player.gd`): CharacterBody3D; idle FBX rig with the
-  walk clip merged at runtime from the twin walk FBX export.
+- **Bestiary** (`scripts/bestiary.gd` + `scripts/npc.gd`): 13 NPCs that wander
+  — walk to random waypoints near home, then rest playing an idle/flavor clip.
+  11 are mobile (7 bipeds + 4 quadrupeds); lich_king + skeleton_mage are
+  stationary idlers (their AccuRIG rigs failed Unity's humanoid auto-map).
+- **Player** (`scripts/player.gd`): CharacterBody3D; idle rig with walk + run
+  clips merged at runtime (track-prefix remapped), plus an arsenal-kit sword
+  attached to the right-hand bone via BoneAttachment3D.
 
 ## Asset provenance
 
@@ -47,13 +52,25 @@ stop. Buildings, walls, and props are solid.
   (AccuRIG rigs, Unity Humanoid retarget, binary FBX, Godot native ufbx).
 - Quadrupeds: `products/grimforge_bestiary_v1/_quad_viewer/quads/*_v2.glb`.
 - Knight locomotion: idle = shared Mixamo set; walk = ActorCore
-  `walk-relaxed-loop-378936` — both baked onto the AccuRIG knight rig in
-  Unity (`_tools/bake_knight_locomotion.cs`) and exported as binary FBX.
+  `walk-relaxed-loop-378936`; run = ActorCore Run Forward — all baked onto the
+  AccuRIG knight rig in Unity (`_tools/bake_*_locomotion.cs`) and exported as
+  binary FBX. NPC walk clips baked the same way (`bake_batch_locomotion.cs`).
+- Sword: `products/arsenal_kit_grimforge_v1/models_glb/sword.glb` (copied into
+  `weapons/`), attached to `CC_Base_R_Hand`.
 
 ## Verification harness
 
 CLI flags after `--` for scripted checks: `--shot=name.png[:delay]`,
-`--quit-after=S`, `--drive=S` / `--drive=up+left:S` (simulated input),
-`--zoom=N`, `--topdown`, `--flat`, `--overview`, `--noshadow`.
-`scripts/check_knight.gd` validates the knight FBX imports (clip names +
-skeleton bbox scramble check).
+`--quit-after=S`, `--drive=S` / `--drive=up+left:S` / `--run` (simulated
+input), `--zoom=N` / `--camsize=N`, `--topdown`, `--flat`, `--overview`,
+`--noshadow`, `--wpos/--wrot/--wscale/--wgrip` (sword grip tuning).
+Validators: `scripts/check_knight.gd`, `scripts/check_locomotion.gd` (clip
+imports + skeleton bbox scramble check), `scripts/measure_walk.gd` (walk
+ground-speed match). Kit inspectors: `scripts/diag_buildings.gd`,
+`scripts/diag_doors.gd`, `scripts/diag_weapon.gd`.
+
+## Skills
+
+This demo produced two reusable skills: `equip-character-assets` (attach
+weapons/props to a rigged character) and `kit-scene-layout` (assemble a
+coherent scene from a modular building kit).
