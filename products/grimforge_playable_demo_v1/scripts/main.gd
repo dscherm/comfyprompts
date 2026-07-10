@@ -7,22 +7,26 @@ extends Node3D
 
 const EnvBuilder := preload("res://scripts/env.gd")
 const BestiaryBuilder := preload("res://scripts/bestiary.gd")
+const InteriorBuilder := preload("res://scripts/interior.gd")
 
 var _overview_cam: Camera3D
 
 func _ready() -> void:
 	_setup_lighting()
-	var env_root := EnvBuilder.build()
-	add_child(env_root)
 	var args := OS.get_cmdline_user_args()
-	if not ("--flat" in args):
-		add_child(BestiaryBuilder.build())
+	var interior := "--interior" in args
+	if interior:
+		add_child(InteriorBuilder.build())
+	else:
+		add_child(EnvBuilder.build())
+		if not ("--flat" in args):
+			add_child(BestiaryBuilder.build())
 	_setup_overview_camera()
 	if not ("--flat" in args) and not ("--topdown" in args) and not ("--overview" in args):
 		var player := CharacterBody3D.new()
 		player.name = "Player"
 		player.set_script(load("res://scripts/player.gd"))
-		player.position = Vector3(0.0, 0.1, 2.5)  # floor tile tops sit at ~0.1
+		player.position = InteriorBuilder.entrance_point() if interior else Vector3(0.0, 0.1, 2.5)
 		add_child(player)
 	_handle_cli()
 

@@ -87,7 +87,8 @@ static func build() -> Node3D:
 
 static var _flat_cache := {}
 
-const NON_SOLID := ["floor_cobble", "floor_grass", "floor_flagstone", "floor_dirt", "torch_wall", "banner_pole"]
+const NON_SOLID := ["floor_cobble", "floor_grass", "floor_flagstone", "floor_dirt",
+	"torch_wall", "banner_pole", "banner", "gate_arch", "door_arch", "arrow_loop"]
 
 static func _place(parent: Node3D, model: String, pos: Vector3, yrot_deg: float) -> Node3D:
 	var scene: PackedScene = load("res://kit/%s.glb" % model)
