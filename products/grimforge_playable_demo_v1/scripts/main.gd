@@ -8,6 +8,7 @@ extends Node3D
 const EnvBuilder := preload("res://scripts/env.gd")
 const BestiaryBuilder := preload("res://scripts/bestiary.gd")
 const InteriorBuilder := preload("res://scripts/interior.gd")
+const TownBuilder := preload("res://scripts/town.gd")
 const PlayerScript := preload("res://scripts/player.gd")
 
 const COURTYARD_START := Vector3(0.0, 0.1, 2.5)
@@ -25,7 +26,11 @@ func _ready() -> void:
 	_setup_overview_camera()
 	var args := OS.get_cmdline_user_args()
 	_no_player = ("--flat" in args) or ("--topdown" in args) or ("--overview" in args)
-	var start := "interior" if "--interior" in args else "courtyard"
+	var start := "courtyard"
+	if "--interior" in args:
+		start = "interior"
+	elif "--town" in args:
+		start = "town"
 	_build_world(start, _default_spawn(start))
 	_handle_cli()
 
@@ -50,6 +55,8 @@ func _default_spawn(world: String) -> Vector3:
 	match world:
 		"interior":
 			return InteriorBuilder.entrance_point()
+		"town":
+			return TownBuilder.entrance_point()
 		_:
 			return COURTYARD_START
 
@@ -61,12 +68,20 @@ func _world_exits(world: String) -> Array:
 			return [
 				{"pos": Vector3(0, 0, -3.4), "size": Vector3(1.8, 2.5, 1.2),
 				 "to": "interior", "spawn": InteriorBuilder.entrance_point()},
+				{"pos": Vector3(0, 0, 5.8), "size": Vector3(2.4, 2.5, 1.2),
+				 "to": "town", "spawn": TownBuilder.entrance_point()},
 			]
 		"interior":
 			var ez: float = InteriorBuilder.entrance_point().z + 1.0
 			return [
 				{"pos": Vector3(0, 0, ez), "size": Vector3(1.8, 2.5, 0.9),
 				 "to": "courtyard", "spawn": Vector3(0.0, 0.1, -2.0)},
+			]
+		"town":
+			var tz: float = TownBuilder.entrance_point().z - 0.7
+			return [
+				{"pos": Vector3(0, 0, tz), "size": Vector3(2.4, 2.5, 0.9),
+				 "to": "courtyard", "spawn": Vector3(0.0, 0.1, 4.5)},
 			]
 		_:
 			return []
@@ -87,6 +102,8 @@ func _build_world(world: String, spawn: Vector3) -> void:
 	match world:
 		"interior":
 			root.add_child(InteriorBuilder.build())
+		"town":
+			root.add_child(TownBuilder.build())
 		_:
 			root.add_child(EnvBuilder.build())
 			if not ("--flat" in OS.get_cmdline_user_args()):
