@@ -26,6 +26,17 @@ godot --path products/grimforge_playable_demo_v1
 The knight carries a sword and plays walk / run cycles while moving, idle when
 stopped. Buildings, walls, and props are solid.
 
+## Three connected worlds
+
+Walk the knight into a doorway to travel between scenes (main.gd is a world
+router that frees + rebuilds the world and respawns the player):
+
+- **Courtyard** — the castle courtyard (start).
+- **Keep interior** — walk into the keep's door to enter a great hall; walk
+  back out the hall entrance to return.
+- **Village town** — walk out the south gatehouse onto a road that leads to a
+  village; walk back up the road to return.
+
 ## Scene contents
 
 - **Environment** (`scripts/env.gd`): measured-pitch tile grid (cobble court,
@@ -40,6 +51,15 @@ stopped. Buildings, walls, and props are solid.
 - **Player** (`scripts/player.gd`): CharacterBody3D; idle rig with walk + run
   clips merged at runtime (track-prefix remapped), plus an arsenal-kit sword
   attached to the right-hand bone via BoneAttachment3D.
+- **Keep interior** (`scripts/interior.gd`): a great hall from castle-kit parts
+  — flagstone floor, windowed walls, pillar aisle, dais with a throne idol.
+- **Village town** (`scripts/town.gd`): a village from village_kit_grimforge_v1
+  — a road spine to a square (well/market), houses/tavern/blacksmith/church
+  facing the road, fences/lampposts/trees. Its own atlas (row-normalized to
+  kill grass stripes).
+- **World router** (`scripts/main.gd`): `_build_world(name, spawn)` swaps
+  worlds; Area3D exit triggers (polled per frame) detect the player at each
+  doorway. Test a world directly with `--interior` or `--town`.
 
 ## Asset provenance
 
