@@ -1538,3 +1538,210 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
   "passes": false
 }
 ```
+
+### Phase KD round 2 (user feedback 2026-07-09): NPC wandering, run, weapon, layout audit
+
+```json
+{
+  "id": "KD6",
+  "category": "feature",
+  "priority": 1,
+  "description": "Bake walk clips for all 9 NPC bipeds (bone_golem, cultist, ghoul, imp, lich_king, necromancer, plague_zombie, skeleton_mage, skeleton_warrior) from the ActorCore walk-relaxed-loop onto each AccuRIG rig in soapbox-unity (generalize _tools/bake_knight_locomotion.cs), plus bake a run clip for revenant_knight from the ActorCore run FBX in Downloads. Export binary FBX each, validate in Godot (import + scramble bbox).",
+  "files": ["products/grimforge_playable_demo_v1/chars/", "products/grimforge_playable_demo_v1/_tools/bake_knight_locomotion.cs"],
+  "acceptance_criteria": [
+    "9 <name>_walk.fbx + revenant_knight_run.fbx exist in chars/, binary FBX, one AnimStack each named walk/run",
+    "Godot headless import exits 0; extended check_knight-style validation passes for all new FBXs (bbox character-sized)",
+    "Bake tool generalized (char list driven), archived in _tools/"
+  ],
+  "steps": ["Generalize bake script", "Run via coplay execute_script", "Copy + validate in Godot"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD7",
+  "category": "feature",
+  "priority": 1,
+  "description": "NPC wandering: bipeds and quadrupeds become CharacterBody3D movers that pick random waypoints in the courtyard, walk toward them (walk clip, speed matched like the player), then idle 2-5s (bipeds: their original flavor clip; quads: their idle clip) and repeat. Collisions on so they don't pass through buildings or the player.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/bestiary.gd"],
+  "acceptance_criteria": [
+    "NPC positions change over time (two timed position dumps differ for most NPCs)",
+    "NPCs play walk while moving and their idle/flavor clip while stopped",
+    "NPCs collide with buildings (never inside a building AABB in position dumps)",
+    "No per-frame errors during a 15s run"
+  ],
+  "steps": ["Wander controller in bestiary.gd", "Speed-match walk clips", "Timed run verification"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD8",
+  "category": "feature",
+  "priority": 1,
+  "description": "Give the knight a sword from arsenal_kit_grimforge_v1 (models_glb/sword.glb) attached to the right hand bone (CC_Base_R_Hand) via BoneAttachment3D, scaled to the miniature knight, oriented grip-in-hand. Verify visually in idle, walk and run.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/player.gd", "products/grimforge_playable_demo_v1/kit/sword.glb"],
+  "acceptance_criteria": [
+    "sword.glb copied into the project and attached to CC_Base_R_Hand via BoneAttachment3D",
+    "Sword scale/orientation looks held (grip at palm, blade forward/down) in screenshots of idle and walk",
+    "Sword follows the hand through the walk cycle (two mid-walk screenshots)"
+  ],
+  "steps": ["Copy sword.glb", "BoneAttachment3D wiring + grip transform", "Screenshot verification"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD9",
+  "category": "fix",
+  "priority": 1,
+  "description": "Layout audit + fix per user: some buildings lack visible doors facing the courtyard, some are misaligned with the flagstone paths, and the castle wall ring has gaps (wall segment pitch does not close the perimeter; corners do not meet segments). Determine each building's door face from the kit gallery renders, rotate/reposition buildings so doors face paths, retile wall ring so segments + corners + gatehouse connect seamlessly, and align buildings to the tile grid.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/env.gd"],
+  "acceptance_criteria": [
+    "Wall ring continuous: no visible gaps between wall segments, corners, and gatehouse in a top-down screenshot",
+    "Every building's door face is visible from a courtyard path (per-building closeup screenshots or annotated top-down)",
+    "Buildings sit aligned to the tile grid (no diagonal offsets except intentional props)",
+    "Overview screenshot approved-quality: user-visible issues from feedback resolved"
+  ],
+  "steps": ["Audit gallery renders for door faces", "Fix wall tiling math", "Re-place buildings", "Screenshot iteration"],
+  "passes": false
+}
+```
+
+### Phase KD round 3 (user 2026-07-09): enter the keep -> interior scene
+
+```json
+{
+  "id": "KD10",
+  "category": "feature",
+  "priority": 1,
+  "description": "Build an isometric castle GREAT-HALL interior from castle_kit_grimforge_v1 parts (flagstone floor grid, perimeter walls with window pieces, an entrance arch, two pillar rows flanking a central aisle, a raised dais with stairs + statue/throne at the far end, braziers/torches/banners). Reuses env.gd's flat-normal + fixed-atlas treatment and box colliders. Built at runtime by scripts/interior.gd, same iso orthographic camera convention as the courtyard.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/interior.gd"],
+  "acceptance_criteria": [
+    "godot --headless import exits 0; interior renders (overview screenshot) as an enclosed hall: floor, four walls, entrance, pillars, dais",
+    "Walls/pillars/dais are solid (box colliders) so the player cannot pass through; floor non-solid",
+    "Textured correctly (fixed atlas, per-face normals) — no stripes/pillow-shading",
+    "No per-frame errors in a 5s run"
+  ],
+  "steps": ["Probe interior part footprints", "Author interior.gd hall layout", "Screenshot-iterate the hall"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD11",
+  "category": "feature",
+  "priority": 1,
+  "description": "Scene transition: walking the knight into the keep door swaps the world to the KD10 interior; walking into the interior exit returns to the courtyard. main.gd becomes a router that frees + rebuilds the world (courtyard | interior) and respawns the player at the matching entrance. Door triggers are Area3D zones (keep entrance in the courtyard, exit arch in the interior). Player + its follow camera rebuild per world.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/main.gd"],
+  "acceptance_criteria": [
+    "Driving the knight north into the keep door trigger swaps to the interior (verified: after the drive, an overview screenshot shows the interior hall with the player inside)",
+    "Driving into the interior exit trigger returns to the courtyard with the player near the keep door",
+    "Player is controllable (walk/run/sword) and collides with walls in BOTH worlds",
+    "No leaked nodes / per-frame errors across a transition (run log clean)"
+  ],
+  "steps": ["Router + free/rebuild in main.gd", "Keep entrance + interior exit Area3D triggers + spawns", "Drive-through verification both directions"],
+  "passes": false
+}
+```
+
+### Phase KD round 3b (user 2026-07-09): leave the front gate -> road -> town
+
+```json
+{
+  "id": "KD12",
+  "category": "feature",
+  "priority": 1,
+  "description": "Let the player leave the courtyard through the south gatehouse and walk a short road to a TOWN built from village_kit_grimforge_v1 pieces (cottages, houses, tavern, blacksmith, church, well, market, road/path tiles, fences, lampposts, trees, props). New world 'town' in main.gd's router. Courtyard gatehouse becomes passable; a gate trigger sends the player to the town; the town's road entrance returns to the courtyard just inside the gate. Town built by scripts/town.gd (its own texture atlas from the village kit — copied into town/), iso view, box colliders, door-facing verified like KD9.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/town.gd", "products/grimforge_playable_demo_v1/scripts/main.gd", "products/grimforge_playable_demo_v1/scripts/env.gd"],
+  "acceptance_criteria": [
+    "Driving the knight south into/through the gatehouse transitions to the town (TRANSITION courtyard -> town; overview shows the player on the town road with village buildings)",
+    "Town reads as a coherent settlement: a road/path spine, a square with a well/market, several village buildings whose doors face the road/square, fences/lampposts/trees",
+    "Town buildings/walls solid (player can't pass through); road/ground non-solid; textured correctly (village atlas)",
+    "Walking back up the town road returns to the courtyard just inside the gate; controllable + sword + collisions in the town; 0 per-frame errors across both transitions"
+  ],
+  "steps": ["Copy village pieces to town/ + probe footprints/door convention", "town.gd layout", "Router: gate trigger + passable gatehouse + town return", "Drive-through verification both ways", "Quality pass: gate + screenshots + commit"],
+  "passes": false
+}
+```
+
+### Phase KD round 4 (user 2026-07-10): new ActorCore attacks + WASD + normal walk
+
+```json
+{
+  "id": "KD13",
+  "category": "feature",
+  "priority": 1,
+  "description": "Bake 4 new ActorCore motion clips onto the revenant_knight AccuRIG rig in Unity (Humanoid retarget, binary FBX, Godot native ufbx): 01-normal-walk (new walk), atk_slashleft, atk_slashright, atk_2xcombo01. Sources in C:/Users/scher/Downloads/Actorcore-Unity-0710-*.zip (Motion/*.fbx). Validate each imports in Godot with its clip and a character-sized skeleton bbox.",
+  "files": ["products/grimforge_playable_demo_v1/chars/revenant_knight_normalwalk.fbx", "products/grimforge_playable_demo_v1/chars/revenant_knight_slashleft.fbx", "products/grimforge_playable_demo_v1/chars/revenant_knight_slashright.fbx", "products/grimforge_playable_demo_v1/chars/revenant_knight_2xcombo.fbx"],
+  "acceptance_criteria": [
+    "4 binary FBX in chars/, one named AnimStack each (walk/slashleft/slashright/combo)",
+    "Godot headless import exits 0; check_locomotion-style validation passes (bbox character-sized, no scramble)",
+    "Bake tool archived in _tools/"
+  ],
+  "steps": ["Extract Motion FBXs to Unity", "Bake onto knight", "Copy + validate in Godot"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "KD14",
+  "category": "feature",
+  "priority": 1,
+  "description": "Player controls: add WASD movement (alongside arrows), swap the walk clip to 01-normal-walk, and add one-shot attacks — J = slash left, L = slash right, K = double slash. Attacks play once (non-looping) then return to idle/move; movement input still read. Wire in player.gd + project.godot input actions.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/player.gd", "products/grimforge_playable_demo_v1/project.godot"],
+  "acceptance_criteria": [
+    "project.godot: move_up/left/down/right also bound to W/A/S/D; attack_left(J)/attack_right(L)/attack_combo(K) actions defined",
+    "Walking uses the new normal-walk clip (speed re-matched, no foot skating)",
+    "Pressing J/L/K plays the matching attack once then returns to idle/walk (verified via simulated input: PLAYER_STATE log shows attack then idle)",
+    "Knight still moves (WASD + arrows), runs (Shift), carries the sword; 0 per-frame errors"
+  ],
+  "steps": ["Input actions in project.godot", "player.gd: swap walk, attack state machine, WASD", "Simulated-input verification"],
+  "passes": false
+}
+```
+
+### Phase KDC (user 2026-07-10): creature combat — auto mode
+
+Design: combatants have max_hp/hp/damage/attack_range/attack_cooldown.
+Player attacks (picked in compare/PICKS.md): J=slash L=ss_attack2 K=ss_attack1
+N=ss_slash1 U=ss_slash3(deflect) Space=jump. Player death=sword&shield death,
+hit=sword&shield impact, revive=R. Creatures (7 humanoid bipeds) = enemies with
+mutant swiping (attack) + mutant dying (death), aggro/chase/attack AI + HP bars.
+
+```json
+{ "id": "KDC1", "category": "feature", "priority": 1,
+  "description": "Wire the picked player attacks + jump into player.gd: bake/move J=slash L=ss_attack2 K=ss_attack1 N=ss_slash1 U=ss_slash3 Space=jump into chars/, add input actions, one-shot attack state machine (play once -> return to idle/move; movement still read). WASD already/also added.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/player.gd", "products/grimforge_playable_demo_v1/project.godot"],
+  "acceptance_criteria": ["J/L/K/N/U/Space play their clips once then return to locomotion (verified via simulated input log)", "WASD + arrows both move; Shift runs; sword tracks the hand", "0 per-frame errors"],
+  "steps": ["Move picked clips to chars/", "input actions", "attack state machine"], "passes": false }
+```
+
+```json
+{ "id": "KDC2", "category": "feature", "priority": 1,
+  "description": "Player combat: HP (100), forward-arc damage on each attack's swing (J/N 15, L 20, K 25, U deflect), hit reaction (sword&shield impact) + i-frames on taking damage, death (sword&shield death) at 0 HP with control disabled, R to revive (full HP, idle). On-screen player HP bar. Bake player_death + player_impact.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/player.gd", "products/grimforge_playable_demo_v1/scripts/hud.gd"],
+  "acceptance_criteria": ["Attacks deal damage to creatures in a forward arc at the swing moment (verified: creature HP drops when struck)", "Player HP drops when a creature hits it; hit reaction plays; death at 0 HP disables control", "R revives to full HP + idle", "HP bar reflects current HP; 0 per-frame errors"],
+  "steps": ["Bake death+impact", "HP + arc hit detection", "death/revive R", "HP bar HUD"], "passes": false }
+```
+
+```json
+{ "id": "KDC3", "category": "feature", "priority": 1,
+  "description": "Creature combat: bake mutant swiping (attack) + mutant dying (death) onto the 7 humanoid bestiary bipeds (Unity retarget). enemy behavior in npc.gd: HP by type, aggro when player within range -> chase -> attack in range (swipe deals damage on cooldown) -> death anim at 0 HP then despawn. Small floating HP bar when hurt. Quads stay ambient.",
+  "files": ["products/grimforge_playable_demo_v1/scripts/npc.gd", "products/grimforge_playable_demo_v1/chars/"],
+  "acceptance_criteria": ["Bipeds chase the player when near, play swipe + deal damage in range (player HP drops)", "Struck bipeds lose HP, play death at 0 and despawn", "Floating HP bar shows over a hurt creature", "0 per-frame errors during a fight"],
+  "steps": ["Bake mutant swipe/die onto bipeds", "enemy AI + HP in npc.gd", "floating HP bar"], "passes": false }
+```
+
+```json
+{ "id": "KDC4", "category": "polish", "priority": 2,
+  "description": "Integrate + balance + verify a full fight across the demo: player kills creatures, creatures can kill player, revive works, combat present in courtyard/town. Tune damage/HP/ranges. README + gate + commit.",
+  "files": ["products/grimforge_playable_demo_v1/README.md"],
+  "acceptance_criteria": ["A scripted fight run: player attacks kill a creature; a creature kills the player; R revives; all logged with 0 errors", "README documents combat controls (J/L/K/N/U/Space/R) + mechanics", "gate passes; committed"],
+  "steps": ["Balance pass", "scripted fight verification", "README + gate + commit"], "passes": false }
+```

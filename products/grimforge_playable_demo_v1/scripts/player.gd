@@ -27,9 +27,9 @@ const WEAPON_BONE := "CC_Base_R_Hand"
 # The sword pivots around a grip node seated in the fist: _weapon_grip slides
 # the mesh so its handle (not its pommel) sits at the pivot, then _weapon_rot
 # aims it up-and-forward. All CLI-tunable: --wpos --wrot --wscale --wgrip.
-var _weapon_pos := Vector3(0.0, 0.02, 0.0)   # pivot offset from the hand bone
-var _weapon_grip := Vector3(0.0, -0.06, 0.0) # sword-local: move grip to pivot
-var _weapon_rot := Vector3(120.0, 0.0, 0.0)  # up-and-forward
+var _weapon_pos := Vector3(0.0, 0.02, 0.0)    # pivot offset from the hand bone
+var _weapon_grip := Vector3(0.0, -0.06, 0.0)  # sword-local: move grip to pivot
+var _weapon_rot := Vector3(120.0, 0.0, -35.0) # up-forward + angled outward (clears the body)
 var _weapon_scale := 0.8
 
 var _ap: AnimationPlayer
@@ -40,6 +40,13 @@ var _drive_left := 0.0       # seconds of simulated input remaining
 var _drive_actions: PackedStringArray = ["move_up"]
 var _force_run := false
 var _log_accum := 0.0
+
+# Attacks: physical keycode -> {anim, speed, dmg, len}. One-shot; while
+# _attack_timer > 0 the attack clip plays and locomotion anim is suppressed.
+var _attacks := {}
+var _attack_timer := 0.0
+var _fire_queue: Array = []   # simulated attack presses for headless testing
+var _fire_timer := 0.0
 
 func _ready() -> void:
 	_build_rig()
@@ -65,6 +72,10 @@ func _ready() -> void:
 				_drive_left = float(spec)
 		elif a == "--run":
 			_force_run = true
+		elif a.begins_with("--fire="):
+			# simulate attack presses for headless verification: --fire=j,k,l,space
+			for k in a.trim_prefix("--fire=").split(","):
+				_fire_queue.append(k.strip_edges())
 
 func _build_rig() -> void:
 	var idle_scene: PackedScene = load("res://chars/revenant_knight_idle.fbx")
@@ -96,17 +107,33 @@ func _build_rig() -> void:
 		push_warning("player: no AnimationPlayer in idle fbx")
 		return
 	_set_loop(_ap, "idle")
-	var has_walk := _merge_clip("res://chars/revenant_knight_walk.fbx", "walk", "loco")
-	var has_run := _merge_clip("res://chars/revenant_knight_run.fbx", "run", "run")
+	var has_walk := _merge_clip("res://chars/revenant_knight_walk.fbx", "walk", "loco", true)
+	var has_run := _merge_clip("res://chars/revenant_knight_run.fbx", "run", "run", true)
 	print("PLAYER_CLIPS idle walk=%s run=%s" % [has_walk, has_run])
+	# attacks (one-shot) + jump — see compare/PICKS.md
+	_merge_attack(KEY_J, "res://chars/knight_slash.fbx", "slash", "j", 1.3, 15.0)
+	_merge_attack(KEY_L, "res://chars/knight_ss_attack2.fbx", "ss_attack2", "l", 1.2, 20.0)
+	_merge_attack(KEY_K, "res://chars/knight_ss_attack1.fbx", "ss_attack1", "k", 1.1, 25.0)
+	_merge_attack(KEY_N, "res://chars/knight_ss_slash1.fbx", "ss_slash1", "n", 1.3, 15.0)
+	_merge_attack(KEY_U, "res://chars/knight_ss_slash3.fbx", "ss_slash3", "u", 1.2, 8.0)
+	_merge_attack(KEY_SPACE, "res://chars/knight_jump.fbx", "jump", "jmp", 1.2, 0.0)
+	print("PLAYER_ATTACKS %d wired" % _attacks.size())
 	_apply_weapon_overrides()
 	_attach_weapon()
 	_ap.play("idle")
 
+func _merge_attack(keycode: int, path: String, clip: String, lib: String, speed: float, dmg: float) -> void:
+	if not _merge_clip(path, clip, lib, false):
+		push_warning("player: attack merge failed %s" % clip)
+		return
+	var anim_name := "%s/%s" % [lib, clip]
+	var length: float = _ap.get_animation(anim_name).length if _ap.has_animation(anim_name) else 1.0
+	_attacks[keycode] = {"anim": anim_name, "speed": speed, "dmg": dmg, "len": length / maxf(speed, 0.01)}
+
 # Merge a clip from a twin FBX export into the idle rig's AnimationPlayer.
 # Remaps the clip's leading track-path segment to the target rig's prefix so
 # tracks resolve even when the two FBXs were baked with different root names.
-func _merge_clip(path: String, clip_name: String, lib_name: String) -> bool:
+func _merge_clip(path: String, clip_name: String, lib_name: String, loop: bool) -> bool:
 	var scene: PackedScene = load(path)
 	if scene == null:
 		return false
@@ -115,7 +142,7 @@ func _merge_clip(path: String, clip_name: String, lib_name: String) -> bool:
 	var ok := false
 	if aps.size() > 0 and (aps[0] as AnimationPlayer).has_animation(clip_name):
 		var anim: Animation = (aps[0] as AnimationPlayer).get_animation(clip_name).duplicate(true)
-		anim.loop_mode = Animation.LOOP_LINEAR
+		anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
 		var prefix := _rig_prefix(_rig)
 		if prefix != "":
 			_remap_track_prefix(anim, prefix)
@@ -196,6 +223,40 @@ func _remap_track_prefix(anim: Animation, target_prefix: String) -> void:
 			s += ":" + ":".join(subs)
 		anim.track_set_path(ti, NodePath(s))
 
+func _input(event: InputEvent) -> void:
+	if not (event is InputEventKey):
+		return
+	var ev := event as InputEventKey
+	if not ev.pressed or ev.echo:
+		return
+	if _attack_timer > 0.0:
+		return
+	if _attacks.has(ev.physical_keycode):
+		_start_attack(ev.physical_keycode)
+
+func _start_attack(keycode: int) -> void:
+	var a: Dictionary = _attacks[keycode]
+	_attack_timer = a["len"]
+	_state = "attack"
+	if _ap:
+		_ap.play(a["anim"], 0.08, a["speed"])
+	print("PLAYER_ATTACK %s" % a["anim"])
+
+const FIRE_KEYS := {
+	"j": KEY_J, "l": KEY_L, "k": KEY_K, "n": KEY_N, "u": KEY_U, "space": KEY_SPACE,
+}
+
+func _process(delta: float) -> void:
+	# drive the simulated attack queue (headless verification)
+	if _fire_queue.is_empty():
+		return
+	_fire_timer -= delta
+	if _fire_timer <= 0.0 and _attack_timer <= 0.0:
+		var key: String = _fire_queue.pop_front()
+		if FIRE_KEYS.has(key) and _attacks.has(FIRE_KEYS[key]):
+			_start_attack(FIRE_KEYS[key])
+			_fire_timer = _attacks[FIRE_KEYS[key]]["len"] + 0.4
+
 func _build_camera() -> void:
 	_cam = Camera3D.new()
 	_cam.projection = Camera3D.PROJECTION_ORTHOGONAL
@@ -232,7 +293,11 @@ func _physics_process(delta: float) -> void:
 	if moving and _rig:
 		var target_yaw := atan2(dir3.x, dir3.z)
 		_rig.rotation.y = lerp_angle(_rig.rotation.y, target_yaw, minf(TURN_SPEED * delta, 1.0))
-	_set_anim_state("run" if running else ("walk" if moving else "idle"))
+	# attacks play one-shot and suppress the locomotion anim until they finish
+	if _attack_timer > 0.0:
+		_attack_timer -= delta
+	else:
+		_set_anim_state("run" if running else ("walk" if moving else "idle"))
 	_update_camera()
 	_log_accum += delta
 	if _log_accum >= 0.5:
