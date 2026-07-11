@@ -215,18 +215,19 @@ func _deal_attack_damage() -> void:
 	var facing := Vector3(sin(_rig.rotation.y), 0.0, cos(_rig.rotation.y))
 	var half := deg_to_rad(ATTACK_ARC * 0.5)
 	var hits := 0
+	var nearest := 99.0
 	for e in get_tree().get_nodes_in_group("enemy"):
 		if not (e is Node3D) or not e.has_method("take_damage"):
 			continue
 		var to: Vector3 = (e as Node3D).global_position - global_position
 		to.y = 0.0
+		nearest = minf(nearest, to.length())
 		if to.length() > ATTACK_RANGE:
 			continue
 		if to.length() > 0.01 and facing.angle_to(to.normalized()) <= half:
 			e.take_damage(_pending_dmg)
 			hits += 1
-	if hits > 0:
-		print("PLAYER_HIT %d enemies for %.0f" % [hits, _pending_dmg])
+	print("PLAYER_HIT %d enemies dmg=%.0f (nearest=%.2f, range=%.2f)" % [hits, _pending_dmg, nearest, ATTACK_RANGE])
 
 func _merge_attack(keycode: int, path: String, clip: String, lib: String, speed: float, dmg: float) -> void:
 	if not _merge_clip(path, clip, lib, false):

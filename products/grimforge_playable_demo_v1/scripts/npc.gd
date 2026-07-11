@@ -34,6 +34,40 @@ var _walk_budget := 0.0
 var _rng := RandomNumberGenerator.new()
 var _log_accum := 0.0
 
+# Combat (bipeds with baked swipe+die become enemies)
+const AGGRO_RANGE := 5.5
+const ATTACK_RANGE := 1.05
+const ATTACK_COOLDOWN := 2.0
+const CHASE_MULT := 1.6
+const ENEMY_HP := {
+	"skeleton_warrior": 30.0, "ghoul": 40.0, "cultist": 25.0,
+	"plague_zombie": 35.0, "bone_golem": 80.0, "necromancer": 30.0, "imp": 20.0,
+	# no baked swipe/die clips — fight via the clip-less lunge below
+	"skeleton_mage": 45.0, "lich_king": 60.0,
+	"dire_rat": 15.0, "bone_hound": 30.0, "hell_hound": 40.0, "grave_boar": 45.0,
+}
+const ENEMY_DMG := {
+	"bone_golem": 18.0, "ghoul": 12.0, "lich_king": 15.0, "grave_boar": 14.0,
+	"hell_hound": 12.0, "skeleton_mage": 11.0, "dire_rat": 6.0,   # default 9
+}
+const LUNGE_LEN := 0.8   # clip-less attack duration for creatures with no swipe
+var _is_enemy := false
+var _fade_out := false   # death when no _die_clip: sink + shrink, then despawn
+var max_hp := 30.0
+var hp := 30.0
+var _dmg := 9.0
+var _swipe_clip := ""
+var _die_clip := ""
+var _dead := false
+var _atk_cd := 0.0
+var _swipe_timer := 0.0   # locked in the swipe anim
+var _swipe_hit := -1.0    # seconds until this swipe lands its damage
+var _despawn := -1.0
+var _hpbar: Node3D
+var _hpfill: MeshInstance3D
+var _hpbar_w := 0.6
+var _hpbar_show := 0.0
+
 func _ready() -> void:
 	collision_layer = 2   # NPCs on their own layer
 	collision_mask = 1    # collide with the environment (layer 1)
@@ -41,6 +75,14 @@ func _ready() -> void:
 	_rng.seed = hash(cfg.get("name", "npc"))
 	_build_visual()
 	_setup_collision()
+	# every creature is hostile; baked clips just decide the attack/death style
+	_is_enemy = cfg.get("hostile", true)
+	if _is_enemy:
+		add_to_group("enemy")
+		max_hp = ENEMY_HP.get(cfg.get("name", ""), 30.0)
+		hp = max_hp
+		_dmg = ENEMY_DMG.get(cfg.get("name", ""), 9.0)
+		_build_hpbar()
 	_pick_rest(_rng.randf_range(0.3, 1.5))
 
 func _build_visual() -> void:
@@ -77,6 +119,11 @@ func _build_visual() -> void:
 		_idle_clip = String(list[0]) if list.size() > 0 else ""
 		if ResourceLoader.exists("res://chars/%s_walk.fbx" % cname):
 			_merge_walk("res://chars/%s_walk.fbx" % cname)
+		# baked combat clips (if present) drive this enemy's attack/death;
+		# creatures without them fall back to a lunge + fade (see _ready)
+		if ResourceLoader.exists("res://chars/%s_swipe.fbx" % cname):
+			_swipe_clip = _merge_named("res://chars/%s_swipe.fbx" % cname, "swipe", "atk", false)
+			_die_clip = _merge_named("res://chars/%s_die.fbx" % cname, "die", "death", false)
 		# stride scales with the character; match the knight's tuned feel
 		_move_speed = KNIGHT_SPEED * (s / KNIGHT_SCALE)
 		_anim_speed = 2.0
@@ -118,6 +165,28 @@ func _merge_walk(path: String) -> void:
 		_walk_clip = "loco/walk"
 	tmp.free()
 
+# Merge any single clip into the rig's AnimationPlayer (track-prefix remapped),
+# returning its play name "lib/clip" or "" on failure.
+func _merge_named(path: String, clip: String, lib: String, loop: bool) -> String:
+	var scene: PackedScene = load(path)
+	if scene == null:
+		return ""
+	var tmp: Node3D = scene.instantiate()
+	var aps := _find_all(tmp, "AnimationPlayer")
+	var out := ""
+	if aps.size() > 0 and (aps[0] as AnimationPlayer).has_animation(clip):
+		var anim: Animation = (aps[0] as AnimationPlayer).get_animation(clip).duplicate(true)
+		anim.loop_mode = Animation.LOOP_LINEAR if loop else Animation.LOOP_NONE
+		var prefix := _rig_prefix(_rig)
+		if prefix != "":
+			_remap_track_prefix(anim, prefix)
+		var alib := AnimationLibrary.new()
+		alib.add_animation(clip, anim)
+		_ap.add_animation_library(lib, alib)
+		out = "%s/%s" % [lib, clip]
+	tmp.free()
+	return out
+
 # The name of the scene-root child that holds the Skeleton3D — the leading
 # segment every skeleton track path is relative to.
 func _rig_prefix(rig: Node) -> String:
@@ -156,6 +225,135 @@ func _find_skeleton(node: Node) -> Skeleton3D:
 			stack.push_back(c)
 	return null
 
+# --- combat ---
+
+func _build_hpbar() -> void:
+	var h: float = cfg.get("target_h", 0.8)
+	_hpbar = Node3D.new()
+	_hpbar.position = Vector3(0.0, h + 0.18, 0.0)
+	_hpbar.visible = false
+	add_child(_hpbar)
+	_hpbar.add_child(_bar_quad(_hpbar_w, Color(0.05, 0.05, 0.05), 0.001))
+	_hpfill = _bar_quad(_hpbar_w, Color(0.85, 0.15, 0.15), 0.002)
+	_hpbar.add_child(_hpfill)
+
+func _bar_quad(w: float, col: Color, z: float) -> MeshInstance3D:
+	var mi := MeshInstance3D.new()
+	var q := QuadMesh.new()
+	q.size = Vector2(w, 0.08)
+	mi.mesh = q
+	mi.position.z = z
+	var mat := StandardMaterial3D.new()
+	mat.albedo_color = col
+	mat.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+	mat.billboard_mode = BaseMaterial3D.BILLBOARD_ENABLED
+	mat.disable_receive_shadows = true
+	mi.material_override = mat
+	return mi
+
+func _update_hpbar() -> void:
+	if _hpfill == null:
+		return
+	var frac := clampf(hp / max_hp, 0.0, 1.0)
+	_hpfill.scale.x = frac
+	# keep the fill left-anchored as it shrinks (quad is centered)
+	_hpfill.position.x = -_hpbar_w * (1.0 - frac) * 0.5
+
+func take_damage(amount: float) -> void:
+	if _dead:
+		return
+	hp = maxf(hp - amount, 0.0)
+	_hpbar_show = 3.0
+	if _hpbar:
+		_hpbar.visible = true
+	_update_hpbar()
+	print("ENEMY_HURT %s -%.0f hp=%.0f" % [cfg.get("name", "?"), amount, hp])
+	if hp <= 0.0:
+		_die()
+
+func _die() -> void:
+	_dead = true
+	velocity = Vector3.ZERO
+	remove_from_group("enemy")
+	collision_layer = 0
+	if _hpbar:
+		_hpbar.visible = false
+	var die_len := 2.0
+	if _die_clip != "" and _ap and _ap.has_animation(_die_clip):
+		_ap.play(_die_clip, 0.1, 1.0)
+		die_len = _ap.get_animation(_die_clip).length
+	else:
+		# no baked death: sink into the ground and shrink out (handled in _physics_process)
+		_fade_out = true
+		die_len = 1.0
+	_despawn = die_len + 2.0
+	print("ENEMY_DEAD %s" % cfg.get("name", "?"))
+
+# Enemy behavior: chase the player when near, swipe when in range. Returns true
+# if combat is driving this frame (so the wander logic is skipped).
+func _combat_step(delta: float) -> bool:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not (player is Node3D):
+		return false
+	if "hp" in player and player.hp <= 0.0:
+		return false   # player dead -> stand down
+	# locked in an ongoing swipe
+	if _swipe_timer > 0.0:
+		velocity = Vector3.ZERO
+		_face(player.global_position, delta)
+		return true
+	var to: Vector3 = player.global_position - global_position
+	to.y = 0.0
+	var dist := to.length()
+	if dist > AGGRO_RANGE:
+		return false
+	if dist <= ATTACK_RANGE:
+		velocity = Vector3.ZERO
+		_face(player.global_position, delta)
+		if _atk_cd <= 0.0:
+			_start_swipe()
+		else:
+			_play(_idle_clip, 1.0)
+		return true
+	# chase
+	var dir := to / dist
+	velocity = dir * _move_speed * CHASE_MULT
+	move_and_slide()
+	_face(player.global_position, delta)
+	_play(_walk_clip, _anim_speed)
+	return true
+
+func _start_swipe() -> void:
+	_atk_cd = ATTACK_COOLDOWN
+	var len := LUNGE_LEN
+	if _swipe_clip != "" and _ap and _ap.has_animation(_swipe_clip):
+		_ap.play(_swipe_clip, 0.08, 1.2)
+		len = _ap.get_animation(_swipe_clip).length / 1.2
+	else:
+		# no baked swipe: a quick idle-posed lunge sells the bite/claw
+		_play(_idle_clip, 1.8)
+	_swipe_timer = len
+	_swipe_hit = len * 0.45
+
+func _deal_swipe_damage() -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not (player is Node3D) or not player.has_method("take_damage"):
+		return
+	var to: Vector3 = player.global_position - global_position
+	to.y = 0.0
+	if to.length() <= ATTACK_RANGE + 0.4:
+		player.take_damage(_dmg)
+
+func _face(target: Vector3, delta: float) -> void:
+	if _rig == null:
+		return
+	var to := target - global_position
+	to.y = 0.0
+	if to.length() < 0.01:
+		return
+	var yaw := atan2(to.x, to.z)
+	_rig.rotation.y = lerp_angle(_rig.rotation.y, yaw, minf(8.0 * delta, 1.0))
+
 func _setup_collision() -> void:
 	var h: float = cfg.get("target_h", 0.8)
 	var shape := CollisionShape3D.new()
@@ -169,6 +367,34 @@ func _setup_collision() -> void:
 func _physics_process(delta: float) -> void:
 	if _ap == null:
 		return
+	# dead: play out the death clip (or sink+shrink), then despawn
+	if _dead:
+		velocity = Vector3.ZERO
+		if _fade_out and _rig:
+			_rig.scale *= maxf(1.0 - delta * 1.4, 0.0)
+			position.y -= delta * 0.18
+		if _despawn >= 0.0:
+			_despawn -= delta
+			if _despawn < 0.0:
+				queue_free()
+		return
+	# combat timers
+	if _atk_cd > 0.0:
+		_atk_cd -= delta
+	if _swipe_timer > 0.0:
+		_swipe_timer -= delta
+	if _swipe_hit >= 0.0:
+		_swipe_hit -= delta
+		if _swipe_hit < 0.0:
+			_deal_swipe_damage()
+	if _hpbar_show > 0.0:
+		_hpbar_show -= delta
+		if _hpbar and _hpbar_show <= 0.0:
+			_hpbar.visible = false
+	# enemy AI takes over when the player is near
+	if _is_enemy and _combat_step(delta):
+		return
+
 	if not _mobile:
 		velocity = Vector3.ZERO
 		_play(_idle_clip, 1.0)
@@ -206,8 +432,9 @@ func _pick_waypoint() -> void:
 	var ang := _rng.randf() * TAU
 	var r := _rng.randf_range(1.0, WANDER_RADIUS)
 	var p := home + Vector2(cos(ang), sin(ang)) * r
-	p.x = clampf(p.x, -ARENA, ARENA)
-	p.y = clampf(p.y, -ARENA, ARENA)
+	var arena: Vector2 = cfg.get("arena", Vector2(ARENA, ARENA))
+	p.x = clampf(p.x, -arena.x, arena.x)
+	p.y = clampf(p.y, -arena.y, arena.y)
 	_target = Vector3(p.x, global_position.y, p.y)
 	_walk_budget = 6.0
 	_state = "walk"

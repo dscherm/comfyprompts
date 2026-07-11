@@ -99,15 +99,20 @@ func _build_world(world: String, spawn: Vector3) -> void:
 	add_child(root)
 	_world_root = root
 
+	var populate := not ("--flat" in OS.get_cmdline_user_args())
 	match world:
 		"interior":
 			root.add_child(InteriorBuilder.build())
+			if populate:
+				root.add_child(BestiaryBuilder.build("interior"))
 		"town":
 			root.add_child(TownBuilder.build())
+			if populate:
+				root.add_child(BestiaryBuilder.build("town"))
 		_:
 			root.add_child(EnvBuilder.build())
-			if not ("--flat" in OS.get_cmdline_user_args()):
-				root.add_child(BestiaryBuilder.build())
+			if populate:
+				root.add_child(BestiaryBuilder.build("courtyard"))
 
 	for ex in _world_exits(world):
 		var area := _make_trigger(ex)
