@@ -1,0 +1,114 @@
+{
+  "version": "2.0",
+  "project": {
+    "name": "grimforge-playable-demo",
+    "expertise": [
+      "gamedev"
+    ]
+  },
+  "stack": {
+    "languages": [
+      "python"
+    ],
+    "test_runner": {
+      "python": {
+        "command": "D:/Projects/comfyui-toolchain/.venv/Scripts/python.exe -m pytest",
+        "test_dir": "tests",
+        "targeted_flags": [
+          "-v",
+          "--tb=short"
+        ],
+        "full_flags": [
+          "-q",
+          "--tb=short"
+        ],
+        "ignore": []
+      }
+    },
+    "type_checker": null,
+    "linter": null
+  },
+  "gate": {
+    "test_map": {},
+    "shared_files": [
+      "scripts/npc.gd",
+      "scripts/player.gd",
+      "scripts/main.gd",
+      "scripts/bestiary.gd"
+    ],
+    "secrets_scan": true,
+    "denylist": [
+      "\\.env",
+      ".*\\.pem$",
+      ".*\\.key$",
+      "credentials\\.",
+      "id_rsa",
+      "id_ed25519"
+    ],
+    "manager_review": {
+      "enabled": false,
+      "model": "sonnet",
+      "trigger": "always",
+      "auto_approve_threshold": 3,
+      "escalation_patterns": [
+        "breaking-change"
+      ]
+    },
+    "blind_tdd": {
+      "enabled": false,
+      "enforcement": "warn",
+      "spawner": "manual",
+      "preflight": "off",
+      "test_dirs": []
+    }
+  },
+  "harness": {
+    "max_iterations": 20,
+    "gate_mode": "warn",
+    "gate_retries": 1,
+    "timeout_seconds": 1800,
+    "max_files_per_iteration": 20,
+    "consecutive_fail_threshold": 3,
+    "pre_commit_gate": false,
+    "local_manager_review": true,
+    "agent_model": {
+      "default": "sonnet",
+      "critical_tasks": "opus"
+    },
+    "pause_on_signals": [
+      "NEEDS_REVIEW",
+      "SPAWN_REQUESTED"
+    ]
+  },
+  "context": {
+    "recent_activity_count": 5,
+    "max_context_lines": 600,
+    "plan_file": "plan.md",
+    "activity_file": "activity.md",
+    "prompt_file": "PROMPT.md"
+  },
+  "memories": {
+    "enabled": true,
+    "max_entries": 15,
+    "max_bytes": 2048,
+    "staleness_threshold": 10
+  },
+  "observations": {
+    "enabled": true,
+    "sync_to_global": true
+  },
+  "alerts": {
+    "enabled": true,
+    "methods": [
+      "file"
+    ],
+    "alert_on": [
+      "gate_fail_3x",
+      "blocked",
+      "complete",
+      "timeout",
+      "needs_human"
+    ],
+    "alert_file": ".ralph/alerts.log"
+  }
+}
