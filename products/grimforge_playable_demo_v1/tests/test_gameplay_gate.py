@@ -157,3 +157,36 @@ def test_player_locomotion_animtree():
     assert ("state=walk" in out) or ("state=run" in out), (
         f"no walk/run locomotion state in the log — state machine not driving:\n{out[-1500:]}"
     )
+
+
+def test_hp_persists_across_worlds():
+    """Player HP persists across a world transition (G4) — no heal on travel.
+
+    Boot the courtyard (enemies attack at spawn -> PLAYER_HURT drops hp below
+    100), then drive the knight straight +Z into the south town gate. `down+left`
+    is pure +Z after the CAM_YAW=45 rotation, so he heads down the courtyard onto
+    the town exit trigger at z=+5.8 without drifting off its x-width. When the
+    router rebuilds the player in town it must resume the carried hp — not heal to
+    MAX_HP — so the town PLAYER_SPAWN reports hp < 100. A fresh courtyard boot, by
+    contrast, must start at full hp (GameState.reset() only on boot).
+    """
+    out = run_demo(["--drive=down+left:8"], quit_after=16.0, timeout=60.0)
+    assert_no_script_errors(out)
+
+    # Fresh game starts full: the initial courtyard spawn logs hp=100.
+    assert "PLAYER_SPAWN hp=100 world=courtyard" in out, (
+        f"fresh courtyard boot did not start at full hp:\n{out[-1500:]}"
+    )
+
+    # The knight actually crossed the courtyard->town boundary.
+    assert "TRANSITION courtyard -> town" in out, (
+        f"knight never reached the town transition trigger:\n{out[-1500:]}"
+    )
+
+    # The wounded knight resumes his hp in town (persisted, not healed).
+    m = re.search(r"PLAYER_SPAWN hp=(\d+) world=town", out)
+    assert m, f"no town PLAYER_SPAWN marker after the transition:\n{out[-1500:]}"
+    town_hp = int(m.group(1))
+    assert town_hp < 100, (
+        f"town spawn healed to {town_hp} — hp did not carry across the boundary:\n{out[-1500:]}"
+    )

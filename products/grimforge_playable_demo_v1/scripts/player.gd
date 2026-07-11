@@ -70,9 +70,17 @@ var _autorevive := false
 var _revive_timer := 0.0
 var _hp_fill: ColorRect
 var _hp_label: Label
+# Set by main.gd before add_child so the spawn log names the world the player
+# resumed into (courtyard/interior/town). hp persists across worlds via GameState.
+var world_name := "courtyard"
 
 func _ready() -> void:
 	add_to_group("player")
+	# Resume the carried hp/death state (GameState survives the world rebuild)
+	# instead of always healing to MAX_HP — wounds follow the knight between worlds.
+	hp = GameState.hp
+	_dead = GameState.dead
+	print("PLAYER_SPAWN hp=%d world=%s" % [int(hp), world_name])
 	_build_rig()
 	_build_camera()
 	_build_hud()
@@ -194,6 +202,7 @@ func take_damage(amount: float) -> void:
 		return
 	hp = maxf(hp - amount, 0.0)
 	_invuln = HIT_IFRAMES
+	_sync_state()
 	_update_hud()
 	print("PLAYER_HURT -%.0f hp=%.0f" % [amount, hp])
 	if hp <= 0.0:
@@ -208,6 +217,7 @@ func _die() -> void:
 	_attack_timer = 0.0
 	velocity = Vector3.ZERO
 	_state = "dead"
+	_sync_state()
 	if _ap and _ap.has_animation("death/pl_death"):
 		_play_oneshot("death/pl_death", 0.1, 1.0)
 	_update_hud()
@@ -218,6 +228,7 @@ func revive() -> void:
 	hp = MAX_HP
 	_invuln = 0.0
 	_state = "idle"
+	_sync_state()
 	if _sm:
 		_tree.active = true
 		_sm.start("idle")
@@ -225,6 +236,11 @@ func revive() -> void:
 		_ap.play("idle", 0.2)
 	_update_hud()
 	print("PLAYER_REVIVE hp=%.0f" % hp)
+
+# Persist hp + death state so a rebuilt player (on world transition) resumes them.
+func _sync_state() -> void:
+	GameState.hp = hp
+	GameState.dead = _dead
 
 # Deal the active swing's damage to enemies in a forward arc.
 func _deal_attack_damage() -> void:
@@ -462,6 +478,7 @@ func _physics_process(delta: float) -> void:
 	# test-only self damage to exercise death/revive (bypasses i-frames)
 	if _hurt_rate > 0.0 and not _dead:
 		hp = maxf(hp - _hurt_rate * delta, 0.0)
+		_sync_state()
 		_update_hud()
 		if hp <= 0.0:
 			_die()

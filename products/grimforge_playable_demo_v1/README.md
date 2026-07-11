@@ -37,6 +37,15 @@ router that frees + rebuilds the world and respawns the player):
 - **Village town** — walk out the south gatehouse onto a road that leads to a
   village; walk back up the road to return.
 
+**Health persists across worlds (no heal on travel).** The three areas are one
+continuous fight, so the knight's HP (and death state) carry over every
+transition — walking into a doorway is not a rest or a checkpoint. A `GameState`
+autoload (`scripts/game_state.gd`) holds the persistent hp/dead; the player reads
+it on spawn and writes back on every hp change, so the router's free-and-rebuild
+no longer heals the wounded. A brand-new game starts at full HP (`GameState.reset()`
+runs once on boot, never on a world rebuild). Each spawn logs `PLAYER_SPAWN hp=<n>
+world=<name>` so the carried health is observable in the stdout gate.
+
 ## Scene contents
 
 - **Environment** (`scripts/env.gd`): measured-pitch tile grid (cobble court,

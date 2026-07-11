@@ -74,7 +74,7 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Verify via harness: drive courtyard (take damage) -> town; assert the carried hp is < 100 on arrival",
     "Add tests/test_gameplay_gate.py::test_hp_persists_across_worlds"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

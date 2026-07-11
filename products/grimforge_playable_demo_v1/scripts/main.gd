@@ -31,6 +31,9 @@ func _ready() -> void:
 		start = "interior"
 	elif "--town" in args:
 		start = "town"
+	# Fresh game starts at full hp. reset() runs ONCE here on boot — never in
+	# _build_world — so world transitions preserve the carried hp/death state.
+	GameState.reset()
 	_build_world(start, _default_spawn(start))
 	_handle_cli()
 
@@ -124,6 +127,7 @@ func _build_world(world: String, spawn: Vector3) -> void:
 		_player.name = "Player"
 		_player.set_script(PlayerScript)
 		_player.position = spawn
+		_player.set("world_name", world)   # names the world in the PLAYER_SPAWN log
 		add_child(_player)
 	_cooldown = 0.3   # brief settle so physics registers the new player before polling
 
