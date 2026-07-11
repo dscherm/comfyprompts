@@ -2,3 +2,9 @@
 _shots/
 *.import
 *.uid
+
+# The repo root ignores *.fbx globally; this is a shipped, self-contained
+# product, so re-include the demo's baked character/animation FBXs.
+!*.fbx
+# ...but the compare/ FBXs are dev A/B-comparison artifacts, keep them local.
+compare/*.fbx
