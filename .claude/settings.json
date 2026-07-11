@@ -29,39 +29,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/compact_memories.py\" --check-only"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
             "command": "python \"D:/Projects/ralph-universal/tools/cost_by_phase.py\" --project-dir . --format jsonl"
-          }
-        ]
-      },
-      {
-        "hooks": [
-          {
-            "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/compact_memories.py\" --check-only"
           }
         ]
       }
@@ -102,6 +70,15 @@
             "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/bash_telemetry.py\""
           }
         ]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/blind_tdd_bash_guard.py\""
+          }
+        ]
       }
     ],
     "PostToolUse": [
@@ -131,6 +108,14 @@
             "command": "python \"D:/Projects/unpossible-ralph/tools/write_handoff.py\""
           }
         ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"D:/Projects/ralph-universal/tools/reflect_prompt.py\" --project-dir ."
+          }
+        ]
       }
     ],
     "PreCompact": [
@@ -153,5 +138,8 @@
         ]
       }
     ]
+  },
+  "env": {
+    "OMC_SKIP_HOOKS": "keyword-detector"
   }
 }
