@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_def.gd" id="1_tiw72"]
+
+[resource]
+script = ExtResource("1_tiw72")
+id = "ghoul"
+target_h = 0.75
+hp = 40.0
+dmg = 12.0
+home = Vector2(-4, 1.5)

@@ -108,3 +108,24 @@ def test_enemies_navigate_around_building():
     assert "PLAYER_HURT" in out, (
         f"no enemy navigated around the buildings to reach the knight:\n{out[-1500:]}"
     )
+
+
+def test_enemy_stats_from_resources():
+    """Damage now comes from the EnemyDef .tres resources, not hardcoded dicts.
+
+    Drive the courtyard so the ghoul (dmg 12) reaches the knight, and the town so
+    the dire_rat (dmg 6) does. Each enemy prints its own damage in the PLAYER_HURT
+    line, so the exact tokens '-12' and '-6' prove those creatures' resource values
+    flow through unchanged — the test fails if the refactor silently altered them.
+    """
+    court = run_demo(["--drive=up:6"], quit_after=14.0, timeout=60.0)
+    assert_no_script_errors(court)
+    assert "PLAYER_HURT -12" in court, (
+        f"ghoul's resource damage (12) did not reach the knight:\n{court[-1500:]}"
+    )
+
+    town = run_demo(["--town", "--drive=left:5"], quit_after=14.0, timeout=60.0)
+    assert_no_script_errors(town)
+    assert "PLAYER_HURT -6" in town, (
+        f"dire_rat's resource damage (6) did not reach the knight:\n{town[-1500:]}"
+    )

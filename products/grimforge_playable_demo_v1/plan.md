@@ -39,7 +39,7 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Verify via harness: all three worlds spawn the same rosters and the same combat markers (PLAYER_HURT damage values unchanged) — a pure refactor, behavior identical",
     "Add tests/test_gameplay_gate.py::test_enemy_stats_from_resources asserting a known creature's damage value still appears (e.g. ghoul -12, dire_rat -6)"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

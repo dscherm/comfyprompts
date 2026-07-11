@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_def.gd" id="1_t7an7"]
+
+[resource]
+script = ExtResource("1_t7an7")
+id = "skeleton_mage"
+hp = 45.0
+dmg = 11.0
+world = "interior"
+home = Vector2(-2, -2.4)

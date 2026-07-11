@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_def.gd" id="1_ifjja"]
+
+[resource]
+script = ExtResource("1_ifjja")
+id = "grave_boar"
+kind = "quad"
+target_h = 0.45
+hp = 45.0
+dmg = 14.0
+world = "town"
+home = Vector2(-3, 4)

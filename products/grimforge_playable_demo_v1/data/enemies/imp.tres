@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_def.gd" id="1_aso1j"]
+
+[resource]
+script = ExtResource("1_aso1j")
+id = "imp"
+target_h = 0.5
+hp = 20.0
+home = Vector2(4, 2.2)

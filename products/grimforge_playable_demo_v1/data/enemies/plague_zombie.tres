@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_def.gd" id="1_hs63l"]
+
+[resource]
+script = ExtResource("1_hs63l")
+id = "plague_zombie"
+target_h = 0.78
+hp = 35.0
+home = Vector2(-2.5, -2)

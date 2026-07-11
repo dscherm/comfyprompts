@@ -40,17 +40,9 @@ const AGGRO_RANGE := 5.5
 const ATTACK_RANGE := 1.05
 const ATTACK_COOLDOWN := 2.0
 const CHASE_MULT := 1.6
-const ENEMY_HP := {
-	"skeleton_warrior": 30.0, "ghoul": 40.0, "cultist": 25.0,
-	"plague_zombie": 35.0, "bone_golem": 80.0, "necromancer": 30.0, "imp": 20.0,
-	# no baked swipe/die clips — fight via the clip-less lunge below
-	"skeleton_mage": 45.0, "lich_king": 60.0,
-	"dire_rat": 15.0, "bone_hound": 30.0, "hell_hound": 40.0, "grave_boar": 45.0,
-}
-const ENEMY_DMG := {
-	"bone_golem": 18.0, "ghoul": 12.0, "lich_king": 15.0, "grave_boar": 14.0,
-	"hell_hound": 12.0, "skeleton_mage": 11.0, "dire_rat": 6.0,   # default 9
-}
+# HP/DMG now arrive via cfg from the EnemyDef resource (data/enemies/*.tres),
+# injected by bestiary.gd. Defaults below (30 hp / 9 dmg) only apply if a def
+# omits them.
 const LUNGE_LEN := 0.8   # clip-less attack duration for creatures with no swipe
 var _is_enemy := false
 var _fade_out := false   # death when no _die_clip: sink + shrink, then despawn
@@ -81,9 +73,9 @@ func _ready() -> void:
 	_is_enemy = cfg.get("hostile", true)
 	if _is_enemy:
 		add_to_group("enemy")
-		max_hp = ENEMY_HP.get(cfg.get("name", ""), 30.0)
+		max_hp = cfg.get("hp", 30.0)
 		hp = max_hp
-		_dmg = ENEMY_DMG.get(cfg.get("name", ""), 9.0)
+		_dmg = cfg.get("dmg", 9.0)
 		_build_hpbar()
 	_pick_rest(_rng.randf_range(0.3, 1.5))
 

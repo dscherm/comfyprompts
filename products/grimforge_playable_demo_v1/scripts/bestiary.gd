@@ -18,45 +18,48 @@ const ARENA := {
 	"town": Vector2(6.0, 8.0),
 }
 
-# world -> [name, kind, target_h (m), home (x, z)]. The 13-creature roster is
-# split 5/5/3 so each world is a distinct fight.
-const POP := {
-	"courtyard": [
-		["skeleton_warrior", "biped", 0.80, Vector2(0.7, 3.0)],
-		["ghoul", "biped", 0.75, Vector2(-4.0, 1.5)],
-		["plague_zombie", "biped", 0.78, Vector2(-2.5, -2.0)],
-		["imp", "biped", 0.50, Vector2(4.0, 2.2)],
-		["bone_hound", "quad", 0.45, Vector2(3.0, -2.5)],
-	],
-	# Keep great hall — a throne-room gauntlet: golem + acolyte mid-hall,
-	# the casters holding the dais at the north (-Z) end.
-	"interior": [
-		["bone_golem", "biped", 1.10, Vector2(0.0, 1.5)],
-		["cultist", "biped", 0.80, Vector2(-1.6, 2.5)],
-		["necromancer", "biped", 0.85, Vector2(0.0, -3.0)],
-		["skeleton_mage", "biped", 0.80, Vector2(-2.0, -2.4)],
-		["lich_king", "biped", 0.95, Vector2(2.0, -2.4)],
-	],
-	# Village — roaming beasts ambush the player along the road/square.
-	"town": [
-		["dire_rat", "quad", 0.25, Vector2(-1.5, -3.0)],
-		["hell_hound", "quad", 0.50, Vector2(2.0, 0.5)],
-		["grave_boar", "quad", 0.45, Vector2(-3.0, 4.0)],
-	],
-}
+# The 13-creature roster now lives as EnemyDef resources under data/enemies/
+# (one .tres per creature), split 5/5/3 so each world is a distinct fight. A new
+# enemy is a new data file, not a code edit. Stats/kind/home/world all come from
+# the resource; per-world wander bounds stay in ARENA above.
+const ENEMY_DIR := "res://data/enemies"
 
 static func build(world := "courtyard") -> Node3D:
 	var root := Node3D.new()
 	root.name = "Bestiary"
 	var arena: Vector2 = ARENA.get(world, Vector2(6.0, 6.0))
-	for e in POP.get(world, []):
-		_spawn_npc(root, e[0], e[1], e[2], e[3], arena)
+	for def in _load_defs():
+		if def.world != world:
+			continue
+		_spawn_npc(root, def, arena)
 	return root
 
-static func _spawn_npc(parent: Node3D, cname: String, kind: String, target_h: float, home: Vector2, arena: Vector2) -> void:
+# Load every EnemyDef under data/enemies/, sorted by id for deterministic spawn
+# order across verification runs.
+static func _load_defs() -> Array:
+	var defs: Array = []
+	var dir := DirAccess.open(ENEMY_DIR)
+	if dir == null:
+		push_warning("bestiary: cannot open %s" % ENEMY_DIR)
+		return defs
+	var names := dir.get_files()
+	names.sort()
+	for f in names:
+		if not f.ends_with(".tres"):
+			continue
+		var def: Resource = load("%s/%s" % [ENEMY_DIR, f])
+		if def != null:
+			defs.append(def)
+	return defs
+
+static func _spawn_npc(parent: Node3D, def: Resource, arena: Vector2) -> void:
 	var npc := CharacterBody3D.new()
-	npc.name = cname
+	npc.name = def.id
 	npc.set_script(NpcScript)
-	npc.cfg = {"name": cname, "kind": kind, "target_h": target_h, "home": home, "arena": arena}
-	npc.position = Vector3(home.x, 0.1, home.y)  # floor tile tops sit at ~0.1
+	npc.cfg = {
+		"name": def.id, "kind": def.kind, "target_h": def.target_h,
+		"home": def.home, "arena": arena,
+		"hp": def.hp, "dmg": def.dmg, "hostile": def.hostile,
+	}
+	npc.position = Vector3(def.home.x, 0.1, def.home.y)  # floor tile tops sit at ~0.1
 	parent.add_child(npc)

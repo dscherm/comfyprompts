@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_def.gd" id="1_a0xky"]
+
+[resource]
+script = ExtResource("1_a0xky")
+id = "cultist"
+hp = 25.0
+world = "interior"
+home = Vector2(-1.6, 2.5)
