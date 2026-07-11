@@ -13,7 +13,9 @@ hard-fail the suite.
 
 from __future__ import annotations
 
+import math
 import os
+import re
 import subprocess
 from pathlib import Path
 
@@ -128,4 +130,30 @@ def test_enemy_stats_from_resources():
     assert_no_script_errors(town)
     assert "PLAYER_HURT -6" in town, (
         f"dire_rat's resource damage (6) did not reach the knight:\n{town[-1500:]}"
+    )
+
+
+def test_player_locomotion_animtree():
+    """Locomotion is driven by the AnimationTree state machine (G3).
+
+    Drive the knight and assert the state machine actually animates and moves
+    him: the run boots without a script/parse error, the structured log shows a
+    'walk' (or 'run') locomotion state, and PLAYER_POS advances well clear of
+    spawn — proving the AnimationTree replaced the manual _ap.play() calls
+    without freezing movement.
+    """
+    out = run_demo(["--drive=up:4"], quit_after=6.0, timeout=45.0)
+    assert_no_script_errors(out)
+
+    positions = [
+        (float(m.group(1)), float(m.group(2)))
+        for m in re.finditer(r"PLAYER_POS (-?\d+\.\d+),(-?\d+\.\d+)", out)
+    ]
+    assert len(positions) >= 2, f"no PLAYER_POS telemetry to measure movement:\n{out[-1500:]}"
+    spawn = positions[0]
+    moved = max(math.hypot(px - spawn[0], pz - spawn[1]) for px, pz in positions)
+    assert moved > 0.5, f"knight barely moved under drive ({moved:.2f} units):\n{out[-1500:]}"
+
+    assert ("state=walk" in out) or ("state=run" in out), (
+        f"no walk/run locomotion state in the log — state machine not driving:\n{out[-1500:]}"
     )

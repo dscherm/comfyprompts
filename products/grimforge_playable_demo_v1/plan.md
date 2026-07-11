@@ -56,7 +56,8 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Verify via harness: --drive still moves the knight, locomotion animates, no SCRIPT ERROR",
     "Add tests/test_gameplay_gate.py::test_player_locomotion_root_motion asserting PLAYER_POS advances under --drive and no error tokens"
   ],
-  "passes": false
+  "passes": true,
+  "note": "AnimationTree state machine shipped + gate-green + visually confirmed. Root motion found NOT viable: the revenant_knight walk/run clips were baked in-place (hip net horizontal travel ~0.02u; run hip identical first=last), so get_root_motion_position() is ~zero. Foot-skate remains speed-matched (WALK_ANIM_SPEED). The skate fix requires re-baked clips with root translation — spun out to G6."
 }
 ```
 
@@ -89,6 +90,22 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Tune damage/speed/cooldown so ranged chip damage is fair vs melee",
     "Verify via harness: in the keep, the knight takes damage from beyond melee range (PLAYER_HURT while dist-to-nearest-caster > ATTACK_RANGE)",
     "Add tests/test_gameplay_gate.py::test_caster_ranged_damage"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "G6",
+  "category": "feature",
+  "priority": "LOW",
+  "description": "Fix the player foot-skate at the source: re-bake the revenant_knight walk/run locomotion clips WITH root translation (currently baked in-place, so G3's AnimationTree could not use root motion). This is an asset-pipeline task (Unity re-bake of the ActorCore walk/run onto the AccuRIG knight with root motion enabled, re-export FBX), not a code task. Once the clips carry hip travel, wire the AnimationTree root_motion_track and drive velocity from get_root_motion_position(), removing WALK_ANIM_SPEED. BLOCKED pending a user decision to spend the re-bake — the demo currently looks fine speed-matched.",
+  "steps": [
+    "Decision gate: confirm the re-bake is worth it vs. the current speed-matched look",
+    "Re-bake walk + run onto the knight rig with root motion (Unity, _tools/bake_*_locomotion.cs) and re-export the FBX",
+    "Set the AnimationTree root_motion_track to the hip; drive velocity from get_root_motion_position() * rig_scale; remove WALK_ANIM_SPEED",
+    "Verify feet track the ground via measure_walk.gd; gate stays green"
   ],
   "passes": false
 }

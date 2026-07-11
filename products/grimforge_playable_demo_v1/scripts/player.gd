@@ -33,6 +33,13 @@ var _weapon_rot := Vector3(120.0, 0.0, -35.0) # up-forward + angled outward (cle
 var _weapon_scale := 0.8
 
 var _ap: AnimationPlayer
+# Locomotion (idle/walk/run) is driven by an AnimationTree state machine.
+# One-shot clips (attacks/hit/death) still play on the raw AnimationPlayer with
+# the tree temporarily deactivated — see _play_oneshot / _set_anim_state.
+var _tree: AnimationTree
+var _sm: AnimationNodeStateMachinePlayback
+var _has_walk := false
+var _has_run := false
 var _cam: Camera3D
 var _rig: Node3D
 var _state := "idle"
@@ -131,6 +138,14 @@ func _build_rig() -> void:
 	_set_loop(_ap, "idle")
 	var has_walk := _merge_clip("res://chars/revenant_knight_walk.fbx", "walk", "loco", true)
 	var has_run := _merge_clip("res://chars/revenant_knight_run.fbx", "run", "run", true)
+	# The walk/run clips are baked "in place" (no root-motion translation — see
+	# diag_rootmotion.gd), so ground speed still comes from WALK_SPEED/RUN_SPEED.
+	# Bake the skate-compensation playback speed into the clips so the state
+	# machine reproduces today's foot-matched look at its native 1.0x rate.
+	if has_walk:
+		_retime_clip("loco/walk", WALK_ANIM_SPEED)
+	if has_run:
+		_retime_clip("run/run", RUN_ANIM_SPEED)
 	print("PLAYER_CLIPS idle walk=%s run=%s" % [has_walk, has_run])
 	# attacks (one-shot) + jump — see compare/PICKS.md
 	_merge_attack(KEY_J, "res://chars/knight_slash.fbx", "slash", "j", 1.3, 15.0)
@@ -144,7 +159,7 @@ func _build_rig() -> void:
 	_merge_clip("res://chars/knight_pl_impact.fbx", "pl_impact", "hit", false)
 	_apply_weapon_overrides()
 	_attach_weapon()
-	_ap.play("idle")
+	_build_anim_tree(has_walk, has_run)
 
 func _build_hud() -> void:
 	var layer := CanvasLayer.new()
@@ -186,7 +201,7 @@ func take_damage(amount: float) -> void:
 	elif _ap and _ap.has_animation("hit/pl_impact"):
 		_attack_timer = 0.0
 		_state = "hit"
-		_ap.play("hit/pl_impact", 0.05, 1.4)
+		_play_oneshot("hit/pl_impact", 0.05, 1.4)
 
 func _die() -> void:
 	_dead = true
@@ -194,7 +209,7 @@ func _die() -> void:
 	velocity = Vector3.ZERO
 	_state = "dead"
 	if _ap and _ap.has_animation("death/pl_death"):
-		_ap.play("death/pl_death", 0.1, 1.0)
+		_play_oneshot("death/pl_death", 0.1, 1.0)
 	_update_hud()
 	print("PLAYER_DEAD")
 
@@ -203,7 +218,10 @@ func revive() -> void:
 	hp = MAX_HP
 	_invuln = 0.0
 	_state = "idle"
-	if _ap:
+	if _sm:
+		_tree.active = true
+		_sm.start("idle")
+	elif _ap:
 		_ap.play("idle", 0.2)
 	_update_hud()
 	print("PLAYER_REVIVE hp=%.0f" % hp)
@@ -259,6 +277,57 @@ func _merge_clip(path: String, clip_name: String, lib_name: String, loop: bool) 
 		ok = true
 	tmp.free()
 	return ok
+
+# Bake a playback-speed multiplier into a merged loop clip by scaling every
+# key time (and the clip length) by 1/factor — so playing it at the tree's
+# native 1.0x reproduces the old _ap.play(clip, _, factor) look. The clips are
+# in-place (no root motion), so this speed-match is what keeps feet on the
+# ground. Scaling all keys by the same factor preserves their ordering.
+func _retime_clip(anim_name: String, factor: float) -> void:
+	if factor == 1.0 or _ap == null or not _ap.has_animation(anim_name):
+		return
+	var anim := _ap.get_animation(anim_name)
+	for ti in range(anim.get_track_count()):
+		for ki in range(anim.track_get_key_count(ti) - 1, -1, -1):
+			anim.track_set_key_time(ti, ki, anim.track_get_key_time(ti, ki) / factor)
+	anim.length = anim.length / factor
+
+# Build the AnimationTree + idle/walk/run state machine in code. Falls back to
+# the raw AnimationPlayer (idle) if the tree can't be built.
+func _build_anim_tree(has_walk: bool, has_run: bool) -> void:
+	if _ap == null:
+		return
+	var sm := AnimationNodeStateMachine.new()
+	var states := [["idle", "idle"]]
+	if has_walk:
+		states.append(["walk", "loco/walk"])
+	if has_run:
+		states.append(["run", "run/run"])
+	var i := 0
+	for st in states:
+		var na := AnimationNodeAnimation.new()
+		na.animation = st[1]
+		sm.add_node(st[0], na, Vector2(200 + i * 200, 100))
+		i += 1
+	# fully-connected immediate cross-fades (blend ~0.15s, matching the old plays)
+	for a in states:
+		for b in states:
+			if a[0] == b[0]:
+				continue
+			var tr := AnimationNodeStateMachineTransition.new()
+			tr.switch_mode = AnimationNodeStateMachineTransition.SWITCH_MODE_IMMEDIATE
+			tr.xfade_time = 0.15
+			sm.add_transition(a[0], b[0], tr)
+	_tree = AnimationTree.new()
+	add_child(_tree)
+	_tree.anim_player = _tree.get_path_to(_ap)
+	_tree.tree_root = sm
+	_tree.active = true
+	_sm = _tree.get("parameters/playback")
+	_sm.start("idle")
+	_state = "idle"
+	_has_walk = has_walk
+	_has_run = has_run
 
 func _apply_weapon_overrides() -> void:
 	for a in OS.get_cmdline_user_args():
@@ -349,8 +418,7 @@ func _start_attack(keycode: int) -> void:
 	var a: Dictionary = _attacks[keycode]
 	_attack_timer = a["len"]
 	_state = "attack"
-	if _ap:
-		_ap.play(a["anim"], 0.08, a["speed"])
+	_play_oneshot(a["anim"], 0.08, a["speed"])
 	# the swing lands ~40% into the clip (jump deals no damage)
 	if a["dmg"] > 0.0:
 		_damage_pending = a["len"] * 0.4
@@ -442,23 +510,43 @@ func _physics_process(delta: float) -> void:
 		_log_accum = 0.0
 		print("PLAYER_POS %.2f,%.2f state=%s" % [global_position.x, global_position.z, _state])
 
+# Drive locomotion through the AnimationTree state machine. _state stays the
+# logical state (idle/walk/run) for the PLAYER_POS log even when a missing clip
+# forces a visual fall-back to a lower gear.
 func _set_anim_state(s: String) -> void:
-	if s == _state or _ap == null:
+	if _sm == null:
+		# fallback: raw AnimationPlayer if the tree never built
+		if s == _state or _ap == null:
+			return
+		_state = s
+		var clip := "idle"
+		if s == "run" and _ap.has_animation("run/run"):
+			clip = "run/run"
+		elif s != "idle" and _ap.has_animation("loco/walk"):
+			clip = "loco/walk"
+		_ap.play(clip, 0.2)
 		return
+	# re-arm the tree if a one-shot (attack/hit) deactivated it
+	if not _tree.active:
+		_tree.active = true
+	if s == _state:
+		return
+	var target := s
+	if target == "run" and not _has_run:
+		target = "walk"
+	if target == "walk" and not _has_walk:
+		target = "idle"
 	_state = s
-	match s:
-		"run":
-			if _ap.has_animation("run/run"):
-				_ap.play("run/run", 0.15, RUN_ANIM_SPEED)
-			elif _ap.has_animation("loco/walk"):
-				_ap.play("loco/walk", 0.15, WALK_ANIM_SPEED)
-		"walk":
-			if _ap.has_animation("loco/walk"):
-				_ap.play("loco/walk", 0.2, WALK_ANIM_SPEED)
-			else:
-				_ap.play("idle", 0.2)
-		_:
-			_ap.play("idle", 0.2)
+	_sm.travel(target)
+
+# Play a one-shot clip (attack/hit/death) on the raw AnimationPlayer,
+# deactivating the tree so it doesn't fight for the skeleton. The tree is
+# re-armed by the next _set_anim_state (locomotion) or by revive().
+func _play_oneshot(anim: String, blend: float, speed: float) -> void:
+	if _tree and _tree.active:
+		_tree.active = false
+	if _ap:
+		_ap.play(anim, blend, speed)
 
 func _set_loop(ap: AnimationPlayer, name: String) -> void:
 	if ap.has_animation(name):
