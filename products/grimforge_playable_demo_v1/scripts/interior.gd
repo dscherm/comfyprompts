@@ -19,7 +19,7 @@ static func entrance_point() -> Vector3:
 	return Vector3(0.0, 0.1, float(D) * 0.5 - 1.5)
 
 static func build() -> Node3D:
-	var root := Node3D.new()
+	var root := EnvBuilder._make_nav_region()
 	root.name = "Interior"
 
 	var tile := load("res://kit/floor_flagstone.glb")

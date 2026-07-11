@@ -26,6 +26,7 @@ var _idle_clip := ""
 var _move_speed := 0.4
 var _anim_speed := 1.0
 var _mobile := false
+var _agent: NavigationAgent3D   # paths around building/wall footprints
 
 var _state := "rest"
 var _rest_left := 0.0
@@ -75,6 +76,7 @@ func _ready() -> void:
 	_rng.seed = hash(cfg.get("name", "npc"))
 	_build_visual()
 	_setup_collision()
+	_setup_agent()
 	# every creature is hostile; baked clips just decide the attack/death style
 	_is_enemy = cfg.get("hostile", true)
 	if _is_enemy:
@@ -315,8 +317,8 @@ func _combat_step(delta: float) -> bool:
 		else:
 			_play(_idle_clip, 1.0)
 		return true
-	# chase
-	var dir := to / dist
+	# chase — route around buildings/walls via the navmesh
+	var dir := _nav_dir(player.global_position)
 	velocity = dir * _move_speed * CHASE_MULT
 	move_and_slide()
 	_face(player.global_position, delta)
@@ -363,6 +365,45 @@ func _setup_collision() -> void:
 	shape.shape = capsule
 	shape.position = Vector3(0.0, h * 0.5, 0.0)
 	add_child(shape)
+
+# NavigationAgent3D lets this NPC path around building/wall footprints (baked
+# into the world's NavigationRegion3D at runtime) instead of sliding along them.
+func _setup_agent() -> void:
+	_agent = NavigationAgent3D.new()
+	_agent.radius = 0.2                                  # matches the navmesh agent radius
+	_agent.height = maxf(cfg.get("target_h", 0.8), 0.3)
+	_agent.path_desired_distance = 0.3
+	_agent.target_desired_distance = 0.25
+	_agent.avoidance_enabled = false                     # capsule colliders handle NPC-vs-NPC
+	add_child(_agent)
+
+# Flat, normalized direction to move toward dest, routed around obstacles via the
+# navmesh. During the brief post-bake window (map not yet synced) or when the
+# target is directly reachable, this degrades to steering straight at the target —
+# identical to the pre-nav behavior, so combat never stalls waiting on the bake.
+func _nav_dir(dest: Vector3) -> Vector3:
+	var flat := Vector3(dest.x, global_position.y, dest.z)
+	if _agent == null:
+		return _straight_dir(flat)
+	_agent.target_position = flat
+	var map := _agent.get_navigation_map()
+	if not map.is_valid() or NavigationServer3D.map_get_iteration_id(map) == 0:
+		return _straight_dir(flat)   # navmesh not baked/synced yet
+	if _agent.is_navigation_finished():
+		return _straight_dir(flat)
+	var nxt := _agent.get_next_path_position()
+	var d := nxt - global_position
+	d.y = 0.0
+	if d.length() < 0.001:
+		return _straight_dir(flat)
+	return d.normalized()
+
+func _straight_dir(target: Vector3) -> Vector3:
+	var d := target - global_position
+	d.y = 0.0
+	if d.length() < 0.001:
+		return Vector3.ZERO
+	return d.normalized()
 
 func _physics_process(delta: float) -> void:
 	if _ap == null:
@@ -414,10 +455,10 @@ func _physics_process(delta: float) -> void:
 		if dist < ARRIVE_DIST or _walk_budget <= 0.0:
 			_pick_rest(_rng.randf_range(2.0, 5.0))
 		else:
-			var dir := to / dist
+			var dir := _nav_dir(_target)
 			velocity = dir * _move_speed
 			move_and_slide()
-			if _rig:
+			if _rig and dir.length() > 0.01:
 				var yaw := atan2(dir.x, dir.z)
 				_rig.rotation.y = lerp_angle(_rig.rotation.y, yaw, minf(8.0 * delta, 1.0))
 			_play(_walk_clip, _anim_speed)

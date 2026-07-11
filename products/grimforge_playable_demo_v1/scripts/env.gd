@@ -7,8 +7,33 @@ extends Object
 const GRID := 14          # ground tiles per side
 const WALL_INSET := 0.0   # walls sit on the outermost tile ring
 
+const NavRegionScript := preload("res://scripts/nav_region.gd")
+
+# A NavigationRegion3D configured for the miniature world scale, wired to bake
+# its navmesh from child kit meshes at runtime (see nav_region.gd). All three
+# world builders wrap their geometry in one so enemies can path around the
+# building/wall colliders instead of sliding along them.
+static func _make_nav_region() -> NavigationRegion3D:
+	var region := NavigationRegion3D.new()
+	region.set_script(NavRegionScript)
+	var nm := NavigationMesh.new()
+	# miniature scale: NPCs are 0.25-1.1m, walls ~1.3m; a ~0.2m agent radius
+	# with a fine cell keeps paths tight around the small footprints
+	nm.cell_size = 0.08
+	nm.cell_height = 0.05
+	nm.agent_radius = 0.2
+	nm.agent_height = 0.3
+	nm.agent_max_climb = 0.2
+	nm.agent_max_slope = 45.0
+	# parse the placed kit meshes: flat floor tiles read as walkable ground,
+	# tall buildings/walls read as obstacles the radius erodes around
+	nm.geometry_parsed_geometry_type = NavigationMesh.PARSED_GEOMETRY_MESH_INSTANCES
+	nm.geometry_source_geometry_mode = NavigationMesh.SOURCE_GEOMETRY_ROOT_NODE_CHILDREN
+	region.navigation_mesh = nm
+	return region
+
 static func build() -> Node3D:
-	var root := Node3D.new()
+	var root := _make_nav_region()
 	root.name = "Env"
 
 	var tile_scene: PackedScene = load("res://kit/floor_cobble.glb")

@@ -89,3 +89,22 @@ def test_town_world_populated():
     assert any(name in out for name in roster), (
         f"none of the town roster {roster} appeared:\n{out[-1500:]}"
     )
+
+
+def test_enemies_navigate_around_building():
+    """Enemies path around building footprints via the runtime-baked navmesh.
+
+    Drive the knight northwest until he tucks against the great-hall/stable
+    cluster (settles near x=-2.5, z=0). The ghoul spawns right beside those
+    buildings, so to reach the knight it must route around the building/wall
+    footprints the navmesh carves out — a naive straight-line chaser would jam
+    against the collider. Assert the navmesh baked and an enemy still landed a
+    hit (routed around the obstacle and reached the player). Timing-tolerant:
+    the long quit-after gives the pathing enemies time to arrive.
+    """
+    out = run_demo(["--drive=up:6"], quit_after=14.0, timeout=60.0)
+    assert_no_script_errors(out)
+    assert "NAV_BAKED" in out, f"navmesh never baked:\n{out[-1500:]}"
+    assert "PLAYER_HURT" in out, (
+        f"no enemy navigated around the buildings to reach the knight:\n{out[-1500:]}"
+    )

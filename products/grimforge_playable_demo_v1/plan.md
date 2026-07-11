@@ -22,7 +22,7 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Verify via harness: drive the knight behind the keep; enemies still reach and hit him (PLAYER_HURT fires) rather than piling on the wall",
     "Add tests/test_gameplay_gate.py::test_enemies_navigate_around_building asserting PLAYER_HURT after the knight is driven to a spot with a building between him and a spawn"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
