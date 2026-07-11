@@ -48,9 +48,27 @@ var _attack_timer := 0.0
 var _fire_queue: Array = []   # simulated attack presses for headless testing
 var _fire_timer := 0.0
 
+# Combat
+const MAX_HP := 100.0
+const ATTACK_RANGE := 1.4     # reach of a swing (m)
+const ATTACK_ARC := 130.0     # degrees, centered on facing
+const HIT_IFRAMES := 0.6      # invulnerability after taking a hit
+var hp := MAX_HP
+var _dead := false
+var _invuln := 0.0
+var _damage_pending := -1.0   # >=0: seconds until the active swing lands
+var _pending_dmg := 0.0
+var _hurt_rate := 0.0         # --hurt=N : N dmg/sec self-damage for testing
+var _autorevive := false
+var _revive_timer := 0.0
+var _hp_fill: ColorRect
+var _hp_label: Label
+
 func _ready() -> void:
+	add_to_group("player")
 	_build_rig()
 	_build_camera()
+	_build_hud()
 	var shape := CollisionShape3D.new()
 	var capsule := CapsuleShape3D.new()
 	capsule.radius = 0.15
@@ -76,6 +94,10 @@ func _ready() -> void:
 			# simulate attack presses for headless verification: --fire=j,k,l,space
 			for k in a.trim_prefix("--fire=").split(","):
 				_fire_queue.append(k.strip_edges())
+		elif a.begins_with("--hurt="):
+			_hurt_rate = float(a.trim_prefix("--hurt="))   # dmg/sec self-damage (test)
+		elif a == "--autorevive":
+			_autorevive = true   # simulate an R press ~1.5s after death (test)
 
 func _build_rig() -> void:
 	var idle_scene: PackedScene = load("res://chars/revenant_knight_idle.fbx")
@@ -118,9 +140,93 @@ func _build_rig() -> void:
 	_merge_attack(KEY_U, "res://chars/knight_ss_slash3.fbx", "ss_slash3", "u", 1.2, 8.0)
 	_merge_attack(KEY_SPACE, "res://chars/knight_jump.fbx", "jump", "jmp", 1.2, 0.0)
 	print("PLAYER_ATTACKS %d wired" % _attacks.size())
+	_merge_clip("res://chars/knight_pl_death.fbx", "pl_death", "death", false)
+	_merge_clip("res://chars/knight_pl_impact.fbx", "pl_impact", "hit", false)
 	_apply_weapon_overrides()
 	_attach_weapon()
 	_ap.play("idle")
+
+func _build_hud() -> void:
+	var layer := CanvasLayer.new()
+	add_child(layer)
+	var bg := ColorRect.new()
+	bg.color = Color(0, 0, 0, 0.55)
+	bg.position = Vector2(24, 24)
+	bg.size = Vector2(304, 34)
+	layer.add_child(bg)
+	_hp_fill = ColorRect.new()
+	_hp_fill.color = Color(0.8, 0.15, 0.15)
+	_hp_fill.position = Vector2(28, 28)
+	_hp_fill.size = Vector2(296, 26)
+	layer.add_child(_hp_fill)
+	_hp_label = Label.new()
+	_hp_label.position = Vector2(34, 30)
+	_hp_label.add_theme_color_override("font_color", Color.WHITE)
+	layer.add_child(_hp_label)
+	_update_hud()
+
+func _update_hud() -> void:
+	if _hp_fill:
+		var f := clampf(hp / MAX_HP, 0.0, 1.0)
+		_hp_fill.size = Vector2(296.0 * f, 26.0)
+		_hp_fill.color = Color(0.8, 0.15, 0.15) if f > 0.3 else Color(0.9, 0.4, 0.1)
+	if _hp_label:
+		_hp_label.text = "HP %d / %d%s" % [int(ceil(hp)), int(MAX_HP), "   — DEAD (press R)" if _dead else ""]
+
+# Damage the player takes from a creature. Ignored during i-frames or death.
+func take_damage(amount: float) -> void:
+	if _dead or _invuln > 0.0:
+		return
+	hp = maxf(hp - amount, 0.0)
+	_invuln = HIT_IFRAMES
+	_update_hud()
+	print("PLAYER_HURT -%.0f hp=%.0f" % [amount, hp])
+	if hp <= 0.0:
+		_die()
+	elif _ap and _ap.has_animation("hit/pl_impact"):
+		_attack_timer = 0.0
+		_state = "hit"
+		_ap.play("hit/pl_impact", 0.05, 1.4)
+
+func _die() -> void:
+	_dead = true
+	_attack_timer = 0.0
+	velocity = Vector3.ZERO
+	_state = "dead"
+	if _ap and _ap.has_animation("death/pl_death"):
+		_ap.play("death/pl_death", 0.1, 1.0)
+	_update_hud()
+	print("PLAYER_DEAD")
+
+func revive() -> void:
+	_dead = false
+	hp = MAX_HP
+	_invuln = 0.0
+	_state = "idle"
+	if _ap:
+		_ap.play("idle", 0.2)
+	_update_hud()
+	print("PLAYER_REVIVE hp=%.0f" % hp)
+
+# Deal the active swing's damage to enemies in a forward arc.
+func _deal_attack_damage() -> void:
+	if _rig == null:
+		return
+	var facing := Vector3(sin(_rig.rotation.y), 0.0, cos(_rig.rotation.y))
+	var half := deg_to_rad(ATTACK_ARC * 0.5)
+	var hits := 0
+	for e in get_tree().get_nodes_in_group("enemy"):
+		if not (e is Node3D) or not e.has_method("take_damage"):
+			continue
+		var to: Vector3 = (e as Node3D).global_position - global_position
+		to.y = 0.0
+		if to.length() > ATTACK_RANGE:
+			continue
+		if to.length() > 0.01 and facing.angle_to(to.normalized()) <= half:
+			e.take_damage(_pending_dmg)
+			hits += 1
+	if hits > 0:
+		print("PLAYER_HIT %d enemies for %.0f" % [hits, _pending_dmg])
 
 func _merge_attack(keycode: int, path: String, clip: String, lib: String, speed: float, dmg: float) -> void:
 	if not _merge_clip(path, clip, lib, false):
@@ -229,6 +335,10 @@ func _input(event: InputEvent) -> void:
 	var ev := event as InputEventKey
 	if not ev.pressed or ev.echo:
 		return
+	if _dead:
+		if ev.physical_keycode == KEY_R:
+			revive()
+		return
 	if _attack_timer > 0.0:
 		return
 	if _attacks.has(ev.physical_keycode):
@@ -240,6 +350,10 @@ func _start_attack(keycode: int) -> void:
 	_state = "attack"
 	if _ap:
 		_ap.play(a["anim"], 0.08, a["speed"])
+	# the swing lands ~40% into the clip (jump deals no damage)
+	if a["dmg"] > 0.0:
+		_damage_pending = a["len"] * 0.4
+		_pending_dmg = a["dmg"]
 	print("PLAYER_ATTACK %s" % a["anim"])
 
 const FIRE_KEYS := {
@@ -274,6 +388,29 @@ func _update_camera() -> void:
 	_cam.global_position = global_position + Vector3(0, TARGET_H * 0.6, 0) + back * 12.0
 
 func _physics_process(delta: float) -> void:
+	if _invuln > 0.0:
+		_invuln -= delta
+	# test-only self damage to exercise death/revive (bypasses i-frames)
+	if _hurt_rate > 0.0 and not _dead:
+		hp = maxf(hp - _hurt_rate * delta, 0.0)
+		_update_hud()
+		if hp <= 0.0:
+			_die()
+	# active swing lands its damage partway through the clip
+	if _damage_pending >= 0.0:
+		_damage_pending -= delta
+		if _damage_pending < 0.0:
+			_deal_attack_damage()
+	if _dead:
+		velocity = Vector3.ZERO
+		move_and_slide()
+		_update_camera()
+		if _autorevive:
+			_revive_timer += delta
+			if _revive_timer >= 1.5:
+				_revive_timer = 0.0
+				revive()
+		return
 	if _drive_left > 0.0:
 		_drive_left -= delta
 		for act in _drive_actions:
