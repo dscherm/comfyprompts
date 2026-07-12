@@ -192,13 +192,25 @@ static func _flat_mesh(src: Mesh) -> ArrayMesh:
 				nn.append(fn)
 				if has_uv:
 					nu.append((uvs as PackedVector2Array)[j])
-		var na := []
-		na.resize(Mesh.ARRAY_MAX)
-		na[Mesh.ARRAY_VERTEX] = nv
-		na[Mesh.ARRAY_NORMAL] = nn
-		if has_uv:
-			na[Mesh.ARRAY_TEX_UV] = nu
-		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, na)
+		if sagaink_kit() and has_uv:
+			# route through SurfaceTool to synthesize tangents (the sagaink normal
+			# map needs them) while keeping our computed flat per-face normals
+			var st := SurfaceTool.new()
+			st.begin(Mesh.PRIMITIVE_TRIANGLES)
+			for vi in range(nv.size()):
+				st.set_normal(nn[vi])
+				st.set_uv(nu[vi])
+				st.add_vertex(nv[vi])
+			st.generate_tangents()
+			st.commit(out)
+		else:
+			var na := []
+			na.resize(Mesh.ARRAY_MAX)
+			na[Mesh.ARRAY_VERTEX] = nv
+			na[Mesh.ARRAY_NORMAL] = nn
+			if has_uv:
+				na[Mesh.ARRAY_TEX_UV] = nu
+			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, na)
 		out.surface_set_material(out.get_surface_count() - 1, _fixed_material(src.surface_get_material(si)))
 	return out
 
@@ -214,12 +226,53 @@ static func _fixed_material(src: Material) -> Material:
 	if _mat_cache.has(key):
 		return _mat_cache[key]
 	var fixed := src
-	if src is BaseMaterial3D and ResourceLoader.exists("res://kit/atlas_color_fixed.png"):
-		fixed = (src as BaseMaterial3D).duplicate()
-		(fixed as BaseMaterial3D).albedo_texture = load("res://kit/atlas_color_fixed.png")
-		(fixed as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+	if src is BaseMaterial3D:
+		if sagaink_kit() and ResourceLoader.exists("res://kit/atlas_sagaink_color.png"):
+			fixed = _sagaink_material(src as BaseMaterial3D)
+		elif ResourceLoader.exists("res://kit/atlas_color_fixed.png"):
+			fixed = (src as BaseMaterial3D).duplicate()
+			(fixed as BaseMaterial3D).albedo_texture = load("res://kit/atlas_color_fixed.png")
+			(fixed as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
 	_mat_cache[key] = fixed
 	return fixed
+
+# --sagaink-kit swaps the whole kit onto the inked sagaink atlas set: grayscale
+# carved-ink albedo + a derived normal map (plank seams / mortar / reeds catch
+# light) + AO (recesses stay shaded). Normal/AO are loaded as raw ImageTextures
+# so the import pipeline doesn't sRGB-mangle their linear data.
+static func sagaink_kit() -> bool:
+	return "--sagaink-kit" in OS.get_cmdline_user_args()
+
+static var _raw_tex_cache := {}
+
+static func _raw_tex(res_path: String) -> Texture2D:
+	if _raw_tex_cache.has(res_path):
+		return _raw_tex_cache[res_path]
+	var img := Image.load_from_file(ProjectSettings.globalize_path(res_path))
+	var tex: Texture2D = ImageTexture.create_from_image(img) if img else null
+	_raw_tex_cache[res_path] = tex
+	return tex
+
+static func _sagaink_material(src: BaseMaterial3D) -> BaseMaterial3D:
+	var m := src.duplicate() as BaseMaterial3D
+	m.albedo_texture = load("res://kit/atlas_sagaink_color.png")
+	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
+	m.roughness = 0.95
+	m.metallic = 0.0
+	if ResourceLoader.exists("res://kit/atlas_sagaink_n.png"):
+		var nt := _raw_tex("res://kit/atlas_sagaink_n.png")
+		if nt:
+			m.normal_enabled = true
+			m.normal_texture = nt
+			m.normal_scale = 1.0
+	if ResourceLoader.exists("res://kit/atlas_sagaink_ao.png"):
+		var at := _raw_tex("res://kit/atlas_sagaink_ao.png")
+		if at:
+			m.ao_enabled = true
+			m.ao_texture = at
+			m.ao_texture_channel = BaseMaterial3D.TEXTURE_CHANNEL_RED
+			m.ao_light_affect = 0.6
+	return m
 
 static func _footprint(scene: PackedScene) -> Vector3:
 	if scene == null:
