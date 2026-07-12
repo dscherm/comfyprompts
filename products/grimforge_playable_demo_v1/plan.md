@@ -129,3 +129,21 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
   "passes": true
 }
 ```
+
+```json
+{
+  "id": "G8",
+  "category": "feature",
+  "priority": "MEDIUM",
+  "description": "Fix the town's cold 'grey stone blocks' read. Root cause (confirmed by close screenshots + kit comparison): the v1 village buildings are real houses (stone ground floor + timber upper + tiled roof) but the GLOBAL dim dusk lighting (sun energy 1.2, pitch -48, ambient 0.7) washes the whole village cold and grey. No cleaner village kit exists (v2 is walls, darkfantasy is now the occult town). Fix = per-world lighting/mood in main.gd instead of one global light: town = bright warm village day; occult_town = dark cursed (keep ~current, it uses emit glow); keep = dim torchlit; courtyard = neutral daylight.",
+  "steps": [
+    "Refactor main.gd _setup_lighting: store sun + WorldEnvironment refs, add _apply_world_lighting(world) with a per-world profile (sun energy/pitch/color, ambient energy, sky colors)",
+    "Call _apply_world_lighting(world) from _build_world so each world sets its own mood",
+    "Town profile: brighter warmer sun (higher energy, higher pitch for shorter shadows, slightly warm color), brighter ambient + bluer sky so the houses read as a warm living village, not grey dusk",
+    "Occult profile: keep the dark cursed look the emit atlases carry (don't wash it out); keep interior dim/torchlit; courtyard neutral",
+    "Verify: before/after town screenshots (reads warm/alive) + occult unchanged; gate stays green (all worlds boot clean)"
+  ],
+  "passes": true,
+  "note": "Two-part fix. (1) Per-world lighting in main.gd (_LIGHT_PROFILES + _apply_world_lighting): town = bright warm village day, occult = dark cursed, keep = dim, courtyard = neutral. (2) Wooden buildings (user direction): the walls sample atlas cell (0,7) grey-stone (found via scripts/diag_walluv geometry-UV histogram); atlas_color_wood.png repaints that swatch with the kit's brown timber; town.gd applies it to WOOD_BUILDINGS (cottage/house_small/house_tall/tavern/blacksmith) — the church keeps stone. Roofs untouched."
+}
+```

@@ -16,6 +16,11 @@ const GZ := 19   # ground tiles deep (z)
 const NON_SOLID := ["ground_grass", "ground_dirt", "ground_cobble", "ground_flagstone",
 	"road_straight", "road_corner", "road_cross", "road_tee", "path_straight"]
 
+# Timber-clad dwellings: their grey-stone wall swatch (atlas cell 0,7) is
+# repainted with the kit's own brown timber in atlas_color_wood.png so they read
+# as wooden houses. The church keeps its stone (masonry suits a church).
+const WOOD_BUILDINGS := ["cottage", "house_small", "house_tall", "tavern", "blacksmith"]
+
 static var _flat_cache := {}
 
 # Where the player arrives from the courtyard — on the open road, a few tiles
@@ -95,7 +100,7 @@ static func _place(parent: Node3D, model: String, pos: Vector3, yaw: float) -> N
 	var inst: Node3D = scene.instantiate()
 	inst.position = pos
 	inst.rotation_degrees = Vector3(0.0, yaw, 0.0)
-	_flatten_normals(inst)
+	_flatten_normals(inst, model in WOOD_BUILDINGS)
 	parent.add_child(inst)
 	if not (model in NON_SOLID):
 		_add_collision(inst)
@@ -115,20 +120,20 @@ static func _add_collision(inst: Node3D) -> void:
 	inst.add_child(body)
 
 # Village GLBs embed their own atlas; keep the material, only harden normals.
-static func _flatten_normals(node: Node) -> void:
+static func _flatten_normals(node: Node, wood: bool = false) -> void:
 	var stack: Array = [node]
 	while not stack.is_empty():
 		var n: Node = stack.pop_back()
 		if n is MeshInstance3D and (n as MeshInstance3D).mesh:
 			var mi := n as MeshInstance3D
-			var key := mi.mesh.get_instance_id()
+			var key := "%d_%s" % [mi.mesh.get_instance_id(), wood]
 			if not _flat_cache.has(key):
-				_flat_cache[key] = _flat_mesh(mi.mesh)
+				_flat_cache[key] = _flat_mesh(mi.mesh, wood)
 			mi.mesh = _flat_cache[key]
 		for c in n.get_children():
 			stack.push_back(c)
 
-static func _flat_mesh(src: Mesh) -> ArrayMesh:
+static func _flat_mesh(src: Mesh, wood: bool = false) -> ArrayMesh:
 	var out := ArrayMesh.new()
 	for si in range(src.get_surface_count()):
 		var arr := src.surface_get_arrays(si)
@@ -163,7 +168,7 @@ static func _flat_mesh(src: Mesh) -> ArrayMesh:
 		if has_uv:
 			na[Mesh.ARRAY_TEX_UV] = nu
 		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, na)
-		out.surface_set_material(out.get_surface_count() - 1, _fixed_material(src.surface_get_material(si)))
+		out.surface_set_material(out.get_surface_count() - 1, _fixed_material(src.surface_get_material(si), wood))
 	return out
 
 # The village atlas ships baked gradients in the ground swatches (grass tiles
@@ -171,16 +176,17 @@ static func _flat_mesh(src: Mesh) -> ArrayMesh:
 # village material (all pieces share one atlas).
 static var _mat_cache := {}
 
-static func _fixed_material(src: Material) -> Material:
+static func _fixed_material(src: Material, wood: bool = false) -> Material:
 	if src == null:
 		return null
-	var key := src.get_instance_id()
+	var key := "%d_%s" % [src.get_instance_id(), wood]
 	if _mat_cache.has(key):
 		return _mat_cache[key]
+	var atlas := "res://town/atlas_color_wood.png" if wood else "res://town/atlas_color_fixed.png"
 	var fixed := src
-	if src is BaseMaterial3D and ResourceLoader.exists("res://town/atlas_color_fixed.png"):
+	if src is BaseMaterial3D and ResourceLoader.exists(atlas):
 		fixed = (src as BaseMaterial3D).duplicate()
-		(fixed as BaseMaterial3D).albedo_texture = load("res://town/atlas_color_fixed.png")
+		(fixed as BaseMaterial3D).albedo_texture = load(atlas)
 		(fixed as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
 	_mat_cache[key] = fixed
 	return fixed

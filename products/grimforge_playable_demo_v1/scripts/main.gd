@@ -14,7 +14,25 @@ const PlayerScript := preload("res://scripts/player.gd")
 
 const COURTYARD_START := Vector3(0.0, 0.1, 2.5)
 
+# Per-world lighting mood (see _apply_world_lighting). Each world sets its own
+# sun energy/pitch/colour + ambient + sky so it reads distinctly: the town is a
+# warm living village, the occult town is dark and cursed (its emit atlases
+# carry the glow), the keep is dim/torchlit, the courtyard is neutral daylight.
+const _LIGHT_PROFILES := {
+	"courtyard": {"sun": 1.3, "pitch": -50.0, "sun_col": Color(1.0, 0.97, 0.90),
+		"amb": 0.80, "sky_top": Color(0.35, 0.42, 0.58), "sky_horiz": Color(0.62, 0.60, 0.58)},
+	"town": {"sun": 1.9, "pitch": -62.0, "sun_col": Color(1.0, 0.94, 0.80),
+		"amb": 1.35, "sky_top": Color(0.45, 0.60, 0.85), "sky_horiz": Color(0.92, 0.86, 0.74)},
+	"interior": {"sun": 0.55, "pitch": -60.0, "sun_col": Color(1.0, 0.84, 0.62),
+		"amb": 0.50, "sky_top": Color(0.10, 0.10, 0.14), "sky_horiz": Color(0.22, 0.17, 0.14)},
+	"occult_town": {"sun": 1.05, "pitch": -52.0, "sun_col": Color(0.80, 0.82, 0.92),
+		"amb": 0.60, "sky_top": Color(0.16, 0.17, 0.24), "sky_horiz": Color(0.34, 0.30, 0.34)},
+}
+
 var _overview_cam: Camera3D
+var _sun: DirectionalLight3D
+var _skymat: ProceduralSkyMaterial
+var _env: Environment
 var _world := "courtyard"
 var _world_root: Node3D
 var _player: CharacterBody3D
@@ -105,6 +123,7 @@ func _world_exits(world: String) -> Array:
 
 func _build_world(world: String, spawn: Vector3) -> void:
 	_world = world
+	_apply_world_lighting(world)
 	if _world_root and is_instance_valid(_world_root):
 		_world_root.queue_free()
 	if _player and is_instance_valid(_player):
@@ -162,27 +181,36 @@ func _make_trigger(ex: Dictionary) -> Area3D:
 	return area
 
 func _setup_lighting() -> void:
-	var sun := DirectionalLight3D.new()
-	sun.rotation_degrees = Vector3(-48.0, -30.0, 0.0)
-	sun.light_energy = 1.2
-	sun.shadow_enabled = not ("--noshadow" in OS.get_cmdline_user_args())
-	add_child(sun)
+	_sun = DirectionalLight3D.new()
+	_sun.shadow_enabled = not ("--noshadow" in OS.get_cmdline_user_args())
+	add_child(_sun)
 
 	var wenv := WorldEnvironment.new()
-	var env := Environment.new()
+	_env = Environment.new()
 	var sky := Sky.new()
-	var skymat := ProceduralSkyMaterial.new()
-	skymat.sky_top_color = Color(0.35, 0.42, 0.58)
-	skymat.sky_horizon_color = Color(0.62, 0.60, 0.58)
-	skymat.ground_bottom_color = Color(0.18, 0.16, 0.14)
-	skymat.ground_horizon_color = Color(0.62, 0.60, 0.58)
-	sky.sky_material = skymat
-	env.background_mode = Environment.BG_SKY
-	env.sky = sky
-	env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
-	env.ambient_light_energy = 0.7
-	wenv.environment = env
+	_skymat = ProceduralSkyMaterial.new()
+	_skymat.ground_bottom_color = Color(0.18, 0.16, 0.14)
+	sky.sky_material = _skymat
+	_env.background_mode = Environment.BG_SKY
+	_env.sky = sky
+	_env.ambient_light_source = Environment.AMBIENT_SOURCE_SKY
+	wenv.environment = _env
 	add_child(wenv)
+	_apply_world_lighting("courtyard")   # sane default before the first world build
+
+# Set the sun + sky mood for a world from _LIGHT_PROFILES. Called by _build_world
+# so each world feels distinct (warm village / cursed dark / torchlit hall).
+func _apply_world_lighting(world: String) -> void:
+	if _sun == null:
+		return
+	var p: Dictionary = _LIGHT_PROFILES.get(world, _LIGHT_PROFILES["courtyard"])
+	_sun.rotation_degrees = Vector3(p["pitch"], -30.0, 0.0)
+	_sun.light_energy = p["sun"]
+	_sun.light_color = p["sun_col"]
+	_env.ambient_light_energy = p["amb"]
+	_skymat.sky_top_color = p["sky_top"]
+	_skymat.sky_horizon_color = p["sky_horiz"]
+	_skymat.ground_horizon_color = p["sky_horiz"]
 
 func _setup_overview_camera() -> void:
 	_overview_cam = Camera3D.new()
