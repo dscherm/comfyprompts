@@ -107,6 +107,7 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Set the AnimationTree root_motion_track to the hip; drive velocity from get_root_motion_position() * rig_scale; remove WALK_ANIM_SPEED",
     "Verify feet track the ground via measure_walk.gd; gate stays green"
   ],
-  "passes": false
+  "passes": false,
+  "resolution": "SKIPPED — not viable with available assets (investigated 2026-07-11 via scripts/diag_rootsrc.gd on the D:/Projects/Animations sources). walk_relaxed_loop is CC_Base (70/71 bones match the knight) but authored IN PLACE (root net travel ~0.001) — no forward translation to extract, so root motion cannot fix the walk skate regardless of tool. run_forward carries real root motion (hips travel 3.13u) but is a Mixamo rig (0 bones shared) needing a Unity Humanoid retarget, and would only fix run, not the walk. Decision: keep the speed-matched walk (correct handling for an in-place loop). Revisit only if a forward-translating, knight-compatible (CC_Base) walk clip is sourced."
 }
 ```
