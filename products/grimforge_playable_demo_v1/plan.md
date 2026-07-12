@@ -147,3 +147,19 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
   "note": "Two-part fix. (1) Per-world lighting in main.gd (_LIGHT_PROFILES + _apply_world_lighting): town = bright warm village day, occult = dark cursed, keep = dim, courtyard = neutral. (2) Wooden buildings (user direction): the walls sample atlas cell (0,7) grey-stone (found via scripts/diag_walluv geometry-UV histogram); atlas_color_wood.png repaints that swatch with the kit's brown timber; town.gd applies it to WOOD_BUILDINGS (cottage/house_small/house_tall/tavern/blacksmith) — the church keeps stone. Roofs untouched."
 }
 ```
+
+```json
+{
+  "id": "G9",
+  "category": "fix",
+  "priority": "MEDIUM",
+  "description": "Improve the walk/run animations. Measured (scripts/measure_loco.gd) the in-place clips' natural ground speed at 1.0x: walk 0.178 m/s, run 1.454 m/s. The old constants were mismatched — walk (WALK_SPEED 0.6, 2.0x -> foot-plant 0.356) SKATED (body faster than feet); run (RUN_SPEED 1.4, 1.5x -> foot-plant 2.18) MOONWALKED (feet faster than body). Fix = measured foot-plant match: WALK_SPEED 0.42 @ 2.36x, RUN_SPEED 1.4 @ 0.96x. Both now track the ground. NOTE the ceiling: in-place clips force a slower or busier-legged walk; a brisk walk with natural cadence needs root-motion clips (Unity retarget of the Mixamo walking.fbx/standard run.fbx) — offered as the follow-up.",
+  "steps": [
+    "measure_loco.gd: measure natural_1x foot-plant speed for walk + run",
+    "player.gd: set WALK_SPEED/WALK_ANIM_SPEED and RUN_ANIM_SPEED so body_speed == natural_1x * playback (no skate/moonwalk)",
+    "Gate stays green (locomotion still advances under --drive); user plays to judge feel",
+    "If the in-place ceiling isn't enough: escalate to a Unity Humanoid retarget of the Mixamo forward clips -> true root motion (needs Unity open)"
+  ],
+  "passes": true
+}
+```

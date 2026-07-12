@@ -8,14 +8,17 @@ extends CharacterBody3D
 # travel direction, walk/idle clips switch with motion.
 
 const TARGET_H := 0.85       # miniature-world knight height (walls are 1.3m)
-const WALK_SPEED := 0.6      # m/s — matched to the walk clip (measure_walk.gd)
+const WALK_SPEED := 0.42     # m/s — measured foot-plant match (measure_loco.gd)
 const RUN_SPEED := 1.4       # m/s — hold Shift
 const TURN_SPEED := 10.0     # rad/s toward travel direction
-# measure_walk.gd: the ActorCore relaxed-walk covers ~0.18-0.31 m/s of ground
-# at 1.0x at knight scale; 0.6 m/s at 2.0x playback sits on the stride-envelope
-# estimate (0.30), so feet track the ground instead of skating.
-const WALK_ANIM_SPEED := 2.0
-const RUN_ANIM_SPEED := 1.5
+# In-place clips: no skate requires body_speed == natural_1x * playback. Measured
+# (measure_loco.gd) natural ground speed at 1.0x: walk 0.178 m/s, run 1.454 m/s.
+# So walk plays 0.42/0.178 = 2.36x; run plays 1.4/1.454 = 0.96x — the run clip is
+# already forward-paced, so ~1.0x (the old 1.5x moonwalked; the old 0.6 walk at
+# 2.0x skated). A brisk walk with natural cadence needs root-motion clips (Unity
+# retarget of the Mixamo forward clips) — see plan G6/G9.
+const WALK_ANIM_SPEED := 2.36
+const RUN_ANIM_SPEED := 0.96
 const CAM_YAW := 45.0
 const CAM_PITCH := -35.0
 const CAM_SIZE := 6.0
