@@ -116,6 +116,9 @@ def main() -> int:
     # file and GLB/glTF embed the packed image.
     if atlas:
         k.save_atlas(product_dir)
+        # Optional sagaink finish (inked grayscale material treatment) is a
+        # POST step run outside Blender (needs PIL):
+        #   python tools/asset_generators/sagaink_kit/bake_sagaink_atlas.py --kit <product_dir>
     # Phase 3: export every piece in every format + record tri counts. A format
     # that fails on the first piece (e.g. DAE on Blender 5.0) is pruned for the run.
     names, tris, avail, dropped = [], {}, list(FORMATS), {}

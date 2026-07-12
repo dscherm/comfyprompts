@@ -37,7 +37,23 @@ $PY derive_maps.py all        # -> out/<mat>_n.png, out/<mat>_ao.png
 $PY bake_sagaink_atlas.py     # -> out/atlas_sagaink_{color,n,ao}.png
 ```
 
-Then copy `out/atlas_sagaink_{color,n,ao}.png` into a consumer's kit folder
+### Reusable finish for ANY kit
+
+To sagaink-ify any kit the toolchain builds (its own `atlas_color[_fixed].png`),
+run the finish against its folder — it writes the sagaink set **into** the kit so
+the kit ships the inked look standalone:
+
+```bash
+$PY bake_sagaink_atlas.py --kit ../../../products/castle_kit_grimforge_v1
+# -> castle_kit_grimforge_v1/atlas_sagaink_{color,n,ao}.png
+```
+
+Run it after `productize.py` (the finish needs PIL, so it runs outside Blender).
+Assumes the kit uses the kitlib PALETTE atlas layout.
+
+### Applying in a consumer (the demo)
+
+Copy `out/atlas_sagaink_{color,n,ao}.png` into a consumer's kit folder
 (e.g. `grimforge_playable_demo_v1/kit/`). The Godot demo applies them via
 `env.gd` under the `--sagaink-kit` flag (albedo + normal + AO, tangents
 synthesised for the normal map). Verify standalone (no NPR shader):

@@ -78,7 +78,8 @@ def _tex(mat: str, suffix: str, w: int, h: int) -> np.ndarray:
     return np.asarray(im, dtype=np.float32)
 
 
-def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink") -> None:
+def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
+         out_dir: Path = OUT) -> None:
     # upscale the shipped atlas to the target size (NEAREST keeps the flat
     # colour/accent swatches crisp); material cells get replaced by fresh hi-res ink
     base_img = Image.open(base_atlas).convert("RGB").resize((SIZE, SIZE), Image.NEAREST)
@@ -117,10 +118,24 @@ def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink") -> No
             # plain / foliage / metal / gravel -> keep tonal shading, drop hue
             color[cy : cy + ch, cx : cx + cw] = L[..., None]
 
-    Image.fromarray(color.clip(0, 255).astype(np.uint8), "RGB").save(OUT / f"{out_prefix}_color.png")
-    Image.fromarray(normal.clip(0, 255).astype(np.uint8), "RGB").save(OUT / f"{out_prefix}_n.png")
-    Image.fromarray(ao.clip(0, 255).astype(np.uint8), "L").save(OUT / f"{out_prefix}_ao.png")
-    print(f"baked {out_prefix} ({len(names)} cells, {cw}x{ch}) from {base_atlas.name}", flush=True)
+    out_dir.mkdir(parents=True, exist_ok=True)
+    Image.fromarray(color.clip(0, 255).astype(np.uint8), "RGB").save(out_dir / f"{out_prefix}_color.png")
+    Image.fromarray(normal.clip(0, 255).astype(np.uint8), "RGB").save(out_dir / f"{out_prefix}_n.png")
+    Image.fromarray(ao.clip(0, 255).astype(np.uint8), "L").save(out_dir / f"{out_prefix}_ao.png")
+    print(f"baked {out_prefix} ({len(names)} cells, {cw}x{ch}) from {base_atlas.name} -> {out_dir}", flush=True)
+
+
+def bake_into_kit(kit_dir: Path) -> None:
+    """Reusable finish for ANY kit built by the toolchain: find the kit's shared
+    atlas and write the sagaink_{color,n,ao} set INTO the kit folder, so the kit
+    carries the inked look standalone. Run after productize.py (needs PIL, so it
+    runs outside Blender). Assumes the kit uses the kitlib PALETTE atlas layout."""
+    kit_dir = Path(kit_dir)
+    atlas = next((kit_dir / n for n in ("atlas_color_fixed.png", "atlas_color.png")
+                  if (kit_dir / n).exists()), None)
+    if atlas is None:
+        raise SystemExit(f"no atlas_color[_fixed].png in {kit_dir}")
+    bake(atlas, "atlas_sagaink", kit_dir)
 
 
 # Named atlas variants keyed to the same kitlib PALETTE layout: the courtyard/town
@@ -133,7 +148,12 @@ VARIANTS = {
 }
 
 if __name__ == "__main__":
-    which = sys.argv[1] if len(sys.argv) > 1 else "all"
-    todo = VARIANTS if which == "all" else {which: VARIANTS[which]}
-    for prefix, base in todo.items():
-        bake(base, prefix)
+    args = sys.argv[1:]
+    if args and args[0] == "--kit":
+        # reusable finish: sagaink-ify any kit folder in place
+        bake_into_kit(Path(args[1]))
+    else:
+        which = args[0] if args else "all"
+        todo = VARIANTS if which == "all" else {which: VARIANTS[which]}
+        for prefix, base in todo.items():
+            bake(base, prefix)
