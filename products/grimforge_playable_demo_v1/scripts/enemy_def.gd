@@ -13,3 +13,4 @@ extends Resource
 @export var world := "courtyard"     # "courtyard" | "interior" | "town"
 @export var home := Vector2.ZERO     # wander anchor (x, z)
 @export var hostile := true          # joins the "enemy" group and fights
+@export var ranged := false          # casters: fire a projectile instead of a melee lunge

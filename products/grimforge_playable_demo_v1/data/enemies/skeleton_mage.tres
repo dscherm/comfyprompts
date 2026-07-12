@@ -9,3 +9,4 @@ hp = 45.0
 dmg = 11.0
 world = "interior"
 home = Vector2(-2, -2.4)
+ranged = true

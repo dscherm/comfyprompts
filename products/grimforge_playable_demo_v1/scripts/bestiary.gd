@@ -60,6 +60,7 @@ static func _spawn_npc(parent: Node3D, def: Resource, arena: Vector2) -> void:
 		"name": def.id, "kind": def.kind, "target_h": def.target_h,
 		"home": def.home, "arena": arena,
 		"hp": def.hp, "dmg": def.dmg, "hostile": def.hostile,
+		"ranged": def.ranged,
 	}
 	npc.position = Vector3(def.home.x, 0.1, def.home.y)  # floor tile tops sit at ~0.1
 	parent.add_child(npc)

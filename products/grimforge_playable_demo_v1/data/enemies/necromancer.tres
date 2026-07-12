@@ -8,3 +8,4 @@ id = "necromancer"
 target_h = 0.85
 world = "interior"
 home = Vector2(0, -3)
+ranged = true

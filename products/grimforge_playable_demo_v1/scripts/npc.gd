@@ -9,6 +9,7 @@ extends CharacterBody3D
 # NPCs without a walk clip (lich_king, skeleton_mage) stay stationary idlers.
 
 const EnvBuilder := preload("res://scripts/env.gd")
+const ProjectileScript := preload("res://scripts/projectile.gd")
 
 const WANDER_RADIUS := 3.0
 const ARRIVE_DIST := 0.3
@@ -44,6 +45,14 @@ const CHASE_MULT := 1.6
 # injected by bestiary.gd. Defaults below (30 hp / 9 dmg) only apply if a def
 # omits them.
 const LUNGE_LEN := 0.8   # clip-less attack duration for creatures with no swipe
+# Ranged casters (necromancer/skeleton_mage/lich_king): fire a spell orb from
+# range instead of the melee lunge. They strike anywhere inside aggro range and
+# hit slightly softer than melee since it's safer to attack from afar.
+const CAST_RANGE := AGGRO_RANGE
+const CAST_COOLDOWN := 2.2
+const RANGED_DMG_MULT := 0.7
+const KITE_RANGE := ATTACK_RANGE * 1.6   # back off if the knight closes to melee
+var _ranged := false
 var _is_enemy := false
 var _fade_out := false   # death when no _die_clip: sink + shrink, then despawn
 var max_hp := 30.0
@@ -71,6 +80,7 @@ func _ready() -> void:
 	_setup_agent()
 	# every creature is hostile; baked clips just decide the attack/death style
 	_is_enemy = cfg.get("hostile", true)
+	_ranged = cfg.get("ranged", false)
 	if _is_enemy:
 		add_to_group("enemy")
 		max_hp = cfg.get("hp", 30.0)
@@ -301,6 +311,8 @@ func _combat_step(delta: float) -> bool:
 	var dist := to.length()
 	if dist > AGGRO_RANGE:
 		return false
+	if _ranged:
+		return _ranged_step(player, dist, delta)
 	if dist <= ATTACK_RANGE:
 		velocity = Vector3.ZERO
 		_face(player.global_position, delta)
@@ -328,6 +340,67 @@ func _start_swipe() -> void:
 		_play(_idle_clip, 1.8)
 	_swipe_timer = len
 	_swipe_hit = len * 0.45
+
+# Ranged caster behavior: plant and fire the spell orb from anywhere inside
+# aggro range, backing off a step if the knight closes to melee (only casters
+# with a walk clip kite — statuesque idlers just hold their ground and cast).
+# Reuses the swipe-timer/cooldown scaffolding so the cast gesture and pacing
+# stay coherent with the melee path. Returns true (combat drives this frame).
+func _ranged_step(player: Node3D, dist: float, delta: float) -> bool:
+	velocity = Vector3.ZERO
+	_face(player.global_position, delta)
+	var kiting := false
+	if _mobile and dist <= KITE_RANGE:
+		var away: Vector3 = global_position - player.global_position
+		away.y = 0.0
+		if away.length() > 0.01:
+			velocity = away.normalized() * _move_speed
+			move_and_slide()
+			_play(_walk_clip, _anim_speed)
+			kiting = true
+	if _atk_cd <= 0.0:
+		_cast_projectile()
+	elif not kiting:
+		_play(_idle_clip, 1.0)
+	return true
+
+# Fire a spell orb toward the player. The gesture reuses the swipe clip (or the
+# clip-less idle-pose beat) and the swipe-timer lock so casters pause on the
+# cast, but no melee-contact damage is armed (_swipe_hit stays -1) — the orb
+# carries the damage on impact instead.
+func _cast_projectile() -> void:
+	_atk_cd = CAST_COOLDOWN
+	var len := LUNGE_LEN
+	if _swipe_clip != "" and _ap and _ap.has_animation(_swipe_clip):
+		_ap.play(_swipe_clip, 0.08, 1.2)
+		len = _ap.get_animation(_swipe_clip).length / 1.2
+	else:
+		_play(_idle_clip, 1.8)   # clip-less cast beat
+	_swipe_timer = len
+	_spawn_projectile()
+	print("ENEMY_CAST %s" % cfg.get("name", "?"))
+
+func _spawn_projectile() -> void:
+	var player := get_tree().get_first_node_in_group("player")
+	if player == null or not (player is Node3D):
+		return
+	var h: float = cfg.get("target_h", 0.8)
+	var origin := global_position + Vector3(0.0, h * 0.6, 0.0)
+	var proj := Area3D.new()
+	proj.set_script(ProjectileScript)
+	var host: Node = get_tree().current_scene
+	if host == null:
+		host = get_parent()
+	host.add_child(proj)
+	proj.global_position = origin
+	proj.setup(player, _dmg * RANGED_DMG_MULT, _cast_color())
+
+func _cast_color() -> Color:
+	match cfg.get("name", ""):
+		"necromancer": return Color(0.4, 1.0, 0.35)   # sickly necrotic green
+		"skeleton_mage": return Color(0.3, 0.9, 1.0)   # icy arcane cyan
+		"lich_king": return Color(0.8, 0.4, 1.0)       # royal death-magic purple
+	return Color(0.7, 0.5, 1.0)
 
 func _deal_swipe_damage() -> void:
 	var player := get_tree().get_first_node_in_group("player")

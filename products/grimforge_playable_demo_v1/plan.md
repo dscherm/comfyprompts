@@ -91,7 +91,7 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Verify via harness: in the keep, the knight takes damage from beyond melee range (PLAYER_HURT while dist-to-nearest-caster > ATTACK_RANGE)",
     "Add tests/test_gameplay_gate.py::test_caster_ranged_damage"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

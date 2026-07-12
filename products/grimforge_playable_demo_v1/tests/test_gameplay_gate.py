@@ -159,6 +159,41 @@ def test_player_locomotion_animtree():
     )
 
 
+def test_caster_ranged_damage():
+    """The three keep casters attack at range with spell projectiles (G5).
+
+    Boot the keep interior (where necromancer/skeleton_mage/lich_king hold the
+    north -Z dais) and drive the knight toward them. `up+right` is pure -Z after
+    the CAM_YAW=45 rotation, so he walks straight up the aisle into cast range
+    without drifting off x=0. Assert a caster fires (ENEMY_CAST) AND a projectile
+    lands on the knight.
+
+    To prove the hit is *ranged* (not one of the interior's melee bruisers —
+    bone_golem deals 18, cultist 9), we key on a PLAYER_HURT damage value only a
+    caster orb can produce: necromancer 9*0.7 -> -6, skeleton_mage 11*0.7 -> -8.
+    A -6/-8 hurt that occurs *after* the first ENEMY_CAST is unambiguous ranged
+    chip damage. Timing-tolerant: the long drive/quit-after give orbs time to fly.
+    """
+    out = run_demo(["--interior", "--drive=up+right:12"], quit_after=16.0, timeout=60.0)
+    assert_no_script_errors(out)
+
+    cast_idx = out.find("ENEMY_CAST")
+    assert cast_idx >= 0, f"no caster ever fired a spell:\n{out[-1500:]}"
+
+    # A ranged-only damage value (necromancer -6 or skeleton_mage -8) landing
+    # after the cast proves an orb reached the knight — melee enemies here deal
+    # -18 or -9, so these tokens can't come from a lunge.
+    ranged_hits = [
+        m.start()
+        for m in re.finditer(r"PLAYER_HURT -(?:6|8) hp=", out)
+        if m.start() > cast_idx
+    ]
+    assert ranged_hits, (
+        "a caster fired but no ranged spell damage (-6/-8) landed on the knight "
+        f"after the cast:\n{out[-1500:]}"
+    )
+
+
 def test_hp_persists_across_worlds():
     """Player HP persists across a world transition (G4) — no heal on travel.
 
