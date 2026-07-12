@@ -111,3 +111,21 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
   "resolution": "SKIPPED — not viable with available assets (investigated 2026-07-11 via scripts/diag_rootsrc.gd on the D:/Projects/Animations sources). walk_relaxed_loop is CC_Base (70/71 bones match the knight) but authored IN PLACE (root net travel ~0.001) — no forward translation to extract, so root motion cannot fix the walk skate regardless of tool. run_forward carries real root motion (hips travel 3.13u) but is a Mixamo rig (0 bones shared) needing a Unity Humanoid retarget, and would only fix run, not the walk. Decision: keep the speed-matched walk (correct handling for an in-place loop). Revisit only if a forward-translating, knight-compatible (CC_Base) walk clip is sourced."
 }
 ```
+
+```json
+{
+  "id": "G7",
+  "category": "feature",
+  "priority": "HIGH",
+  "description": "Add a 4th world — a CURSED/OCCULT village — assembled from village_kit_grimforge_darkfantasy_v1 buildings (occult palette + emit atlas) dressed with village_kit_grimforge_occult_v1 ritual props (altars, summoning_circle, standing_stones, crypt_entrance, cauldrons, graves, hanged/dead trees). Must look intentional and natural per QUALITY_RUBRIC.md (§4b house-assembly, §4a roof rules) — NOT boxy stone blocks like the current town. Wired into main.gd's router (reached from the town; --occult start flag for testing) and populated with a hostile bestiary (occult roster: cultists/necromancers/skeleton_mage).",
+  "steps": [
+    "Copy the darkfantasy building GLBs + occult prop GLBs + both kits' atlases into products/grimforge_playable_demo_v1/occult/ (self-contained per kit); apply the two kit-render fixes from town.gd/env.gd (flat normals, atlas) only if tiling shows stripes/pillow-shading (verify with --flat)",
+    "Write scripts/occult_town.gd (kit-scene-layout skill): grid-aligned darkfantasy houses with doors facing the paths (GrimForge convention door=+Z at yaw 0 — re-verify with a door inspector), a road/path spine, a central ritual plaza (summoning_circle + ritual_altar ringed by standing_stones), desecrated chapel as focal point, crypt + graveyard, witchlight braziers; box colliders on buildings",
+    "main.gd: add the 'occult_town' world (build + a return trigger to town), a second exit from the 'town' world into occult_town, a --occult start flag mirroring --interior/--town, and a default spawn",
+    "bestiary.gd + data/enemies: add an occult_town population (new EnemyDef .tres with world='occult_town' — an occult roster of cultists/necromancer/skeleton_mage/ghoul), spawned hostile like the other worlds",
+    "gate: +test_occult_town_populated (--occult boots clean, no SCRIPT ERROR, occult roster present) and confirm the 4 existing worlds still pass",
+    "Visual: capture isometric overview + top-down screenshots; iterate until it reads as an intentional cursed settlement that passes the rubric's house-assembly criteria (no floating parts, roofs cover, doors grounded, no daylight gaps)"
+  ],
+  "passes": true
+}
+```

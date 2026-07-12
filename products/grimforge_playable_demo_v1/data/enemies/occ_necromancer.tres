@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="EnemyDef" format=3]
+
+[ext_resource type="Script" path="res://scripts/enemy_def.gd" id="1_occn"]
+
+[resource]
+script = ExtResource("1_occn")
+id = "necromancer"
+target_h = 0.85
+world = "occult_town"
+home = Vector2(0.0, 5.2)
+ranged = true

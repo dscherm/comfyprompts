@@ -93,6 +93,16 @@ def test_town_world_populated():
     )
 
 
+def test_occult_town_populated():
+    """The 4th world (cursed occult village) boots clean and shows its roster (G7)."""
+    out = run_demo(["--occult"], quit_after=5.0)
+    assert_no_script_errors(out)
+    roster = ("cultist", "ghoul", "necromancer", "skeleton_mage")
+    assert any(name in out for name in roster), (
+        f"none of the occult roster {roster} appeared:\n{out[-1500:]}"
+    )
+
+
 def test_enemies_navigate_around_building():
     """Enemies path around building footprints via the runtime-baked navmesh.
 

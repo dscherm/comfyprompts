@@ -16,6 +16,7 @@ const ARENA := {
 	"courtyard": Vector2(6.0, 6.0),
 	"interior": Vector2(3.2, 4.5),
 	"town": Vector2(6.0, 8.0),
+	"occult_town": Vector2(4.5, 8.5),
 }
 
 # The 13-creature roster now lives as EnemyDef resources under data/enemies/

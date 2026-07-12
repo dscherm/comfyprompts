@@ -10,7 +10,7 @@ extends Resource
 @export var target_h := 0.8          # miniature-world height (m); walls are 1.3m
 @export var hp := 30.0               # max health
 @export var dmg := 9.0               # damage per hit
-@export var world := "courtyard"     # "courtyard" | "interior" | "town"
+@export var world := "courtyard"     # "courtyard" | "interior" | "town" | "occult_town"
 @export var home := Vector2.ZERO     # wander anchor (x, z)
 @export var hostile := true          # joins the "enemy" group and fights
 @export var ranged := false          # casters: fire a projectile instead of a melee lunge

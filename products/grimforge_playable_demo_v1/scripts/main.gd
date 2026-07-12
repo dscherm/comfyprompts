@@ -9,6 +9,7 @@ const EnvBuilder := preload("res://scripts/env.gd")
 const BestiaryBuilder := preload("res://scripts/bestiary.gd")
 const InteriorBuilder := preload("res://scripts/interior.gd")
 const TownBuilder := preload("res://scripts/town.gd")
+const OccultBuilder := preload("res://scripts/occult_town.gd")
 const PlayerScript := preload("res://scripts/player.gd")
 
 const COURTYARD_START := Vector3(0.0, 0.1, 2.5)
@@ -31,6 +32,8 @@ func _ready() -> void:
 		start = "interior"
 	elif "--town" in args:
 		start = "town"
+	elif "--occult" in args:
+		start = "occult_town"
 	# Fresh game starts at full hp. reset() runs ONCE here on boot — never in
 	# _build_world — so world transitions preserve the carried hp/death state.
 	GameState.reset()
@@ -60,6 +63,8 @@ func _default_spawn(world: String) -> Vector3:
 			return InteriorBuilder.entrance_point()
 		"town":
 			return TownBuilder.entrance_point()
+		"occult_town":
+			return OccultBuilder.entrance_point()
 		_:
 			return COURTYARD_START
 
@@ -85,6 +90,15 @@ func _world_exits(world: String) -> Array:
 			return [
 				{"pos": Vector3(0, 0, tz), "size": Vector3(2.4, 2.5, 0.9),
 				 "to": "courtyard", "spawn": Vector3(0.0, 0.1, 4.5)},
+				# west edge of the town square -> into the cursed occult village
+				{"pos": Vector3(-5.8, 0, 6.2), "size": Vector3(1.6, 2.5, 1.6),
+				 "to": "occult_town", "spawn": OccultBuilder.entrance_point()},
+			]
+		"occult_town":
+			var oz: float = OccultBuilder.entrance_point().z - 0.7
+			return [
+				{"pos": Vector3(0, 0, oz), "size": Vector3(2.4, 2.5, 0.9),
+				 "to": "town", "spawn": Vector3(-4.0, 0.1, 5.5)},
 			]
 		_:
 			return []
@@ -112,6 +126,10 @@ func _build_world(world: String, spawn: Vector3) -> void:
 			root.add_child(TownBuilder.build())
 			if populate:
 				root.add_child(BestiaryBuilder.build("town"))
+		"occult_town":
+			root.add_child(OccultBuilder.build())
+			if populate:
+				root.add_child(BestiaryBuilder.build("occult_town"))
 		_:
 			root.add_child(EnvBuilder.build())
 			if populate:
