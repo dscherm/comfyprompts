@@ -160,6 +160,7 @@ See the wiki pattern set (`$RALPH_HOME/wiki/`):
     "Gate stays green (locomotion still advances under --drive); user plays to judge feel",
     "If the in-place ceiling isn't enough: escalate to a Unity Humanoid retarget of the Mixamo forward clips -> true root motion (needs Unity open)"
   ],
-  "passes": true
+  "passes": true,
+  "resolution": "DONE via root motion. The Mixamo walking.fbx (forward walk, 1.66u root motion) was Humanoid-retargeted onto the knight in Unity (soapbox-unity/CoplayScripts/BakeKnightWalkRM.cs) with the forward hips translation KEPT (the original bake stripped it; the Humanoid root motion lands on the root transform, so the bake folds it into the CC_Base_Hip track). Exported revenant_knight_walk_rm.fbx (forward hip motion = 1.63u -> 0.74 m/s scaled). player.gd: walk uses this clip at native 1.0x; the AnimationTree root_motion_track = the hip track (physics-callback mode); _physics_process drives walk velocity from get_root_motion_position()*_rig_scale. Result: brisk (0.74 m/s) AND natural cadence, no skate. Run keeps its measured 1.4/0.96x match. The old WALK_SPEED/WALK_ANIM_SPEED remain only as the fallback if the rm clip is absent."
 }
 ```

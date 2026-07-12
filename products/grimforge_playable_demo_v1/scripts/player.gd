@@ -8,16 +8,18 @@ extends CharacterBody3D
 # travel direction, walk/idle clips switch with motion.
 
 const TARGET_H := 0.85       # miniature-world knight height (walls are 1.3m)
-const WALK_SPEED := 0.42     # m/s — measured foot-plant match (measure_loco.gd)
+const WALK_SPEED := 0.26     # m/s — matched to a NATURAL-cadence walk (see below)
 const RUN_SPEED := 1.4       # m/s — hold Shift
 const TURN_SPEED := 10.0     # rad/s toward travel direction
 # In-place clips: no skate requires body_speed == natural_1x * playback. Measured
 # (measure_loco.gd) natural ground speed at 1.0x: walk 0.178 m/s, run 1.454 m/s.
-# So walk plays 0.42/0.178 = 2.36x; run plays 1.4/1.454 = 0.96x — the run clip is
-# already forward-paced, so ~1.0x (the old 1.5x moonwalked; the old 0.6 walk at
-# 2.0x skated). A brisk walk with natural cadence needs root-motion clips (Unity
-# retarget of the Mixamo forward clips) — see plan G6/G9.
-const WALK_ANIM_SPEED := 2.36
+# The run is forward-paced so 0.96x reads naturally at 1.4 m/s. The WALK clip is a
+# slow relaxed amble: at a brisk pace it must play fast and the legs look frantic
+# (2.36x was), so we play it near its authored rate (1.45x -> 0.26 m/s) for a
+# natural but deliberate walk. A brisk walk with natural cadence is impossible
+# with this clip — it needs a root-motion forward walk (Unity retarget of the
+# Mixamo walking.fbx) — see plan G9.
+const WALK_ANIM_SPEED := 1.45
 const RUN_ANIM_SPEED := 0.96
 const CAM_YAW := 45.0
 const CAM_PITCH := -35.0
@@ -43,6 +45,8 @@ var _tree: AnimationTree
 var _sm: AnimationNodeStateMachinePlayback
 var _has_walk := false
 var _has_run := false
+var _rm_walk := false     # walk uses the root-motion clip (revenant_knight_walk_rm)
+var _rig_scale := 1.0     # rig->world scale; root motion is in rig-native units
 var _cam: Camera3D
 var _rig: Node3D
 var _state := "idle"
@@ -126,6 +130,7 @@ func _build_rig() -> void:
 	# scale to knight height, feet on y=0
 	var aabb := _subtree_aabb(_rig, Transform3D.IDENTITY)
 	var s := TARGET_H / maxf(aabb.size.y, 0.01)
+	_rig_scale = s
 	_rig.scale = Vector3(s, s, s)
 	var c := aabb.get_center()
 	_rig.position = Vector3(-c.x, -aabb.position.y, -c.z) * s
@@ -147,17 +152,22 @@ func _build_rig() -> void:
 		push_warning("player: no AnimationPlayer in idle fbx")
 		return
 	_set_loop(_ap, "idle")
-	var has_walk := _merge_clip("res://chars/revenant_knight_walk.fbx", "walk", "loco", true)
+	# Walk uses the root-motion clip (revenant_knight_walk_rm: the Mixamo forward
+	# walk Humanoid-retargeted onto the knight with forward hip translation baked
+	# in). It plays at native 1.0x and DRIVES ground speed from root motion (see
+	# _physics_process) — brisk + natural, no skate. If that clip is missing, fall
+	# back to the in-place walk driven by the measured WALK_SPEED/WALK_ANIM_SPEED.
+	_rm_walk = _merge_clip("res://chars/revenant_knight_walk_rm.fbx", "walk", "loco", true)
+	var has_walk := _rm_walk
+	if not has_walk:
+		has_walk = _merge_clip("res://chars/revenant_knight_walk.fbx", "walk", "loco", true)
+		if has_walk:
+			_retime_clip("loco/walk", WALK_ANIM_SPEED)
+	# Run is still baked in-place, so it keeps the measured foot-speed match.
 	var has_run := _merge_clip("res://chars/revenant_knight_run.fbx", "run", "run", true)
-	# The walk/run clips are baked "in place" (no root-motion translation — see
-	# diag_rootmotion.gd), so ground speed still comes from WALK_SPEED/RUN_SPEED.
-	# Bake the skate-compensation playback speed into the clips so the state
-	# machine reproduces today's foot-matched look at its native 1.0x rate.
-	if has_walk:
-		_retime_clip("loco/walk", WALK_ANIM_SPEED)
 	if has_run:
 		_retime_clip("run/run", RUN_ANIM_SPEED)
-	print("PLAYER_CLIPS idle walk=%s run=%s" % [has_walk, has_run])
+	print("PLAYER_CLIPS idle walk=%s run=%s rootmotion_walk=%s" % [has_walk, has_run, _rm_walk])
 	# attacks (one-shot) + jump — see compare/PICKS.md
 	_merge_attack(KEY_J, "res://chars/knight_slash.fbx", "slash", "j", 1.3, 15.0)
 	_merge_attack(KEY_L, "res://chars/knight_ss_attack2.fbx", "ss_attack2", "l", 1.2, 20.0)
@@ -311,6 +321,27 @@ func _retime_clip(anim_name: String, factor: float) -> void:
 			anim.track_set_key_time(ti, ki, anim.track_get_key_time(ti, ki) / factor)
 	anim.length = anim.length / factor
 
+# The loco/walk position track that carries the most net travel = the forward hip
+# root-motion track. Returned as the AnimationTree root_motion_track path.
+func _walk_hip_track_path() -> String:
+	if _ap == null or not _ap.has_animation("loco/walk"):
+		return ""
+	var anim := _ap.get_animation("loco/walk")
+	var best := ""
+	var best_net := 0.0
+	for ti in range(anim.get_track_count()):
+		if anim.track_get_type(ti) != Animation.TYPE_POSITION_3D:
+			continue
+		var kc := anim.track_get_key_count(ti)
+		if kc < 2:
+			continue
+		var v0: Vector3 = anim.track_get_key_value(ti, 0)
+		var vN: Vector3 = anim.track_get_key_value(ti, kc - 1)
+		if (vN - v0).length() > best_net:
+			best_net = (vN - v0).length()
+			best = String(anim.track_get_path(ti))
+	return best
+
 # Build the AnimationTree + idle/walk/run state machine in code. Falls back to
 # the raw AnimationPlayer (idle) if the tree can't be built.
 func _build_anim_tree(has_walk: bool, has_run: bool) -> void:
@@ -342,6 +373,14 @@ func _build_anim_tree(has_walk: bool, has_run: bool) -> void:
 	_tree.anim_player = _tree.get_path_to(_ap)
 	_tree.tree_root = sm
 	_tree.active = true
+	# extract root motion in the physics step so get_root_motion_position() aligns
+	# with _physics_process, and point it at the walk clip's forward hip track
+	_tree.callback_mode_process = AnimationMixer.ANIMATION_CALLBACK_MODE_PROCESS_PHYSICS
+	if _rm_walk:
+		var rmt := _walk_hip_track_path()
+		if rmt != "":
+			_tree.set("root_motion_track", NodePath(rmt))
+			print("PLAYER_ROOTMOTION track=%s" % rmt)
 	_sm = _tree.get("parameters/playback")
 	_sm.start("idle")
 	_state = "idle"
@@ -512,7 +551,22 @@ func _physics_process(delta: float) -> void:
 	var dir3 := Vector3(iv.x, 0.0, iv.y).rotated(Vector3.UP, deg_to_rad(CAM_YAW))
 	var moving := dir3.length() > 0.01
 	var running := moving and (_force_run or Input.is_physical_key_pressed(KEY_SHIFT))
-	velocity = dir3 * (RUN_SPEED if running else WALK_SPEED)
+	# Consume root motion every physics frame. The walk clip carries forward hip
+	# translation, so its per-frame delta (rig-native units -> world via _rig_scale)
+	# sets the walk's ground speed. Run/idle are in-place so their root motion ~0.
+	var rm_speed := 0.0
+	if _tree and _rm_walk:
+		var rm: Vector3 = _tree.get_root_motion_position()
+		rm_speed = clampf(Vector2(rm.x, rm.z).length() * _rig_scale / maxf(delta, 0.0001), 0.0, 2.0)
+	var speed := 0.0
+	if moving:
+		if running:
+			speed = RUN_SPEED
+		elif _rm_walk:
+			speed = rm_speed
+		else:
+			speed = WALK_SPEED
+	velocity = (dir3.normalized() * speed) if moving else Vector3.ZERO
 	move_and_slide()
 	global_position.x = clampf(global_position.x, -ARENA_CLAMP, ARENA_CLAMP)
 	global_position.z = clampf(global_position.z, -ARENA_CLAMP, ARENA_CLAMP)
