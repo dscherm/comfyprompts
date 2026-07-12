@@ -56,7 +56,34 @@ func _ready() -> void:
 	# _build_world — so world transitions preserve the carried hp/death state.
 	GameState.reset()
 	_build_world(start, _default_spawn(start))
+	if "--sagaink" in args:
+		_setup_sagaink(args)
 	_handle_cli()
+
+# Full-screen "sagaink" ink post-process (see shaders/sagaink.gdshader): a
+# CanvasLayer below the HUD so the 3D world is inked but the UI is not.
+# --accent=amber|blue|red|green picks the single surviving colour.
+func _setup_sagaink(args: PackedStringArray) -> void:
+	var accents := {
+		"amber": Color(1.0, 0.55, 0.12), "blue": Color(0.22, 0.5, 1.0),
+		"red": Color(0.9, 0.12, 0.12), "green": Color(0.32, 1.0, 0.38),
+	}
+	var accent := "amber"
+	for a in args:
+		if a.begins_with("--accent="):
+			accent = a.trim_prefix("--accent=")
+	var layer := CanvasLayer.new()
+	layer.layer = 0   # below the player HUD (its CanvasLayer defaults higher)
+	add_child(layer)
+	var rect := ColorRect.new()
+	rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+	rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	var mat := ShaderMaterial.new()
+	mat.shader = load("res://shaders/sagaink.gdshader")
+	mat.set_shader_parameter("accent_rgb", accents.get(accent, accents["amber"]))
+	rect.material = mat
+	layer.add_child(rect)
+	print("SAGAINK on, accent=%s" % accent)
 
 func _process(delta: float) -> void:
 	if _cooldown > 0.0:
