@@ -228,7 +228,7 @@ static func _fixed_material(src: Material) -> Material:
 	var fixed := src
 	if src is BaseMaterial3D:
 		if sagaink_kit() and ResourceLoader.exists("res://kit/atlas_sagaink_color.png"):
-			fixed = _sagaink_material(src as BaseMaterial3D)
+			fixed = sagaink_material(src as BaseMaterial3D, "res://kit/atlas_sagaink")
 		elif ResourceLoader.exists("res://kit/atlas_color_fixed.png"):
 			fixed = (src as BaseMaterial3D).duplicate()
 			(fixed as BaseMaterial3D).albedo_texture = load("res://kit/atlas_color_fixed.png")
@@ -253,20 +253,23 @@ static func _raw_tex(res_path: String) -> Texture2D:
 	_raw_tex_cache[res_path] = tex
 	return tex
 
-static func _sagaink_material(src: BaseMaterial3D) -> BaseMaterial3D:
+# Build a sagaink material from an atlas set given its prefix (e.g.
+# "res://kit/atlas_sagaink" -> _color/_n/_ao). Shared by every world that uses the
+# baked-atlas kit (courtyard via env, village via town.gd with its wood variant).
+static func sagaink_material(src: BaseMaterial3D, prefix: String) -> BaseMaterial3D:
 	var m := src.duplicate() as BaseMaterial3D
-	m.albedo_texture = load("res://kit/atlas_sagaink_color.png")
+	m.albedo_texture = load(prefix + "_color.png")
 	m.texture_filter = BaseMaterial3D.TEXTURE_FILTER_LINEAR_WITH_MIPMAPS
 	m.roughness = 0.95
 	m.metallic = 0.0
-	if ResourceLoader.exists("res://kit/atlas_sagaink_n.png"):
-		var nt := _raw_tex("res://kit/atlas_sagaink_n.png")
+	if ResourceLoader.exists(prefix + "_n.png"):
+		var nt := _raw_tex(prefix + "_n.png")
 		if nt:
 			m.normal_enabled = true
 			m.normal_texture = nt
 			m.normal_scale = 1.0
-	if ResourceLoader.exists("res://kit/atlas_sagaink_ao.png"):
-		var at := _raw_tex("res://kit/atlas_sagaink_ao.png")
+	if ResourceLoader.exists(prefix + "_ao.png"):
+		var at := _raw_tex(prefix + "_ao.png")
 		if at:
 			m.ao_enabled = true
 			m.ao_texture = at

@@ -78,10 +78,10 @@ def _tex(mat: str, suffix: str, w: int, h: int) -> np.ndarray:
     return np.asarray(im, dtype=np.float32)
 
 
-def bake() -> None:
+def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink") -> None:
     # upscale the shipped atlas to the target size (NEAREST keeps the flat
     # colour/accent swatches crisp); material cells get replaced by fresh hi-res ink
-    base_img = Image.open(BASE_ATLAS).convert("RGB").resize((SIZE, SIZE), Image.NEAREST)
+    base_img = Image.open(base_atlas).convert("RGB").resize((SIZE, SIZE), Image.NEAREST)
     base = np.asarray(base_img, dtype=np.float32)
     names = list(PALETTE)
     rows = -(-len(names) // COLS)
@@ -117,11 +117,23 @@ def bake() -> None:
             # plain / foliage / metal / gravel -> keep tonal shading, drop hue
             color[cy : cy + ch, cx : cx + cw] = L[..., None]
 
-    Image.fromarray(color.clip(0, 255).astype(np.uint8), "RGB").save(OUT / "atlas_sagaink_color.png")
-    Image.fromarray(normal.clip(0, 255).astype(np.uint8), "RGB").save(OUT / "atlas_sagaink_n.png")
-    Image.fromarray(ao.clip(0, 255).astype(np.uint8), "L").save(OUT / "atlas_sagaink_ao.png")
-    print(f"baked sagaink atlas ({len(names)} cells, {cw}x{ch}) -> out/atlas_sagaink_*.png", flush=True)
+    Image.fromarray(color.clip(0, 255).astype(np.uint8), "RGB").save(OUT / f"{out_prefix}_color.png")
+    Image.fromarray(normal.clip(0, 255).astype(np.uint8), "RGB").save(OUT / f"{out_prefix}_n.png")
+    Image.fromarray(ao.clip(0, 255).astype(np.uint8), "L").save(OUT / f"{out_prefix}_ao.png")
+    print(f"baked {out_prefix} ({len(names)} cells, {cw}x{ch}) from {base_atlas.name}", flush=True)
 
+
+# Named atlas variants keyed to the same kitlib PALETTE layout: the courtyard/town
+# fixed atlas and town's wood-building recolour. (Occult embeds per-GLB atlases in
+# a different palette and is handled by a spatial shader instead.)
+DEMO = HERE.parents[2] / "products" / "grimforge_playable_demo_v1"
+VARIANTS = {
+    "atlas_sagaink": DEMO / "kit" / "atlas_color_fixed.png",
+    "atlas_sagaink_wood": DEMO / "town" / "atlas_color_wood.png",
+}
 
 if __name__ == "__main__":
-    bake()
+    which = sys.argv[1] if len(sys.argv) > 1 else "all"
+    todo = VARIANTS if which == "all" else {which: VARIANTS[which]}
+    for prefix, base in todo.items():
+        bake(base, prefix)

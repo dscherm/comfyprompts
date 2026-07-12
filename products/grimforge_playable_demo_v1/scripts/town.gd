@@ -161,13 +161,24 @@ static func _flat_mesh(src: Mesh, wood: bool = false) -> ArrayMesh:
 				nn.append(fn)
 				if has_uv:
 					nu.append((uvs as PackedVector2Array)[j])
-		var na := []
-		na.resize(Mesh.ARRAY_MAX)
-		na[Mesh.ARRAY_VERTEX] = nv
-		na[Mesh.ARRAY_NORMAL] = nn
-		if has_uv:
-			na[Mesh.ARRAY_TEX_UV] = nu
-		out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, na)
+		if EnvBuilder.sagaink_kit() and has_uv:
+			# synthesize tangents for the sagaink normal map (keep flat per-face normals)
+			var st := SurfaceTool.new()
+			st.begin(Mesh.PRIMITIVE_TRIANGLES)
+			for vi in range(nv.size()):
+				st.set_normal(nn[vi])
+				st.set_uv(nu[vi])
+				st.add_vertex(nv[vi])
+			st.generate_tangents()
+			st.commit(out)
+		else:
+			var na := []
+			na.resize(Mesh.ARRAY_MAX)
+			na[Mesh.ARRAY_VERTEX] = nv
+			na[Mesh.ARRAY_NORMAL] = nn
+			if has_uv:
+				na[Mesh.ARRAY_TEX_UV] = nu
+			out.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, na)
 		out.surface_set_material(out.get_surface_count() - 1, _fixed_material(src.surface_get_material(si), wood))
 	return out
 
@@ -182,11 +193,16 @@ static func _fixed_material(src: Material, wood: bool = false) -> Material:
 	var key := "%d_%s" % [src.get_instance_id(), wood]
 	if _mat_cache.has(key):
 		return _mat_cache[key]
-	var atlas := "res://town/atlas_color_wood.png" if wood else "res://town/atlas_color_fixed.png"
 	var fixed := src
-	if src is BaseMaterial3D and ResourceLoader.exists(atlas):
-		fixed = (src as BaseMaterial3D).duplicate()
-		(fixed as BaseMaterial3D).albedo_texture = load(atlas)
-		(fixed as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+	if src is BaseMaterial3D:
+		var sk_prefix := "res://town/atlas_sagaink_wood" if wood else "res://town/atlas_sagaink"
+		if EnvBuilder.sagaink_kit() and ResourceLoader.exists(sk_prefix + "_color.png"):
+			fixed = EnvBuilder.sagaink_material(src as BaseMaterial3D, sk_prefix)
+		else:
+			var atlas := "res://town/atlas_color_wood.png" if wood else "res://town/atlas_color_fixed.png"
+			if ResourceLoader.exists(atlas):
+				fixed = (src as BaseMaterial3D).duplicate()
+				(fixed as BaseMaterial3D).albedo_texture = load(atlas)
+				(fixed as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
 	_mat_cache[key] = fixed
 	return fixed
