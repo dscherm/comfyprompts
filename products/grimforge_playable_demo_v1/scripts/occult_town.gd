@@ -225,6 +225,8 @@ static func _flat_mesh(src: Mesh) -> ArrayMesh:
 # Keep the GLB's embedded atlas albedo; only force nearest filtering so the
 # baked palette reads crisp (mipmapped nearest also tames gradient banding at
 # tiling distance — the kit-render "atlas fix" without a hand-authored atlas).
+const SagainkShader := preload("res://shaders/sagaink_surface.gdshader")
+
 static func _fixed_material(src: Material) -> Material:
 	if src == null:
 		return null
@@ -233,7 +235,15 @@ static func _fixed_material(src: Material) -> Material:
 		return _mat_cache[key]
 	var fixed := src
 	if src is BaseMaterial3D:
-		fixed = (src as BaseMaterial3D).duplicate()
-		(fixed as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
+		if EnvBuilder.sagaink_kit():
+			# occult kits embed their own atlas per-GLB (palette we can't re-bake),
+			# so desaturate-to-ink in a spatial shader that keeps their glows as accents
+			var sm := ShaderMaterial.new()
+			sm.shader = SagainkShader
+			sm.set_shader_parameter("albedo_tex", (src as BaseMaterial3D).albedo_texture)
+			fixed = sm
+		else:
+			fixed = (src as BaseMaterial3D).duplicate()
+			(fixed as BaseMaterial3D).texture_filter = BaseMaterial3D.TEXTURE_FILTER_NEAREST_WITH_MIPMAPS
 	_mat_cache[key] = fixed
 	return fixed
