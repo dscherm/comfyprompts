@@ -7,9 +7,12 @@ black-and-white ink illustration — carved shadows, bold linework, cross-hatchi
 glow, a forge ember, a rune gem).
 
 This is a **real material treatment baked into the reusable atlas**, not a
-full-screen post-process. Every kit piece samples one shared 512×512 atlas, so
-re-baking that atlas re-skins the whole kit at once — with the existing GLB UVs
-untouched (no Blender re-export). The pieces therefore carry the look
+full-screen post-process. Every kit piece samples one shared atlas, so re-baking
+that atlas re-skins the whole kit at once — with the existing GLB UVs untouched
+(no Blender re-export). UVs are normalised into cell rects, so the atlas bakes at
+any resolution; the default is **2048** (`SAGAINK_ATLAS_SIZE` env), which keeps
+the ink detail (256px material cells, 4:1 from the 1024 source) where the shipped
+512 atlas crushed it 12:1. The pieces therefore carry the look
 **standalone**, in any engine, with no shader required. A separate optional
 Godot NPR shader (`grimforge_playable_demo_v1/shaders/sagaink.gdshader`,
 `--sagaink`) exists for a stronger stylised pass, but the kit does not depend on

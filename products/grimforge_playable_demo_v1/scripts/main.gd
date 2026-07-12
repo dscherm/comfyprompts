@@ -41,6 +41,9 @@ var _cooldown := 0.0
 var _no_player := false
 
 func _ready() -> void:
+	# hide the runtime nav-mesh debug wireframe (clutters overview/marketing shots);
+	# harmless no-op in release builds
+	NavigationServer3D.set_debug_enabled(false)
 	_setup_lighting()
 	_setup_overview_camera()
 	var args := OS.get_cmdline_user_args()

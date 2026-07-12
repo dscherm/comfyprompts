@@ -22,6 +22,7 @@ Run derive_maps.py first (needs out/<mat>_n.png, _ao.png).
 """
 from __future__ import annotations
 
+import os
 import sys
 from pathlib import Path
 
@@ -36,7 +37,10 @@ BASE_ATLAS = HERE.parents[2] / "products" / "grimforge_playable_demo_v1" / "kit"
 sys.path.insert(0, str(KITLIB))
 from kitlib import EMISSION, PALETTE  # noqa: E402  (pure data, no bpy)
 
-SIZE = 512
+# UVs are normalised into cell rects, so the atlas can be baked at any resolution
+# and the same GLBs still map. 512 crushed each material to a 64px cell (12:1
+# downsample of the 1024 ink source, losing the detail); 2048 keeps it (4:1).
+SIZE = int(os.environ.get("SAGAINK_ATLAS_SIZE", "2048"))
 COLS = 8
 
 # pattern group -> which sagaink texture skins it (mirrors kitlib _ensure_atlas)
@@ -56,7 +60,11 @@ for n in STRAW:
     TEX_OF[n] = "thatch"
 TEX_OF["cobble"] = "stone"  # cobble ground reads as stone masonry
 
-ACCENT = set(EMISSION)  # the deliberate colour pops; everything else -> grayscale
+# Cells that KEEP their colour as a deliberate accent. sagaink allows one accent
+# "per subject", so different subjects carry different single accents: the emissive
+# glows (window/fire/ember/gem/rune) AND the red banners/capes/cloth. Everything
+# structural still goes grayscale.
+ACCENT = set(EMISSION) | {"crimson", "flag", "cloth_r"}
 
 _LUMA = np.array([0.299, 0.587, 0.114], dtype=np.float32)
 
@@ -71,7 +79,10 @@ def _tex(mat: str, suffix: str, w: int, h: int) -> np.ndarray:
 
 
 def bake() -> None:
-    base = np.asarray(Image.open(BASE_ATLAS).convert("RGB"), dtype=np.float32)
+    # upscale the shipped atlas to the target size (NEAREST keeps the flat
+    # colour/accent swatches crisp); material cells get replaced by fresh hi-res ink
+    base_img = Image.open(BASE_ATLAS).convert("RGB").resize((SIZE, SIZE), Image.NEAREST)
+    base = np.asarray(base_img, dtype=np.float32)
     names = list(PALETTE)
     rows = -(-len(names) // COLS)
     cw, ch = SIZE // COLS, SIZE // rows
