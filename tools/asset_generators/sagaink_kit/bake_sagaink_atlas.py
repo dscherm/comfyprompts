@@ -60,11 +60,21 @@ for n in STRAW:
     TEX_OF[n] = "thatch"
 TEX_OF["cobble"] = "stone"  # cobble ground reads as stone masonry
 
-# Cells that KEEP their colour as a deliberate accent. sagaink allows one accent
-# "per subject", so different subjects carry different single accents: the emissive
-# glows (window/fire/ember/gem/rune) AND the red banners/capes/cloth. Everything
-# structural still goes grayscale.
+# Cells kept verbatim (glows + red banners) as vivid accents.
 ACCENT = set(EMISSION) | {"crimson", "flag", "cloth_r"}
+
+# The kit stays COLOURED (not strict-grayscale sagaink): each material's inked
+# linework + carved relief is TINTED by a colour so surfaces differentiate and the
+# world isn't grey-on-grey. Most materials tint by their own palette swatch (stone
+# stays neutral grey, wood brown); these override to the vivid sagaink accents the
+# art calls for — amber/gold straw, blood-red clay roof tiles.
+_AMBER = np.array([224.0, 168.0, 66.0])   # golden straw
+_BLOOD = np.array([152.0, 44.0, 34.0])    # blood-red clay tile
+TINT = {
+    "thatch": _AMBER,
+    "thatch_dk": _AMBER * 0.78,
+    "roof_red": _BLOOD,
+}
 
 _LUMA = np.array([0.299, 0.587, 0.114], dtype=np.float32)
 
@@ -99,7 +109,6 @@ def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
         cx = (i % COLS) * cw
         cy = (rows - 1 - i // COLS) * ch
         cell = base[cy : cy + ch, cx : cx + cw]  # source RGB for this swatch
-        L = _luma(cell)
 
         if name in ACCENT:
             continue  # keep the colour pop as-is (also drives the emit atlas)
@@ -118,14 +127,19 @@ def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
                 g = np.roll(g, (dy, dx), axis=(0, 1))
                 nrm = np.roll(nrm, (dy, dx), axis=(0, 1))
                 aomap = np.roll(aomap, (dy, dx), axis=(0, 1))
-            target = float(L.mean())
-            toned = np.clip((g - g.mean()) * 1.12 + target, 0.0, 255.0)
-            color[cy : cy + ch, cx : cx + cw] = toned[..., None]
+            # tint the inked light/dark detail by the material colour (its own
+            # palette swatch, or an override) — coloured inked material, not grey
+            tint = TINT.get(name)
+            if tint is None:
+                tint = cell.reshape(-1, 3).mean(axis=0)  # the swatch's palette colour
+            ink = g / max(float(g.mean()), 1.0)                 # detail as a ~1.0 multiplier
+            ink = np.clip((ink - 1.0) * 1.35 + 1.0, 0.35, 1.7)  # punch the ink contrast
+            tinted = np.clip(tint[None, None, :] * ink[..., None], 0.0, 255.0)
+            color[cy : cy + ch, cx : cx + cw] = tinted
             normal[cy : cy + ch, cx : cx + cw] = nrm
             ao[cy : cy + ch, cx : cx + cw] = aomap
-        else:
-            # plain / foliage / metal / gravel -> keep tonal shading, drop hue
-            color[cy : cy + ch, cx : cx + cw] = L[..., None]
+        # else: plain / foliage / metal / gravel — keep the original colour swatch
+        # (color starts as base.copy()), so foliage green / cloth stay coloured
 
     out_dir.mkdir(parents=True, exist_ok=True)
     Image.fromarray(color.clip(0, 255).astype(np.uint8), "RGB").save(out_dir / f"{out_prefix}_color.png")
