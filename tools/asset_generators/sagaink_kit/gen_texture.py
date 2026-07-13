@@ -42,7 +42,10 @@ NEG = ("colour, colored, brown, sepia, blue, painterly, photorealistic, photo, "
        "pure black and white, bimodal, barcode, high frequency stripes, "
        "light airy, thin delicate line drawing, blank white background, flat even "
        "lighting, smooth gradient, soft, blurry, cel shaded, coloring book, flat "
-       "graphic, text, watermark, visible seam, perspective, object, border, vignette")
+       "graphic, text, watermark, visible seam, perspective, object, border, vignette, "
+       # keep material textures as flat surfaces, never a depicted scene
+       "building, house, cottage, roof edge, tree, pine tree, sky, horizon, "
+       "landscape, scenery, window, chimney, snowman")
 
 # material -> subject description (INK is appended). Seeds fixed for repeatable
 # regeneration; each gets its own so they don't look identical.
@@ -56,6 +59,13 @@ MATERIALS = {
     "plaster": ("a rough cracked plaster daub wall with hairline cracks and pitting", 45),
     "shingle": ("a roof of overlapping split-timber wood shingles in courses with "
                 "split grain", 46),
+    # ground material (roofs reuse `shingle` tinted per type — SDXL wouldn't make
+    # clean tile rows, only cracked stone; and smooth snow is procedural, see
+    # bake_sagaink_atlas / the snow.png generator, not SDXL)
+    "cobble":     ("a ground of rounded cobblestone setts with deep mortar gaps, "
+                   "worn paving stones", 49),
+    "snow_stone": ("a stone masonry wall dusted with snow, snow settled on every "
+                   "ledge and packed into the mortar courses", 52),
 }
 
 

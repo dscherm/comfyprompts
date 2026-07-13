@@ -21,11 +21,13 @@ import numpy as np
 from PIL import Image, ImageFilter
 
 OUT = Path(__file__).resolve().parent / "out"
-MATERIALS = ["wood", "stone", "thatch", "plaster", "shingle"]
+MATERIALS = ["wood", "stone", "thatch", "plaster", "shingle",
+             "cobble", "snow", "snow_stone"]
 
 # Per-material relief strength: how tall the height field reads. Deep mortar and
-# overlapping reeds/shingles want more; flat plaster wants less.
-STRENGTH = {"wood": 1.5, "stone": 2.2, "thatch": 2.4, "plaster": 1.0, "shingle": 2.3}
+# overlapping reeds/shingles want more; flat plaster/snow want less.
+STRENGTH = {"wood": 1.5, "stone": 2.2, "thatch": 2.4, "plaster": 1.0, "shingle": 2.3,
+            "cobble": 2.3, "snow": 0.7, "snow_stone": 2.0}
 
 
 def _height(img: Image.Image, blur: float = 1.2) -> np.ndarray:

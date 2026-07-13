@@ -48,20 +48,32 @@ PLANKS = ("wood", "wood_dk", "charwood", "beam")
 BRICK = ("stone", "stone_dk", "plaster", "plaster2")
 SHINGLE = ("slate", "roof_red", "shake")
 STRAW = ("thatch", "thatch_dk")
-# name -> sagaink texture basename in out/
+# name -> sagaink texture basename in out/. All roofs use the shingle texture —
+# its clean horizontal COURSES read as a roof; the material is set by the tint
+# (blood-red clay tile, blue-grey slate, brown shake), which reads far better than
+# SDXL's cracked-"tile" attempts that just looked like stone. cobble is its own.
 TEX_OF: dict[str, str] = {}
 for n in PLANKS:
     TEX_OF[n] = "wood"
 TEX_OF["stone"] = TEX_OF["stone_dk"] = "stone"
 TEX_OF["plaster"] = TEX_OF["plaster2"] = "plaster"
-for n in SHINGLE:
+for n in SHINGLE:            # slate, roof_red, shake — differentiated by tint below
     TEX_OF[n] = "shingle"
 for n in STRAW:
     TEX_OF[n] = "thatch"
-TEX_OF["cobble"] = "stone"  # cobble ground reads as stone masonry
+TEX_OF["cobble"] = "cobble"
 
-# Cells kept verbatim (glows + red banners) as vivid accents.
-ACCENT = set(EMISSION) | {"crimson", "flag", "cloth_r"}
+# Cells kept verbatim (the emissive glows) as vivid accents.
+ACCENT = set(EMISSION)
+
+# Cells RECOLOURED to a solid accent (keeping the swatch's luminance detail): the
+# banners/capes/cloth become vivid blood-red torn fabric.
+_BLOOD_BANNER = np.array([170.0, 30.0, 24.0])
+RECOLOR = {
+    "crimson": _BLOOD_BANNER,
+    "flag": _BLOOD_BANNER,
+    "cloth_r": _BLOOD_BANNER,
+}
 
 # The kit stays COLOURED (not strict-grayscale sagaink): each material's inked
 # linework + carved relief is TINTED by a colour so surfaces differentiate and the
@@ -74,6 +86,23 @@ TINT = {
     "thatch": _AMBER,
     "thatch_dk": _AMBER * 0.78,
     "roof_red": _BLOOD,
+}
+
+# --- snow theme ------------------------------------------------------------- #
+# A themed variant: roofs/ground/masonry wear the snow textures, tinted near-white
+# (the snow_* textures encode where the material shows through the snow). Built as
+# atlas_sagaink_snow_* and selectable in-demo via --snow.
+SNOW_TEX = {
+    "slate": "snow", "roof_red": "snow", "shake": "snow",
+    "thatch": "snow", "thatch_dk": "snow",
+    "stone": "snow_stone", "stone_dk": "snow_stone",
+    "plaster": "snow_stone", "plaster2": "snow_stone",
+    "wood": "snow_stone", "wood_dk": "snow_stone", "beam": "snow_stone", "charwood": "snow_stone",
+    "cobble": "snow", "gravel": "snow",
+}
+_SNOW = {  # snow texture -> tint (pale, cool)
+    "snow_stone": np.array([206.0, 214.0, 226.0]),  # snowy masonry (stone shows through)
+    "snow": np.array([234.0, 240.0, 249.0]),        # clean snow blanket (roofs + ground)
 }
 
 _LUMA = np.array([0.299, 0.587, 0.114], dtype=np.float32)
@@ -89,7 +118,8 @@ def _tex(mat: str, suffix: str, w: int, h: int) -> np.ndarray:
 
 
 def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
-         out_dir: Path = OUT, roll: tuple[float, float] = (0.0, 0.0)) -> None:
+         out_dir: Path = OUT, roll: tuple[float, float] = (0.0, 0.0),
+         theme: str | None = None) -> None:
     # upscale the shipped atlas to the target size (NEAREST keeps the flat
     # colour/accent swatches crisp); material cells get replaced by fresh hi-res ink
     base_img = Image.open(base_atlas).convert("RGB").resize((SIZE, SIZE), Image.NEAREST)
@@ -113,7 +143,13 @@ def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
         if name in ACCENT:
             continue  # keep the colour pop as-is (also drives the emit atlas)
 
-        mat = TEX_OF.get(name)
+        if name in RECOLOR:
+            # blood-red torn fabric: solid accent modulated by the swatch's folds
+            shade = (0.5 + 0.62 * (_luma(cell) / 255.0))[..., None]
+            color[cy : cy + ch, cx : cx + cw] = np.clip(RECOLOR[name][None, None, :] * shade, 0.0, 255.0)
+            continue
+
+        mat = SNOW_TEX.get(name) if theme == "snow" else TEX_OF.get(name)
         if mat is not None:
             # stamp the inked texture, tone-shifted to this swatch's mean luminance.
             # roll (a seam-safe shift, textures tile) yields variant atlases so
@@ -127,18 +163,26 @@ def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
                 g = np.roll(g, (dy, dx), axis=(0, 1))
                 nrm = np.roll(nrm, (dy, dx), axis=(0, 1))
                 aomap = np.roll(aomap, (dy, dx), axis=(0, 1))
-            # tint the inked light/dark detail by the material colour (its own
-            # palette swatch, or an override) — coloured inked material, not grey
-            tint = TINT.get(name)
-            if tint is None:
-                tint = cell.reshape(-1, 3).mean(axis=0)  # the swatch's palette colour
+            # tint the inked light/dark detail by the material colour: snow theme
+            # tints near-white per snow texture; otherwise the swatch's own palette
+            # colour (stone grey, wood brown) or an override (amber straw, red tile)
+            if theme == "snow":
+                tint = _SNOW[mat]
+            else:
+                tint = TINT.get(name)
+                if tint is None:
+                    tint = cell.reshape(-1, 3).mean(axis=0)  # the swatch's palette colour
             ink = g / max(float(g.mean()), 1.0)                 # detail as a ~1.0 multiplier
             ink = np.clip((ink - 1.0) * 1.35 + 1.0, 0.35, 1.7)  # punch the ink contrast
             tinted = np.clip(tint[None, None, :] * ink[..., None], 0.0, 255.0)
             color[cy : cy + ch, cx : cx + cw] = tinted
             normal[cy : cy + ch, cx : cx + cw] = nrm
             ao[cy : cy + ch, cx : cx + cw] = aomap
-        # else: plain / foliage / metal / gravel — keep the original colour swatch
+        elif theme == "snow":
+            # plain ground/foliage under snow: push toward snow white, faint detail
+            snowed = _SNOW["snow"][None, None, :] * (0.72 + 0.34 * (_luma(cell) / 255.0)[..., None])
+            color[cy : cy + ch, cx : cx + cw] = np.clip(snowed, 0.0, 255.0)
+        # else: plain / foliage / metal — keep the original colour swatch
         # (color starts as base.copy()), so foliage green / cloth stay coloured
 
     out_dir.mkdir(parents=True, exist_ok=True)
@@ -165,13 +209,20 @@ def bake_into_kit(kit_dir: Path) -> None:
 # fixed atlas and town's wood-building recolour. (Occult embeds per-GLB atlases in
 # a different palette and is handled by a spatial shader instead.)
 DEMO = HERE.parents[2] / "products" / "grimforge_playable_demo_v1"
-# prefix -> (base atlas, roll). The _v1 entries are half-shifted so repeated
-# pieces can pick a different arrangement per instance (see env.gd _apply_variant).
+# prefix -> (base atlas, roll, theme). The _v1 entries are half-shifted so repeated
+# pieces can pick a different arrangement per instance (see env.gd _apply_variant);
+# the _snow entries wear the snow textures (selectable in-demo via --snow).
+_KIT = DEMO / "kit" / "atlas_color_fixed.png"
+_WOOD = DEMO / "town" / "atlas_color_wood.png"
 VARIANTS = {
-    "atlas_sagaink": (DEMO / "kit" / "atlas_color_fixed.png", (0.0, 0.0)),
-    "atlas_sagaink_v1": (DEMO / "kit" / "atlas_color_fixed.png", (0.5, 0.37)),
-    "atlas_sagaink_wood": (DEMO / "town" / "atlas_color_wood.png", (0.0, 0.0)),
-    "atlas_sagaink_wood_v1": (DEMO / "town" / "atlas_color_wood.png", (0.5, 0.37)),
+    "atlas_sagaink": (_KIT, (0.0, 0.0), None),
+    "atlas_sagaink_v1": (_KIT, (0.5, 0.37), None),
+    "atlas_sagaink_wood": (_WOOD, (0.0, 0.0), None),
+    "atlas_sagaink_wood_v1": (_WOOD, (0.5, 0.37), None),
+    "atlas_sagaink_snow": (_KIT, (0.0, 0.0), "snow"),
+    "atlas_sagaink_snow_v1": (_KIT, (0.5, 0.37), "snow"),
+    "atlas_sagaink_wood_snow": (_WOOD, (0.0, 0.0), "snow"),
+    "atlas_sagaink_wood_snow_v1": (_WOOD, (0.5, 0.37), "snow"),
 }
 
 if __name__ == "__main__":
@@ -182,5 +233,5 @@ if __name__ == "__main__":
     else:
         which = args[0] if args else "all"
         todo = VARIANTS if which == "all" else {which: VARIANTS[which]}
-        for prefix, (base, roll) in todo.items():
-            bake(base, prefix, roll=roll)
+        for prefix, (base, roll, theme) in todo.items():
+            bake(base, prefix, roll=roll, theme=theme)

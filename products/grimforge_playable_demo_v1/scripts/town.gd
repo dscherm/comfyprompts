@@ -103,7 +103,7 @@ static func _place(parent: Node3D, model: String, pos: Vector3, yaw: float) -> N
 	var wood: bool = model in WOOD_BUILDINGS
 	_flatten_normals(inst, wood)
 	if EnvBuilder.sagaink_kit():
-		EnvBuilder.apply_variant(inst, "res://town/atlas_sagaink_wood" if wood else "res://town/atlas_sagaink", pos)
+		EnvBuilder.apply_variant(inst, _town_prefix(wood), pos)
 	parent.add_child(inst)
 	if not (model in NON_SOLID):
 		_add_collision(inst)
@@ -190,6 +190,11 @@ static func _flat_mesh(src: Mesh, wood: bool = false) -> ArrayMesh:
 # village material (all pieces share one atlas).
 static var _mat_cache := {}
 
+# village atlas prefix, wood-building + snow-theme aware (see env.gd --snow)
+static func _town_prefix(wood: bool) -> String:
+	var base := "res://town/atlas_sagaink_wood" if wood else "res://town/atlas_sagaink"
+	return base + ("_snow" if EnvBuilder.sagaink_snow() else "")
+
 static func _fixed_material(src: Material, wood: bool = false) -> Material:
 	if src == null:
 		return null
@@ -198,7 +203,7 @@ static func _fixed_material(src: Material, wood: bool = false) -> Material:
 		return _mat_cache[key]
 	var fixed := src
 	if src is BaseMaterial3D:
-		var sk_prefix := "res://town/atlas_sagaink_wood" if wood else "res://town/atlas_sagaink"
+		var sk_prefix := _town_prefix(wood)
 		if EnvBuilder.sagaink_kit() and ResourceLoader.exists(sk_prefix + "_color.png"):
 			fixed = EnvBuilder.sagaink_material(src as BaseMaterial3D, sk_prefix)
 		else:

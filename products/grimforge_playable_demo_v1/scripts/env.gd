@@ -125,7 +125,7 @@ static func _place(parent: Node3D, model: String, pos: Vector3, yrot_deg: float)
 	inst.rotation_degrees = Vector3(0.0, yrot_deg, 0.0)
 	_flatten_normals(inst)
 	if sagaink_kit():
-		apply_variant(inst, "res://kit/atlas_sagaink", pos)
+		apply_variant(inst, kit_sagaink_prefix(), pos)
 	parent.add_child(inst)
 	if not (model in NON_SOLID):
 		_add_collision(inst)
@@ -229,8 +229,9 @@ static func _fixed_material(src: Material) -> Material:
 		return _mat_cache[key]
 	var fixed := src
 	if src is BaseMaterial3D:
-		if sagaink_kit() and ResourceLoader.exists("res://kit/atlas_sagaink_color.png"):
-			fixed = sagaink_material(src as BaseMaterial3D, "res://kit/atlas_sagaink")
+		var sk := kit_sagaink_prefix()
+		if sagaink_kit() and ResourceLoader.exists(sk + "_color.png"):
+			fixed = sagaink_material(src as BaseMaterial3D, sk)
 		elif ResourceLoader.exists("res://kit/atlas_color_fixed.png"):
 			fixed = (src as BaseMaterial3D).duplicate()
 			(fixed as BaseMaterial3D).albedo_texture = load("res://kit/atlas_color_fixed.png")
@@ -244,6 +245,13 @@ static func _fixed_material(src: Material) -> Material:
 # so the import pipeline doesn't sRGB-mangle their linear data.
 static func sagaink_kit() -> bool:
 	return "--sagaink-kit" in OS.get_cmdline_user_args()
+
+# --snow selects the snow-themed atlas set (snow-laden roofs/ground/masonry).
+static func sagaink_snow() -> bool:
+	return "--snow" in OS.get_cmdline_user_args()
+
+static func kit_sagaink_prefix() -> String:
+	return "res://kit/atlas_sagaink_snow" if sagaink_snow() else "res://kit/atlas_sagaink"
 
 # Per-instance material variety: pick the base atlas or its rolled _v1 by hashing
 # the piece position, so repeated walls/houses don't clone the identical brick or
