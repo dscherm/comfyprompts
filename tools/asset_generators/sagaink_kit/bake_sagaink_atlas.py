@@ -79,7 +79,7 @@ def _tex(mat: str, suffix: str, w: int, h: int) -> np.ndarray:
 
 
 def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
-         out_dir: Path = OUT) -> None:
+         out_dir: Path = OUT, roll: tuple[float, float] = (0.0, 0.0)) -> None:
     # upscale the shipped atlas to the target size (NEAREST keeps the flat
     # colour/accent swatches crisp); material cells get replaced by fresh hi-res ink
     base_img = Image.open(base_atlas).convert("RGB").resize((SIZE, SIZE), Image.NEAREST)
@@ -106,14 +106,23 @@ def bake(base_atlas: Path = BASE_ATLAS, out_prefix: str = "atlas_sagaink",
 
         mat = TEX_OF.get(name)
         if mat is not None:
-            # stamp the inked texture, tone-shifted to this swatch's mean luminance
+            # stamp the inked texture, tone-shifted to this swatch's mean luminance.
+            # roll (a seam-safe shift, textures tile) yields variant atlases so
+            # repeated pieces don't clone the identical brick/plank arrangement.
+            dy, dx = int(roll[1] * ch), int(roll[0] * cw)
             g = _tex(mat, "", cw, ch)[..., :3] @ _LUMA
+            nrm = _tex(mat, "_n", cw, ch)[..., :3]
+            aomap = _tex(mat, "_ao", cw, ch)
+            aomap = aomap[..., 0] if aomap.ndim == 3 else aomap
+            if dx or dy:
+                g = np.roll(g, (dy, dx), axis=(0, 1))
+                nrm = np.roll(nrm, (dy, dx), axis=(0, 1))
+                aomap = np.roll(aomap, (dy, dx), axis=(0, 1))
             target = float(L.mean())
             toned = np.clip((g - g.mean()) * 1.12 + target, 0.0, 255.0)
             color[cy : cy + ch, cx : cx + cw] = toned[..., None]
-            normal[cy : cy + ch, cx : cx + cw] = _tex(mat, "_n", cw, ch)[..., :3]
-            aomap = _tex(mat, "_ao", cw, ch)
-            ao[cy : cy + ch, cx : cx + cw] = aomap[..., 0] if aomap.ndim == 3 else aomap
+            normal[cy : cy + ch, cx : cx + cw] = nrm
+            ao[cy : cy + ch, cx : cx + cw] = aomap
         else:
             # plain / foliage / metal / gravel -> keep tonal shading, drop hue
             color[cy : cy + ch, cx : cx + cw] = L[..., None]
@@ -142,9 +151,13 @@ def bake_into_kit(kit_dir: Path) -> None:
 # fixed atlas and town's wood-building recolour. (Occult embeds per-GLB atlases in
 # a different palette and is handled by a spatial shader instead.)
 DEMO = HERE.parents[2] / "products" / "grimforge_playable_demo_v1"
+# prefix -> (base atlas, roll). The _v1 entries are half-shifted so repeated
+# pieces can pick a different arrangement per instance (see env.gd _apply_variant).
 VARIANTS = {
-    "atlas_sagaink": DEMO / "kit" / "atlas_color_fixed.png",
-    "atlas_sagaink_wood": DEMO / "town" / "atlas_color_wood.png",
+    "atlas_sagaink": (DEMO / "kit" / "atlas_color_fixed.png", (0.0, 0.0)),
+    "atlas_sagaink_v1": (DEMO / "kit" / "atlas_color_fixed.png", (0.5, 0.37)),
+    "atlas_sagaink_wood": (DEMO / "town" / "atlas_color_wood.png", (0.0, 0.0)),
+    "atlas_sagaink_wood_v1": (DEMO / "town" / "atlas_color_wood.png", (0.5, 0.37)),
 }
 
 if __name__ == "__main__":
@@ -155,5 +168,5 @@ if __name__ == "__main__":
     else:
         which = args[0] if args else "all"
         todo = VARIANTS if which == "all" else {which: VARIANTS[which]}
-        for prefix, base in todo.items():
-            bake(base, prefix)
+        for prefix, (base, roll) in todo.items():
+            bake(base, prefix, roll=roll)

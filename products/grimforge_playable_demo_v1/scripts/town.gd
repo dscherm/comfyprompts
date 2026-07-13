@@ -100,7 +100,10 @@ static func _place(parent: Node3D, model: String, pos: Vector3, yaw: float) -> N
 	var inst: Node3D = scene.instantiate()
 	inst.position = pos
 	inst.rotation_degrees = Vector3(0.0, yaw, 0.0)
-	_flatten_normals(inst, model in WOOD_BUILDINGS)
+	var wood: bool = model in WOOD_BUILDINGS
+	_flatten_normals(inst, wood)
+	if EnvBuilder.sagaink_kit():
+		EnvBuilder.apply_variant(inst, "res://town/atlas_sagaink_wood" if wood else "res://town/atlas_sagaink", pos)
 	parent.add_child(inst)
 	if not (model in NON_SOLID):
 		_add_collision(inst)

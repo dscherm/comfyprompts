@@ -124,6 +124,8 @@ static func _place(parent: Node3D, model: String, pos: Vector3, yrot_deg: float)
 	inst.position = pos
 	inst.rotation_degrees = Vector3(0.0, yrot_deg, 0.0)
 	_flatten_normals(inst)
+	if sagaink_kit():
+		apply_variant(inst, "res://kit/atlas_sagaink", pos)
 	parent.add_child(inst)
 	if not (model in NON_SOLID):
 		_add_collision(inst)
@@ -242,6 +244,32 @@ static func _fixed_material(src: Material) -> Material:
 # so the import pipeline doesn't sRGB-mangle their linear data.
 static func sagaink_kit() -> bool:
 	return "--sagaink-kit" in OS.get_cmdline_user_args()
+
+# Per-instance material variety: pick the base atlas or its rolled _v1 by hashing
+# the piece position, so repeated walls/houses don't clone the identical brick or
+# plank arrangement. Shared by env (courtyard) and town. No-op if _v1 isn't baked.
+static var _variant_cache := {}
+
+static func apply_variant(node: Node, base_prefix: String, pos: Vector3) -> void:
+	if (hash(str(pos.snapped(Vector3.ONE * 0.05))) & 1) == 0:
+		return  # this instance keeps the base (v0) atlas
+	var prefix := base_prefix + "_v1"
+	if not ResourceLoader.exists(prefix + "_color.png"):
+		return
+	var stack: Array = [node]
+	while not stack.is_empty():
+		var n: Node = stack.pop_back()
+		if n is MeshInstance3D:
+			var mi := n as MeshInstance3D
+			if mi.mesh and mi.mesh.get_surface_count() > 0:
+				var bm := mi.mesh.surface_get_material(0)
+				if bm is BaseMaterial3D:
+					var key := "%d_%s" % [bm.get_instance_id(), prefix]
+					if not _variant_cache.has(key):
+						_variant_cache[key] = sagaink_material(bm as BaseMaterial3D, prefix)
+					mi.material_override = _variant_cache[key]
+		for c in n.get_children():
+			stack.push_back(c)
 
 static var _raw_tex_cache := {}
 
