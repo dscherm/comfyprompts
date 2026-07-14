@@ -1,6 +1,6 @@
 ---
 name: character-pipeline
-description: Run the proven end-to-end game-character pipeline — concept T-pose views → TRELLIS.2 multi-view mesh → mesh prep → TRELLIS texture paint → UV/bake → AccuRIG rig (one manual GUI step) → Unity Humanoid + shared Mixamo clips → strict validation PASS. Use when the user wants a new Soapbox character (or any humanoid) taken from images to a validated, animated, textured Unity asset. Args - character id/name + front and back T-pose images.
+description: Run the proven end-to-end game-character pipeline — concept T-pose view → TRELLIS.2 SINGLE-view mesh → mesh prep → TRELLIS texture paint → UV/bake → AccuRIG rig (one manual GUI step) → Unity Humanoid + shared Mixamo clips → strict validation PASS. Use when the user wants a new Soapbox character (or any humanoid) taken from images to a validated, animated, textured Unity asset. Args - character id/name + a front T-pose image (single view; multiview corrupts).
 ---
 
 # Character Pipeline (proven on The Rookie, 2026-07-03)
@@ -11,8 +11,8 @@ are manual (AccuRIG GUI ~2 min; Unity menu clicks). Run phases in order; do not
 skip gates. Show the user each visual checkpoint and wait for their OK
 (interactive bridge mode).
 
-**Inputs required**: `<name>` (lowercase id, e.g. `bones`), front + back T-pose
-images in `D:/Projects/ComfyUI/input/` (wide T-pose, separated limbs,
+**Inputs required**: `<name>` (lowercase id, e.g. `bones`), a front T-pose
+image in `D:/Projects/ComfyUI/input/` (single view — multiview corrupts; wide T-pose, separated limbs,
 **CLOSED FISTS** — spread fingers reconstruct as mittens/claws; see memory
 `project_mv_ortho_fists`). Character descriptions for Soapbox live in
 `pipelines/art-to-rig-ralph/output/intake/characters-intake.json`.
@@ -39,13 +39,16 @@ Unity project = `D:/Projects/soapbox-unity`).
   system python — memory `project_comfyui_torch_xformers_pin`).
 - Confirm both input images exist in `D:/Projects/ComfyUI/input/`.
 
-## Phase 1 — Mesh generation (TRELLIS.2 multi-view, GPU ~5 min)
+## Phase 1 — Mesh generation (TRELLIS.2 SINGLE-view, GPU ~5 min)
 ```
 py -3.11 pipelines/art-to-rig-ralph/scripts/trellis_queue.py \
-  --workflow MeshOnly_MultiView --front <front>.png --back <back>.png \
-  --prefix <Name>_MV --seed 12345
+  --workflow MeshOnly --front <front>.png \
+  --prefix <Name> --seed 12345
 ```
-(User prefers watching in the ComfyUI UI — the queued job is visible there.)
+**SINGLE front view only.** MULTIVIEW DOES NOT WORK — `MeshOnly_MultiView` needs a
+back image, corrupts geometry when fed two separate gens, and its second image
+loader errors on a stale default when only `--front` is given. Use `--workflow
+MeshOnly` (one image). (User prefers watching in the ComfyUI UI — the job is visible there.)
 **Gate**: script exits 0 and prints `OUTPUT <glb>`. Two checks:
 1. **W/H bbox ratio ≥ ~0.7** (mesh width / height, world bbox across all mesh
    objects) — confirms the arms reconstructed. Good: pip 0.81, rust 0.85;
@@ -70,7 +73,7 @@ Blender --background --python pipelines/art-to-rig-ralph/scripts/prep_character.
 ## Phase 3 — Texture paint (TRELLIS MeshTexturing, GPU ~5 min)
 ```
 py -3.11 pipelines/art-to-rig-ralph/scripts/trellis_queue.py \
-  --workflow MeshTexturing_MultiView --front <front>.png --back <back>.png \
+  --workflow MeshTexturing --front <front>.png \
   --mesh <phase1_fullres.glb> --prefix <Name>_Textured --seed 12345
 ```
 Texture the ORIGINAL full-res phase-1 mesh (not the decimated one) — the bake
@@ -182,3 +185,26 @@ diagnose; do not hand-wave.
   is AccuRIG + Unity Humanoid, exactly this skill.
 - Lessons: `unirig-skin-weights-melt-use-accurig`,
   `hand-rolled-retarget-limb-plane`, `unity-humanoid-bone-roll-normalize`.
+
+## Phase 8 (optional) — animated preview carousel in Godot
+
+Getting a Unity Humanoid character animating in GODOT (e.g. a showcase carousel).
+The ONLY path that keeps the skin intact (proven on the GrimForge Bestiary, 4 bipeds):
+
+1. Package the char in Unity (Phase 6) so the AccuRIG rig is a valid Humanoid.
+2. Bake the retargeted clip onto the skeleton in Unity: instantiate + Animator w/ avatar,
+   `AnimationMode.SampleAnimationClip` each frame, record every bone `localRotation`
+   (+ hips `localPosition` only; per-bone position baking flings bones) into a legacy
+   `AnimationClip` — SET its `.name` (else the FBX exporter throws a dict-key error).
+3. Export **Binary** FBX (default is ASCII, unreadable): `ModelExporter.ExportObjects(path,
+   new Object[]{go}, new ExportModelOptions{ExportFormat=ExportFormat.Binary})`
+   (package `com.unity.formats.fbx`).
+4. Import into a Godot 4.6 project with its **NATIVE ufbx importer** (`godot --headless
+   --path P --import`). DO NOT round-trip through Blender (FBX->GLB) — Blender's FBX
+   importer breaks the Unity skinned-mesh bind and scrambles it into spikes.
+5. Carousel: `load("res://chars/<n>.fbx")` -> instance, find `AnimationPlayer`, set clip
+   `loop_mode = LOOP_LINEAR`, play. Verify by screenshotting the running window
+   (`get_viewport().get_texture().get_image().save_png()`) — Godot can't render headless.
+   Caveat: albedo does NOT survive the Unity FBX export; re-apply `_albedo.png` per material
+   in Godot if you need textured (else it renders clay/grey).
+   Full detail + the Blender dead-ends: memory `project_ccbase_retarget_scramble`.

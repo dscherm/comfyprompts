@@ -13,9 +13,11 @@ Overrides applied automatically:
   - Trellis2ExportMesh: filename_prefix = --prefix
   - Preview/Note nodes are dropped (headless)
 
-Usage:
-  python trellis_queue.py --workflow MeshOnly_MultiView --front A_front.png \
-      --back A_back.png --prefix Rookie_MV [--mesh path.glb] [--seed N] \
+Usage (SINGLE view — MULTIVIEW DOES NOT WORK; MeshOnly_MultiView needs a matching
+back image, corrupts geometry from two separate gens, and its 2nd loader errors on
+a stale default when only --front is given):
+  python trellis_queue.py --workflow MeshOnly --front A_front.png \
+      --prefix Rookie [--mesh path.glb] [--seed N] \
       [--dry-run] [--comfy http://localhost:8188]
 
 Prints QUEUED <prompt_id>, then OUTPUT <path> on success (newest file in the

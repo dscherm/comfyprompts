@@ -48,10 +48,10 @@ run on any 3.10+, but the venv py is always safe).
 ```
 - Textured instead: `--workflow MeshWithTexturing` (outputs `<name>_*.glb`, the
   larger file is the textured one).
-- True multi-view (only if you have the SAME pose from front AND back):
-  `--workflow MeshOnly_MultiView --front f.png --back b.png`. Do NOT feed
-  mismatched poses (a standing shot + a curled shot) — it produces a mangled
-  mesh; different poses cannot be fused.
+- **MULTIVIEW DOES NOT WORK — do not use `MeshOnly_MultiView`.** It requires a
+  matching back image, mangles geometry when fed two separate gens (poses can't be
+  fused), and its 2nd image loader errors on a stale default when only `--front` is
+  given. Always use the SINGLE-view `--workflow MeshOnly` (one front image).
 **Gate**: script prints `STATUS success` and `OUTPUT <glb>`. TRELLIS blocks
 ComfyUI's HTTP server while "Reconstructing mesh" — that is NORMAL, the job is
 fine; never kill it (memory `project_trellis_reconstruction_blocks_server`).
