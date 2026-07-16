@@ -1822,7 +1822,7 @@ decides what's good/bad, not Claude solo.
   "description": "Bake-off inputs + protocol. Export clean UNRIGGED twin meshes of berserkr and hell hound from committed sources (products/ read-only): plain OBJ in CENTIMETERS for AccuRIG (per project_accurig_input_format — FBX input shreds the bind, meter OBJ = 2cm miniature), GLB for UniRig/Meshy/Tripo. Write the judging protocol doc: identical animation set per lane (idle + walk minimum), identical diagnostic poses for stills (deep knee/elbow bend where applicable), identical camera set (full-body + joint-detail per VL9 framing rule), and the score sheet the user fills per lane.",
   "files": ["eval/rig_bakeoff/inputs/", "docs/rig_bakeoff_protocol.md"],
   "acceptance_criteria": ["Both meshes exported unrigged, verified importable", "AccuRIG OBJ is centimeter-scale", "Protocol doc names the exact clips, poses, cameras, and user score sheet", "products/ untouched"],
-  "steps": ["export meshes", "verify scale/import", "write protocol"], "passes": false }
+  "steps": ["export meshes", "verify scale/import", "write protocol"], "passes": true }
 ```
 
 ```json

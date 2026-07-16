@@ -1,0 +1,38 @@
+{
+  "created": "2026-07-16",
+  "task": "RB1",
+  "note": "Canonical UNRIGGED bake-off inputs. products/ sources were read, never written.",
+  "subjects": [
+    {
+      "id": "berserkr",
+      "kind": "humanoid",
+      "source": "products/berserkr_v2_chars_v1/rigged/berserkr_v3_for_accurig.obj",
+      "files": {
+        "accurig": {
+          "path": "eval/rig_bakeoff/inputs/berserkr_cm.obj",
+          "format": "OBJ, centimeters (AccuRIG requires plain cm OBJ; FBX shreds the bind, meter OBJ imports as a 2cm miniature)",
+          "verified": "bbox 149.45 x 180.0 x 72.29 cm (Y-up, 180cm tall, wide T-pose), 69312 verts"
+        },
+        "generic": {
+          "path": "eval/rig_bakeoff/inputs/berserkr_m.glb",
+          "format": "GLB, meters, untextured (rig deformation is judged on geometry; textures irrelevant to this eval)",
+          "verified": "world dims 1.494 x 0.723 x 1.800 m standing upright, 0 armatures"
+        }
+      },
+      "lanes": { "accurig": "berserkr_cm.obj", "unirig": "berserkr_m.glb", "meshy": "berserkr_m.glb", "tripo": "berserkr_m.glb" }
+    },
+    {
+      "id": "hell_hound",
+      "kind": "quadruped",
+      "source": "products/grimforge_bestiary_v1/models_glb/hell_hound.glb",
+      "files": {
+        "generic": {
+          "path": "eval/rig_bakeoff/inputs/hell_hound.glb",
+          "format": "GLB, meters, textured (shipped product export)",
+          "verified": "world dims 0.295 x 1.000 x 0.823 m, 8841 verts, 0 armatures, 0 vertex groups; same 8841-vert mesh the existing _quadrig UniRig rig was built from, so lanes are directly comparable"
+        }
+      },
+      "lanes": { "accurig": null, "unirig": "hell_hound.glb", "meshy": null, "tripo": "hell_hound.glb (record if Tripo rejects quadrupeds)" }
+    }
+  ]
+}
