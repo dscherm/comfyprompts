@@ -1,0 +1,5 @@
+{
+  "comment": "Clip sampling runs against hell_hound_walk.glb (the animated UniRig export). Substrings matched case-insensitively against action names; CLIP_MISSING output lists what's actually in the file.",
+  "poses": {},
+  "clips": {"A1": "idle", "A2": "walk"}
+}

@@ -1,0 +1,10 @@
+{
+  "comment": "UniRig ArticulationXL skeleton on hell_hound_rigged.glb (generic bone_N names, animal faces -Y). Chains: spine bone_0..3, head bone_4/5, front-R leg bone_6-9, front-L bone_10-13, hind-R bone_14-17, hind-L bone_18-21, tail bone_22-24.",
+  "poses": {
+    "S1": {"label": "front knee bend", "bones": [{"bone": "bone_8", "axis": 0, "angle_deg": 75}], "focus_vgroups": ["bone_8"]},
+    "S2": {"label": "hind knee bend", "bones": [{"bone": "bone_16", "axis": 0, "angle_deg": 75}], "focus_vgroups": ["bone_16"]},
+    "S3": {"label": "neck dip", "bones": [{"bone": "bone_3", "axis": 0, "angle_deg": 45}], "focus_vgroups": ["bone_4"]},
+    "S4": {"label": "spine curl", "bones": [{"bone": "bone_2", "axis": 0, "angle_deg": 30}], "focus_vgroups": ["bone_2"]}
+  },
+  "clips": {}
+}
