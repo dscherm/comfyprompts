@@ -28,7 +28,7 @@ already pipeline-proven, so quality deltas attribute to the rigger, not the mesh
 | S1 | deep knee bend (~90°) | front knee bend (~75°) |
 | S2 | elbow bend (~100°) | hind knee bend (~75°) |
 | S3 | arms raised overhead | neck dip (~45°) |
-| S4 | torso twist (~40°) | spine curl |
+| S4 | forward spine bend (~40°) | spine curl |
 
 ### Animation clips (motion quality)
 

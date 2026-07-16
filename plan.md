@@ -1838,7 +1838,7 @@ decides what's good/bad, not Claude solo.
   "description": "UniRig lane (humanoid AND quadruped). conda env UniRig, CUDA_VISIBLE_DEVICES=1 (defaults to cuda:0 = the 3070). skeleton -> skin -> merge, then procedural clips per the quad-rig skill for the hound and protocol clips for berserkr. Note the known .l/.r mirrored-label caveat in the lane record.",
   "files": ["eval/rig_bakeoff/unirig/"],
   "acceptance_criteria": ["Both subjects rigged + protocol renders produced", "Ran on the 3090 Ti", "Mirror-label caveat recorded"],
-  "steps": ["rig both", "animate", "render protocol set"], "passes": false }
+  "steps": ["rig both", "animate", "render protocol set"], "passes": true }
 ```
 
 ```json

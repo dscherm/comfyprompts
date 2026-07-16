@@ -1,0 +1,10 @@
+{
+  "comment": "AccuRIG CC_Base skeleton (berserkr). Poses per docs/rig_bakeoff_protocol.md humanoid column. Twist-bone vertex groups give the joint-detail camera its focus.",
+  "poses": {
+    "S1": {"label": "deep knee bend", "bones": [{"bone": "CC_Base_L_Calf", "axis": 0, "angle_deg": -90}], "focus_vgroups": ["CC_Base_L_CalfTwist01", "CC_Base_L_CalfTwist02"]},
+    "S2": {"label": "elbow bend", "bones": [{"bone": "CC_Base_L_Forearm", "axis": 0, "angle_deg": 100}], "focus_vgroups": ["CC_Base_L_ForearmTwist01", "CC_Base_L_ForearmTwist02"]},
+    "S3": {"label": "arms raised overhead", "bones": [{"bone": "CC_Base_L_Upperarm", "axis": 2, "angle_deg": -80}, {"bone": "CC_Base_R_Upperarm", "axis": 2, "angle_deg": 80}], "focus_vgroups": ["CC_Base_L_UpperarmTwist01", "CC_Base_R_UpperarmTwist01"]},
+    "S4": {"label": "forward spine bend", "bones": [{"bone": "CC_Base_Waist", "axis": 0, "angle_deg": 40}], "focus_vgroups": ["CC_Base_Waist"]}
+  },
+  "clips": {"A1": "idle", "A2": "walk"}
+}
