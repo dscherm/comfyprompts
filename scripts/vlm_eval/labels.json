@@ -1,0 +1,290 @@
+[
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__mace__missing_texture.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/mace.glb",
+    "defect_type": "missing_texture",
+    "seed": 420002
+  },
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__mace__none.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/mace.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__orb__missing_texture.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/orb.glb",
+    "defect_type": "missing_texture",
+    "seed": 420020
+  },
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__orb__none.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/orb.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__potion_green__missing_texture.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/potion_green.glb",
+    "defect_type": "missing_texture",
+    "seed": 420014
+  },
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__potion_green__none.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/potion_green.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__potion_red__none.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/potion_red.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/arsenal_kit_grimforge_v1__potion_red__unwelded_cracks.png",
+    "asset": "products/arsenal_kit_grimforge_v1/models_glb/potion_red.glb",
+    "defect_type": "unwelded_cracks",
+    "seed": 420013
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__cap_dome_gold__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/cap_dome_gold.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__cap_dome_gold__scale_error.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/cap_dome_gold.glb",
+    "defect_type": "scale_error",
+    "seed": 420010
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__cap_pyramid_slate__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/cap_pyramid_slate.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__cap_pyramid_slate__uv_smear.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/cap_pyramid_slate.glb",
+    "defect_type": "uv_smear",
+    "seed": 420015
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__corbel_strip__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/corbel_strip.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__corbel_strip__unwelded_cracks.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/corbel_strip.glb",
+    "defect_type": "unwelded_cracks",
+    "seed": 420007
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__finial__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/finial.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__finial__unwelded_cracks.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/finial.glb",
+    "defect_type": "unwelded_cracks",
+    "seed": 420001
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__parapet__flipped_normals.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/parapet.glb",
+    "defect_type": "flipped_normals",
+    "seed": 420006
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__parapet__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/parapet.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__tower_square_tall_dark__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/tower_square_tall_dark.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__tower_square_tall_dark__scale_error.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/tower_square_tall_dark.glb",
+    "defect_type": "scale_error",
+    "seed": 420022
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__wall_dark__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/wall_dark.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__wall_dark__scale_error.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/wall_dark.glb",
+    "defect_type": "scale_error",
+    "seed": 420016
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__wall_low__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/wall_low.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__wall_low__wrong_orientation.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/wall_low.glb",
+    "defect_type": "wrong_orientation",
+    "seed": 420005
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__wall_window__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/wall_window.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__wall_window__wrong_orientation.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/wall_window.glb",
+    "defect_type": "wrong_orientation",
+    "seed": 420017
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__window_rose__none.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/window_rose.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/castle_kit_grimforge_v1__window_rose__scale_error.png",
+    "asset": "products/castle_kit_grimforge_v1/models_glb/window_rose.glb",
+    "defect_type": "scale_error",
+    "seed": 420004
+  },
+  {
+    "image": "scripts/vlm_eval/renders/city_kit_grimforge_darkfantasy_v1__road_corner__none.png",
+    "asset": "products/city_kit_grimforge_darkfantasy_v1/models_glb/road_corner.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/city_kit_grimforge_darkfantasy_v1__road_corner__uv_smear.png",
+    "asset": "products/city_kit_grimforge_darkfantasy_v1/models_glb/road_corner.glb",
+    "defect_type": "uv_smear",
+    "seed": 420003
+  },
+  {
+    "image": "scripts/vlm_eval/renders/parts_kit_grimforge_v1__roof_slope__flipped_normals.png",
+    "asset": "products/parts_kit_grimforge_v1/models_glb/roof_slope.glb",
+    "defect_type": "flipped_normals",
+    "seed": 420012
+  },
+  {
+    "image": "scripts/vlm_eval/renders/parts_kit_grimforge_v1__roof_slope__none.png",
+    "asset": "products/parts_kit_grimforge_v1/models_glb/roof_slope.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/soapbox_kart_kit_v1__ramp_up__flipped_normals.png",
+    "asset": "products/soapbox_kart_kit_v1/models_glb/ramp_up.glb",
+    "defect_type": "flipped_normals",
+    "seed": 420018
+  },
+  {
+    "image": "scripts/vlm_eval/renders/soapbox_kart_kit_v1__ramp_up__none.png",
+    "asset": "products/soapbox_kart_kit_v1/models_glb/ramp_up.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_darkfantasy_v1__road_corner__none.png",
+    "asset": "products/village_kit_grimforge_darkfantasy_v1/models_glb/road_corner.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_darkfantasy_v1__road_corner__uv_smear.png",
+    "asset": "products/village_kit_grimforge_darkfantasy_v1/models_glb/road_corner.glb",
+    "defect_type": "uv_smear",
+    "seed": 420009
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_darkfantasy_v1__windmill__none.png",
+    "asset": "products/village_kit_grimforge_darkfantasy_v1/models_glb/windmill.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_darkfantasy_v1__windmill__uv_smear.png",
+    "asset": "products/village_kit_grimforge_darkfantasy_v1/models_glb/windmill.glb",
+    "defect_type": "uv_smear",
+    "seed": 420021
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v1__barn__none.png",
+    "asset": "products/village_kit_grimforge_v1/models_glb/barn.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v1__barn__wrong_orientation.png",
+    "asset": "products/village_kit_grimforge_v1/models_glb/barn.glb",
+    "defect_type": "wrong_orientation",
+    "seed": 420011
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v1__cottage__none.png",
+    "asset": "products/village_kit_grimforge_v1/models_glb/cottage.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v1__cottage__unwelded_cracks.png",
+    "asset": "products/village_kit_grimforge_v1/models_glb/cottage.glb",
+    "defect_type": "unwelded_cracks",
+    "seed": 420019
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v1__path_straight__flipped_normals.png",
+    "asset": "products/village_kit_grimforge_v1/models_glb/path_straight.glb",
+    "defect_type": "flipped_normals",
+    "seed": 420000
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v1__path_straight__none.png",
+    "asset": "products/village_kit_grimforge_v1/models_glb/path_straight.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v2__crypt__missing_texture.png",
+    "asset": "products/village_kit_grimforge_v2/models_glb/crypt.glb",
+    "defect_type": "missing_texture",
+    "seed": 420008
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v2__crypt__none.png",
+    "asset": "products/village_kit_grimforge_v2/models_glb/crypt.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v2__ruined_house__none.png",
+    "asset": "products/village_kit_grimforge_v2/models_glb/ruined_house.glb",
+    "defect_type": "none",
+    "seed": 42
+  },
+  {
+    "image": "scripts/vlm_eval/renders/village_kit_grimforge_v2__ruined_house__wrong_orientation.png",
+    "asset": "products/village_kit_grimforge_v2/models_glb/ruined_house.glb",
+    "defect_type": "wrong_orientation",
+    "seed": 420023
+  }
+]

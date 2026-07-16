@@ -118,6 +118,9 @@ tools/asset_generators/village_kit/godot_verify/village.tscn
 tools/asset_generators/village_kit/godot_verify/verify_shot.png
 tools/asset_generators/village_kit/godot_verify/aesthetic.txt
 
+# VLM eval set renders (regenerable via build_eval_set.py; labels.json is committed)
+scripts/vlm_eval/renders/*.png
+
 # ralph A/B trial runtime state (per-machine, never commit — live experiment data)
 .ralph/ab_trial_schedule.json
 .ralph/ab_trial_results.jsonl
@@ -137,3 +140,12 @@ products/soapbox_kart_kit_v1/gallery/*.gif
 *.pyc
 .ralph/
 NUL
+
+# Themis blind-TDD gate runtime state — ephemeral, per-machine.
+.themis/blind_tdd/
+.themis/blind_audit/
+.themis/observations.jsonl
+.themis/human_requests/
+# Curated quality-review verdicts stay tracked.
+!.themis/blind_tdd/quality_review/
+!.themis/blind_tdd/quality_review/**
