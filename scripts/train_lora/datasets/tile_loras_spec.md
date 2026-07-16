@@ -1,102 +1,88 @@
-# Tile / texture foundation LoRAs — spec (Phase TX)
+# Tile / texture foundation LoRAs — spec (Phase TX) — SDXL edition
 
-Two **material/texture-aesthetic Flux LoRAs**, trained with the existing
-`scripts/train_lora/` harness, that feed the seamless-texture generation path:
+Two **material/texture-aesthetic SDXL LoRAs** that feed the seamless-texture
+generation path:
 
 | LoRA | Trigger | Teaches | Source (CC0) | Tasks |
 |------|---------|---------|--------------|-------|
 | `mat_tile` | `mat_tile` | PBR material surfaces, flat even top-down light | Poly Haven albedo maps | TX1-TX4 |
 | `tile_topdown` | `tile_topdown` | top-down RPG game tiles | Kenney / OpenGameArt | TX5-TX8 |
 
-This spec is the contract for TX1-TX8. It captures the proven recipe (identical to
-`mv_ortho` / `grimforge_style`), the dataset/caption conventions, and — most importantly
-— **what a LoRA can and cannot do for tiling**.
+This spec is the contract for TX1-TX8. **It supersedes the Flux-specific
+version**: the previous spec targeted the ai-toolkit Flux harness, but the
+seamless-tiling machinery cannot patch Flux at all (Section 2), so the tile
+LoRAs are SDXL — trained with kohya sd-scripts, deployed into the *existing*
+SDXL `generate_texture_tile.json` workflow.
 
 ---
 
 ## 1. The core insight — the LoRA does NOT make a texture tile
 
-> **Seamlessness is a mechanical property of the convolutions, not something a LoRA
-> learns.** A LoRA biases *what* the model paints; it cannot guarantee that the left
-> edge of the image continues into the right edge.
+> **Seamlessness is a mechanical property of the convolutions, not something a
+> LoRA learns.** A LoRA biases *what* the model paints; it cannot guarantee that
+> the left edge of the image continues into the right edge.
 
 Tiling comes from **`ComfyUI-seamless-tiling`** (installed at
-`D:\Projects\ComfyUI\custom_nodes\ComfyUI-seamless-tiling`), which monkey-patches every
-`torch.nn.Conv2d` in the model (and optionally the VAE) to use **circular padding**
-instead of the default zero/constant padding. With circular padding, a feature that runs
-off the right edge wraps back in on the left, so the denoiser and decoder produce an
-image whose opposite edges are continuous — i.e. it tiles.
+`D:\Projects\ComfyUI\custom_nodes\ComfyUI-seamless-tiling`), which monkey-patches
+every `torch.nn.Conv2d` in the model (and optionally the VAE) to use **circular
+padding**. A feature that runs off the right edge wraps back in on the left, so
+denoiser + decoder produce an image whose opposite edges are continuous.
 
 The nodes (verified class names from `SeamlessTile.py`):
 
 | Node | Class | What it does |
 |------|-------|--------------|
-| **Seamless Tile** | `SeamlessTile` | `(model, tiling, copy_model) -> MODEL`. Patches the UNet/transformer Conv2d to circular. `tiling` ∈ `enable / x_only / y_only / disable`. Use `enable` for full 2D tiling. |
-| **Circular VAE Decode (tile)** | `CircularVAEDecode` | `(samples, vae, tiling) -> IMAGE`. Same circular patch applied to the VAE before decode — without this the VAE re-introduces a seam at decode time. |
-| **Make Circular VAE** | `MakeCircularVAE` | `(vae, tiling, copy_vae) -> VAE`. Alternative: patch the VAE up front and feed it to a normal `VAEDecode`. |
-| **Offset Image** | `OffsetImage` | `(pixels, x_percent, y_percent) -> IMAGE`. Rolls the image so the *seam moves to the centre* — the standard way to *see* whether a tile is truly seamless. |
+| **Seamless Tile** | `SeamlessTile` | `(model, tiling, copy_model) -> MODEL`. Patches the UNet Conv2d to circular. Use `tiling=enable` for full 2D. |
+| **Circular VAE Decode (tile)** | `CircularVAEDecode` | Same circular patch on the VAE at decode — without it the VAE re-introduces a seam. |
+| **Make Circular VAE** | `MakeCircularVAE` | Alternative: patch the VAE up front, feed a normal `VAEDecode`. |
+| **Offset Image** | `OffsetImage` | Rolls the image so the seam lands centre-frame — the standard way to *see* seamlessness. |
 
-**Both** `SeamlessTile` (model) **and** `CircularVAEDecode`/`MakeCircularVAE` (VAE) are
-required. Patching only one leaves a visible seam.
+**Both** the model patch **and** the VAE patch are required; patching only one
+leaves a visible seam.
 
 ### So what is the LoRA *for*?
 
-The LoRA teaches the **material aesthetic + flat, even, top-down lighting**:
+- **Even lighting** — no directional shadows, hotspots, or vignetting.
+  Directional light is the #1 enemy of tiling: a brightness gradient makes a
+  dark-meets-light seam that circular padding cannot hide. Training on evenly-
+  lit albedo crops biases the model to *paint* even light.
+- **Material identity** — "brick", "cobblestone", "wood planks" rendered as a
+  flat top-down surface, not a 3/4 hero shot with perspective.
 
-- **Even lighting** — no directional shadows, no hotspots, no vignetting. Directional
-  light is the #1 enemy of tiling: a gradient across the tile makes a dark-meets-light
-  seam when wrapped, which circular padding cannot hide. Training on evenly-lit,
-  flat-lit albedo crops biases the model to *paint* even light, giving the seamless
-  machinery clean input.
-- **Material identity** — "brick", "cobblestone", "wood planks", "grass tile" rendered
-  as a top-down flat surface, not a 3/4 hero shot with perspective.
-
-Mental model: **LoRA = clean, flat, evenly-lit material → seamless nodes = wrap it into a
-tile.** Each does half the job.
+Mental model: **LoRA = clean, flat, evenly-lit material → seamless nodes = wrap
+it into a tile.** Each does half the job.
 
 ---
 
-## 2. Deploy constraint — Flux LoRA, NOT the existing SDXL workflow
+## 2. Why SDXL and not Flux
 
-The harness trains **Flux** LoRAs (`black-forest-labs/FLUX.1-dev`, rank-16). The existing
-`workflows/mcp/generate_texture_tile.json` is an **SDXL** graph
-(`sd_xl_base_1.0.safetensors` + `LoraLoader`). **A Flux LoRA cannot be loaded into an SDXL
-workflow** — different architecture, different tensor names; `LoraLoader` will error or
-no-op.
+**Flux cannot tile through this machinery.** `SeamlessTile` works by patching
+`torch.nn.Conv2d` padding to circular — SDXL's UNet is convolutional end to
+end, so the patch reaches every spatial operation. **Flux is a DiT
+(transformer): it has no Conv2d in the denoising path to patch** — attention
+over patch tokens has no padding mode, so circular padding has nothing to hook
+into, and the Flux graph produces non-tiling output no matter what the LoRA
+does. (This is also why the previous Flux spec's deploy section had to invent
+a new workflow: a dead end, now removed.)
 
-Therefore TX4/TX8 author a **new Flux + seamless** workflow rather than reusing the SDXL
-one. Target graph:
-
-```
-UNETLoader/CheckpointLoader (flux1-dev-fp8)
-        │ MODEL                          ┌── CLIP ── CLIPTextEncode (PARAM_PROMPT)
-        ▼                                │
-   LoraLoader (PARAM_STR_LORA_NAME, strength)   (mat_tile / tile_topdown)
-        │ MODEL
-        ▼
-   SeamlessTile  tiling=enable           ← makes the denoiser tile
-        │ MODEL
-        ▼
-   KSampler (flux: sampler/scheduler, low CFG ~1, ~20 steps)
-        │ LATENT
-        ▼
-   CircularVAEDecode  tiling=enable      ← makes the VAE tile (no seam at decode)
-        │ IMAGE
-        ▼
-   SaveImage
-```
-
-`flux1-dev-fp8.safetensors` already exists at
-`D:\Projects\ComfyUI\models\checkpoints\` (see CLAUDE.md). The existing SDXL
-`generate_texture_tile` workflow stays as-is for SDXL users; the Flux one is additive.
+Consequences:
+- Tile LoRAs are **SDXL** (`sd_xl_base_1.0.safetensors` — already local at
+  `D:\Projects\ComfyUI\models\checkpoints\`, do not re-download).
+- The **existing** `workflows/mcp/generate_texture_tile.json` (SDXL +
+  SeamlessTile + CircularVAEDecode) is the deploy target, extended with a
+  `LoraLoader` (TX4) — no new workflow needed.
+- The ai-toolkit Flux harness (`launch_train.py`, `configs/*.json`) is NOT
+  used here; SDXL LoRAs train with **kohya sd-scripts** (Section 5).
+  `prep_dataset.py` and `eval/tile_edge_mad.py` are trainer-agnostic
+  (Pillow/NumPy only) and are reused as-is.
 
 ---
 
 ## 3. Triggers & caption templates
 
-Captions are **short and trigger-anchored** — these are flat surfaces, so the verbose
-Florence2 captioner used for character datasets is the wrong tool (it would hallucinate
-objects/scenes). Hand-write or template the captions instead.
+Captions are **short and trigger-anchored** — flat surfaces, so the verbose
+Florence2 captioner is the wrong tool (it hallucinates objects/scenes). Short
+natural tags suit SDXL's text encoders well.
 
 **mat_tile:**
 ```
@@ -104,185 +90,175 @@ mat_tile, <material>, seamless texture, even top-down lighting
 ```
 e.g. `mat_tile, red brick wall, seamless texture, even top-down lighting`
      `mat_tile, mossy cobblestone, seamless texture, even top-down lighting`
-     `mat_tile, weathered wood planks, seamless texture, even top-down lighting`
 
 **tile_topdown:**
 ```
 tile_topdown, <terrain> tile, top-down RPG tileset, seamless texture, even lighting
 ```
 e.g. `tile_topdown, grass tile, top-down RPG tileset, seamless texture, even lighting`
-     `tile_topdown, water tile, top-down RPG tileset, seamless texture, even lighting`
-     `tile_topdown, dirt path tile, top-down RPG tileset, seamless texture, even lighting`
 
 Rules:
 - Trigger word **first**, always.
-- One `<material>`/`<terrain>` noun phrase — keep it to the family + a one-word
-  qualifier (colour/condition). Don't over-describe.
-- The "seamless texture" / "even lighting" tokens are constant — they anchor the
-  aesthetic the LoRA should associate with the trigger.
-- `caption_dropout_rate: 0.05` (harness default) keeps the trigger from over-fitting.
+- One `<material>`/`<terrain>` noun phrase — family + one-word qualifier.
+- The "seamless texture" / "even lighting" tokens are constant anchors.
+- `--caption_dropout_rate 0.05` keeps the trigger from over-fitting.
 
-**Generation prompt (at use time)** mirrors the caption:
-```
-mat_tile, <material>, seamless texture, even top-down lighting
-```
-Recommended LoRA strength **0.8** (0.6-1.0), same as the other style LoRAs.
+**Generation prompt (use time)** mirrors the caption. Recommended LoRA
+strength **0.8** (sweep 0.6-1.0 in eval).
 
 ---
 
 ## 4. Dataset sourcing — CC0 ONLY
 
-Both datasets are **CC0 / public-domain only** — these LoRAs may feed shippable game
-assets, so no non-commercial or attribution-encumbered sources. ~30-50 images each is
-enough for a focused aesthetic LoRA (cf. the 125-image `mv_ortho` and 148-image
-`berserkr_style` runs; material aesthetics need fewer because the subject is narrow).
+Both datasets are **CC0 / public-domain only** — these LoRAs may feed shippable
+game assets. ~30-50 images each is enough for a focused aesthetic LoRA.
 
 ### mat_tile — Poly Haven (CC0)
-- **Source:** <https://polyhaven.com/textures> — *all* Poly Haven assets are CC0.
-- **What to grab:** the **albedo / diffuse** map of each texture (NOT normal/roughness/
-  displacement — we want the colour surface, evenly lit). Poly Haven textures are already
-  captured flat and tileable, which is exactly the aesthetic we want the LoRA to learn.
-- **Families to cover** (aim for a spread, ~3-5 each): brick, stone/rock, cobblestone,
-  wood planks, bark, concrete, metal/rusted metal, fabric/leather, ground/dirt/mud,
-  sand, gravel, grass, tiles/pavers.
-- **How:** `blender-mcp` `download_polyhaven_asset` (asset_type `textures`,
-  resolution `1k` or `2k`, file_format `jpg`/`png`) writes maps into Blender's texture
-  dir; OR fetch the albedo JPGs directly from the Poly Haven file CDN over HTTP. Keep
-  only the `*_diff_*` / `*_albedo_*` map per asset.
+- **Source:** <https://polyhaven.com/textures> — all Poly Haven assets are CC0.
+- **What:** the **albedo/diffuse** map only (not normal/roughness) — colour
+  surface, unlit. Poly Haven textures are captured flat and already tileable:
+  exactly the aesthetic to learn. 2k JPG downscaled to 1024 beats native 1k.
+- **Families:** brick, stone, cobblestone, wood, planks, bark, metal, concrete,
+  plaster, fabric, dirt, sand, rock, grass, tiles (~3-5 each).
+- **How:** `scripts/train_lora/fetch_polyhaven_mat_tile.py` (Poly Haven REST
+  API; audits family labels — keyword auto-bucketing mislabels ~30%, correct
+  by slug before captioning). TX1 (done, user-approved): 55 images, 17
+  families, manifest at `pipelines/tileset-ralph/loras/mat_tile/mat_tile_manifest.md`.
 
 ### tile_topdown — Kenney + OpenGameArt (CC0)
-- **Kenney:** <https://kenney.nl/assets> — Kenney packs are CC0. Use the top-down /
-  roguelike / RPG terrain tile packs (e.g. "Roguelike/RPG", "Tiny Town", "Map Pack").
-- **OpenGameArt:** <https://opengameart.org> — **filter to the CC0 license facet only**
-  (OGA hosts mixed licenses; CC-BY / GPL assets are excluded here). Search "seamless
-  tile" / "top down terrain" / "tileset".
-- **What to grab:** individual terrain tiles or seamless terrain textures — grass, dirt,
-  water, sand, stone floor, path/road, cliff, snow. If a pack is a tilesheet, slice it
-  into per-tile crops (or pick the large seamless terrain textures, which suit Flux's
-  ≥512px training better than 16px sprites).
-- **Resolution note:** Flux trains at 512/768/1024. Tiny pixel-art tiles (16-32px) are
-  too small — prefer the higher-res seamless terrain textures, or upscale a clean
-  pixel tile only if it stays crisp. Pixel-art *aesthetic* is fine; pixel-art *size* is
-  not.
+- **Kenney:** <https://kenney.nl/assets> (all CC0) — top-down/roguelike/RPG
+  terrain packs. **OpenGameArt:** <https://opengameart.org> — **CC0 facet
+  only** (OGA hosts mixed licenses).
+- **What:** terrain tiles / seamless terrain textures — grass, dirt, water,
+  sand, stone floor, path, cliff, snow. Slice tilesheets into per-tile crops.
+- **Resolution:** SDXL trains at 1024. 16-32px pixel-art tiles are too small —
+  prefer high-res seamless terrain textures; pixel-art *aesthetic* fine,
+  pixel-art *size* not.
 
-**Every source asset is recorded in the per-LoRA manifest** (`mat_tile_manifest.md`,
-`tile_topdown_manifest.md`) with: filename → source name/slug → URL → license (CC0) →
-material/terrain tag. This is the provenance record that makes the output shippable.
+**Every source asset is recorded in the per-LoRA manifest** (filename → slug →
+URL → CC0 → material tag). Provenance is what makes the output shippable.
+**The prepped dataset contact sheet gets user approval before training**
+(lessons/perceptual-ground-truth-needs-human-signoff — training data is ground
+truth).
 
 ---
 
-## 5. Hyperparameters — reuse the proven recipe verbatim
+## 5. Hyperparameters — kohya sd-scripts SDXL recipe
 
-Identical to `configs/mv_ortho.json` / `configs/grimforge_style.json`. `launch_train.py`
-already encodes these as defaults; do not deviate.
+**Trainer (TX0b — INSTALLED and verified 2026-06-30):**
+- sd-scripts at `E:\ai-training\sd-scripts`, own venv at
+  `E:\ai-training\sd-scripts\venv` (torch 2.4.0+cu124, CUDA verified on the
+  3090 Ti). Do NOT mix with the ComfyUI or ai-toolkit venvs.
+- Entry point: `sdxl_train_network.py`. Base model: the LOCAL
+  `D:\Projects\ComfyUI\models\checkpoints\sd_xl_base_1.0.safetensors`.
+- Re-verify any time:
+  `E:/ai-training/sd-scripts/venv/Scripts/python.exe -c "import torch; print(torch.cuda.is_available())"`
 
-| Setting | Value | Note |
+| Setting | Value | Flag |
 |---------|-------|------|
-| Base model | `black-forest-labs/FLUX.1-dev` (fp8, `quantize: true`) | local fp8 ckpt, no 24GB re-download |
-| Network | LoRA, `linear: 16`, `linear_alpha: 16` | rank 16 / alpha 16 |
-| Steps | **1500** | `save_every: 250`, keep last 4 |
-| LR | **1e-4** | |
-| Optimizer | **adamw8bit** | |
-| Noise scheduler | **flowmatch** | |
-| EMA | **on, decay 0.99** | |
-| Resolutions | **[512, 768, 1024]** | multi-res (grimforge used all three) |
-| train_unet | true | `train_text_encoder: false` |
-| gradient_checkpointing | true | |
-| dtype | bf16 | save dtype float16 |
-| caption_ext | txt | `caption_dropout_rate: 0.05`, `shuffle_tokens: false` |
-| cache_latents_to_disk | true | to E: (C:/D: nearly full) |
+| Network | LoRA rank 16 / alpha 16 | `--network_module networks.lora --network_dim 16 --network_alpha 16` |
+| Steps | **1500** (55 imgs × 3 repeats ≈ 9 epochs @ batch 1) | `--max_train_steps 1500 --save_every_n_steps 250` |
+| LR | **1e-4** | `--learning_rate 1e-4` |
+| Optimizer | **AdamW8bit** | `--optimizer_type AdamW8bit` |
+| Resolution | **1024 (SDXL-native, single res)** | in dataset toml |
+| Precision | bf16 train, fp16 save | `--mixed_precision bf16 --save_precision fp16` |
+| Memory | gradient checkpointing + cached latents | `--gradient_checkpointing --cache_latents --cache_latents_to_disk` |
+| Captions | .txt, dropout 0.05 | `--caption_extension .txt --caption_dropout_rate 0.05` |
+| Output | `E:\ai-training\sdxl-output\<name>\` | `--output_dir ... --output_name <name>` |
 
-**Hardware contract** (see CLAUDE.md + README "Hardware contract"):
-- Train on **GPU 1 (RTX 3090 Ti, 24GB)** — `launch_train.py --cuda-device 1` sets
-  `CUDA_VISIBLE_DEVICES=1` so ai-toolkit sees only the 3090 Ti as `cuda:0`.
-- **Generation and training are sequential** — both want the 24GB. **Stop ComfyUI
-  before launching training** (free the VRAM), **restart it after** (`run_3090ti.ps1`).
-- Output + HF cache live on **E:** (`E:\ai-training\flux-output`, `E:\ai-training\hf-cache`).
-- ai-toolkit venv: `D:\Projects\ai-toolkit\venv` (separate from ComfyUI's — do not cross).
+**Hardware contract:** train on **GPU 1 (3090 Ti, 24GB)** —
+`CUDA_DEVICE_ORDER=PCI_BUS_ID` + `CUDA_VISIBLE_DEVICES=1`. Generation and
+training are sequential: **stop ComfyUI before training, restart with
+`run_3090ti.ps1` after.** Everything heavy stays on E:.
 
-### Commands (per LoRA — substitute `<name>`/`<trigger>`)
+### Dataset config (`E:\ai-training\sdxl-output\<name>\dataset.toml`)
+
+```toml
+[general]
+enable_bucket = false
+caption_extension = ".txt"
+
+[[datasets]]
+resolution = 1024
+batch_size = 1
+
+  [[datasets.subsets]]
+  image_dir = "E:/ai-training/datasets/mat_tile"
+  num_repeats = 3
+```
+
+### Command (per LoRA — substitute `<name>`)
 
 ```bash
-# 1. Prep — normalize CC0 crops into an ai-toolkit training folder (no GPU).
-python scripts/train_lora/prep_dataset.py \
-    --src "<downloaded CC0 maps dir or glob>" \
-    --out "E:/ai-training/datasets/<name>" \
-    --max-edge 1024
+# STOP ComfyUI first (frees the 24GB).
+cd /e/ai-training/sd-scripts
+export CUDA_DEVICE_ORDER=PCI_BUS_ID CUDA_VISIBLE_DEVICES=1
+venv/Scripts/accelerate.exe launch --num_cpu_threads_per_process 4 sdxl_train_network.py \
+  --pretrained_model_name_or_path "D:/Projects/ComfyUI/models/checkpoints/sd_xl_base_1.0.safetensors" \
+  --dataset_config "E:/ai-training/sdxl-output/<name>/dataset.toml" \
+  --output_dir "E:/ai-training/sdxl-output/<name>" --output_name <name> \
+  --network_module networks.lora --network_dim 16 --network_alpha 16 \
+  --learning_rate 1e-4 --optimizer_type AdamW8bit \
+  --max_train_steps 1500 --save_every_n_steps 250 \
+  --mixed_precision bf16 --save_precision fp16 \
+  --gradient_checkpointing --cache_latents --cache_latents_to_disk \
+  --caption_extension .txt --caption_dropout_rate 0.05
+# Restart ComfyUI (run_3090ti.ps1), then eval (Section 6).
 
-# 2. Caption — SHORT, trigger-anchored (hand-written/templated, NOT Florence2).
-#    Write each <stem>.txt as: "<trigger>, <material>, seamless texture, even ... lighting"
-#    (caption.py's Florence2 path is for character sets; tiles use templated captions.)
-
-# 3. Train — STOP ComfyUI first to free the 24GB.
-python scripts/train_lora/launch_train.py \
-    --dataset "E:/ai-training/datasets/<name>" \
-    --name <name> --trigger <trigger> \
-    --steps 1500 --rank 16 --resolutions 512,768,1024 --cuda-device 1
-#    (writes configs/<name>.json + launches on GPU 1; verify with nvidia-smi)
-
-# 4. Restart ComfyUI (run_3090ti.ps1), then eval (Section 6).
-
-# 5. Deploy — copy the winning checkpoint + write a trigger sidecar.
-cp "E:/ai-training/flux-output/<name>/<name>.safetensors" \
+# Deploy — copy the winning checkpoint + trigger sidecar.
+cp "E:/ai-training/sdxl-output/<name>/<name>.safetensors" \
    "D:/Projects/ComfyUI/models/loras/style/<name>.safetensors"
-#    + write <name>.txt sidecar: "trigger <trigger>, strength 0.8".
+#  + write <name>.txt sidecar: "trigger <trigger>, strength 0.8".
 ```
 
 ---
 
 ## 6. Eval method — seamless validation + edge MAD
 
-A tile LoRA passes only if **both halves work**: the LoRA reads as the right material
-*and* the output tiles seamlessly through the circular-padding path. Two checks:
+A tile LoRA passes only if **both halves work**: right material aesthetic AND
+seamless output through the circular-padding path.
 
 ### 6a. 2D quality grid (LoRA working)
-Generate **base vs LoRA** at fixed seed across strengths **0.6 / 0.8 / 1.0** on material/
-terrain prompts, through the **Flux + SeamlessTile + CircularVAEDecode** path (Section 2).
-Judge: does the LoRA produce a flatter, more evenly-lit, on-aesthetic material surface
-than base? Pick the winning `(checkpoint, strength)`. Record in
-`eval/<name>_grid.md` (same format as `eval/mv_ortho_grid.md`).
+Generate **base vs LoRA** at fixed seed across strengths **0.6 / 0.8 / 1.0**
+through the SDXL `generate_texture_tile.json` graph (SeamlessTile +
+CircularVAEDecode enabled) with the `LoraLoader` inserted (TX4). Judge: flatter,
+more evenly-lit, more on-material than base? Record winner in
+`eval/<name>_grid.md`.
 
-### 6b. Seamlessness — wrap-edge MAD < 5% (seamless machinery working)
-`eval/tile_edge_mad.py` (written in TX3, reused by TX7) measures how continuous the
-opposite edges are:
+### 6b. Seamlessness — wrap-edge MAD < 5%
+`eval/tile_edge_mad.py` (written in TX3, trainer-agnostic, reused by TX7):
 
-> **Wrap-edge MAD** = the mean absolute difference between each border row/column and the
-> row/column it wraps onto, expressed as a percentage of the channel value range (0-255).
+> **Wrap-edge MAD** = mean absolute difference between each border row/column
+> and the row/column it wraps onto, as a % of channel range (0-255). For image
+> `I` (H×W, averaged over RGB):
+> - Horizontal seam: `mean(|I[:, 0] − I[:, W-1]|)`
+> - Vertical seam: `mean(|I[0, :] − I[H-1, :]|)`
+> - **edge_MAD% = 100 × (horiz + vert) / 2 / 255**
 >
-> For an image `I` of height `H`, width `W`, averaged over RGB:
-> - **Horizontal seam:** `mean(|I[:, 0] − I[:, W-1]|)` — left column vs right column.
-> - **Vertical seam:** `mean(|I[0, :] − I[H-1, :]|)` — top row vs bottom row.
-> - **edge_MAD%** = `100 * (horiz + vert) / 2 / 255`.
->
-> A truly seamless tile has near-identical wrapping edges → **edge_MAD < 5%**. A
-> non-tiling image shows a hard discontinuity → typically 10-40%.
+> Seamless → **edge_MAD < 5%**. Non-tiling → typically 10-40%.
 
-The script also **renders 2×2 and 4×4 mosaics** of the tile (`np.tile`) and an
-**`OffsetImage`-style 50% roll** so the seam, if any, lands in the centre for visual
-inspection. Both the numeric `edge_MAD%` and the mosaics go in the eval doc.
+The script also renders **2×2 and 4×4 mosaics** (`np.tile`) and an
+`OffsetImage`-style 50% roll so any seam lands centre-frame. Numbers + mosaics
+go in the eval doc.
 
-**Pass criteria (per LoRA):**
-1. 2D grid: LoRA-on cell is visibly flatter / more even / more on-material than base.
-2. `edge_MAD < 5%` at the winning cell, confirmed visually in the 2×2 and 4×4 mosaics
-   (no seam line, no obvious repetition artefact at the tile boundary).
-
-A useful control: the **same prompt/seed with `SeamlessTile`/`CircularVAEDecode` set to
-`disable`** should score a *high* edge_MAD (seam present) — proving the metric and the
-seamless nodes are both doing their job, and that the low score is from the circular
-padding, not luck.
+**Pass criteria:** (1) grid winner visibly flatter/on-material vs base;
+(2) `edge_MAD < 5%` at the winner, confirmed in the 2×2/4×4 mosaics.
+**Control:** same prompt/seed with tiling `disable` must score HIGH edge_MAD —
+proving the metric and the seamless nodes both work.
 
 ---
 
 ## 7. Task map (Phase TX in plan.md)
 
-| Task | Deliverable |
-|------|-------------|
-| TX0 | this spec |
-| TX1 | `mat_tile` dataset (~30-50 Poly Haven CC0) + `mat_tile_manifest.md` |
-| TX2 | train `mat_tile` LoRA → `configs/mat_tile.json` + checkpoints on E: |
-| TX3 | eval `mat_tile` → `eval/tile_edge_mad.py` + `eval/mat_tile_grid.md` |
-| TX4 | deploy `mat_tile` + author `generate_texture_tile_flux` MCP workflow |
-| TX5 | `tile_topdown` dataset (~30-50 Kenney/OGA CC0) + `tile_topdown_manifest.md` |
-| TX6 | train `tile_topdown` LoRA → `configs/tile_topdown.json` + checkpoints |
-| TX7 | eval `tile_topdown` → `eval/tile_topdown_grid.md` (reuse `tile_edge_mad.py`) |
-| TX8 | deploy `tile_topdown` + document both tile LoRAs in `README.md` |
+| Task | Deliverable | Status |
+|------|-------------|--------|
+| TX0 | this spec (SDXL rewrite) | this doc |
+| TX0b | kohya sd-scripts installed + verified on E:, GPU 1 | **done 2026-06-30** (see §5) |
+| TX1 | `mat_tile` dataset + manifest | **done, user-approved 2026-07-16** (55 imgs, 17 families) |
+| TX2 | train `mat_tile` SDXL LoRA → checkpoints on E: | pending |
+| TX3 | eval `mat_tile` → `eval/tile_edge_mad.py` + `eval/mat_tile_grid.md` | pending |
+| TX4 | deploy `mat_tile` + add LoraLoader to `generate_texture_tile.json` | pending |
+| TX5 | `tile_topdown` dataset + manifest | pending |
+| TX6 | train `tile_topdown` | pending |
+| TX7 | eval `tile_topdown` (reuse tile_edge_mad.py) | pending |
+| TX8 | deploy `tile_topdown` + document both in README | pending |

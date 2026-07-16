@@ -681,7 +681,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "Document SDXL trainer CLI (sdxl_train_network.py) and config conventions",
     "Update deploy path: SDXL LoRA → generate_texture_tile.json (existing) via optional LoraLoader"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -706,7 +706,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "Run 1-step smoke-test on a 2-image dummy dataset with sd_xl_base_1.0.safetensors",
     "Document install + invocation in scripts/train_lora/README.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
