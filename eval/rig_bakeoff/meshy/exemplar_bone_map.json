@@ -1,0 +1,64 @@
+{
+  "comment": "Meshy rigging API skeleton on exemplar_meshy_rigged.glb \u2014 Mixamo-style names, 24 bones, NO finger bones (vs UniRig 52 w/ fingers, AccuRIG 61 w/ fingers+toes). World-axis poses per protocol; character faces -Y.",
+  "poses": {
+    "S1": {
+      "label": "deep knee bend",
+      "bones": [
+        {
+          "bone": "LeftLeg",
+          "world_axis": "side",
+          "angle_deg": 90
+        }
+      ],
+      "focus_vgroups": [
+        "LeftLeg"
+      ]
+    },
+    "S2": {
+      "label": "elbow bend",
+      "bones": [
+        {
+          "bone": "LeftForeArm",
+          "world_axis": "up",
+          "angle_deg": -100
+        }
+      ],
+      "focus_vgroups": [
+        "LeftForeArm"
+      ]
+    },
+    "S3": {
+      "label": "arms raised overhead",
+      "bones": [
+        {
+          "bone": "LeftArm",
+          "world_axis": "forward",
+          "angle_deg": -80
+        },
+        {
+          "bone": "RightArm",
+          "world_axis": "forward",
+          "angle_deg": 80
+        }
+      ],
+      "focus_vgroups": [
+        "LeftArm",
+        "RightArm"
+      ]
+    },
+    "S4": {
+      "label": "forward spine bend",
+      "bones": [
+        {
+          "bone": "Spine02",
+          "world_axis": "side",
+          "angle_deg": 40
+        }
+      ],
+      "focus_vgroups": [
+        "Spine02"
+      ]
+    }
+  },
+  "clips": {}
+}

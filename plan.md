@@ -1830,7 +1830,7 @@ decides what's good/bad, not Claude solo.
   "description": "AccuRIG lane (humanoid only — AccuRIG can't do quads). One manual GUI step by the user (documented hand-off), then bind, apply the protocol animation set via the proven Unity Humanoid path, render the protocol stills+clips.",
   "files": ["eval/rig_bakeoff/accurig/"],
   "acceptance_criteria": ["Rigged berserkr with protocol clips rendered per protocol cameras", "Manual step documented for reproducibility"],
-  "steps": ["hand off to GUI", "bind + animate", "render protocol set"], "passes": false }
+  "steps": ["hand off to GUI", "bind + animate", "render protocol set"], "passes": true }
 ```
 
 ```json
@@ -1846,7 +1846,7 @@ decides what's good/bad, not Claude solo.
   "description": "Meshy lane via coplay-mcp (humanoid only): auto_rig_3d_model + apply_animation_to_rigged_model with the protocol clips (or nearest Meshy animation-library equivalents, recorded). Requires the Unity editor open.",
   "files": ["eval/rig_bakeoff/meshy/"],
   "acceptance_criteria": ["Rigged berserkr + protocol renders", "Any clip substitutions recorded"],
-  "steps": ["auto-rig", "animate", "render protocol set"], "passes": false }
+  "steps": ["auto-rig", "animate", "render protocol set"], "passes": true }
 ```
 
 ```json

@@ -78,6 +78,16 @@ def _import_scene(path: str) -> tuple[bpy.types.Object, list[bpy.types.Object]]:
             o.hide_render = True
         if o.type == "ARMATURE":
             o.hide_render = True
+    # AccuRIG FBX exports carry a shape-key action ("Key|0_T-Pose") on the
+    # mesh in addition to the armature's pose action. Left bound, it keeps
+    # morphing vertices toward bind pose while the armature moves the rest,
+    # smearing the mesh into streaks. Clear ALL animation on the meshes, not
+    # just the rig's (harmless on GLB lanes, required on FBX lanes).
+    for mesh in meshes:
+        if mesh.animation_data:
+            mesh.animation_data_clear()
+        if mesh.data.shape_keys and mesh.data.shape_keys.animation_data:
+            mesh.data.shape_keys.animation_data_clear()
     return arms[0], meshes
 
 
@@ -178,6 +188,15 @@ def _render(scene: bpy.types.Scene, out_file: Path) -> None:
     print("RENDERED", out_file)
 
 
+# World axes for pose specs: side = character's left-right axis (X), forward =
+# depth axis (Y), up = Z. Used by the world_axis spec form below.
+WORLD_AXES = {
+    "side": Vector((1.0, 0.0, 0.0)),
+    "forward": Vector((0.0, 1.0, 0.0)),
+    "up": Vector((0.0, 0.0, 1.0)),
+}
+
+
 def _apply_pose(rig: bpy.types.Object, bones: list[dict]) -> None:
     for spec in bones:
         pb = rig.pose.bones.get(spec["bone"])
@@ -185,10 +204,24 @@ def _apply_pose(rig: bpy.types.Object, bones: list[dict]) -> None:
             print(f"ERROR: bone '{spec['bone']}' not in armature "
                   f"(have: {[b.name for b in rig.pose.bones][:12]}...)", file=sys.stderr)
             sys.exit(1)
-        pb.rotation_mode = "XYZ"
-        euler = [0.0, 0.0, 0.0]
-        euler[int(spec.get("axis", 0))] = math.radians(float(spec["angle_deg"]))
-        pb.rotation_euler = euler
+        angle = math.radians(float(spec["angle_deg"]))
+        if "world_axis" in spec:
+            # Rotate about a WORLD axis regardless of the rig's bone-local
+            # conventions (the quad_anim_v2 trick) — bone rolls on FBX imports
+            # make local-euler axes unpredictable, world axes are not.
+            from mathutils import Quaternion
+            world_axis = WORLD_AXES[spec["world_axis"]]
+            bone_space = (
+                (rig.matrix_world @ pb.bone.matrix_local).to_3x3().inverted()
+                @ world_axis
+            )
+            pb.rotation_mode = "QUATERNION"
+            pb.rotation_quaternion = Quaternion(bone_space, angle)
+        else:
+            pb.rotation_mode = "XYZ"
+            euler = [0.0, 0.0, 0.0]
+            euler[int(spec.get("axis", 0))] = angle
+            pb.rotation_euler = euler
 
 
 def _render_stills(rig, meshes, poses: dict, cam, scene, out_dir: Path) -> None:
@@ -236,10 +269,13 @@ def _render_clips(rig, meshes, clips: dict, cam, scene, out_dir: Path) -> None:
         focus = (mins + maxs) / 2
         _aim(cam, focus, size * 1.35, FULL_AZIMUTH_DEG, FULL_ELEVATION_DEG)
         span = max(end - start, 1)
+        # Action names can carry Windows-hostile characters (e.g. Meshy's
+        # "Armature|walking_man|baselayer") — sanitize for the filename.
+        safe_name = "".join(c if c.isalnum() or c in "-_" else "_" for c in action.name)
         for k in range(CLIP_SAMPLE_FRAMES):
             frame = start + round(k * span / (CLIP_SAMPLE_FRAMES - 1))
             scene.frame_set(frame)
-            _render(scene, out_dir / f"{clip_id}_{action.name}_f{k}.png")
+            _render(scene, out_dir / f"{clip_id}_{safe_name}_f{k}.png")
         rig.animation_data.action = None
 
 

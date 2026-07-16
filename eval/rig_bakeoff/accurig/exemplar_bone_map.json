@@ -1,0 +1,10 @@
+{
+  "comment": "AccuRIG CC_Base skeleton on exemplar_accurig_bakeoff.fbx. Poses use WORLD-axis rotations (world_axis: side=X, forward=Y, up=Z; character faces -Y) — local-euler axes on this FBX's bone rolls proved unpredictable (smeared several poses), the world-axis quaternion form is rig-convention-independent. Right-hand rule signs. No clips: the FBX carries only T-pose actions; animation goes through the Unity path.",
+  "poses": {
+    "S1": {"label": "deep knee bend", "bones": [{"bone": "CC_Base_L_Calf", "world_axis": "side", "angle_deg": 90}], "focus_vgroups": ["CC_Base_L_CalfTwist01", "CC_Base_L_CalfTwist02"]},
+    "S2": {"label": "elbow bend", "bones": [{"bone": "CC_Base_L_Forearm", "world_axis": "up", "angle_deg": -100}], "focus_vgroups": ["CC_Base_L_ForearmTwist01", "CC_Base_L_ForearmTwist02"]},
+    "S3": {"label": "arms raised overhead", "bones": [{"bone": "CC_Base_L_Upperarm", "world_axis": "forward", "angle_deg": -80}, {"bone": "CC_Base_R_Upperarm", "world_axis": "forward", "angle_deg": 80}], "focus_vgroups": ["CC_Base_L_UpperarmTwist01", "CC_Base_R_UpperarmTwist01"]},
+    "S4": {"label": "forward spine bend", "bones": [{"bone": "CC_Base_Waist", "world_axis": "side", "angle_deg": 40}], "focus_vgroups": ["CC_Base_Waist"]}
+  },
+  "clips": {}
+}
