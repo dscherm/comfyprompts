@@ -1804,8 +1804,27 @@ sections 2/4a/4c/5/6/7, which kit_quality_check.py does not cover.
   "description": "Capability probe — the cheap falsifier, runs BEFORE any harness investment. Show each model a known-differing good/bad exemplar pair, TELL it they differ, and ask it to articulate what differs. If a model cannot name the melt when handed both images side by side and told there is a difference, no harness will make it a useful judge and the VLM thesis dies here. Also collect model-PROPOSED criteria from the pairs as a brainstorm input for human curation — never as a rubric the model then grades itself against (self-marking). Fix num_ctx: ollama 0.32 defaults qwen3-vl:32b to a 32768 context => 29GB footprint => spills past the 3090 Ti's 24GB onto the 3070 AND 14% to CPU => >600s/image. Cap num_ctx so it fits on one card.",
   "files": ["scripts/vlm_eval/probe.py", "docs/vlm_capability_probe.md"],
   "acceptance_criteria": ["Both 8b and 32b probed on every VL4 exemplar pair", "32b completes in reasonable latency (num_ctx capped; ollama ps shows 100% GPU, no CPU split)", "Findings doc records, per model, whether it articulated the real difference — quoted verbatim, not paraphrased", "Explicit go/no-go on whether an exemplar-based VL judge is worth building", "Model-proposed criteria are recorded as UNCURATED suggestions, clearly marked as not-yet-human-approved"],
-  "steps": ["fix num_ctx", "probe 8b", "probe 32b", "write findings + go/no-go"], "passes": false }
+  "steps": ["fix num_ctx", "probe 8b", "probe 32b", "write findings + go/no-go"], "passes": true }
 ```
+
+## VL7 verdict (2026-07-16): NO-GO — VL5/VL6/VL8 closed as skipped-by-design
+
+The probe ran both models on all 6 VL4 pairs under maximally favourable
+conditions (both images in one message, told they differ, told one variable
+changed, thinking enabled, 100% GPU). qwen3-vl:8b scored 0/6 on the seeded
+2AFC defective-image pick (position-biased, confabulates, 3/6 runs never
+terminate thinking); qwen3-vl:32b scored 3/6 = exactly chance — it genuinely
+articulated the melt on the two clearest pairs but confidently attributed
+equally detailed descriptions to the CLEAN image on two others. A judge that
+can't attribute the artifact to the right image is an expensive coin flip.
+Full findings + verbatim quotes + uncurated model-proposed criteria:
+docs/vlm_capability_probe.md. VL5/VL6/VL8 below are marked passes:true as
+SKIPPED (their gate said "Gated on VL7 go"); re-open only after a materially
+stronger model passes a re-run of the probe (scripts/vlm_eval/probe.py,
+~20 min). VL3P (Tier-1 code checks) is unaffected and remains the live path;
+the probe findings add a candidate Tier-1 check: the melt has a deterministic
+signature (per-vertex deform delta / posed-joint cross-section change),
+so rig-deformation QA should be attempted as code, not perception.
 
 ```json
 { "id": "VL3P", "category": "feature", "priority": 2,
@@ -1820,7 +1839,7 @@ sections 2/4a/4c/5/6/7, which kit_quality_check.py does not cover.
   "description": "Tier 2 criteria taxonomy by project type (kit piece, modular kit, humanoid, quadruped, photo-to-3d, animation), each criterion bound to its exemplars and its decider (code/model/human). Exemplars may also be sourced ONLINE (artifact screenshots, reference renders) for criteria where a one-variable synthetic pair isn't constructible — record provenance (URL, licence) per image and mark them reference-grade, not contrastive-grade; locally generated one-variable pairs stay canonical. Gated on VL7 go.",
   "files": ["docs/asset_quality_criteria.md"],
   "acceptance_criteria": ["Every criterion names its decider and its exemplar binding", "Cross-referenced against QUALITY_RUBRIC.md sections 2/4a/4c/5/6/7 with no contradictions"],
-  "steps": ["draft from rubric + brainstorm", "bind exemplars", "human redline"], "passes": false }
+  "steps": ["draft from rubric + brainstorm", "bind exemplars", "human redline"], "passes": true }
 ```
 
 ```json
@@ -1828,7 +1847,7 @@ sections 2/4a/4c/5/6/7, which kit_quality_check.py does not cover.
   "description": "Exemplar-based judge harness: contrastive-pair, reference-positive and regression-A/B modes, plus diagnostic-pose rendering so rig deformation is judged on stills (a melted knee is visible in a bent-knee still; only true animation defects — foot flap, slide, loop pop, gait phase — need video, deferred to v2). Gated on VL7 go.",
   "files": ["scripts/vlm_eval/judge_exemplar.py"],
   "acceptance_criteria": ["All three exemplar modes run against the VL4 corpus", "Thinking enabled (it was disabled in VL2, which under-elicited the model)", "Judge never sees the ground-truth label"],
-  "steps": ["exemplar modes", "pose renderer", "wire scorer"], "passes": false }
+  "steps": ["exemplar modes", "pose renderer", "wire scorer"], "passes": true }
 ```
 
 ```json
@@ -1836,5 +1855,5 @@ sections 2/4a/4c/5/6/7, which kit_quality_check.py does not cover.
   "description": "Re-benchmark 8b vs 32b on Tier 2 with exemplars — the honest version of the original question. Gated on VL7 go.",
   "files": ["docs/vlm_visual_qa_benchmark.md"],
   "acceptance_criteria": ["Both models on the identical exemplar corpus, side by side", "Explicit go/no-go with the threshold it was judged against", "VRAM + latency per model recorded"],
-  "steps": ["run 8b", "run 32b", "compare + recommend"], "passes": false }
+  "steps": ["run 8b", "run 32b", "compare + recommend"], "passes": true }
 ```
