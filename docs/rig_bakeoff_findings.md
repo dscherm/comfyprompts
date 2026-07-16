@@ -1,4 +1,43 @@
-# Rig bake-off findings (RB6) — INTERIM, motion round pending
+# Rig bake-off findings (RB6) — FINAL
+
+**Final verdicts (user score sheet, 2026-07-16, verbatim):**
+
+| criterion | UniRig | AccuRIG | Meshy |
+|---|---|---|---|
+| Joint definition under bend | 5 | 1 | 5 |
+| Volume preservation | 5 | 1 | 5 |
+| Unintended-region stability | 5 | 1 | 4 |
+| Walk quality | 5 | 1 | 4 |
+| **Ship it?** | **yes** | **no** | **yes** |
+
+UniRig notes (verbatim): *"i'm assuming it would be easy to change the
+animation so the arms are down, but the legs look perfect."* (Reading: the
+S3 arms-overhead DIAGNOSTIC pose read as animation — it is a posed still,
+trivially changeable; the deformation under it is what was judged.)
+
+## Standardization decision
+
+1. **Quadrupeds: UniRig.** Only capable lane, top scores, already the
+   pipeline standard.
+2. **Humanoid rigging: UniRig** (perfect scores, free, fully automated,
+   finger chains on clean meshes).
+3. **Humanoid motion: Meshy** (5 credits buys rig + walk/run clips,
+   automated end-to-end via scripts/rig_bakeoff/meshy_rig.py) whenever a
+   character must move and hand/procedural animation isn't planned —
+   UniRig's humanoid animation gap stands.
+4. **AccuRIG: rejected by the user for this pipeline.** Caveats recorded
+   for fairness: its S1/S2/S4 stills rendered clean; the shoulder question
+   was unadjudicable in Blender (posing artifact, see accurig/LANE.md); it
+   had no motion clip in the gallery; and prior production (berserkr via
+   Unity Humanoid) shipped successfully on it. The verdict binds this
+   bake-off's standardization, not a retroactive judgment of shipped work.
+5. **Tripo (RB5): closed as skipped** — account unfunded (balance 0), user
+   cost preference against funding; the lane harness is ready
+   (tsk_ key in keyring) if that ever changes.
+
+---
+
+# Earlier interim record (still-image round)
 
 **Date:** 2026-07-16 · **Judge:** the user (per protocol, Claude does not self-judge)
 **Evidence:** eval/rig_bakeoff/ lanes + judging gallery artifact (three lanes,

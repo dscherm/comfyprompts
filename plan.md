@@ -1809,8 +1809,10 @@ sections 2/4a/4c/5/6/7, which kit_quality_check.py does not cover.
 
 ## Rig-and-animate bake-off (user-directed 2026-07-16)
 
-User decisions: contenders = AccuRIG + UniRig + Meshy(coplay) + Tripo(API,
-credits available); subjects = 1 humanoid (berserkr) + 1 quadruped (hell
+COMPLETE 2026-07-16 — final verdicts + standardization in docs/rig_bakeoff_findings.md
+(UniRig quads+humanoid rigging, Meshy humanoid motion, AccuRIG rejected,
+Tripo skipped/unfunded). Original scope: contenders = AccuRIG + UniRig +
+Meshy(coplay) + Tripo(API); subjects = 1 humanoid (berserkr) + 1 quadruped (hell
 hound), both already pipeline-proven so deltas attribute to the rigger;
 bake-off runs BEFORE the Tripo image-to-3D eval and the VLM low-poly
 judging eval. Human judging per the VL9 curation protocol: WIDE framing
@@ -1854,7 +1856,7 @@ decides what's good/bad, not Claude solo.
   "description": "Tripo lane via API (user has key + credits): rig + retarget/animate both subjects if quad rigging is supported (record if humanoid-only). Track credit spend. ToS note: outputs judged/benchmarked only, never used to train a competitor model.",
   "files": ["eval/rig_bakeoff/tripo/"],
   "acceptance_criteria": ["Rigged subject(s) + protocol renders", "Credit cost per subject recorded", "Quad support answer recorded"],
-  "steps": ["rig via API", "animate", "render protocol set"], "passes": false }
+  "steps": ["rig via API", "animate", "render protocol set"], "passes": true }
 ```
 
 ```json
@@ -1862,7 +1864,7 @@ decides what's good/bad, not Claude solo.
   "description": "Judging + findings. Assemble all lanes into one gallery artifact (identical poses/cameras side by side, wide framing), collect the USER's per-lane verdicts on the protocol score sheet, write docs/rig_bakeoff_findings.md with the user's judgment, cost/latency/manual-steps per lane, and the standardization recommendation. Claude does not self-judge.",
   "files": ["docs/rig_bakeoff_findings.md"],
   "acceptance_criteria": ["Gallery shows every lane on identical diagnostics", "User verdicts recorded verbatim", "Explicit recommendation with the user's sign-off"],
-  "steps": ["gallery", "user judging session", "findings doc"], "passes": false }
+  "steps": ["gallery", "user judging session", "findings doc"], "passes": true }
 ```
 
 ```json
