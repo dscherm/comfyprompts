@@ -1,0 +1,66 @@
+{
+  "criteria": [
+    {
+      "id": "rig_deformation_melt",
+      "project_types": [
+        "humanoid",
+        "quadruped"
+      ],
+      "description": "Skin weights that deform badly at bent joints: knees lose definition, limbs pinch/tear/fail-to-bend, versus clean production-quality deformation (AccuRIG humanoid, UniRig quadruped) on the identical mesh, skeleton, and pose.",
+      "tier": 2,
+      "decider": "model+human",
+      "source_lesson": "lessons/unirig-skin-weights-melt-use-accurig.md",
+      "notes": "fist_clench/wrist_curl dropped: berserkr_accurig.fbx has no finger bones (CC_Base skeleton, Hand is terminal), and rotating the Hand bone alone produces an implausible whole-arm swing rather than a contained wrist motion on this asset. knee_bend, elbow_bend, and hip_flex all produce clear, convincing good/bad deltas.",
+      "pairs": [
+        {
+          "pose": "knee_bend",
+          "project_type": "humanoid",
+          "source_asset": "products/berserkr_v2_chars_v1/rigged/berserkr_accurig.fbx",
+          "good": "eval/exemplars/rig_deformation/good__knee_bend.png",
+          "bad": "eval/exemplars/rig_deformation/bad__knee_bend.png",
+          "differing_variable": "skin weights (AccuRIG vs naive envelope)"
+        },
+        {
+          "pose": "elbow_bend",
+          "project_type": "humanoid",
+          "source_asset": "products/berserkr_v2_chars_v1/rigged/berserkr_accurig.fbx",
+          "good": "eval/exemplars/rig_deformation/good__elbow_bend.png",
+          "bad": "eval/exemplars/rig_deformation/bad__elbow_bend.png",
+          "differing_variable": "skin weights (AccuRIG vs naive envelope)"
+        },
+        {
+          "pose": "hip_flex",
+          "project_type": "humanoid",
+          "source_asset": "products/berserkr_v2_chars_v1/rigged/berserkr_accurig.fbx",
+          "good": "eval/exemplars/rig_deformation/good__hip_flex.png",
+          "bad": "eval/exemplars/rig_deformation/bad__hip_flex.png",
+          "differing_variable": "skin weights (AccuRIG vs naive envelope)"
+        },
+        {
+          "pose": "front_knee_bend",
+          "project_type": "quadruped",
+          "source_asset": "products/grimforge_bestiary_v1/_quadrig/hell_hound_rigged.glb",
+          "good": "eval/exemplars/rig_deformation/good__front_knee_bend.png",
+          "bad": "eval/exemplars/rig_deformation/bad__front_knee_bend.png",
+          "differing_variable": "skin weights (UniRig vs naive envelope)"
+        },
+        {
+          "pose": "hind_knee_bend",
+          "project_type": "quadruped",
+          "source_asset": "products/grimforge_bestiary_v1/_quadrig/hell_hound_rigged.glb",
+          "good": "eval/exemplars/rig_deformation/good__hind_knee_bend.png",
+          "bad": "eval/exemplars/rig_deformation/bad__hind_knee_bend.png",
+          "differing_variable": "skin weights (UniRig vs naive envelope)"
+        },
+        {
+          "pose": "neck_bend",
+          "project_type": "quadruped",
+          "source_asset": "products/grimforge_bestiary_v1/_quadrig/hell_hound_rigged.glb",
+          "good": "eval/exemplars/rig_deformation/good__neck_bend.png",
+          "bad": "eval/exemplars/rig_deformation/bad__neck_bend.png",
+          "differing_variable": "skin weights (UniRig vs naive envelope)"
+        }
+      ]
+    }
+  ]
+}

@@ -1036,7 +1036,7 @@ automation needed. Assets staged: `E:/ai-training/_rigtest/bakeoff/barbarian_fis
 ## Phase UL: Utility / quality-enhancer LoRA (FREE CivitAI Buzz/reputation track)
 
 Derived from the 2026-06-30 research (`docs/research/flux-model-types-and-feasibility.md`
-+ `flux-lora-edge-and-licensing.md`). **Verified finding:** the most-downloaded Flux
++ `docs/research/flux-lora-edge-and-licensing.md`). **Verified finding:** the most-downloaded Flux
 LoRAs are **utility/quality enhancers** (hands/anatomy/detail/realism), *above any
 single art style* — because they're used in **every** generation, so they top
 CivitAI's 25%-of-Generator-Buzz mechanic. **Two constraints shape this phase:**
@@ -1744,4 +1744,97 @@ mutant swiping (attack) + mutant dying (death), aggro/chase/attack AI + HP bars.
   "files": ["products/grimforge_playable_demo_v1/README.md"],
   "acceptance_criteria": ["A scripted fight run: player attacks kill a creature; a creature kills the player; R revives; all logged with 0 errors", "README documents combat controls (J/L/K/N/U/Space/R) + mechanics", "gate passes; committed"],
   "steps": ["Balance pass", "scripted fight verification", "README + gate + commit"], "passes": false }
+```
+
+## VLM visual-QA benchmark (qwen3-vl 8B vs 32B)
+
+Decide empirically whether a local VLM can judge 3D game-art renders well
+enough to automate the visual checkpoints that currently block on human eyes
+(`character-pipeline/SKILL.md:11`, `kit_quality_check.py` = numeric-only).
+Ground truth comes from shipped kit GLBs (known-good) plus programmatically
+injected defects drawn from this project's real failure history (known-bad).
+
+```json
+{ "id": "VL1", "category": "feature", "priority": 1,
+  "description": "Eval-set builder: render 4-view turnarounds of N shipped kit GLBs (known-good), then emit defect-injected variants via Blender for the project's real failure modes: flipped normals, unwelded cracks (per trellis-unwelded-mesh lesson), dropped vertex colour/black texture, UV smear, scale error (mm-vs-m), wrong orientation. Writes images + labels.json with ground-truth {asset, defect_type|none}.",
+  "files": ["scripts/vlm_eval/build_eval_set.py", "scripts/vlm_eval/labels.json"],
+  "acceptance_criteria": ["labels.json has >=40 entries, balanced good vs defective across >=5 defect types", "Every image referenced in labels.json exists on disk", "Defect injection is deterministic given a seed (re-run reproduces identical labels)", "Known-good source assets are only read, never modified in products/"],
+  "steps": ["pick asset sample", "render turnarounds headless", "inject each defect type", "write labels.json"], "passes": true }
+```
+
+```json
+{ "id": "VL2", "category": "feature", "priority": 1,
+  "description": "VL judge harness: send render + rubric prompt to an ollama vision model via /api/chat images field, parse a structured verdict {verdict: pass|fail, defect_type, confidence, reasoning}, and score against labels.json. Model-agnostic via --model so 8b and 32b run through identical code. Reports accuracy, per-defect recall, false-positive rate, and latency.",
+  "files": ["scripts/vlm_eval/judge.py", "scripts/vlm_eval/score.py"],
+  "acceptance_criteria": ["Runs end-to-end against a live ollama and emits a scored report", "--model swaps the model with no other change", "Malformed/non-JSON model output is handled without crashing the run (counted, not fatal)", "Reports per-defect-type recall, not just aggregate accuracy", "Unreachable ollama fails fast with a clear message"],
+  "steps": ["ollama vision client", "rubric prompt + structured verdict", "scorer", "report"], "passes": true }
+```
+
+```json
+{ "id": "VL3", "category": "chore", "priority": 1,
+  "description": "Run the benchmark for qwen3-vl:8b vs qwen3-vl:32b on the VL1 eval set and write a findings doc with a go/no-go recommendation for wiring a VL check into kit_quality_check.py. Stop ComfyUI first: the 32b needs ~21GB and contends with generation on the 3090 Ti (see project_dual_gpu memory).",
+  "files": ["docs/vlm_visual_qa_benchmark.md"],
+  "acceptance_criteria": ["Both models scored on the identical eval set, numbers reported side by side", "Findings doc states an explicit go/no-go with the accuracy threshold it was judged against", "Per-defect-type breakdown identifies which defects the 8b can and cannot see", "VRAM/latency cost of each model recorded"],
+  "steps": ["stop ComfyUI", "run 8b", "run 32b", "compare + write findings"], "passes": true }
+```
+
+## VLM visual-QA, restructured (2026-07-16)
+
+VL3 was SKIPPED as designed — it benchmarked the VLM on defects that are
+deterministically computable (normals consistency, merge-by-distance vertex
+delta, bbox scale/orientation), i.e. the tier where code beats a model
+outright. The 8b scored 60.4% binary accuracy vs a 50% base rate (recall
+5/24; scale_error and wrong_orientation both 0% — those two are logically
+unanswerable from a single image with no reference).
+
+Tier 1 = code decides (exact, cheap). Tier 2 = judgment only, no metric
+exists: this is the VLM-shaped hole, and it maps to QUALITY_RUBRIC.md
+sections 2/4a/4c/5/6/7, which kit_quality_check.py does not cover.
+
+```json
+{ "id": "VL4", "category": "feature", "priority": 1,
+  "description": "Canonical exemplar corpus at eval/exemplars/ + manifest.json binding criterion -> {good[], bad[]} exemplars. First pair: rig deformation melt. Same mesh + same AccuRIG skeleton + identical diagnostic poses (deep knee bend, fist clench, arm raise, hip flex), good weights vs degraded naive/envelope weights — one variable changed, so the pair isolates weight quality. Humanoid (berserkr_accurig.fbx) and quadruped (grimforge_bestiary_v1/_accurig). Version-controlled PNGs.",
+  "files": ["eval/exemplars/manifest.json", "scripts/vlm_eval/build_exemplars.py"],
+  "acceptance_criteria": ["manifest.json binds each criterion to >=1 good and >=1 bad exemplar image that exist on disk", "Good/bad pair differs in exactly ONE variable (weights), same mesh + skeleton + pose + camera + lighting", "A human (Claude) visually confirms the bad exemplar exhibits the melt described in lessons/unirig-skin-weights-melt-use-accurig.md — knees not defined, fists don't hold", "products/ is read-only; exemplars are newly generated under eval/", "Deterministic given a seed"],
+  "steps": ["load rigged mesh", "derive degraded-weight twin", "pose both identically", "render", "write manifest"], "passes": true }
+```
+
+```json
+{ "id": "VL7", "category": "chore", "priority": 1,
+  "description": "Capability probe — the cheap falsifier, runs BEFORE any harness investment. Show each model a known-differing good/bad exemplar pair, TELL it they differ, and ask it to articulate what differs. If a model cannot name the melt when handed both images side by side and told there is a difference, no harness will make it a useful judge and the VLM thesis dies here. Also collect model-PROPOSED criteria from the pairs as a brainstorm input for human curation — never as a rubric the model then grades itself against (self-marking). Fix num_ctx: ollama 0.32 defaults qwen3-vl:32b to a 32768 context => 29GB footprint => spills past the 3090 Ti's 24GB onto the 3070 AND 14% to CPU => >600s/image. Cap num_ctx so it fits on one card.",
+  "files": ["scripts/vlm_eval/probe.py", "docs/vlm_capability_probe.md"],
+  "acceptance_criteria": ["Both 8b and 32b probed on every VL4 exemplar pair", "32b completes in reasonable latency (num_ctx capped; ollama ps shows 100% GPU, no CPU split)", "Findings doc records, per model, whether it articulated the real difference — quoted verbatim, not paraphrased", "Explicit go/no-go on whether an exemplar-based VL judge is worth building", "Model-proposed criteria are recorded as UNCURATED suggestions, clearly marked as not-yet-human-approved"],
+  "steps": ["fix num_ctx", "probe 8b", "probe 32b", "write findings + go/no-go"], "passes": false }
+```
+
+```json
+{ "id": "VL3P", "category": "feature", "priority": 2,
+  "description": "Tier-1 migration (independent of any model, do regardless): implement the six VL1 defects as exact deterministic Blender checks and fold them into kit_quality_check.py — normals consistency via normals_make_consistent diff, unwelded verts via merge-by-distance delta (per the trellis-unwelded-mesh lesson), missing texture via material/image-node presence + texel variance, uv_smear via UV-vs-3D area distortion, scale via bbox-vs-spec, orientation via up-axis/bbox aspect. Validate against VL1's labeled eval set: these must score ~100%, which is the point — code beats the VLM here.",
+  "files": ["tools/asset_generators/village_kit/kit_quality_check.py"],
+  "acceptance_criteria": ["Each of the 6 checks detects its defect on VL1's labels.json at >=95% recall with 0 false positives on the 24 clean assets", "Checks run without a VLM and without network", "kit_quality_check.py still passes on shipped kits under products/"],
+  "steps": ["implement checks", "validate vs labels.json", "wire into gate"], "passes": false }
+```
+
+```json
+{ "id": "VL5", "category": "chore", "priority": 3,
+  "description": "Tier 2 criteria taxonomy by project type (kit piece, modular kit, humanoid, quadruped, photo-to-3d, animation), each criterion bound to its exemplars and its decider (code/model/human). Exemplars may also be sourced ONLINE (artifact screenshots, reference renders) for criteria where a one-variable synthetic pair isn't constructible — record provenance (URL, licence) per image and mark them reference-grade, not contrastive-grade; locally generated one-variable pairs stay canonical. Gated on VL7 go.",
+  "files": ["docs/asset_quality_criteria.md"],
+  "acceptance_criteria": ["Every criterion names its decider and its exemplar binding", "Cross-referenced against QUALITY_RUBRIC.md sections 2/4a/4c/5/6/7 with no contradictions"],
+  "steps": ["draft from rubric + brainstorm", "bind exemplars", "human redline"], "passes": false }
+```
+
+```json
+{ "id": "VL6", "category": "feature", "priority": 3,
+  "description": "Exemplar-based judge harness: contrastive-pair, reference-positive and regression-A/B modes, plus diagnostic-pose rendering so rig deformation is judged on stills (a melted knee is visible in a bent-knee still; only true animation defects — foot flap, slide, loop pop, gait phase — need video, deferred to v2). Gated on VL7 go.",
+  "files": ["scripts/vlm_eval/judge_exemplar.py"],
+  "acceptance_criteria": ["All three exemplar modes run against the VL4 corpus", "Thinking enabled (it was disabled in VL2, which under-elicited the model)", "Judge never sees the ground-truth label"],
+  "steps": ["exemplar modes", "pose renderer", "wire scorer"], "passes": false }
+```
+
+```json
+{ "id": "VL8", "category": "chore", "priority": 3,
+  "description": "Re-benchmark 8b vs 32b on Tier 2 with exemplars — the honest version of the original question. Gated on VL7 go.",
+  "files": ["docs/vlm_visual_qa_benchmark.md"],
+  "acceptance_criteria": ["Both models on the identical exemplar corpus, side by side", "Explicit go/no-go with the threshold it was judged against", "VRAM + latency per model recorded"],
+  "steps": ["run 8b", "run 32b", "compare + recommend"], "passes": false }
 ```
