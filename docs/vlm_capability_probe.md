@@ -82,7 +82,20 @@ bad twin was image 1). The failure mode is not "can't see anything"; it is
 **can't reliably tell which image the artifact is in**, which is fatal for a
 judge whose whole job is that attribution.
 
-## Go/no-go: **NO-GO** (threshold: ≥5/6 correct picks with correct-region articulation)
+> **Post-probe human curation review (2026-07-16): the corpus itself failed
+> review, so the NO-GO below is PROVISIONAL.** The user rejected knee_bend
+> (an unattached left foot appears in BOTH twins — a pre-existing artifact
+> violating the one-variable contract) and could not adjudicate elbow_bend or
+> the quadruped pairs because the tight joint crops exclude the regions the
+> models' claims cite (e.g. the 32b's "neck/shoulder bulge" is unverifiable
+> when the neck isn't in frame). The 2AFC-at-chance result is objective, but a
+> corpus that fails human review can't support a final verdict. Rule going
+> forward: exemplars enter the manifest only after per-pair human approval,
+> rendered wide enough (full body + joint detail) that every claim is
+> adjudicable. Re-run this probe on the curated corpus before acting on the
+> verdict.
+
+## Go/no-go: **NO-GO, provisional** (threshold: ≥5/6 correct picks with correct-region articulation)
 
 The 32b scores exactly chance on a coin-flip task under the most favourable
 conditions we can construct — both images in-frame, told they differ, told only

@@ -1807,7 +1807,89 @@ sections 2/4a/4c/5/6/7, which kit_quality_check.py does not cover.
   "steps": ["fix num_ctx", "probe 8b", "probe 32b", "write findings + go/no-go"], "passes": true }
 ```
 
-## VL7 verdict (2026-07-16): NO-GO — VL5/VL6/VL8 closed as skipped-by-design
+## Rig-and-animate bake-off (user-directed 2026-07-16)
+
+User decisions: contenders = AccuRIG + UniRig + Meshy(coplay) + Tripo(API,
+credits available); subjects = 1 humanoid (berserkr) + 1 quadruped (hell
+hound), both already pipeline-proven so deltas attribute to the rigger;
+bake-off runs BEFORE the Tripo image-to-3D eval and the VLM low-poly
+judging eval. Human judging per the VL9 curation protocol: WIDE framing
+(full body + detail), gallery artifact, per-lane user verdicts — the user
+decides what's good/bad, not Claude solo.
+
+```json
+{ "id": "RB1", "category": "feature", "priority": 1,
+  "description": "Bake-off inputs + protocol. Export clean UNRIGGED twin meshes of berserkr and hell hound from committed sources (products/ read-only): plain OBJ in CENTIMETERS for AccuRIG (per project_accurig_input_format — FBX input shreds the bind, meter OBJ = 2cm miniature), GLB for UniRig/Meshy/Tripo. Write the judging protocol doc: identical animation set per lane (idle + walk minimum), identical diagnostic poses for stills (deep knee/elbow bend where applicable), identical camera set (full-body + joint-detail per VL9 framing rule), and the score sheet the user fills per lane.",
+  "files": ["eval/rig_bakeoff/inputs/", "docs/rig_bakeoff_protocol.md"],
+  "acceptance_criteria": ["Both meshes exported unrigged, verified importable", "AccuRIG OBJ is centimeter-scale", "Protocol doc names the exact clips, poses, cameras, and user score sheet", "products/ untouched"],
+  "steps": ["export meshes", "verify scale/import", "write protocol"], "passes": false }
+```
+
+```json
+{ "id": "RB2", "category": "feature", "priority": 1,
+  "description": "AccuRIG lane (humanoid only — AccuRIG can't do quads). One manual GUI step by the user (documented hand-off), then bind, apply the protocol animation set via the proven Unity Humanoid path, render the protocol stills+clips.",
+  "files": ["eval/rig_bakeoff/accurig/"],
+  "acceptance_criteria": ["Rigged berserkr with protocol clips rendered per protocol cameras", "Manual step documented for reproducibility"],
+  "steps": ["hand off to GUI", "bind + animate", "render protocol set"], "passes": false }
+```
+
+```json
+{ "id": "RB3", "category": "feature", "priority": 1,
+  "description": "UniRig lane (humanoid AND quadruped). conda env UniRig, CUDA_VISIBLE_DEVICES=1 (defaults to cuda:0 = the 3070). skeleton -> skin -> merge, then procedural clips per the quad-rig skill for the hound and protocol clips for berserkr. Note the known .l/.r mirrored-label caveat in the lane record.",
+  "files": ["eval/rig_bakeoff/unirig/"],
+  "acceptance_criteria": ["Both subjects rigged + protocol renders produced", "Ran on the 3090 Ti", "Mirror-label caveat recorded"],
+  "steps": ["rig both", "animate", "render protocol set"], "passes": false }
+```
+
+```json
+{ "id": "RB4", "category": "feature", "priority": 1,
+  "description": "Meshy lane via coplay-mcp (humanoid only): auto_rig_3d_model + apply_animation_to_rigged_model with the protocol clips (or nearest Meshy animation-library equivalents, recorded). Requires the Unity editor open.",
+  "files": ["eval/rig_bakeoff/meshy/"],
+  "acceptance_criteria": ["Rigged berserkr + protocol renders", "Any clip substitutions recorded"],
+  "steps": ["auto-rig", "animate", "render protocol set"], "passes": false }
+```
+
+```json
+{ "id": "RB5", "category": "feature", "priority": 1,
+  "description": "Tripo lane via API (user has key + credits): rig + retarget/animate both subjects if quad rigging is supported (record if humanoid-only). Track credit spend. ToS note: outputs judged/benchmarked only, never used to train a competitor model.",
+  "files": ["eval/rig_bakeoff/tripo/"],
+  "acceptance_criteria": ["Rigged subject(s) + protocol renders", "Credit cost per subject recorded", "Quad support answer recorded"],
+  "steps": ["rig via API", "animate", "render protocol set"], "passes": false }
+```
+
+```json
+{ "id": "RB6", "category": "feature", "priority": 1,
+  "description": "Judging + findings. Assemble all lanes into one gallery artifact (identical poses/cameras side by side, wide framing), collect the USER's per-lane verdicts on the protocol score sheet, write docs/rig_bakeoff_findings.md with the user's judgment, cost/latency/manual-steps per lane, and the standardization recommendation. Claude does not self-judge.",
+  "files": ["docs/rig_bakeoff_findings.md"],
+  "acceptance_criteria": ["Gallery shows every lane on identical diagnostics", "User verdicts recorded verbatim", "Explicit recommendation with the user's sign-off"],
+  "steps": ["gallery", "user judging session", "findings doc"], "passes": false }
+```
+
+```json
+{ "id": "T3D1", "category": "feature", "priority": 2,
+  "description": "Tripo image-to-3D eval (after bake-off): same concept images (a low-poly kit piece + a character T-pose) through Tripo API vs the local TRELLIS.2 single-view path; compare on low-poly game-asset suitability (topology, weldedness, texture, decimation behavior). User judges via gallery per VL9 protocol; findings doc with cost per asset.",
+  "files": ["eval/tripo_img3d/", "docs/tripo_img3d_findings.md"],
+  "acceptance_criteria": ["Same inputs through both paths", "User verdicts recorded", "Credit cost recorded"],
+  "steps": ["pick inputs", "run both paths", "gallery + user judging", "findings"], "passes": false }
+```
+
+```json
+{ "id": "VJ1", "category": "chore", "priority": 3,
+  "description": "VLM low-poly judgment probe (after bake-off; gated on VL9 curation being in place): re-run the probe.py methodology on USER-APPROVED low-poly quality exemplar pairs (not rig melt — model quality: topology, silhouette, texture). Answers whether a local VLM can judge low-poly asset quality when the corpus is actually curated.",
+  "files": ["docs/vlm_lowpoly_probe.md"],
+  "acceptance_criteria": ["All exemplars user-approved before probing", "Both local models probed", "Go/no-go recorded"],
+  "steps": ["curate exemplars with user", "probe", "findings"], "passes": false }
+```
+
+```json
+{ "id": "VL9", "category": "feature", "priority": 1,
+  "description": "Human-in-the-loop exemplar curation gate. An exemplar pair enters (or stays in) eval/exemplars/manifest.json ONLY after the user approves it per-pair. Workflow: render candidates WIDE (full-body view + joint-detail view — every region a model claim could cite must be adjudicable in-frame), publish a gallery artifact, collect per-pair approve/reject verdicts from the user, write a curation block {status: approved|rejected|unadjudicated, by, date, reason} into each manifest pair. 2026-07-16 user verdicts on the committed corpus: knee_bend REJECTED (unattached left foot in BOTH twins — pre-existing artifact, violates one-variable contract); elbow_bend UNADJUDICATED (crop excludes neck/shoulder that the 32b's claim cites); quadruped pairs UNADJUDICATED (same framing problem). Probe (VL7) verdicts are provisional until re-run on a curated corpus.",
+  "files": ["eval/exemplars/manifest.json", "scripts/vlm_eval/build_exemplars.py"],
+  "acceptance_criteria": ["Every manifest pair carries a curation block", "Only user-approved pairs are consumed by probes/benchmarks", "Candidate renders include full-body + joint-detail framing", "The 2026-07-16 user verdicts above are recorded in the manifest"],
+  "steps": ["add curation schema", "re-render candidates wide", "gallery + user verdicts", "record + filter"], "passes": false }
+```
+
+## VL7 verdict (2026-07-16): NO-GO (provisional — corpus later failed human curation review, see VL9) — VL5/VL6/VL8 closed as skipped-by-design
 
 The probe ran both models on all 6 VL4 pairs under maximally favourable
 conditions (both images in one message, told they differ, told one variable
