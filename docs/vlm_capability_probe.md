@@ -95,6 +95,18 @@ judge whose whole job is that attribution.
 > adjudicable. Re-run this probe on the curated corpus before acting on the
 > verdict.
 
+> **Scope note (2026-07-16, cross-session evidence):** the no-go below is
+> specific to **contrastive-pair attribution on 3D renders** (which of two
+> near-identical images holds the defect). A parallel session's pilot
+> (`E:\ai-training\flux-output\occult_providence\pipeline\score_pilot.py`)
+> found qwen3-vl:8b SUCCESSFUL at **single-image attribute checking on 2D
+> art** — enumerable rubric fields (background type, base style, accent
+> colours/areas), think off, num_ctx 4096, retry-on-empty, layered under a
+> deterministic presence screen and a human montage that may overrule it.
+> The model regime that works: "what is present in this image" against a
+> spec. The regime that failed here: "which of these two images differs,
+> and where." Future VLM checks (VJ1) should be framed as the former.
+
 ## Go/no-go: **NO-GO, provisional** (threshold: ≥5/6 correct picks with correct-region articulation)
 
 The 32b scores exactly chance on a coin-flip task under the most favourable
