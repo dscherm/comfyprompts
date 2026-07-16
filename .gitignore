@@ -149,3 +149,4 @@ NUL
 # Curated quality-review verdicts stay tracked.
 !.themis/blind_tdd/quality_review/
 !.themis/blind_tdd/quality_review/**
+scripts/vlm_eval/verdicts_*.json
