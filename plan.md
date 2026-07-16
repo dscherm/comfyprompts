@@ -728,7 +728,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "prep_dataset.py --src ... --out E:/ai-training/datasets/mat_tile --max-edge 1024",
     "Write short trigger-anchored captions + manifest at pipelines/tileset-ralph/loras/mat_tile/mat_tile_manifest.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
