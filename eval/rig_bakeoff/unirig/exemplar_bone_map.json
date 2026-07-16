@@ -1,0 +1,10 @@
+{
+  "comment": "UniRig skeleton on exemplar_rigged.glb (52 bones, incl. full 5-finger chains per hand — UniRig detected fingers on this mesh). By position: spine bone_0..3, head bone_4/5, x+ arm bone_6(shoulder)/7(upperarm)/8(forearm)/9(hand)/10-24(fingers), x- arm bone_25/26/27/28/29-43, x+ leg bone_44(thigh)/45(calf)/46(foot)/47(toe), x- leg bone_48-51. Axes follow the berserkr-tuned UniRig conventions (axis 0 = flex).",
+  "poses": {
+    "S1": {"label": "deep knee bend", "bones": [{"bone": "bone_45", "axis": 0, "angle_deg": 90}], "focus_vgroups": ["bone_45"]},
+    "S2": {"label": "elbow bend", "bones": [{"bone": "bone_8", "axis": 0, "angle_deg": 100}], "focus_vgroups": ["bone_8"]},
+    "S3": {"label": "arms raised overhead", "bones": [{"bone": "bone_7", "axis": 0, "angle_deg": 80}, {"bone": "bone_26", "axis": 0, "angle_deg": 80}], "focus_vgroups": ["bone_7", "bone_26"]},
+    "S4": {"label": "forward spine bend", "bones": [{"bone": "bone_2", "axis": 0, "angle_deg": 40}], "focus_vgroups": ["bone_2"]}
+  },
+  "clips": {}
+}

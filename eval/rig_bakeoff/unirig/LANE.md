@@ -24,6 +24,17 @@
    quirk, project_unirig_mirrored_side_labels) — irrelevant to stills, but a
    real cost for anyone hand-animating on this skeleton.
 
+## Exemplar subject (added 2026-07-16, now primary humanoid)
+
+UniRig on the user-supplied exemplar mesh (245k verts, clean spread-finger
+hands): 52-bone skeleton **including full 5-finger chains per hand** — the
+only lane subject where UniRig produced finger bones (the berserkr's fused
+fists got a single terminal hand bone). Rig time ~3 min on the 3090 Ti.
+All four protocol poses applied correctly first-pass using the same axis
+conventions tuned on the berserkr (axis 0 = flex). Renders in `exemplar/`,
+map in `exemplar_bone_map.json`. Same humanoid-clips gap applies (no
+retarget path to the generic skeleton).
+
 ## Renders
 
 - `berserkr/` — S1 knee bend, S2 elbow bend, S3 arms overhead, S4 forward

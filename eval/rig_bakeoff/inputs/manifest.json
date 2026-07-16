@@ -1,8 +1,26 @@
 {
   "created": "2026-07-16",
   "task": "RB1",
-  "note": "Canonical UNRIGGED bake-off inputs. products/ sources were read, never written.",
+  "note": "Canonical UNRIGGED bake-off inputs. products/ sources were read, never written. 2026-07-16: user supplied exemplar.obj as the PRIMARY humanoid subject (clean hands with individual fingers — the berserkr's fused fists and fur silhouette made deformation hard to judge); berserkr entries retained as secondary/legacy lane data.",
   "subjects": [
+    {
+      "id": "exemplar",
+      "kind": "humanoid",
+      "source": "C:/Users/scher/Downloads/exemplar.obj (user-supplied, Blender 5.0 export, 245830 verts, no UVs/textures)",
+      "files": {
+        "accurig": {
+          "path": "eval/rig_bakeoff/inputs/exemplar_cm.obj",
+          "format": "OBJ, centimeters (180cm tall)",
+          "verified": "scaled from 1.002m source; feet at z=0"
+        },
+        "generic": {
+          "path": "eval/rig_bakeoff/inputs/exemplar_m.glb",
+          "format": "GLB, meters, untextured",
+          "verified": "world height 1.800m, feet at z=0, 0 armatures"
+        }
+      },
+      "lanes": { "accurig": "exemplar_cm.obj", "unirig": "exemplar_m.glb", "meshy": "exemplar_m.glb (+ draco/textured variants under meshy/ for upload attempts)", "tripo": "exemplar_m.glb" }
+    },
     {
       "id": "berserkr",
       "kind": "humanoid",
