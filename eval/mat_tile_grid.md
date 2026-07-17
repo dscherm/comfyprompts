@@ -1,4 +1,21 @@
-# mat_tile LoRA — eval grid (TX3) — PENDING USER VERDICT
+# mat_tile LoRA — eval grid (TX3) — VERDICT RECORDED
+
+**User verdict (2026-07-17, verbatim):** *"the lora 0.6 is good except for the
+wood which i would prefer control 0.8"*
+
+**Resolution:**
+- **Ship strength 0.6** for brick / cobblestone / sand (single-pass through
+  the seamless graph). Note 0.6 also sidesteps the cobblestone lilac-bleed
+  regression that appears at 0.8+.
+- **Wood: two-pass recipe.** The user's preferred look was the tiling-OFF
+  control at 0.8 (clean continuous planks; the circular-conv constraint at
+  0.8 degrades wood into patchwork), but that control does not tile
+  (8.58% MAD). Verified fix: generate UNTILED at strength 0.8, then re-diffuse
+  img2img at **denoise 0.35 with SeamlessTile + CircularVAEDecode enabled**
+  (same prompt/LoRA). Result keeps the plank composition and tiles at
+  **3.14% MAD** with a clean 2x2 mosaic
+  (`weathered_wood_planks__seamlessified.png`). Recipe recorded in
+  tile_loras_spec.md; TX4 wires it as the wood path.
 
 **Date:** 2026-07-17 · Checkpoint: `mat_tile.safetensors` (1500 steps, TX2)
 · Graph: `generate_texture_tile.json` (SDXL + SeamlessTile + CircularVAEDecode,

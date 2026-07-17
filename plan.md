@@ -773,7 +773,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "Generate base + LoRA tiles through generate_texture_tile.json (SDXL + SeamlessTile + CircularVAEDecode) with mat_tile LoRA loaded at strengths 0.6/0.8/1.0",
     "Tile 2x2/4x4, measure edge MAD, record verdict in eval/mat_tile_grid.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

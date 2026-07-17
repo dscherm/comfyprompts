@@ -251,6 +251,17 @@ go in the eval doc.
 **Control:** same prompt/seed with tiling `disable` must score HIGH edge_MAD —
 proving the metric and the seamless nodes both work.
 
+### 6c. Two-pass rescue for constraint-degraded materials (proven on wood, TX3)
+
+Some materials (long directional structures — wood planks) degrade under the
+circular-conv constraint at higher LoRA strengths: the composition turns
+patchwork while low strengths lose the aesthetic. Verified fix (2026-07-17):
+1. Generate with tiling **disabled** at the strength whose look wins (wood: 0.8).
+2. Re-diffuse that image img2img at **denoise 0.35** with SeamlessTile +
+   CircularVAEDecode **enabled**, same prompt/LoRA/seed.
+The composition survives, the wrap edges heal (wood: 8.58% → 3.14% MAD, clean
+2×2 mosaic). Cost: one extra generation.
+
 ---
 
 ## 7. Task map (Phase TX in plan.md)
