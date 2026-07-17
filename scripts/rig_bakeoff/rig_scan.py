@@ -382,6 +382,87 @@ for a in arms:
             bone_facts[pb.name] = bone_record(pb, f"{role}.{side}")
 bone_facts[root.name] = bone_record(root, "root")
 
+# ------------------------------------------------- MEASURED neutral standing pose
+# Motion recipes are authored against a NEUTRAL STANDING pose (legs vertical, arms
+# hanging at the sides). Authored rest poses are not that — this mesh rests in a
+# T-pose with ~10deg of leg splay, and applying gait curves straight onto that
+# carried the splay/T-pose through every frame (arms winged out; legs swung wide).
+#
+# So the correction is measured HERE, once per rig, not hardcoded per recipe (the
+# walk recipe had ARM_LOWER=75deg baked in — a guess, and wrong on Meshy, which
+# needs ASYMMETRIC 79/77deg). Measured hierarchically top-down: each bone's
+# correction is read in the posed state of its already-corrected parent, because
+# rotating a thigh carries its calf.
+#
+# Depends on a correct UP. This scanner uses UP=(0,0,1), valid for Z-up rigs
+# (glTF); it is NOT valid for FBX rigs that import with an axis swap. Recorded in
+# neutral_pose.valid_for so a consumer can refuse rather than misapply.
+NEUTRAL_TARGET = {"thigh": -UP, "calf": -UP, "upperarm": -UP, "forearm": -UP}
+
+
+def posed_dir(name: str) -> Vector:
+    dg = bpy.context.evaluated_depsgraph_get()
+    ev = arm.evaluated_get(dg).pose.bones[name]
+    return (arm.matrix_world.to_3x3() @ (ev.tail - ev.head)).normalized()
+
+
+reset()
+neutral = {}
+_order = []
+for leg in legs:
+    _order += [("thigh", leg["thigh"]), ("calf", leg["calf"])]
+for a in arms:
+    _order += [("upperarm", a["upperarm"]), ("forearm", a["forearm"])]
+for role, pb in _order:
+    if pb is None:
+        continue
+    cur = posed_dir(pb.name)
+    q_world = cur.rotation_difference(NEUTRAL_TARGET[role])
+    axis_w, angle = q_world.to_axis_angle()
+    pb.rotation_quaternion = Quaternion(axis_in_bone(pb, axis_w), angle)
+    bpy.context.view_layer.update()
+    neutral[pb.name] = {
+        "role": bone_facts[pb.name]["role"],
+        "world_axis": [round(c, 4) for c in axis_w],
+        "angle_deg": round(math.degrees(angle), 2),
+    }
+reset()
+
+# ------------------------------------------------- MEASURED palm orientation
+# The palm plane is spanned by the arm axis and the finger-root spread, so its
+# normal is cross(arm_dir, spread). Measurable ONLY when the rig has finger bones
+# (UniRig gives them on clean meshes; Meshy's 24-bone skeleton does not). The
+# normal's SIGN is arbitrary (depends which finger pair spans the spread), so
+# palm-in vs back-of-hand-in is a 180deg ambiguity this cannot settle — a consumer
+# resolves it by rendering. Null is an honest answer, not a default.
+def palm_normal(hand_pb, arm_dir: Vector):
+    fingers = list(hand_pb.children) if hand_pb else []
+    if len(fingers) < 2:
+        return None
+    pts = [H[f.name] for f in fingers]
+    _, i, j = max((( pts[a] - pts[b]).length, a, b)
+                  for a in range(len(pts)) for b in range(len(pts)) if a != b)
+    spread = pts[i] - pts[j]
+    spread = spread - arm_dir * spread.dot(arm_dir)
+    if spread.length < 1e-6:
+        return None
+    n = arm_dir.cross(spread.normalized())
+    return n.normalized() if n.length > 1e-6 else None
+
+
+palms = {}
+for a in arms:
+    side = "L" if a["left"] else "R"
+    n = palm_normal(a["hand"], rest_dir(a["upperarm"])) if a["hand"] else None
+    palms[f"palm.{side}"] = {
+        "hand": a["hand"].name if a["hand"] else None,
+        "palm_plane_normal": [round(c, 3) for c in n] if n else None,
+        "finger_count": len(list(a["hand"].children)) if a["hand"] else 0,
+        "note": ("plane measured (finger spread x arm axis); normal sign is "
+                 "ambiguous, resolve by rendering" if n else
+                 "UNAVAILABLE — no finger bones; do not assume a palm orientation"),
+    }
+
 manifest = {
     "rig": Path(SRC).name,
     "rig_kind": KIND,
@@ -405,6 +486,14 @@ manifest = {
            for a in arms},
     },
     "hinges": hinges,
+    "palms": palms,
+    "neutral_pose": {
+        "note": "Per-bone corrections from AUTHORED rest -> neutral standing (legs "
+                "vertical, arms at sides). Recipes MUST apply these before their own "
+                "curves; compose world-space as R_motion . R_neutral.",
+        "valid_for": "z-up rigs (UP=(0,0,1)); unreliable on axis-swapped FBX imports",
+        "corrections": neutral,
+    },
     "bones": bone_facts,
 }
 

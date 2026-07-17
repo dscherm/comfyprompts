@@ -168,6 +168,98 @@
    }
   }
  },
+ "palms": {
+  "palm.L": {
+   "hand": "LeftHand",
+   "palm_plane_normal": null,
+   "finger_count": 0,
+   "note": "UNAVAILABLE \u2014 no finger bones; do not assume a palm orientation"
+  },
+  "palm.R": {
+   "hand": "RightHand",
+   "palm_plane_normal": null,
+   "finger_count": 0,
+   "note": "UNAVAILABLE \u2014 no finger bones; do not assume a palm orientation"
+  }
+ },
+ "neutral_pose": {
+  "note": "Per-bone corrections from AUTHORED rest -> neutral standing (legs vertical, arms at sides). Recipes MUST apply these before their own curves; compose world-space as R_motion . R_neutral.",
+  "valid_for": "z-up rigs (UP=(0,0,1)); unreliable on axis-swapped FBX imports",
+  "corrections": {
+   "LeftUpLeg": {
+    "role": "thigh.L",
+    "world_axis": [
+     0.3317,
+     0.9434,
+     -0.0
+    ],
+    "angle_deg": 7.86
+   },
+   "LeftLeg": {
+    "role": "calf.L",
+    "world_axis": [
+     -0.9905,
+     -0.1379,
+     0.0
+    ],
+    "angle_deg": 7.11
+   },
+   "RightUpLeg": {
+    "role": "thigh.R",
+    "world_axis": [
+     0.389,
+     -0.9212,
+     0.0
+    ],
+    "angle_deg": 8.12
+   },
+   "RightLeg": {
+    "role": "calf.R",
+    "world_axis": [
+     -0.9987,
+     0.0508,
+     0.0
+    ],
+    "angle_deg": 8.53
+   },
+   "LeftArm": {
+    "role": "upperarm.L",
+    "world_axis": [
+     -0.2848,
+     0.9586,
+     0.0
+    ],
+    "angle_deg": 78.6
+   },
+   "LeftForeArm": {
+    "role": "forearm.L",
+    "world_axis": [
+     0.4004,
+     0.9163,
+     -0.0
+    ],
+    "angle_deg": 27.07
+   },
+   "RightArm": {
+    "role": "upperarm.R",
+    "world_axis": [
+     -0.2736,
+     -0.9619,
+     0.0
+    ],
+    "angle_deg": 76.58
+   },
+   "RightForeArm": {
+    "role": "forearm.R",
+    "world_axis": [
+     0.314,
+     -0.9494,
+     0.0
+    ],
+    "angle_deg": 28.3
+   }
+  }
+ },
  "bones": {
   "LeftUpLeg": {
    "role": "thigh.L",

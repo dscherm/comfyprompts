@@ -124,12 +124,24 @@ def require_free(bone_name: str, axis_name: str) -> None:
         sys.exit(1)
 
 
-def lower_sign(rest_dir: Vector) -> float:
-    """Which rotation sign about FORWARD points this limb most downward.
-    Measured from the rig's own rest direction — mirrored arms get opposite
-    signs automatically, with no left/right special-casing."""
-    return min((+1.0, -1.0),
-               key=lambda s: (Quaternion(FORWARD, ARM_LOWER * s) @ rest_dir).dot(UP))
+def local_from_world(pb, q_world: Quaternion) -> Quaternion:
+    """Bone-local quaternion achieving a world-space rotation. Conjugation
+    preserves the angle and rotates only the axis, so composing motions in world
+    space and converting the SINGLE result is exact — the reliable way to stack
+    the neutral correction, an arm roll, and the gait swing without frame drift."""
+    axis, angle = q_world.to_axis_angle()
+    return Quaternion(axis_in_bone(pb, axis), angle)
+
+
+# Per-bone neutral-standing correction, MEASURED by the scanner (world axis+angle).
+# Every motion is composed on top of this: R_total_world = R_motion . R_neutral.
+NEUTRAL = {}
+for name, c in M.get("neutral_pose", {}).get("corrections", {}).items():
+    NEUTRAL[name] = Quaternion(Vector(c["world_axis"]), math.radians(c["angle_deg"]))
+
+
+def neutral_of(bone_name: str) -> Quaternion:
+    return NEUTRAL.get(bone_name, Quaternion())
 
 
 chains = M["chains"]
@@ -139,27 +151,46 @@ for key, ch in chains.items():
         legs.append({"side": key.split(".")[1], "thigh": ch["thigh"],
                      "calf": ch["calf"], "hinge": f"knee.{key.split('.')[1]}"})
     elif key.startswith("arm."):
-        arms.append({"side": key.split(".")[1], "upperarm": ch["upperarm"]})
+        arms.append({"side": key.split(".")[1], "upperarm": ch["upperarm"],
+                     "hand": ch.get("hand")})
 
 if len(legs) != 2:
     print(f"ERROR: manifest has {len(legs)} legs, need 2", file=sys.stderr)
     sys.exit(1)
 
-# The thigh swings about `side`; assert the rig allows it (a thigh resting along
-# the side axis would be a splits pose, not a humanoid, but never assume).
-for leg in legs:
-    require_free(leg["thigh"], "side")
-
-# Arms: if the rest pose parks them along `side` (a T-pose), swinging about
-# `side` would twist them. Lower them out of it first, about `forward`.
+# Palm roll: after the neutral correction drops the arm to the side, roll it about
+# its own (now vertical) axis so the palm faces MEDIALLY (toward the body), not
+# forward. Computed from the measured palm normal; the normal's sign is ambiguous
+# (scanner note), so `--palm-flip` inverts the target if the render shows the back
+# of the hand instead. Skipped entirely when the rig has no finger bones (Meshy).
+PALM_FLIP = "--palm-flip" in sys.argv
+palms = M.get("palms", {})
 for a in arms:
-    rec = M["bones"][a["upperarm"]]
-    a["needs_lower"] = "side" in rec.get("degenerate_axes", [])
-    if a["needs_lower"]:
-        require_free(a["upperarm"], "forward")   # must be free to lower about it
-        a["lower"] = ARM_LOWER * lower_sign(Vector(rec["rest_dir"]))
-    else:
-        a["lower"] = 0.0
+    side = a["side"]
+    p = palms.get(f"palm.{side}", {})
+    normal = p.get("palm_plane_normal")
+    a["palm_roll"] = None
+    if normal is None:
+        continue
+    q_n = neutral_of(a["upperarm"])
+    palm_after = q_n @ Vector(normal)             # palm normal once arm is at side
+    arm_axis = (q_n @ Vector(M["bones"][a["upperarm"]]["rest_dir"])).normalized()
+    # +SIDE = left of body (scanner convention), so "toward centre" is -SIDE from
+    # the left arm and +SIDE from the right.
+    medial = (-SIDE if side == "L" else SIDE)
+    if PALM_FLIP:
+        medial = -medial
+
+    def perp(v):
+        w = v - arm_axis * v.dot(arm_axis)
+        return w.normalized() if w.length > 1e-6 else None
+
+    pa, md = perp(palm_after), perp(medial)
+    if pa and md:
+        ang = pa.angle(md)
+        if arm_axis.dot(pa.cross(md)) < 0:
+            ang = -ang
+        a["palm_roll"] = (arm_axis, ang)
 
 for pb in bones:
     pb.rotation_mode = "QUATERNION"
@@ -182,8 +213,9 @@ for leg in legs:
     print(f"  {leg['hinge']}: axis={h['axis']} sign={h['fold_sign']:+.0f} "
           f"src={h['axis_source']}")
 for a in arms:
-    print(f"  arm.{a['side']}: needs_lower={a['needs_lower']} "
-          f"lower={math.degrees(a['lower']):+.0f}deg")
+    roll = a["palm_roll"]
+    print(f"  arm.{a['side']}: neutral={math.degrees(neutral_of(a['upperarm']).angle):+.0f}deg "
+          f"palm_roll={('%.0fdeg' % math.degrees(roll[1])) if roll else 'none (no fingers)'}")
 
 for f in range(FRAMES + 1):
     t = f / FRAMES
@@ -194,15 +226,17 @@ for f in range(FRAMES + 1):
         pct = t * 100.0 + (0.0 if leg["side"] == "L" else 50.0)
         hip_deg, knee_deg = gait_at(pct)
         hinge = M["hinges"][leg["hinge"]]
-        # +rotation about `side` = forward tilt, a consequence of the frame
-        # definition (proof in the module docstring), so hip flexion maps directly
-        swing = math.radians(hip_deg)
-        bend = math.radians(knee_deg) * hinge["fold_sign"]
         thigh_pb = bones[leg["thigh"]]
         calf_pb = bones[leg["calf"]]
-        thigh_pb.rotation_quaternion = Quaternion(axis_in_bone(thigh_pb, SIDE), swing)
-        calf_pb.rotation_quaternion = Quaternion(
-            axis_in_bone(calf_pb, Vector(hinge["axis_vector"])), bend)
+        # gait applied on top of the neutral (splay-removed) pose, composed in
+        # world space: R_total = R_gait . R_neutral, then conjugated to bone-local.
+        thigh_swing = Quaternion(SIDE, math.radians(hip_deg))
+        thigh_pb.rotation_quaternion = local_from_world(
+            thigh_pb, thigh_swing @ neutral_of(leg["thigh"]))
+        calf_bend = Quaternion(Vector(hinge["axis_vector"]),
+                               math.radians(knee_deg) * hinge["fold_sign"])
+        calf_pb.rotation_quaternion = local_from_world(
+            calf_pb, calf_bend @ neutral_of(leg["calf"]))
 
     for a in arms:
         # arms swing out of phase with the ipsilateral leg: the left leg and the
@@ -213,12 +247,13 @@ for f in range(FRAMES + 1):
         opp_hip, _ = gait_at(opp_pct)
         swing = ARM_SWING * (opp_hip / 30.0)   # normalise by peak hip flexion
         pb = bones[a["upperarm"]]
-        q = Quaternion(axis_in_bone(pb, SIDE), swing)
-        if a["needs_lower"]:
-            # world-space R_side(swing) . R_forward(lower), conjugated per factor;
-            # `@` applies the RIGHT operand first, so it lowers THEN swings
-            q = q @ Quaternion(axis_in_bone(pb, FORWARD), a["lower"])
-        pb.rotation_quaternion = q
+        # world order (right-applied first): neutral -> palm roll -> gait swing
+        q_world = neutral_of(a["upperarm"])
+        if a["palm_roll"]:
+            axis, ang = a["palm_roll"]
+            q_world = Quaternion(axis, ang) @ q_world
+        q_world = Quaternion(SIDE, swing) @ q_world
+        pb.rotation_quaternion = local_from_world(pb, q_world)
 
     root_pb = bones[root_name]
     root_pb.location = UP * (BOB * math.sin(2 * th_base))
