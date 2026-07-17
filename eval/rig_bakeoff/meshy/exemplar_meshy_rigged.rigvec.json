@@ -1,0 +1,446 @@
+{
+ "rig": "exemplar_meshy_rigged.glb",
+ "rig_kind": "humanoid",
+ "scanner_version": 1,
+ "bone_count": 24,
+ "frame": {
+  "forward": [
+   -0.021,
+   -1.0,
+   0.0
+  ],
+  "up": [
+   0.0,
+   0.0,
+   1.0
+  ],
+  "side": [
+   -1.0,
+   0.021,
+   0.0
+  ],
+  "forward_source": "measured: mean(ankle->toe) over feet, horizontal-projected (per-foot X cancels because toes splay symmetrically)",
+  "forward_evidence": [
+   {
+    "side": "L",
+    "ankle_to_toe": [
+     0.064,
+     -0.098,
+     -0.042
+    ]
+   },
+   {
+    "side": "R",
+    "ankle_to_toe": [
+     -0.068,
+     -0.098,
+     -0.047
+    ]
+   }
+  ]
+ },
+ "root": "Hips",
+ "chains": {
+  "leg.L": {
+   "thigh": "LeftUpLeg",
+   "calf": "LeftLeg",
+   "foot": "LeftFoot",
+   "toe": "LeftToeBase"
+  },
+  "leg.R": {
+   "thigh": "RightUpLeg",
+   "calf": "RightLeg",
+   "foot": "RightFoot",
+   "toe": "RightToeBase"
+  },
+  "arm.L": {
+   "upperarm": "LeftArm",
+   "forearm": "LeftForeArm",
+   "hand": "LeftHand"
+  },
+  "arm.R": {
+   "upperarm": "RightArm",
+   "forearm": "RightForeArm",
+   "hand": "RightHand"
+  }
+ },
+ "hinges": {
+  "knee.L": {
+   "bone": "LeftLeg",
+   "axis": "side",
+   "axis_vector": [
+    -1.0,
+    0.021,
+    0.0
+   ],
+   "axis_source": "prior+verified",
+   "rest_bend_deg": 7.11,
+   "cross_len": 0.1238,
+   "usable": false,
+   "rest_bend_axis": null,
+   "fold_sign": -1.0,
+   "fold_rule": "human knee folds the foot BEHIND (heel toward buttocks)",
+   "verified": true,
+   "evidence": {
+    "foot_travel_along_forward": {
+     "1.0": 0.2818,
+     "-1.0": -0.2637
+    },
+    "method": "posed 45.0 deg both ways; kept the sign whose effector travel matches the rule"
+   }
+  },
+  "knee.R": {
+   "bone": "RightLeg",
+   "axis": "side",
+   "axis_vector": [
+    -1.0,
+    0.021,
+    0.0
+   ],
+   "axis_source": "prior+verified",
+   "rest_bend_deg": 8.53,
+   "cross_len": 0.1484,
+   "usable": false,
+   "rest_bend_axis": null,
+   "fold_sign": -1.0,
+   "fold_rule": "human knee folds the foot BEHIND (heel toward buttocks)",
+   "verified": true,
+   "evidence": {
+    "foot_travel_along_forward": {
+     "1.0": 0.2903,
+     "-1.0": -0.269
+    },
+    "method": "posed 45.0 deg both ways; kept the sign whose effector travel matches the rule"
+   }
+  },
+  "elbow.L": {
+   "bone": "LeftForeArm",
+   "axis": "measured~forward",
+   "axis_vector": [
+    0.095,
+    -0.769,
+    -0.632
+   ],
+   "axis_source": "rest_bend",
+   "rest_bend_deg": 27.07,
+   "cross_len": 0.4551,
+   "usable": true,
+   "rest_bend_axis": [
+    0.095,
+    -0.769,
+    -0.632
+   ],
+   "fold_sign": 1.0,
+   "fold_rule": "human elbow folds the hand FORWARD",
+   "verified": true,
+   "evidence": {
+    "hand_travel_along_forward": {
+     "1.0": 0.1069,
+     "-1.0": -0.1059
+    }
+   }
+  },
+  "elbow.R": {
+   "bone": "RightForeArm",
+   "axis": "measured~forward",
+   "axis_vector": [
+    0.101,
+    0.831,
+    0.546
+   ],
+   "axis_source": "rest_bend",
+   "rest_bend_deg": 28.3,
+   "cross_len": 0.4741,
+   "usable": true,
+   "rest_bend_axis": [
+    0.101,
+    0.831,
+    0.546
+   ],
+   "fold_sign": 1.0,
+   "fold_rule": "human elbow folds the hand FORWARD",
+   "verified": true,
+   "evidence": {
+    "hand_travel_along_forward": {
+     "1.0": 0.0879,
+     "-1.0": -0.0902
+    }
+   }
+  }
+ },
+ "bones": {
+  "LeftUpLeg": {
+   "role": "thigh.L",
+   "rest_dir": [
+    0.129,
+    -0.045,
+    -0.991
+   ],
+   "head": [
+    0.127,
+    -0.002,
+    0.845
+   ],
+   "length": 3772.2402,
+   "parent": "Hips",
+   "degenerate_axes": [
+    "up"
+   ],
+   "degenerate_note": "rest direction is ~parallel to up \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "LeftLeg": {
+   "role": "calf.L",
+   "rest_dir": [
+    0.111,
+    0.077,
+    -0.991
+   ],
+   "head": [
+    0.175,
+    -0.019,
+    0.471
+   ],
+   "length": 3893.1387,
+   "parent": "LeftUpLeg",
+   "degenerate_axes": [
+    "up"
+   ],
+   "degenerate_note": "rest direction is ~parallel to up \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "LeftFoot": {
+   "role": "foot.L",
+   "rest_dir": [
+    0.514,
+    -0.788,
+    -0.339
+   ],
+   "head": [
+    0.219,
+    0.011,
+    0.085
+   ],
+   "length": 1247.8428,
+   "parent": "LeftLeg",
+   "degenerate_axes": []
+  },
+  "LeftToeBase": {
+   "role": "toe.L",
+   "rest_dir": [
+    0.546,
+    -0.838,
+    -0.0
+   ],
+   "head": [
+    0.283,
+    -0.088,
+    0.043
+   ],
+   "length": 1247.8431,
+   "parent": "LeftFoot",
+   "degenerate_axes": []
+  },
+  "RightUpLeg": {
+   "role": "thigh.R",
+   "rest_dir": [
+    -0.13,
+    -0.055,
+    -0.99
+   ],
+   "head": [
+    -0.112,
+    -0.003,
+    0.848
+   ],
+   "length": 3655.5471,
+   "parent": "Hips",
+   "degenerate_axes": [
+    "up"
+   ],
+   "degenerate_note": "rest direction is ~parallel to up \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "RightLeg": {
+   "role": "calf.R",
+   "rest_dir": [
+    -0.122,
+    0.094,
+    -0.988
+   ],
+   "head": [
+    -0.159,
+    -0.023,
+    0.486
+   ],
+   "length": 4002.0317,
+   "parent": "RightUpLeg",
+   "degenerate_axes": [
+    "up"
+   ],
+   "degenerate_note": "rest direction is ~parallel to up \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "RightFoot": {
+   "role": "foot.R",
+   "rest_dir": [
+    -0.533,
+    -0.764,
+    -0.364
+   ],
+   "head": [
+    -0.208,
+    0.014,
+    0.09
+   ],
+   "length": 1279.9608,
+   "parent": "RightLeg",
+   "degenerate_axes": []
+  },
+  "RightToeBase": {
+   "role": "toe.R",
+   "rest_dir": [
+    -0.572,
+    -0.82,
+    0.0
+   ],
+   "head": [
+    -0.276,
+    -0.083,
+    0.044
+   ],
+   "length": 1279.9606,
+   "parent": "RightFoot",
+   "degenerate_axes": []
+  },
+  "LeftArm": {
+   "role": "upperarm.L",
+   "rest_dir": [
+    0.94,
+    0.279,
+    -0.198
+   ],
+   "head": [
+    0.195,
+    0.008,
+    1.461
+   ],
+   "length": 2588.1477,
+   "parent": "LeftShoulder",
+   "degenerate_axes": [
+    "side"
+   ],
+   "degenerate_note": "rest direction is ~parallel to side \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "LeftForeArm": {
+   "role": "forearm.L",
+   "rest_dir": [
+    0.986,
+    -0.013,
+    0.165
+   ],
+   "head": [
+    0.438,
+    0.081,
+    1.41
+   ],
+   "length": 2345.5449,
+   "parent": "LeftArm",
+   "degenerate_axes": [
+    "side"
+   ],
+   "degenerate_note": "rest direction is ~parallel to side \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "LeftHand": {
+   "role": "hand.L",
+   "rest_dir": [
+    0.949,
+    -0.06,
+    0.309
+   ],
+   "head": [
+    0.669,
+    0.077,
+    1.449
+   ],
+   "length": 2345.5449,
+   "parent": "LeftForeArm",
+   "degenerate_axes": [
+    "side"
+   ],
+   "degenerate_note": "rest direction is ~parallel to side \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "RightArm": {
+   "role": "upperarm.R",
+   "rest_dir": [
+    -0.936,
+    0.266,
+    -0.232
+   ],
+   "head": [
+    -0.199,
+    0.008,
+    1.454
+   ],
+   "length": 2722.6326,
+   "parent": "RightShoulder",
+   "degenerate_axes": [
+    "side"
+   ],
+   "degenerate_note": "rest direction is ~parallel to side \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "RightForeArm": {
+   "role": "forearm.R",
+   "rest_dir": [
+    -0.984,
+    0.003,
+    0.177
+   ],
+   "head": [
+    -0.454,
+    0.081,
+    1.391
+   ],
+   "length": 2280.6274,
+   "parent": "RightArm",
+   "degenerate_axes": [
+    "side"
+   ],
+   "degenerate_note": "rest direction is ~parallel to side \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "RightHand": {
+   "role": "hand.R",
+   "rest_dir": [
+    -0.944,
+    -0.197,
+    0.266
+   ],
+   "head": [
+    -0.678,
+    0.082,
+    1.432
+   ],
+   "length": 2280.6274,
+   "parent": "RightForeArm",
+   "degenerate_axes": [
+    "side"
+   ],
+   "degenerate_note": "rest direction is ~parallel to side \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  },
+  "Hips": {
+   "role": "root",
+   "rest_dir": [
+    -0.095,
+    0.513,
+    0.853
+   ],
+   "head": [
+    0.006,
+    0.002,
+    0.938
+   ],
+   "length": 1482.3943,
+   "parent": null,
+   "degenerate_axes": [
+    "up"
+   ],
+   "degenerate_note": "rest direction is ~parallel to up \u2014 rotating about that axis TWISTS this bone instead of swinging it; reorient first (e.g. lower a T-posed arm)"
+  }
+ }
+}

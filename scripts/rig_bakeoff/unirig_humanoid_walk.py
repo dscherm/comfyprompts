@@ -34,6 +34,13 @@ KNEE = math.radians(50)        # knee bend during swing (the melt diagnostic)
 ARM = math.radians(18)         # counter-swing
 BOB = 0.018                    # root vertical bob (metres), 2x cadence
 
+# The rest pose is a T-POSE: the arm chain runs along world X (measured — shoulder
+# x=0.22 -> hand x=0.66, z flat). So the arms must first be LOWERED to the sides
+# before any fore/aft swing means anything; swinging a T-posed arm around the side
+# axis just twists it around its own length (the first version of this script did
+# exactly that, and the arms visibly did not swing).
+ARM_LOWER = math.radians(75)   # T-pose -> arms at sides, about the world FORWARD axis
+
 bpy.ops.wm.read_factory_settings(use_empty=True)
 bpy.ops.import_scene.gltf(filepath=SRC)
 
@@ -109,6 +116,7 @@ if len(legs) != 2:
     sys.exit(1)
 
 SIDE = Vector((1.0, 0.0, 0.0))   # character faces -Y; left-right is world X
+FWD = Vector((0.0, 1.0, 0.0))    # depth axis; lowering a T-posed arm rotates about it
 UP = Vector((0.0, 0.0, 1.0))
 
 for pb in bones:
@@ -130,12 +138,23 @@ for f in range(FRAMES + 1):
         swing = STRIDE * math.sin(th)
         bend = KNEE * max(0.0, math.cos(th))   # knee bends through the swing phase
         leg["thigh"].rotation_quaternion = Quaternion(axis_in_bone(leg["thigh"], SIDE), swing)
-        leg["calf"].rotation_quaternion = Quaternion(axis_in_bone(leg["calf"], SIDE), -bend)
+        # +bend, NOT -bend: a human knee folds the foot BEHIND (heel to buttocks).
+        # -bend is the QUADRUPED convention (hind legs fold the opposite way) and
+        # copying it here produced backwards, bird-like knees — verified by a
+        # side-view sign probe on this exact rig before fixing.
+        leg["calf"].rotation_quaternion = Quaternion(axis_in_bone(leg["calf"], SIDE), bend)
 
     for a in arms:
         phase = math.pi if a["left"] else 0.0   # arms counter-swing vs same-side leg
-        a["upperarm"].rotation_quaternion = Quaternion(
-            axis_in_bone(a["upperarm"], SIDE), ARM * math.sin(th_base + phase))
+        lower = ARM_LOWER if a["left"] else -ARM_LOWER
+        swing = ARM * math.sin(th_base + phase)
+        # World-space composition R_side(swing) . R_fwd(lower), conjugated into the
+        # bone's local space one factor at a time. Blender's `@` applies the RIGHT
+        # operand first, so the arm is lowered out of the T-pose, THEN swung.
+        a["upperarm"].rotation_quaternion = (
+            Quaternion(axis_in_bone(a["upperarm"], SIDE), swing)
+            @ Quaternion(axis_in_bone(a["upperarm"], FWD), lower)
+        )
 
     if root:
         root.location = (0.0, 0.0, BOB * math.sin(2 * th_base))
