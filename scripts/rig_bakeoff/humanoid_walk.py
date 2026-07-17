@@ -73,8 +73,16 @@ GAIT = [
     (100,  30,   5),   # next initial contact
 ]
 
-ARM_SWING = math.radians(12)   # shoulder flexion/extension; counter-phase to the
-                               # ipsilateral leg (left leg forward = right arm forward)
+# Arm swing (see wiki: anatomy-of-the-human-walk-cycle). One shoulder oscillation
+# per gait cycle, OUT of phase with the ipsilateral leg (left leg forward = right
+# arm forward). Normative: shoulder flexion/extension ~+/-22 deg; elbow ~30 deg ROM
+# and — the detail that stops the hand clipping the body — the elbow FLEXES MORE as
+# the arm swings FORWARD (carrying a ~18 deg baseline that rises to ~42 deg), then
+# extends toward baseline as the arm goes back. A dead-straight elbow (the earlier
+# model) sweeps the hand through the hip on the forward swing.
+SHOULDER_AMP = 22.0            # deg, peak shoulder flexion/extension
+ELBOW_BASE = 18.0             # deg, resting elbow flexion (never fully straight)
+ELBOW_FWD_GAIN = 1.1          # elbow flexion added per deg of FORWARD shoulder
 ARM_LOWER = math.radians(75)
 BOB_FRACTION = 0.010           # of rig height, 2x cadence
 
@@ -89,6 +97,15 @@ def gait_at(pct: float) -> tuple[float, float]:
             f = (pct - p0) / (p1 - p0) if p1 > p0 else 0.0
             return h0 + (h1 - h0) * f, k0 + (k1 - k0) * f
     return GAIT[-1][1], GAIT[-1][2]
+
+
+def arm_at(opp_hip_deg: float) -> tuple[float, float]:
+    """(shoulder_flex, elbow_flex) in degrees, driven by the OPPOSITE leg's hip
+    (arms counter-swing the ipsilateral leg). Forward shoulder flexion is positive;
+    elbow flexion rises with forward shoulder so the hand lifts clear of the body."""
+    shoulder = SHOULDER_AMP * (opp_hip_deg / 30.0)          # +forward, -back
+    elbow = ELBOW_BASE + ELBOW_FWD_GAIN * max(0.0, shoulder)
+    return shoulder, elbow
 
 M = json.loads(Path(MANIFEST_PATH).read_text())
 FORWARD = Vector(M["frame"]["forward"]).normalized()
@@ -245,20 +262,33 @@ for f in range(FRAMES + 1):
 
     for a in arms:
         # arms swing out of phase with the ipsilateral leg: the left leg and the
-        # RIGHT arm travel forward together. Drive the shoulder off the hip curve
-        # of the OPPOSITE leg so the arm inherits gait timing rather than a
-        # detached sine.
+        # RIGHT arm travel forward together. Drive off the OPPOSITE leg's hip so
+        # the arm inherits gait timing rather than a detached sine.
         opp_pct = t * 100.0 + (50.0 if a["side"] == "L" else 0.0)
         opp_hip, _ = gait_at(opp_pct)
-        swing = ARM_SWING * (opp_hip / 30.0)   # normalise by peak hip flexion
+        shoulder_deg, elbow_deg = arm_at(opp_hip)
+
+        # shoulder: neutral -> palm roll -> fore/aft swing (world order, right-first)
         pb = bones[a["upperarm"]]
-        # world order (right-applied first): neutral -> palm roll -> gait swing
         q_world = neutral_of(a["upperarm"])
         if a["palm_roll"]:
             axis, ang = a["palm_roll"]
             q_world = Quaternion(axis, ang) @ q_world
-        q_world = Quaternion(SIDE, swing) @ q_world
+        q_world = Quaternion(SIDE, math.radians(shoulder_deg)) @ q_world
         pb.rotation_quaternion = local_from_world(pb, q_world)
+
+        # elbow: flex the forearm about its measured hinge, on top of its neutral.
+        # Local rotation (relative to the upper arm), so the shoulder swing above
+        # carries the whole forearm+hand — the elbow flex lifts the hand clear of
+        # the body during the forward swing.
+        fore_name = a.get("forearm")
+        eh = M["hinges"].get(f"elbow.{a['side']}")
+        if fore_name and fore_name in bones and eh:
+            fore_pb = bones[fore_name]
+            elbow_bend = Quaternion(Vector(eh["axis_vector"]),
+                                    math.radians(elbow_deg) * eh["fold_sign"])
+            fore_pb.rotation_quaternion = local_from_world(
+                fore_pb, elbow_bend @ neutral_of(fore_name))
 
     root_pb = bones[root_name]
     root_pb.location = UP * (BOB * math.sin(2 * th_base))
