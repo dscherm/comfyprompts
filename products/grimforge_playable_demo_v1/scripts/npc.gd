@@ -17,6 +17,17 @@ const ARENA := 6.4
 const KNIGHT_SCALE := 0.486   # revenant_knight target_h/rig_height, for speed match
 const KNIGHT_SPEED := 0.6     # tuned player MOVE_SPEED at that scale
 
+# Shared CC_Base walk donor for bipeds whose OWN walk clip never baked. Unity's
+# humanoid retarget rejected the lich_king / skeleton_mage AccuRIG avatars
+# (isHuman=False) so KD6 produced no <name>_walk.fbx for them. But every bestiary
+# biped is the SAME AccuRIG CC_Base skeleton — these two are a strict subset of
+# the donor (they lack only finger bones, irrelevant to a walk, and the intermediate
+# track path down to Skeleton3D is identical), so the donor's walk retargets onto
+# them cleanly via the same first-segment prefix remap (_merge_walk). Verified with
+# scripts/diag_mage_rigs.gd. This is the Godot-native fix for the 2 idlers that
+# sidesteps the Unity 6 sourceAvatar CopyFromOther dead-end (CS0619).
+const SHARED_WALK_DONOR := "res://chars/skeleton_warrior_walk.fbx"
+
 # configuration set by bestiary.gd before add_child
 var cfg := {}
 
@@ -123,6 +134,10 @@ func _build_visual() -> void:
 		_idle_clip = String(list[0]) if list.size() > 0 else ""
 		if ResourceLoader.exists("res://chars/%s_walk.fbx" % cname):
 			_merge_walk("res://chars/%s_walk.fbx" % cname)
+		elif ResourceLoader.exists(SHARED_WALK_DONOR):
+			# no own walk clip (lich_king, skeleton_mage) -> retarget the shared
+			# CC_Base donor walk so they wander + kite instead of standing frozen
+			_merge_walk(SHARED_WALK_DONOR)
 		# baked combat clips (if present) drive this enemy's attack/death;
 		# creatures without them fall back to a lunge + fade (see _ready)
 		if ResourceLoader.exists("res://chars/%s_swipe.fbx" % cname):
