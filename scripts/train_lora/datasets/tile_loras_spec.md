@@ -7,6 +7,12 @@ generation path:
 |------|---------|---------|--------------|-------|
 | `mat_tile` | `mat_tile` | PBR material surfaces, flat even top-down light | Poly Haven albedo maps | TX1-TX4 |
 | `tile_topdown` | `tile_topdown` | top-down RPG game tiles | Kenney / OpenGameArt | TX5-TX8 |
+| `tile_iso` | `tile_iso` | **isometric** RPG diamond tiles | OpenGameArt (rubberduck grassland, CC0) | TI1-TI4 |
+
+`mat_tile` and `tile_topdown` are **orthogonal seamless** LoRAs (they feed the
+circular-padding tiling path, §2/§6). `tile_iso` is a **different aesthetic** —
+isometric diamond tiles that do NOT wrap-tile orthogonally; it has its own
+eval and deploy path (§8).
 
 This spec is the contract for TX1-TX8. **It supersedes the Flux-specific
 version**: the previous spec targeted the ai-toolkit Flux harness, but the
@@ -274,7 +280,56 @@ The composition survives, the wrap edges heal (wood: 8.58% → 3.14% MAD, clean
 | TX2 | train `mat_tile` SDXL LoRA → checkpoints on E: | pending |
 | TX3 | eval `mat_tile` → `eval/tile_edge_mad.py` + `eval/mat_tile_grid.md` | pending |
 | TX4 | deploy `mat_tile` + add LoraLoader to `generate_texture_tile.json` | pending |
-| TX5 | `tile_topdown` dataset + manifest | pending |
+| TX5 | `tile_topdown` dataset + manifest | **done, user-approved 2026-07-17** (29 CC0 imgs; 11 OGA sources, all verified) |
 | TX6 | train `tile_topdown` | pending |
 | TX7 | eval `tile_topdown` (reuse tile_edge_mad.py) | pending |
 | TX8 | deploy `tile_topdown` + document both in README | pending |
+| TI1 | `tile_iso` dataset + manifest (slice rubberduck iso tiles) | pending |
+| TI2 | train `tile_iso` SDXL LoRA → checkpoints on E: | pending |
+| TI3 | eval `tile_iso` (visual verdict — NOT wrap-edge MAD, see §8) | pending |
+| TI4 | deploy `tile_iso` + document the three-LoRA tile family | pending |
+
+---
+
+## 8. `tile_iso` — isometric tiles are a distinct aesthetic
+
+`tile_iso` (Tasks TI1-TI4) teaches the model to paint **isometric RPG terrain
+tiles**: diamond-shaped, ~2:1 (width:height) projection, even lighting, the look
+of a classic iso-map tileset. It is deliberately separate from `mat_tile` /
+`tile_topdown` because the two halves of the tiling story (§1) work differently:
+
+- **No orthogonal seamless path.** The `SeamlessTile` + `CircularVAEDecode`
+  circular-padding machinery (§2) makes an image's **left edge continue into its
+  right edge** — that is *orthogonal* wrap-tiling. Isometric tiles do not tile
+  that way: they tessellate on a **diamond grid**, edge-to-edge along the
+  diamond's four sides, not by wrapping a square. So `tile_iso` outputs go
+  through a **plain SDXL txt2img path with NO seamless nodes**, and **wrap-edge
+  MAD (§6b) is not a meaningful metric** for them. TI3's eval is a **visual
+  verdict** (base-vs-LoRA grid + `judge_image` for the coarse
+  isometric-framing / terrain-identity / even-lighting call).
+- **Source (CC0):** the OpenGameArt **"updated grassland tileset (stylized)"**
+  by **rubberduck** — CC0, verified 2026-07-17 (exact-byte match to the OGA
+  download: `grassland_tileset_updated.zip` 17.7 MB, `sources_water.zip` 42 MB,
+  `sources_ground.zip` 19.7 MB). Page:
+  <https://opengameart.org/content/updated-grassland-tileset-stylized>. This
+  pack ships isometric diamond tilesheets (grass/dirt/sand/water/rock + cliffs);
+  TI1 **slices per-tile diamond crops** from those sheets, flattens the alpha
+  onto a neutral background, and preps to `E:/ai-training/datasets/tile_iso`.
+  (This is the same pack whose *flat* source albedo — dirt×3, sand×1 — was the
+  only top-down-usable part folded into `tile_topdown` in TX5; the isometric
+  sheets and the PBR normal/height/mask source maps are NOT top-down albedo and
+  belong here, not in `tile_topdown`.)
+
+- **Caption template:**
+  ```
+  tile_iso, <terrain> tile, isometric RPG tileset, diamond tile, even lighting
+  ```
+  e.g. `tile_iso, grass tile, isometric RPG tileset, diamond tile, even lighting`
+
+- **Deploy:** copy `tile_iso.safetensors` to `models/loras/style/` with a trigger
+  sidecar; it is a **standalone** iso-tile generator, NOT wired into
+  `generate_texture_tile.json` (that workflow is the orthogonal seamless path).
+
+Everything else — the kohya SDXL recipe (§5), rank/steps/LR, the
+`prep_dataset.py` + short-caption discipline (§3), and the
+**dataset-needs-user-signoff** rule (§4) — is shared with the other tile LoRAs.

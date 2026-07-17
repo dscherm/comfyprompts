@@ -819,7 +819,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "prep_dataset.py --src ... --out E:/ai-training/datasets/tile_topdown --max-edge 1024",
     "Write short captions + manifest at pipelines/tileset-ralph/loras/tile_topdown/tile_topdown_manifest.md"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -883,6 +883,93 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "Copy winning tile_topdown.safetensors to D:/Projects/ComfyUI/models/loras/style/ + write .txt sidecar",
     "Smoke-test via generate_game_tileset mode 'simple' with tile_topdown LoRA; confirm MAD <5%",
     "Document both tile LoRAs in scripts/train_lora/README.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TI1",
+  "category": "feature",
+  "priority": 5,
+  "description": "Build the tile_iso dataset: slice ~30-50 per-tile ISOMETRIC diamond crops from the CC0 OpenGameArt 'updated grassland tileset (stylized)' by rubberduck (already staged on E:/ai-training/datasets/tile_topdown_staging + _raw/tile_topdown_raw). Flatten alpha onto a neutral bg; prep + short captions + manifest. NOTE: isometric tiles are a DIFFERENT aesthetic from tile_topdown (diamond projection, ~2:1) and do NOT go through the orthogonal seamless circular-padding path — see tile_loras_spec.md §8.",
+  "files": ["pipelines/tileset-ralph/loras/tile_iso/tile_iso_manifest.md"],
+  "acceptance_criteria": [
+    "~30-50 individual CC0 isometric terrain tiles (grass, dirt, sand, water, rock/cliff) sliced from the rubberduck grassland pack; each a single diamond tile, alpha flattened onto a neutral background, >=256px",
+    "prep_dataset.py normalizes to E:/ai-training/datasets/tile_iso (max-edge 1024, RGB) — reused as-is",
+    "SHORT tag-style captions: 'tile_iso, <terrain> tile, isometric RPG tileset, diamond tile, even lighting'",
+    "Manifest at pipelines/tileset-ralph/loras/tile_iso/tile_iso_manifest.md records the single CC0 source (rubberduck, OpenGameArt, CC0, https://opengameart.org/content/updated-grassland-tileset-stylized), the slice method, and the per-tile terrain tag",
+    "Dataset contact sheet produced for USER APPROVAL before training (spec §4 — training data is ground truth)"
+  ],
+  "steps": [
+    "Write a slicer that crops individual diamond tiles from grassland_1x1/2x2 + the *_tiles sheets (staged on E:)",
+    "prep_dataset.py --src E:/ai-training/_raw/tile_iso --out E:/ai-training/datasets/tile_iso --max-edge 1024",
+    "Write short captions + manifest at pipelines/tileset-ralph/loras/tile_iso/tile_iso_manifest.md; build a contact sheet and get user approval"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TI2",
+  "category": "feature",
+  "priority": 5,
+  "description": "Train the tile_iso SDXL LoRA via kohya sd-scripts sdxl_train_network.py (same recipe as tile_loras_spec.md §5: rank16/alpha16, 1500 steps, 1e-4, AdamW8bit, res 1024). Stop ComfyUI first; GPU 1 (3090 Ti); base = local sd_xl_base_1.0.safetensors; output to E:/ai-training/sdxl-output/tile_iso/. Prereq: TX0b (trainer installed) + TI1 (dataset, user-approved).",
+  "files": ["E:/ai-training/sdxl-output/tile_iso/"],
+  "acceptance_criteria": [
+    "ComfyUI stopped before launch; training confirmed on GPU 1 (CUDA_VISIBLE_DEVICES=1)",
+    "sdxl_train_network.py invoked with the spec §5 SDXL recipe against E:/ai-training/datasets/tile_iso",
+    "Per-checkpoint saves (every 250) + final tile_iso.safetensors on E:/ai-training/sdxl-output/tile_iso/",
+    "No OOM; sample images trend toward clean isometric diamond terrain tiles; ComfyUI restarted afterwards (run_3090ti.ps1)"
+  ],
+  "steps": [
+    "Stop ComfyUI; activate E:/ai-training/sd-scripts/venv; run sdxl_train_network.py with CUDA_VISIBLE_DEVICES=1",
+    "Collect checkpoints at E:/ai-training/sdxl-output/tile_iso/",
+    "Restart ComfyUI (run_3090ti.ps1)"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TI3",
+  "category": "testing",
+  "priority": 6,
+  "description": "Eval tile_iso via a base-vs-LoRA 2D grid at strengths 0.6/0.8/1.0 on isometric-terrain prompts. IMPORTANT: this is NOT the wrap-edge/seamless eval used for tile_topdown — isometric diamond tiles do not tile via orthogonal circular padding (spec §8). The eval is a VISUAL verdict on isometric framing + terrain identity + even lighting (judge_image for the coarse call), not tile_edge_mad.",
+  "files": ["scripts/train_lora/eval/tile_iso_grid.md"],
+  "acceptance_criteria": [
+    "Base-vs-LoRA generated at strengths 0.6/0.8/1.0 on isometric terrain prompts (plain SDXL txt2img — NO SeamlessTile/CircularVAEDecode)",
+    "Verdict names the winning (checkpoint, strength) and confirms the LoRA reads as an isometric diamond RPG tile with even lighting; judge_image used for the coarse presence/aesthetic call",
+    "Doc explicitly records that wrap-edge MAD is not applicable to isometric tiles and why"
+  ],
+  "steps": [
+    "Generate base + LoRA iso tiles at 0.6/0.8/1.0 (no seamless nodes)",
+    "Record visual verdict + judge_image call in eval/tile_iso_grid.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "TI4",
+  "category": "feature",
+  "priority": 6,
+  "description": "Deploy tile_iso SDXL LoRA to ComfyUI/models/loras/style/ + document. Standalone isometric-tile generator (NOT wired into generate_texture_tile.json's seamless path, since iso tiles are not orthogonally wrap-seamless). Document the tile LoRA family (mat_tile + tile_topdown + tile_iso) in the README.",
+  "files": ["scripts/train_lora/README.md", "pipelines/tileset-ralph/loras/tile_iso/"],
+  "acceptance_criteria": [
+    "Winning tile_iso.safetensors copied to D:/Projects/ComfyUI/models/loras/style/ with a .txt sidecar (trigger tile_iso + recommended strength)",
+    "Smoke-tested to a clean isometric terrain tile via a plain SDXL txt2img path with the LoRA loaded",
+    "pipelines/tileset-ralph/loras/tile_iso/ contains the manifest and a deploy-receipt (safetensors location, trigger, recommended strength)",
+    "scripts/train_lora/README.md documents all three tile LoRAs and clarifies which use the seamless orthogonal path (mat_tile, tile_topdown) vs the standalone isometric path (tile_iso)"
+  ],
+  "steps": [
+    "Copy winning tile_iso.safetensors to D:/Projects/ComfyUI/models/loras/style/ + write .txt sidecar",
+    "Smoke-test a plain SDXL txt2img with tile_iso loaded",
+    "Document the three-LoRA tile family in scripts/train_lora/README.md"
   ],
   "passes": false
 }
