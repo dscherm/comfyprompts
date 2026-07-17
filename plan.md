@@ -797,7 +797,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "Update generate_texture_tile.meta.json with new optional WorkflowParameters",
     "Smoke-test via generate_game_tileset mode 'simple' with mat_tile LoRA; confirm MAD <5%"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
