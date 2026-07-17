@@ -86,8 +86,9 @@ ELBOW_BASE = 5.0            # deg, resting elbow flexion — kept SMALL so the r
                             # forearm hangs down beside the thigh instead of folding
                             # forward to meet the other hand at the centreline
 ELBOW_FWD_GAIN = 0.9         # elbow flexion added per deg of FORWARD shoulder
-ELBOW_LAG_PCT = 12.0        # forearm DRAG: elbow driver sampled this % of the cycle
-                            # behind the shoulder (~3 frames at 24fps) — overlap
+ELBOW_LAG_PCT = 18.0        # forearm DRAG: elbow driver sampled this % of the cycle
+                            # behind the shoulder (~4 frames at 24fps) — the overlap
+                            # that keeps the arm from reading rigid (Survival Kit)
 ARM_LOWER = math.radians(75)
 BOB_FRACTION = 0.010           # of rig height, 2x cadence
 
@@ -327,6 +328,22 @@ for f in range(FRAMES + 1):
             new3 = align.to_matrix() @ cur_world.to_3x3()   # keeps roll (palm) intact
             new_world = Matrix.Translation(cur_world.translation) @ new3.to_4x4()
             fore_pb.matrix = arm_obj.matrix_world.inverted() @ new_world
+
+            # wrist: aim the hand to CONTINUE straight from the posed forearm, so a
+            # mis-oriented rest hand doesn't wobble as the forearm swings (residual
+            # snake motion at the wrist). Roll preserved, so the palm facing holds.
+            hand_name = a.get("hand")
+            if hand_name and hand_name in bones:
+                bpy.context.view_layer.update()
+                hand_pb = bones[hand_name]
+                fore_dir = ((arm_obj.matrix_world @ fore_pb.matrix).to_3x3()
+                            @ Vector((0.0, 1.0, 0.0))).normalized()
+                hw = arm_obj.matrix_world @ hand_pb.matrix
+                hy = (hw.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
+                halign = hy.rotation_difference(fore_dir)
+                h3 = halign.to_matrix() @ hw.to_3x3()
+                hnew = Matrix.Translation(hw.translation) @ h3.to_4x4()
+                hand_pb.matrix = arm_obj.matrix_world.inverted() @ hnew
 
     root_pb = bones[root_name]
     root_pb.location = UP * (BOB * math.sin(2 * th_base))

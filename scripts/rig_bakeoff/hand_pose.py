@@ -116,7 +116,24 @@ def _curl_fingers(arm, hand, chains, curl_deg):
         return reach
 
     flex_sign = -1.0 if outward_reach(-1.0) < outward_reach(1.0) else 1.0
-    for ch in chains:
+
+    # The THUMB opposes the fingers — it does NOT curl about the same knuckle axis,
+    # and forcing it to (the fingers' shared flexion) made it splay weirdly. Detect
+    # it as the finger whose rest direction deviates most from the others, and curl
+    # it only gently about ITS OWN axis so it rests alongside instead of sticking out.
+    dirs = [(_wt(arm, c[-1]) - _wh(arm, c[0])).normalized() for c in chains]
+    mean_dir = sum(dirs, Vector()).normalized()
+    thumb_i = max(range(len(chains)), key=lambda i: dirs[i].angle(mean_dir))
+    thumb_is_outlier = dirs[thumb_i].angle(mean_dir) > math.radians(28)
+
+    for i, ch in enumerate(chains):
+        if thumb_is_outlier and i == thumb_i:
+            # gentle curl about the thumb's own knuckle axis (its dir x the palm plane)
+            t_knuckle = dirs[i].cross(arm_dir).normalized()
+            for pb in ch:
+                pb.rotation_quaternion = Quaternion(
+                    _axis_in_bone(arm, pb, t_knuckle), math.radians(curl_deg * 0.4) * flex_sign)
+            continue
         for pb in ch:
             pb.rotation_quaternion = Quaternion(
                 _axis_in_bone(arm, pb, knuckle), math.radians(curl_deg) * flex_sign)
