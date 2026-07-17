@@ -80,9 +80,11 @@ GAIT = [
 # the arm swings FORWARD (carrying a ~18 deg baseline that rises to ~42 deg), then
 # extends toward baseline as the arm goes back. A dead-straight elbow (the earlier
 # model) sweeps the hand through the hip on the forward swing.
-SHOULDER_AMP = 22.0            # deg, peak shoulder flexion/extension
-ELBOW_BASE = 18.0             # deg, resting elbow flexion (never fully straight)
-ELBOW_FWD_GAIN = 1.1          # elbow flexion added per deg of FORWARD shoulder
+SHOULDER_AMP = 14.0            # deg, peak shoulder flex/ext (was 22 — swung too far)
+SHOULDER_ABDUCT = 9.0        # deg, constant hold-away-from-body so forearms/hands
+                             # clear the hips instead of drifting inward
+ELBOW_BASE = 16.0            # deg, resting elbow flexion (never fully straight)
+ELBOW_FWD_GAIN = 0.9         # elbow flexion added per deg of FORWARD shoulder
 ARM_LOWER = math.radians(75)
 BOB_FRACTION = 0.010           # of rig height, 2x cadence
 
@@ -219,6 +221,18 @@ for a in arms:
             ang = -ang
         a["palm_roll"] = (arm_axis, ang)
 
+# Constant shoulder ABDUCTION: hold each arm slightly AWAY from the body about
+# the forward axis so the forearm/hand clears the hip instead of drifting inward.
+# Sign is measured, not guessed: pick the rotation about FORWARD whose upperarm
+# tip moves toward the arm's OWN side (away from the centreline).
+for a in arms:
+    q_n = neutral_of(a["upperarm"])
+    down = (q_n @ Vector(M["bones"][a["upperarm"]]["rest_dir"])).normalized()
+    lateral_out = (SIDE if a["side"] == "L" else -SIDE)     # away from the centre
+    plus = (Quaternion(FORWARD, math.radians(SHOULDER_ABDUCT)) @ down).dot(lateral_out)
+    minus = (Quaternion(FORWARD, math.radians(-SHOULDER_ABDUCT)) @ down).dot(lateral_out)
+    a["abduct"] = math.radians(SHOULDER_ABDUCT) * (1.0 if plus >= minus else -1.0)
+
 root_name = M["root"]
 height = max(abs(v) for v in (
     max(b["head"][2] for b in M["bones"].values()),
@@ -268,9 +282,11 @@ for f in range(FRAMES + 1):
         opp_hip, _ = gait_at(opp_pct)
         shoulder_deg, elbow_deg = arm_at(opp_hip)
 
-        # shoulder: neutral -> palm roll -> fore/aft swing (world order, right-first)
+        # shoulder: neutral -> abduct (hold out) -> palm roll -> fore/aft swing
+        # (world order, right operand applied first)
         pb = bones[a["upperarm"]]
         q_world = neutral_of(a["upperarm"])
+        q_world = Quaternion(FORWARD, a["abduct"]) @ q_world
         if a["palm_roll"]:
             axis, ang = a["palm_roll"]
             q_world = Quaternion(axis, ang) @ q_world
