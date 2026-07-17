@@ -1444,7 +1444,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Bake idle + walk onto the revenant_knight Humanoid avatar (rotation-only + hips position), export two binary FBXs",
     "Copy exports into products/grimforge_playable_demo_v1/chars/ and validate in Godot headless"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1467,7 +1467,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Author layout table: ground grid ~20x20 tiles, perimeter walls, 3+ buildings, props",
     "Headless import, then windowed run with auto-screenshot; iterate until AC met"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1489,7 +1489,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "bestiary.gd: placement table (position, rotation, character), instantiate + loop clip + apply albedo",
     "Run + screenshot verification"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1513,7 +1513,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Simulated-input run (Input.action_press in a test script) + screenshots",
     "Human playtest request: user confirms arrow-key feel"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1535,7 +1535,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "README + hero.png",
     "Gate + commit"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1554,7 +1554,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Bake tool generalized (char list driven), archived in _tools/"
   ],
   "steps": ["Generalize bake script", "Run via coplay execute_script", "Copy + validate in Godot"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1572,7 +1572,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "No per-frame errors during a 15s run"
   ],
   "steps": ["Wander controller in bestiary.gd", "Speed-match walk clips", "Timed run verification"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1589,7 +1589,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Sword follows the hand through the walk cycle (two mid-walk screenshots)"
   ],
   "steps": ["Copy sword.glb", "BoneAttachment3D wiring + grip transform", "Screenshot verification"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1607,7 +1607,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Overview screenshot approved-quality: user-visible issues from feedback resolved"
   ],
   "steps": ["Audit gallery renders for door faces", "Fix wall tiling math", "Re-place buildings", "Screenshot iteration"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1627,7 +1627,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "No per-frame errors in a 5s run"
   ],
   "steps": ["Probe interior part footprints", "Author interior.gd hall layout", "Screenshot-iterate the hall"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1645,7 +1645,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "No leaked nodes / per-frame errors across a transition (run log clean)"
   ],
   "steps": ["Router + free/rebuild in main.gd", "Keep entrance + interior exit Area3D triggers + spawns", "Drive-through verification both directions"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1665,7 +1665,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Walking back up the town road returns to the courtyard just inside the gate; controllable + sword + collisions in the town; 0 per-frame errors across both transitions"
   ],
   "steps": ["Copy village pieces to town/ + probe footprints/door convention", "town.gd layout", "Router: gate trigger + passable gatehouse + town return", "Drive-through verification both ways", "Quality pass: gate + screenshots + commit"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1684,7 +1684,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Bake tool archived in _tools/"
   ],
   "steps": ["Extract Motion FBXs to Unity", "Bake onto knight", "Copy + validate in Godot"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1702,7 +1702,7 @@ walk-relaxed-loop-378936.fbx (Downloads), per user: "we used the one from accuri
     "Knight still moves (WASD + arrows), runs (Shift), carries the sword; 0 per-frame errors"
   ],
   "steps": ["Input actions in project.godot", "player.gd: swap walk, attack state machine, WASD", "Simulated-input verification"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1719,7 +1719,7 @@ mutant swiping (attack) + mutant dying (death), aggro/chase/attack AI + HP bars.
   "description": "Wire the picked player attacks + jump into player.gd: bake/move J=slash L=ss_attack2 K=ss_attack1 N=ss_slash1 U=ss_slash3 Space=jump into chars/, add input actions, one-shot attack state machine (play once -> return to idle/move; movement still read). WASD already/also added.",
   "files": ["products/grimforge_playable_demo_v1/scripts/player.gd", "products/grimforge_playable_demo_v1/project.godot"],
   "acceptance_criteria": ["J/L/K/N/U/Space play their clips once then return to locomotion (verified via simulated input log)", "WASD + arrows both move; Shift runs; sword tracks the hand", "0 per-frame errors"],
-  "steps": ["Move picked clips to chars/", "input actions", "attack state machine"], "passes": false }
+  "steps": ["Move picked clips to chars/", "input actions", "attack state machine"], "passes": true }
 ```
 
 ```json
@@ -1727,7 +1727,7 @@ mutant swiping (attack) + mutant dying (death), aggro/chase/attack AI + HP bars.
   "description": "Player combat: HP (100), forward-arc damage on each attack's swing (J/N 15, L 20, K 25, U deflect), hit reaction (sword&shield impact) + i-frames on taking damage, death (sword&shield death) at 0 HP with control disabled, R to revive (full HP, idle). On-screen player HP bar. Bake player_death + player_impact.",
   "files": ["products/grimforge_playable_demo_v1/scripts/player.gd", "products/grimforge_playable_demo_v1/scripts/hud.gd"],
   "acceptance_criteria": ["Attacks deal damage to creatures in a forward arc at the swing moment (verified: creature HP drops when struck)", "Player HP drops when a creature hits it; hit reaction plays; death at 0 HP disables control", "R revives to full HP + idle", "HP bar reflects current HP; 0 per-frame errors"],
-  "steps": ["Bake death+impact", "HP + arc hit detection", "death/revive R", "HP bar HUD"], "passes": false }
+  "steps": ["Bake death+impact", "HP + arc hit detection", "death/revive R", "HP bar HUD"], "passes": true }
 ```
 
 ```json
@@ -1735,7 +1735,7 @@ mutant swiping (attack) + mutant dying (death), aggro/chase/attack AI + HP bars.
   "description": "Creature combat: bake mutant swiping (attack) + mutant dying (death) onto the 7 humanoid bestiary bipeds (Unity retarget). enemy behavior in npc.gd: HP by type, aggro when player within range -> chase -> attack in range (swipe deals damage on cooldown) -> death anim at 0 HP then despawn. Small floating HP bar when hurt. Quads stay ambient.",
   "files": ["products/grimforge_playable_demo_v1/scripts/npc.gd", "products/grimforge_playable_demo_v1/chars/"],
   "acceptance_criteria": ["Bipeds chase the player when near, play swipe + deal damage in range (player HP drops)", "Struck bipeds lose HP, play death at 0 and despawn", "Floating HP bar shows over a hurt creature", "0 per-frame errors during a fight"],
-  "steps": ["Bake mutant swipe/die onto bipeds", "enemy AI + HP in npc.gd", "floating HP bar"], "passes": false }
+  "steps": ["Bake mutant swipe/die onto bipeds", "enemy AI + HP in npc.gd", "floating HP bar"], "passes": true }
 ```
 
 ```json
@@ -1743,7 +1743,7 @@ mutant swiping (attack) + mutant dying (death), aggro/chase/attack AI + HP bars.
   "description": "Integrate + balance + verify a full fight across the demo: player kills creatures, creatures can kill player, revive works, combat present in courtyard/town. Tune damage/HP/ranges. README + gate + commit.",
   "files": ["products/grimforge_playable_demo_v1/README.md"],
   "acceptance_criteria": ["A scripted fight run: player attacks kill a creature; a creature kills the player; R revives; all logged with 0 errors", "README documents combat controls (J/L/K/N/U/Space/R) + mechanics", "gate passes; committed"],
-  "steps": ["Balance pass", "scripted fight verification", "README + gate + commit"], "passes": false }
+  "steps": ["Balance pass", "scripted fight verification", "README + gate + commit"], "passes": true }
 ```
 
 ## VLM visual-QA benchmark (qwen3-vl 8B vs 32B)

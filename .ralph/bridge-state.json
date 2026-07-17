@@ -152,36 +152,38 @@
       "id": "TX0",
       "title": "TX0",
       "status": "done",
-      "gate_result": null,
-      "observation_id": null
+      "gate_result": "pass",
+      "observation_id": "obs-20260716212858-0000000",
+      "activated_at": "2026-07-16T21:28:58.536858+00:00"
     },
     {
       "id": "TX1",
       "title": "TX1",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260716211719-0000000",
+      "activated_at": "2026-07-16T21:17:18.922878+00:00"
     },
     {
       "id": "TX2",
       "title": "TX2",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260717041605-0000000"
     },
     {
       "id": "TX3",
       "title": "TX3",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260717122115-0000000"
     },
     {
       "id": "TX4",
       "title": "TX4",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260717122826-0000000"
     },
     {
       "id": "TX5",
@@ -344,9 +346,9 @@
     {
       "id": "TX0b",
       "title": "TX0b",
-      "status": "pending",
-      "gate_result": null,
-      "observation_id": null
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260716213150-0000000"
     },
     {
       "id": "SX0",
@@ -419,15 +421,311 @@
       "gate_result": "pass",
       "observation_id": "obs-20260701133125-0000000",
       "activated_at": "2026-07-01T13:31:25.294817+00:00"
+    },
+    {
+      "id": "KD1",
+      "title": "KD1",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709130155-0000000",
+      "activated_at": "2026-07-09T13:01:55.653945+00:00"
+    },
+    {
+      "id": "KD2",
+      "title": "KD2",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709114733-0000000",
+      "activated_at": "2026-07-09T11:47:33.270325+00:00"
+    },
+    {
+      "id": "KD3",
+      "title": "KD3",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709131744-0000000",
+      "activated_at": "2026-07-09T13:17:44.524336+00:00"
+    },
+    {
+      "id": "KD4",
+      "title": "KD4",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709133256-0000000",
+      "activated_at": "2026-07-09T13:32:55.945187+00:00"
+    },
+    {
+      "id": "KD5",
+      "title": "KD5",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709134604-0000000",
+      "activated_at": "2026-07-09T13:46:04.081075+00:00"
+    },
+    {
+      "id": "KD6",
+      "title": "KD6",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709174804-0000000",
+      "activated_at": "2026-07-09T17:48:04.035338+00:00"
+    },
+    {
+      "id": "KD7",
+      "title": "KD7",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709183022-0000000",
+      "activated_at": "2026-07-09T18:30:22.434340+00:00"
+    },
+    {
+      "id": "KD8",
+      "title": "KD8",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709191842-0000000",
+      "activated_at": "2026-07-09T19:18:42.152383+00:00"
+    },
+    {
+      "id": "KD9",
+      "title": "KD9",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260709194950-0000000",
+      "activated_at": "2026-07-09T19:49:50.131818+00:00"
+    },
+    {
+      "id": "KD10",
+      "title": "KD10",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260710020705-0000000",
+      "activated_at": "2026-07-10T02:07:05.783123+00:00"
+    },
+    {
+      "id": "KD11",
+      "title": "KD11",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260710021550-0000000",
+      "activated_at": "2026-07-10T02:15:50.473450+00:00"
+    },
+    {
+      "id": "KD12",
+      "title": "KD12",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260710125521-0000000",
+      "activated_at": "2026-07-10T12:55:21.499116+00:00"
+    },
+    {
+      "id": "KD13",
+      "title": "KD13",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260710183507-0000000",
+      "activated_at": "2026-07-10T18:35:07.146695+00:00",
+      "reconcile_note": "reconciled 2026-07-17: built+verified in demo sub-pipeline 0323a157 (8/8, gameplay-gate 9/9); plan.md passes flipped true"
+    },
+    {
+      "id": "KD14",
+      "title": "KD14",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": null,
+      "reconcile_note": "reconciled 2026-07-17: built+verified in demo sub-pipeline 0323a157 (8/8, gameplay-gate 9/9); plan.md passes flipped true"
+    },
+    {
+      "id": "KDC1",
+      "title": "KDC1",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260710211505-0000000",
+      "activated_at": "2026-07-10T21:15:05.569002+00:00"
+    },
+    {
+      "id": "KDC2",
+      "title": "KDC2",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260711010443-0000000",
+      "activated_at": "2026-07-11T01:04:43.563094+00:00"
+    },
+    {
+      "id": "KDC3",
+      "title": "KDC3",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260711011719-0000000",
+      "reconcile_note": "reconciled 2026-07-17: built+verified in demo sub-pipeline 0323a157 (8/8, gameplay-gate 9/9); plan.md passes flipped true"
+    },
+    {
+      "id": "KDC4",
+      "title": "KDC4",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": null,
+      "reconcile_note": "reconciled 2026-07-17: built+verified in demo sub-pipeline 0323a157 (8/8, gameplay-gate 9/9); plan.md passes flipped true"
+    },
+    {
+      "id": "VL1",
+      "title": "VL1",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260716123630-0000000",
+      "activated_at": "2026-07-16T12:36:29.937886+00:00"
+    },
+    {
+      "id": "VL2",
+      "title": "VL2",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260716132148-0000000",
+      "activated_at": "2026-07-16T13:21:48.671571+00:00"
+    },
+    {
+      "id": "VL3",
+      "title": "VL3",
+      "status": "skipped",
+      "gate_result": null,
+      "observation_id": "obs-20260716133408-0000000",
+      "activated_at": "2026-07-16T13:34:08.083043+00:00"
+    },
+    {
+      "id": "VL4",
+      "title": "VL4",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260716142958-0000000",
+      "activated_at": "2026-07-16T14:29:57.885302+00:00"
+    },
+    {
+      "id": "VL7",
+      "title": "VL7",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260716171041-0000000"
+    },
+    {
+      "id": "VL3P",
+      "title": "VL3P",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "VL5",
+      "title": "VL5",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "VL6",
+      "title": "VL6",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "VL8",
+      "title": "VL8",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RB1",
+      "title": "RB1",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RB2",
+      "title": "RB2",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RB3",
+      "title": "RB3",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RB4",
+      "title": "RB4",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RB5",
+      "title": "RB5",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RB6",
+      "title": "RB6",
+      "status": "done",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "T3D1",
+      "title": "T3D1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "VJ1",
+      "title": "VJ1",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RS2",
+      "title": "RS2",
+      "status": "done",
+      "gate_result": "pass",
+      "observation_id": "obs-20260717201056-0000000"
+    },
+    {
+      "id": "RS3",
+      "title": "RS3",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "RS4",
+      "title": "RS4",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
+    },
+    {
+      "id": "VL9",
+      "title": "VL9",
+      "status": "pending",
+      "gate_result": null,
+      "observation_id": null
     }
   ],
-  "current_task_index": 54,
+  "current_task_index": 94,
   "stats": {
-    "tasks_completed": 8,
+    "tasks_completed": 62,
     "tasks_failed": 0,
-    "gate_passes": 7,
+    "gate_passes": 32,
     "gate_fails": 0,
-    "observations_recorded": 24
+    "observations_recorded": 96
   },
   "config": {
     "interactive_mode": true,
@@ -436,5 +734,5 @@
     "auto_commit": false,
     "auto_observe": true
   },
-  "updated_at": "2026-07-02T21:21:36.583099+00:00"
+  "updated_at": "2026-07-17T20:10:56.493463+00:00"
 }
