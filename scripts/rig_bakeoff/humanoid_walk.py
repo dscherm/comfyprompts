@@ -81,9 +81,10 @@ GAIT = [
 # extends toward baseline as the arm goes back. A dead-straight elbow (the earlier
 # model) sweeps the hand through the hip on the forward swing.
 SHOULDER_AMP = 14.0            # deg, peak shoulder flex/ext (was 22 — swung too far)
-SHOULDER_ABDUCT = 9.0        # deg, constant hold-away-from-body so forearms/hands
-                             # clear the hips instead of drifting inward
-ELBOW_BASE = 16.0            # deg, resting elbow flexion (never fully straight)
+SHOULDER_ABDUCT = 13.0       # deg, constant hold-away-from-body
+ELBOW_BASE = 5.0            # deg, resting elbow flexion — kept SMALL so the resting
+                            # forearm hangs down beside the thigh instead of folding
+                            # forward to meet the other hand at the centreline
 ELBOW_FWD_GAIN = 0.9         # elbow flexion added per deg of FORWARD shoulder
 ARM_LOWER = math.radians(75)
 BOB_FRACTION = 0.010           # of rig height, 2x cadence
