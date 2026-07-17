@@ -412,9 +412,9 @@ fallback for clips the commercial library lacks.
     "Verify avatar validity, clip durations + Animator transitions",
     "Record the verdict + clip inventory + avatar notes in VALIDATION.md"
   ],
-  "status": "FAILED in live editor",
-  "note": "NOT DONE. Live Unity review (2026-06-28/29) surfaced two real blockers the offline package missed: (1) IMPORT ERROR — 'Copied Avatar Rig Configuration mis-match: Transform Armature not found in HumanDescription'. The hand-written .meta declares hasExtraRoot:0 but every FBX has an extra 'Armature' root above 'hips', so Unity's copied avatar can't match it. (2) ANIMATION — all clips played arms-up/frozen (retarget bind-direction bug). #2 is FIXED (commit 3eb349b, bind-direction alignment; all 9 re-baked). #1 + re-deploy + clip curation remain → GS6/GS7/GS8.",
-  "passes": false
+  "status": "CLOSED — live coplay re-validation PASS 2026-07-17",
+  "note": "Two live-editor blockers (2026-06-28/29) are resolved: (1) extra-'Armature'-root avatar mismatch — fixed in GS6 by switching to Unity-built CreateFromThisModel avatars (no hand-written .meta); (2) arms-up/frozen retarget — fixed commit 3eb349b. GS6/GS7/GS8 (fix + re-texture/redeploy + clip curation) all done, and the Mixamo ship route validated live in Phase UH. Re-confirmed 2026-07-17: ValidateBarbarianHumanoid.Execute() via coplay-mcp on Unity 6000.4.0f1 → RESULT: PASS (avatar isValid+isHuman 22 bones; 9/9 Humanoid clips; Animator 9 states + Speed/6 triggers; headless rig build + 25/50/75% pose sanity all pass). VALIDATION.md GS4 section reconciled.",
+  "passes": true
 }
 ```
 

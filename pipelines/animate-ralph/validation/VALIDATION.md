@@ -229,11 +229,24 @@ the avatar is valid/Humanoid with ≥15 mapped bones, the controller's states/tr
 parameters load, and a headless rig-build resolves every state's motion clip. It exposes
 both a live-MCP entry (`Execute()`) and a headless batch entry (`RunBatch`, writes
 `barbarian_validation_report.txt` + exit code).
-- **Deferred:** the headless batch run (`-executeMethod ValidateBarbarianAnimImport.RunBatch`)
-  exited **198 — "No valid Unity Editor license found"** (licensing/activation, not a
-  validator or asset fault). Live coplay-mcp import + play-mode transition verification is
-  therefore deferred to a licensed editor session. The artifacts (validator, packaged clips,
-  avatar, controller, manifest) are in place and ready to run the moment the editor opens.
+- **Deferred (then RESOLVED):** the headless batch run (`-executeMethod
+  ValidateBarbarianAnimImport.RunBatch`) exited **198 — "No valid Unity Editor license
+  found"** (licensing/activation, not a validator or asset fault). Live coplay-mcp import +
+  play-mode transition verification was therefore deferred to a licensed editor session.
+
+**GS4 — CLOSED (live coplay re-validation, 2026-07-17).** GS4's two real blockers were
+fixed downstream (arms-up retarget → commit 3eb349b; extra-`Armature`-root avatar mismatch
+→ GS6, by switching to Unity-built `CreateFromThisModel` avatars) and the Mixamo ship route
+was validated live in **Phase UH** (below). Re-confirmed **this session** by re-running
+`ValidateBarbarianHumanoid.Execute()` live via coplay-mcp against Unity `6000.4.0f1` on
+`D:/Projects/soapbox-unity` (project compiles clean): **RESULT: PASS** —
+§1 avatar `barbarian_accurigAvatar` isValid+isHuman, 22 bones, CreateFromThisModel;
+§2 **9/9** Mixamo clips import Humanoid + usable; §3 Animator 9 states + Speed/6 triggers;
+§4 headless rig build isHuman + controllerBound; §5 all 9 clips pass 25/50/75 % pose-span
+sanity. On-screen play-mode carriage (the one check the headless validator can't make) was
+captured live in Phase UH (natural idle/walk, splay gone); it was **not** re-captured this
+session (validator pose-sampling + the UH play-mode record cover it). Bookkeeping reconciled:
+GS4 marked done.
 
 ---
 
