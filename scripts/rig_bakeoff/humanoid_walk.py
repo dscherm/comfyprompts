@@ -37,11 +37,55 @@ argv = sys.argv[sys.argv.index("--") + 1 :]
 SRC, MANIFEST_PATH, DST = argv[0], argv[1], argv[2]
 FRAMES = int(argv[3]) if len(argv) > 3 else 24
 
-STRIDE = math.radians(28)
-KNEE = math.radians(50)
-ARM_SWING = math.radians(18)
+# ---------------------------------------------------------------------------
+# NORMATIVE SAGITTAL GAIT KINEMATICS  (see wiki: anatomy-of-the-human-walk-cycle)
+#
+# Replaces a hand-invented sin/cos model that was copied from the QUADRUPED
+# animator and had no biomechanical basis. Source: Perry's gait phases +
+# normative sagittal joint angles (musculoskeletalkey.com/normal-gait/).
+#
+# Convention: percent of gait cycle, 0% = initial contact (heel strike) of THIS
+# leg, toe-off ~60%, next heel strike = 100%. Flexion POSITIVE for hip and knee.
+#
+# The critical relationship — and the whole reason the old model looked wrong:
+#   peak KNEE flexion (~62 deg) lands at ~70-73% (initial swing)
+#   peak HIP  flexion (~30 deg) lands at ~85-90% (terminal swing)
+# The knee LEADS the hip by roughly 15-20% of the cycle. The limb swings as a
+# kinetic chain: thigh drives forward, the shank lags and the knee folds, then
+# the shank whips out and the knee extends just before heel strike. A symmetric
+# sin/cos pair cannot express that lag, which is why thigh and shin appeared to
+# move together.
+GAIT = [
+    # (pct, hip, knee)
+    (0,    30,   5),   # initial contact — hip flexed, knee nearly straight
+    (10,   25,  18),   # loading response — knee flexes to absorb shock
+    (20,   15,  12),
+    (30,    5,   5),   # midstance — knee re-extends
+    (40,   -5,   5),   # terminal stance — hip extending behind
+    (50,  -15,   8),
+    (60,  -10,  40),   # toe-off — knee ALREADY folding fast, hip still behind
+    (70,    5,  62),   # initial swing — KNEE PEAK, hip only just past neutral
+    (80,   20,  45),   # mid-swing — knee extending while hip keeps flexing
+    (90,   30,  15),   # terminal swing — HIP PEAK, shank whipping out
+    (100,  30,   5),   # next initial contact
+]
+
+ARM_SWING = math.radians(12)   # shoulder flexion/extension; counter-phase to the
+                               # ipsilateral leg (left leg forward = right arm forward)
 ARM_LOWER = math.radians(75)
-BOB_FRACTION = 0.010          # of rig height, 2x cadence
+BOB_FRACTION = 0.010           # of rig height, 2x cadence
+
+
+def gait_at(pct: float) -> tuple[float, float]:
+    """Linearly interpolate (hip, knee) degrees at a percent of the gait cycle."""
+    pct %= 100.0
+    for i in range(len(GAIT) - 1):
+        p0, h0, k0 = GAIT[i]
+        p1, h1, k1 = GAIT[i + 1]
+        if p0 <= pct <= p1:
+            f = (pct - p0) / (p1 - p0) if p1 > p0 else 0.0
+            return h0 + (h1 - h0) * f, k0 + (k1 - k0) * f
+    return GAIT[-1][1], GAIT[-1][2]
 
 M = json.loads(Path(MANIFEST_PATH).read_text())
 FORWARD = Vector(M["frame"]["forward"]).normalized()
@@ -146,13 +190,14 @@ for f in range(FRAMES + 1):
     th_base = 2 * math.pi * t
 
     for leg in legs:
-        phase = 0.0 if leg["side"] == "L" else math.pi
-        th = th_base + phase
+        # contralateral legs are half a cycle apart
+        pct = t * 100.0 + (0.0 if leg["side"] == "L" else 50.0)
+        hip_deg, knee_deg = gait_at(pct)
         hinge = M["hinges"][leg["hinge"]]
-        # +swing = forward, a consequence of the frame definition (see docstring)
-        swing = STRIDE * math.sin(th)
-        # knee bends through the SWING phase (foot lifts) and straightens in stance
-        bend = KNEE * max(0.0, math.cos(th)) * hinge["fold_sign"]
+        # +rotation about `side` = forward tilt, a consequence of the frame
+        # definition (proof in the module docstring), so hip flexion maps directly
+        swing = math.radians(hip_deg)
+        bend = math.radians(knee_deg) * hinge["fold_sign"]
         thigh_pb = bones[leg["thigh"]]
         calf_pb = bones[leg["calf"]]
         thigh_pb.rotation_quaternion = Quaternion(axis_in_bone(thigh_pb, SIDE), swing)
@@ -160,8 +205,13 @@ for f in range(FRAMES + 1):
             axis_in_bone(calf_pb, Vector(hinge["axis_vector"])), bend)
 
     for a in arms:
-        phase = math.pi if a["side"] == "L" else 0.0    # counter to same-side leg
-        swing = ARM_SWING * math.sin(th_base + phase)
+        # arms swing out of phase with the ipsilateral leg: the left leg and the
+        # RIGHT arm travel forward together. Drive the shoulder off the hip curve
+        # of the OPPOSITE leg so the arm inherits gait timing rather than a
+        # detached sine.
+        opp_pct = t * 100.0 + (50.0 if a["side"] == "L" else 0.0)
+        opp_hip, _ = gait_at(opp_pct)
+        swing = ARM_SWING * (opp_hip / 30.0)   # normalise by peak hip flexion
         pb = bones[a["upperarm"]]
         q = Quaternion(axis_in_bone(pb, SIDE), swing)
         if a["needs_lower"]:
