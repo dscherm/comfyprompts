@@ -1897,7 +1897,7 @@ rig_scan.py is BUILT and verified on UniRig/Meshy/AccuRIG (commit 7e2bf6e).
   "description": "Rewire unirig_humanoid_walk.py to CONSUME <rig>.rigvec.json instead of hardcoding. Today it still hardcodes the knee sign (+bend), the T-pose arm-lowering (75deg, mirrored), and SIDE=(1,0,0) — all of which the manifest already measures per-rig. Read frame.forward/side/up, hinges[knee.*].fold_sign, and bones[*].degenerate_axes; ERROR OUT if a requested rotation axis is flagged degenerate for that bone rather than silently twisting. Rename to humanoid_walk.py (it is no longer UniRig-specific).",
   "files": ["scripts/rig_bakeoff/humanoid_walk.py"],
   "acceptance_criteria": ["Zero hardcoded signs/axes: every one read from the manifest", "Same walk renders correctly on the UniRig AND Meshy rigs from their own manifests, no per-rig edits", "A degenerate-axis request raises a clear error naming the bone and axis", "Wiki recipe human-walk-cycle-from-a-rig-manifest matches the implementation"],
-  "steps": ["load manifest", "replace hardcoded facts", "degenerate-axis guard", "verify on UniRig + Meshy"], "passes": false }
+  "steps": ["load manifest", "replace hardcoded facts", "degenerate-axis guard", "verify on UniRig + Meshy"], "passes": true }
 ```
 
 ```json
