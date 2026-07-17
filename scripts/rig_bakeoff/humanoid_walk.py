@@ -86,6 +86,8 @@ ELBOW_BASE = 5.0            # deg, resting elbow flexion — kept SMALL so the r
                             # forearm hangs down beside the thigh instead of folding
                             # forward to meet the other hand at the centreline
 ELBOW_FWD_GAIN = 0.9         # elbow flexion added per deg of FORWARD shoulder
+ELBOW_LAG_PCT = 12.0        # forearm DRAG: elbow driver sampled this % of the cycle
+                            # behind the shoulder (~3 frames at 24fps) — overlap
 ARM_LOWER = math.radians(75)
 BOB_FRACTION = 0.010           # of rig height, 2x cadence
 
@@ -281,7 +283,12 @@ for f in range(FRAMES + 1):
         # the arm inherits gait timing rather than a detached sine.
         opp_pct = t * 100.0 + (50.0 if a["side"] == "L" else 0.0)
         opp_hip, _ = gait_at(opp_pct)
-        shoulder_deg, elbow_deg = arm_at(opp_hip)
+        shoulder_deg, _ = arm_at(opp_hip)
+        # DRAG (Animator's Survival Kit): the forearm/hand FOLLOW the upper arm,
+        # trailing a few frames. Sample the elbow's driver a bit earlier in the
+        # cycle so the elbow lags the shoulder — the overlap that reads as life.
+        opp_hip_lag, _ = gait_at(opp_pct - ELBOW_LAG_PCT)
+        _, elbow_deg = arm_at(opp_hip_lag)
 
         # shoulder: neutral -> abduct (hold out) -> palm roll -> fore/aft swing
         # (world order, right operand applied first)
@@ -306,9 +313,14 @@ for f in range(FRAMES + 1):
             bpy.context.view_layer.update()          # so the upper arm's pose is live
             fore_pb = bones[fore_name]
             elbow_axis = Vector(eh["axis_vector"])
-            # target forearm direction: straight down (-UP), flexed forward at the elbow
+            # target forearm direction: CONTINUE from the posed upper arm (so the
+            # forearm follows it — the fix for the snake-like motion, which came
+            # from re-aiming the forearm at world-vertical every frame), then flex
+            # forward at the elbow.
+            ua_world = arm_obj.matrix_world @ pb.matrix
+            ua_dir = (ua_world.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
             target = (Quaternion(elbow_axis, math.radians(elbow_deg) * eh["fold_sign"])
-                      @ (-UP)).normalized()
+                      @ ua_dir).normalized()
             cur_world = arm_obj.matrix_world @ fore_pb.matrix
             cur_y = (cur_world.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
             align = cur_y.rotation_difference(target)   # world rotation to the target
