@@ -907,7 +907,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "prep_dataset.py --src E:/ai-training/_raw/tile_iso --out E:/ai-training/datasets/tile_iso --max-edge 1024",
     "Write short captions + manifest at pipelines/tileset-ralph/loras/tile_iso/tile_iso_manifest.md; build a contact sheet and get user approval"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 

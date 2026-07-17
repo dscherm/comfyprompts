@@ -284,7 +284,7 @@ The composition survives, the wrap edges heal (wood: 8.58% → 3.14% MAD, clean
 | TX6 | train `tile_topdown` | pending |
 | TX7 | eval `tile_topdown` (reuse tile_edge_mad.py) | pending |
 | TX8 | deploy `tile_topdown` + document both in README | pending |
-| TI1 | `tile_iso` dataset + manifest (slice rubberduck iso tiles) | pending |
+| TI1 | `tile_iso` dataset + manifest (slice rubberduck iso tiles) | **done, user-approved 2026-07-17** (38 CC0 iso tiles) |
 | TI2 | train `tile_iso` SDXL LoRA → checkpoints on E: | pending |
 | TI3 | eval `tile_iso` (visual verdict — NOT wrap-edge MAD, see §8) | pending |
 | TI4 | deploy `tile_iso` + document the three-LoRA tile family | pending |
