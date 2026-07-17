@@ -18,6 +18,19 @@ Observed on the VL7 probe (2026-07-16): qwen3-vl:8b returned empty content
 on 3/6 pairs at num_ctx 8192; only a re-run at 20480 disambiguated — it was
 non-convergence (80k+ chars of circular thinking, still no answer).
 
+**THIRD BRANCH (added 2026-07-16): cold model load, with thinking OFF.**
+Empty content is NOT always a thinking/num_ctx problem. On the accent-judge
+probe — `think: false`, num_ctx 4096 — the FIRST call after a cold model load
+returned empty content on both qwen3-vl:8b (33s, loading 6GB) and
+qwen3-vl:32b (113s, loading 20GB): in each run, image 1 of 9 came back empty
+and every subsequent call parsed cleanly. Neither branch above applies —
+there is no thinking stream to exhaust the context.
+
+Critically it is **INTERMITTENT**: a later cold 8b run did NOT reproduce it
+(image 1 scored 6/6 at 13.4s). So you cannot predict which batch silently
+loses its first image, and a single clean run does not prove the harness is
+sound.
+
 ## Root cause
 
 With thinking enabled, the thinking stream competes with the answer for the
@@ -39,6 +52,17 @@ image); capped at 8192 it runs 23GB, 100% GPU, 60-127s per pair.
 3. Cap num_ctx explicitly per model and GPU — never trust the ollama
    default. Verify residency with `ollama ps` (want "100% GPU") or
    /api/ps size_vram/size immediately after the first call, and record it.
+4. **Retry once on empty content, unconditionally — even with thinking off.**
+   The cold-load branch is intermittent, so a warmup call does not reliably
+   prevent it and a clean run does not prove it is absent; only a retry
+   covers it. `judge_image`
+   (`packages/mcp-server/tools/vlm_judge.py`) does this automatically —
+   hand-rolled ollama callers must implement it themselves or they will
+   silently drop the first image of some batches.
+5. Disambiguate the three branches by what you already logged: thinking
+   length > 0 → branch (a)/(b), use the 2.5x re-run above. Thinking empty or
+   disabled AND it was the first call after a load (latency dominated by
+   model load — 33s/6GB, 113s/20GB) → cold-load branch; just retry.
 
 ## Notes (optional)
 
