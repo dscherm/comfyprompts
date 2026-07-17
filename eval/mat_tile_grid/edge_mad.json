@@ -1,0 +1,222 @@
+[
+ {
+  "image": "eval\\mat_tile_grid\\beach_sand__s00.png",
+  "horiz_mad": 7.124349117279053,
+  "vert_mad": 7.442057132720947,
+  "edge_mad_pct": 2.856158088235294,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s00_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s00_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s00_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\beach_sand__s06.png",
+  "horiz_mad": 5.8857421875,
+  "vert_mad": 5.263671875,
+  "edge_mad_pct": 2.186159620098039,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s06_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s06_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s06_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\beach_sand__s08.png",
+  "horiz_mad": 6.436849117279053,
+  "vert_mad": 5.732747554779053,
+  "edge_mad_pct": 2.3861954258937463,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s08_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s08_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s08_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\beach_sand__s08_NOTILING.png",
+  "horiz_mad": 13.143229484558105,
+  "vert_mad": 14.503581047058105,
+  "edge_mad_pct": 5.420943241493375,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s08_NOTILING_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s08_NOTILING_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s08_NOTILING_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\beach_sand__s10.png",
+  "horiz_mad": 8.1123046875,
+  "vert_mad": 4.605143070220947,
+  "edge_mad_pct": 2.493617207396264,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s10_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s10_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\beach_sand__s10_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\mossy_cobblestone__s00.png",
+  "horiz_mad": 4.333984375,
+  "vert_mad": 3.0302734375,
+  "edge_mad_pct": 1.4439721200980393,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s00_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s00_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s00_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\mossy_cobblestone__s06.png",
+  "horiz_mad": 5.933919429779053,
+  "vert_mad": 3.1083984375,
+  "edge_mad_pct": 1.7730035033880496,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s06_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s06_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s06_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\mossy_cobblestone__s08.png",
+  "horiz_mad": 5.148111820220947,
+  "vert_mad": 4.097330570220947,
+  "edge_mad_pct": 1.8128318412631166,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s08_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s08_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s08_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\mossy_cobblestone__s08_NOTILING.png",
+  "horiz_mad": 26.68489646911621,
+  "vert_mad": 28.00455665588379,
+  "edge_mad_pct": 10.723422181372548,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s08_NOTILING_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s08_NOTILING_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s08_NOTILING_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\mossy_cobblestone__s10.png",
+  "horiz_mad": 6.374674320220947,
+  "vert_mad": 2.7757160663604736,
+  "edge_mad_pct": 1.7941941934473373,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s10_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s10_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\mossy_cobblestone__s10_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\red_brick_wall__s00.png",
+  "horiz_mad": 1.3548177480697632,
+  "vert_mad": 1.7490234375,
+  "edge_mad_pct": 0.608596310896032,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s00_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s00_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s00_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\red_brick_wall__s06.png",
+  "horiz_mad": 1.916015625,
+  "vert_mad": 1.6624349355697632,
+  "edge_mad_pct": 0.7016569726607379,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s06_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s06_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s06_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\red_brick_wall__s08.png",
+  "horiz_mad": 1.7216796875,
+  "vert_mad": 1.8551431894302368,
+  "edge_mad_pct": 0.7013378190059288,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s08_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s08_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s08_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\red_brick_wall__s08_NOTILING.png",
+  "horiz_mad": 10.727213859558105,
+  "vert_mad": 12.291015625,
+  "edge_mad_pct": 4.513378330305511,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s08_NOTILING_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s08_NOTILING_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s08_NOTILING_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\red_brick_wall__s10.png",
+  "horiz_mad": 4.5654296875,
+  "vert_mad": 2.8304035663604736,
+  "edge_mad_pct": 1.4501633831098968,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s10_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s10_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\red_brick_wall__s10_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\weathered_wood_planks__s00.png",
+  "horiz_mad": 2.1155598163604736,
+  "vert_mad": 9.897786140441895,
+  "edge_mad_pct": 2.3555580307455624,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s00_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s00_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s00_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\weathered_wood_planks__s06.png",
+  "horiz_mad": 12.020182609558105,
+  "vert_mad": 3.2210285663604736,
+  "edge_mad_pct": 2.9884727795918784,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s06_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s06_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s06_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\weathered_wood_planks__s08.png",
+  "horiz_mad": 8.981120109558105,
+  "vert_mad": 3.3854167461395264,
+  "edge_mad_pct": 2.424811148176006,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s08_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s08_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s08_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\weathered_wood_planks__s08_NOTILING.png",
+  "horiz_mad": 16.107421875,
+  "vert_mad": 27.62727928161621,
+  "edge_mad_pct": 8.575431599336511,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s08_NOTILING_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s08_NOTILING_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s08_NOTILING_roll50.png"
+  ]
+ },
+ {
+  "image": "eval\\mat_tile_grid\\weathered_wood_planks__s10.png",
+  "horiz_mad": 17.02376365661621,
+  "vert_mad": 2.7447917461395264,
+  "edge_mad_pct": 3.876187333873674,
+  "evidence": [
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s10_mosaic2x2.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s10_mosaic4x4.png",
+   "eval\\mat_tile_grid\\evidence\\weathered_wood_planks__s10_roll50.png"
+  ]
+ }
+]
