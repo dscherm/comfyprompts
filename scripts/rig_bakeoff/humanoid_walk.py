@@ -33,6 +33,9 @@ from pathlib import Path
 import bpy
 from mathutils import Quaternion, Vector
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from hand_pose import pose_relaxed_hands  # noqa: E402
+
 argv = sys.argv[sys.argv.index("--") + 1 :]
 SRC, MANIFEST_PATH, DST = argv[0], argv[1], argv[2]
 FRAMES = int(argv[3]) if len(argv) > 3 else 24
@@ -152,50 +155,42 @@ for key, ch in chains.items():
                      "calf": ch["calf"], "hinge": f"knee.{key.split('.')[1]}"})
     elif key.startswith("arm."):
         arms.append({"side": key.split(".")[1], "upperarm": ch["upperarm"],
-                     "hand": ch.get("hand")})
+                     "forearm": ch.get("forearm"), "hand": ch.get("hand")})
 
 if len(legs) != 2:
     print(f"ERROR: manifest has {len(legs)} legs, need 2", file=sys.stderr)
     sys.exit(1)
 
-# Palm roll: after the neutral correction drops the arm to the side, roll it about
-# its own (now vertical) axis so the palm faces MEDIALLY (toward the body), not
-# forward. Computed from the measured palm normal; the normal's sign is ambiguous
-# (scanner note), so `--palm-flip` inverts the target if the render shows the back
-# of the hand instead. Skipped entirely when the rig has no finger bones (Meshy).
-PALM_FLIP = "--palm-flip" in sys.argv
-palms = M.get("palms", {})
 for a in arms:
-    side = a["side"]
-    p = palms.get(f"palm.{side}", {})
-    normal = p.get("palm_plane_normal")
-    a["palm_roll"] = None
-    if normal is None:
-        continue
-    q_n = neutral_of(a["upperarm"])
-    palm_after = q_n @ Vector(normal)             # palm normal once arm is at side
-    arm_axis = (q_n @ Vector(M["bones"][a["upperarm"]]["rest_dir"])).normalized()
-    # +SIDE = left of body (scanner convention), so "toward centre" is -SIDE from
-    # the left arm and +SIDE from the right.
-    medial = (-SIDE if side == "L" else SIDE)
-    if PALM_FLIP:
-        medial = -medial
-
-    def perp(v):
-        w = v - arm_axis * v.dot(arm_axis)
-        return w.normalized() if w.length > 1e-6 else None
-
-    pa, md = perp(palm_after), perp(medial)
-    if pa and md:
-        ang = pa.angle(md)
-        if arm_axis.dot(pa.cross(md)) < 0:
-            ang = -ang
-        a["palm_roll"] = (arm_axis, ang)
+    a["palm_roll"] = None   # filled after fingers are posed (below)
 
 for pb in bones:
     pb.rotation_mode = "QUATERNION"
     pb.rotation_quaternion = Quaternion()
     pb.location = (0.0, 0.0, 0.0)
+bpy.context.view_layer.update()
+
+# Relaxed hands: curl the splayed rest fingers into a loose shape and measure the
+# palm-facing direction from the curl motion (sign-resolved, unlike the static
+# normal). Fingers are set once and ride with the arm through the walk. Then roll
+# each arm about its neutralised (vertical) axis so the palm faces the body.
+palm_in = pose_relaxed_hands(arm_obj, arms)
+for a in arms:
+    pin = palm_in.get(a["upperarm"])
+    if pin is None:
+        continue
+    q_n = neutral_of(a["upperarm"])
+    palm_after = (q_n @ Vector(pin)).normalized()       # palm dir once arm is at side
+    arm_axis = (q_n @ Vector(M["bones"][a["upperarm"]]["rest_dir"])).normalized()
+    medial = (-SIDE if a["side"] == "L" else SIDE)       # toward the body centreline
+    pa = (palm_after - arm_axis * palm_after.dot(arm_axis))
+    md = (medial - arm_axis * medial.dot(arm_axis))
+    if pa.length > 1e-6 and md.length > 1e-6:
+        pa, md = pa.normalized(), md.normalized()
+        ang = pa.angle(md)
+        if arm_axis.dot(pa.cross(md)) < 0:
+            ang = -ang
+        a["palm_roll"] = (arm_axis, ang)
 
 root_name = M["root"]
 height = max(abs(v) for v in (
