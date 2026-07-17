@@ -15,6 +15,39 @@ animation so the arms are down, but the legs look perfect."* (Reading: the
 S3 arms-overhead DIAGNOSTIC pose read as animation — it is a posed still,
 trivially changeable; the deformation under it is what was judged.)
 
+## Motion round — UniRig humanoid (added 2026-07-17, after the user asked why UniRig beat past experience)
+
+The user observed UniRig performed far better than in past runs and asked
+whether qwen3-vl caused it. **It did not — no VLM was involved in the bake-off
+at any point** (no judging, no steering, no prompt generation). Two real causes
+were investigated instead:
+
+1. **Input mesh quality (verified).** UniRig gave `exemplar.obj` a **52-bone
+   skeleton with full 5-finger chains per hand**; the berserkr (fused fists,
+   fur silhouette) got 28 bones with a *single terminal hand bone* per side.
+   Clean separated fingers → UniRig finds them → richer skeleton.
+2. **Evidence type (investigated, hypothesis REJECTED).** UniRig's lane was
+   scored on static poses, and `lessons/unirig-skin-weights-melt-use-accurig.md`
+   warns "static poses hide weight problems". So a real walk was built on
+   UniRig's own generic bones (`scripts/rig_bakeoff/unirig_humanoid_walk.py` —
+   procedural, world-axis quaternion technique from the quads, NO retargeting)
+   and rendered per the lesson's prescription: mid-motion, bent joints, front
+   AND side (`scripts/rig_bakeoff/render_melt_diagnostic.py`).
+
+**Result: the stills did not hide anything.** The walk shows a crumple band at
+the knee crease that provably follows the bend across frames (frame 0 = left
+knee, frame 12 = right knee — it moves), so it is weight deformation, not
+modeled distress. But it is mild, reads as fabric bunching, and **is already
+visible in the S1 still the user scored 5/5** — i.e. the user judged this
+artifact and accepted it. No stubby limbs, no torso collapse, no geometry
+stretched into points (the June melt symptoms).
+
+**Consequence:** UniRig's humanoid 5/5 stands, better supported than before —
+and the lane's animation gap is now closed: the procedural walk IS a humanoid
+animation path for UniRig's generic skeleton. Remaining honest caveat: this is
+a 28°-stride / 50°-knee procedural walk; the June melt was observed under CMU
+mocap on a different mesh, so extreme-pose behaviour is still untested.
+
 ## Standardization decision
 
 1. **Quadrupeds: UniRig.** Only capable lane, top scores, already the

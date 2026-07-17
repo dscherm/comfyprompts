@@ -45,3 +45,25 @@ Diagnose deformation by rendering mid-motion frames from front AND side at bent
 joints — static poses hide weight problems. Distinct from the arms-up bind bug
 (retarget-arms-up-bind-direction-mismatch), which is about bone rotation; this is
 about mesh deformation quality.
+
+### SCOPE UPDATE 2026-07-17 — severity depends on the input mesh
+
+This lesson's evidence was: the **berserkr** mesh (fused fists, heavy fur
+silhouette) + a **CMU mocap** clip → drastic melt. A rig bake-off on a
+different subject found UniRig much milder:
+
+- On a **clean mesh with separated fingers** (user-supplied `exemplar.obj`),
+  UniRig produced a **52-bone skeleton WITH full 5-finger chains**; the
+  berserkr's fused fists yielded 28 bones and a single terminal hand bone.
+  Skeleton quality tracks input hand/limb separation.
+- Under a **procedural walk** (28° stride, 50° knee — `scripts/rig_bakeoff/
+  unirig_humanoid_walk.py`), deformation showed only a mild crumple band at the
+  knee crease that reads as fabric bunching. None of this lesson's headline
+  symptoms appeared: no stubby limbs, no ~45° torso collapse, no melting into
+  points. The user scored it 5/5 and shippable.
+
+**Two variables differ from the original observation (mesh AND motion
+severity), so this does not refute the lesson — it bounds it.** Read as: UniRig
+melt is not a constant; it worsens with poor limb separation in the input and
+(untested) with more extreme mocap. Re-run the diagnostic per mesh rather than
+assuming either outcome. See docs/rig_bakeoff_findings.md for the full round.
