@@ -59,58 +59,85 @@ def _tip_world(arm, tip_pb) -> Vector:
     return arm.matrix_world @ ev.tail
 
 
-def pose_relaxed_hands(arm, arm_chains, curl_deg: float = RELAX_CURL_DEG) -> dict:
-    """Curl fingers on each hand (bone-local, static — rides with the arm), and
-    return {upperarm_name: palm_in_world | None}: the measured palm-facing
-    direction in the REST world frame, sign resolved by the curl motion."""
-    palm_in = {}
+def palm_normal_from_mesh(arm, hand_name: str, meshes):
+    """Measure the palm-plane normal from the HAND-WEIGHTED mesh vertices — works
+    on any rig with a hand bone, finger bones or not (this is what lets a
+    fingerless rig like Meshy get palm control). A hand is a thin slab, so the
+    smallest-variance axis of its vertices is the palm normal. Sign is arbitrary
+    (a plane has two faces); the caller resolves it once, globally, since one mesh
+    has one handedness. Returns a WORLD unit vector, or None."""
+    pts = []
+    for mesh in meshes:
+        vg = mesh.vertex_groups.get(hand_name)
+        if vg is None:
+            continue
+        gi = vg.index
+        for v in mesh.data.vertices:
+            if any(g.group == gi and g.weight > 0.5 for g in v.groups):
+                pts.append(mesh.matrix_world @ v.co)
+    if len(pts) < 12:
+        return None
+    c = sum(pts, Vector()) / len(pts)
+    # 3x3 covariance, smallest-eigenvector via power iteration on the inverse is
+    # overkill — build the matrix and take the axis of least spread directly.
+    xx = yy = zz = xy = xz = yz = 0.0
+    for p in pts:
+        d = p - c
+        xx += d.x * d.x; yy += d.y * d.y; zz += d.z * d.z
+        xy += d.x * d.y; xz += d.x * d.z; yz += d.y * d.z
+    from mathutils import Matrix
+    cov = Matrix(((xx, xy, xz), (xy, yy, yz), (xz, yz, zz)))
+    # smallest eigenvalue eigenvector: iterate on (trace*I - cov) to invert order
+    trace = xx + yy + zz
+    shifted = Matrix.Identity(3) * trace - cov
+    v = Vector((1.0, 0.3, -0.2))
+    for _ in range(50):
+        v = (shifted @ v).normalized()
+    return v.normalized()
+
+
+def _curl_fingers(arm, hand, chains, curl_deg):
+    """Curl fingers into a relaxed shape. Flexion sign found by the reach test
+    (flexion shortens outward reach), never assumed. Static — rides with the arm."""
+    roots = [_wh(arm, c[0]) for c in chains]
+    tips = [_wt(arm, c[-1]) for c in chains]
+    mean_out = sum(((t - r) for t, r in zip(tips, roots)), Vector()).normalized()
+    arm_dir = (_wt(arm, hand) - _wh(arm, hand)).normalized()
+    knuckle = mean_out.cross(arm_dir).normalized()
+    prox, tip0 = chains[0][0], chains[0][-1]
+
+    def outward_reach(sign):
+        prox.rotation_quaternion = Quaternion(
+            _axis_in_bone(arm, prox, knuckle), math.radians(_PROBE_DEG) * sign)
+        bpy.context.view_layer.update()
+        reach = (_tip_world(arm, tip0) - _wh(arm, prox)).dot(mean_out)
+        prox.rotation_quaternion = Quaternion()
+        bpy.context.view_layer.update()
+        return reach
+
+    flex_sign = -1.0 if outward_reach(-1.0) < outward_reach(1.0) else 1.0
+    for ch in chains:
+        for pb in ch:
+            pb.rotation_quaternion = Quaternion(
+                _axis_in_bone(arm, pb, knuckle), math.radians(curl_deg) * flex_sign)
+    bpy.context.view_layer.update()
+
+
+def pose_relaxed_hands(arm, arm_chains, meshes, curl_deg: float = RELAX_CURL_DEG) -> dict:
+    """Curl fingers where finger bones exist, and return {upperarm_name:
+    palm_normal_world | None} measured from the HAND MESH — universal, so a
+    fingerless rig (Meshy) still gets palm control via a wrist roll. The normal's
+    sign is arbitrary (a plane has two faces); the caller resolves it once,
+    globally, since one mesh has a single handedness."""
+    palm = {}
     for a in arm_chains:
         hand_name = a.get("hand")
         if not hand_name or hand_name not in arm.pose.bones:
-            palm_in[a["upperarm"]] = None
+            palm[a["upperarm"]] = None
             continue
         hand = arm.pose.bones[hand_name]
         chains = _finger_chains(arm, hand)
-        # need at least a few multi-segment fingers to be a real hand
-        if sum(1 for c in chains if len(c) >= 2) < 3:
-            palm_in[a["upperarm"]] = None
-            continue
-
-        roots = [_wh(arm, c[0]) for c in chains]
-        tips = [_wt(arm, c[-1]) for c in chains]
-        mean_out = sum(((t - r) for t, r in zip(tips, roots)), Vector()).normalized()
-        fore = a.get("forearm")
-        arm_dir = ((_wh(arm, hand) - _wh(arm, arm.pose.bones[fore])).normalized()
-                   if fore and fore in arm.pose.bones else Vector((0, 0, 1)))
-        knuckle = mean_out.cross(arm_dir).normalized()   # across-the-knuckles axis
-
-        # resolve flexion sign by the reach test: flexion shortens outward reach
-        prox = chains[0][0]
-        tip0 = chains[0][-1]
-
-        def outward_reach(sign):
-            prox.rotation_quaternion = Quaternion(
-                _axis_in_bone(arm, prox, knuckle), math.radians(_PROBE_DEG) * sign)
-            bpy.context.view_layer.update()
-            reach = (_tip_world(arm, tip0) - _wh(arm, prox)).dot(mean_out)
-            prox.rotation_quaternion = Quaternion()
-            bpy.context.view_layer.update()
-            return reach
-
-        flex_sign = -1.0 if outward_reach(-1.0) < outward_reach(1.0) else 1.0
-
-        # measure palm direction: fingertips travel toward the palm as they curl
-        before = sum((_tip_world(arm, c[-1]) for c in chains), Vector()) / len(chains)
-        for ch in chains:
-            for pb in ch:
-                pb.rotation_quaternion = Quaternion(
-                    _axis_in_bone(arm, pb, knuckle), math.radians(curl_deg) * flex_sign)
-        bpy.context.view_layer.update()
-        after = sum((_tip_world(arm, c[-1]) for c in chains), Vector()) / len(chains)
-
-        disp = after - before
-        disp = disp - mean_out * disp.dot(mean_out)      # drop the "shortening" part
-        palm_in[a["upperarm"]] = (list(disp.normalized()) if disp.length > 1e-6
-                                  else None)
-        # fingers stay curled (static); they ride with the arm through the walk
-    return palm_in
+        if sum(1 for c in chains if len(c) >= 2) >= 3:
+            _curl_fingers(arm, hand, chains, curl_deg)
+        palm[a["upperarm"]] = palm_normal_from_mesh(arm, hand_name, meshes)
+    return palm

@@ -103,6 +103,8 @@ else:
     bpy.ops.import_scene.gltf(filepath=SRC)
 arm_obj = next(o for o in bpy.data.objects if o.type == "ARMATURE")
 arm_obj.animation_data_clear()
+skinned_meshes = [o for o in bpy.data.objects if o.type == "MESH"
+                  and any(m.type == "ARMATURE" and m.object == arm_obj for m in o.modifiers)]
 for mesh in [o for o in bpy.data.objects if o.type == "MESH"]:
     if mesh.animation_data:
         mesh.animation_data_clear()
@@ -170,19 +172,27 @@ for pb in bones:
     pb.location = (0.0, 0.0, 0.0)
 bpy.context.view_layer.update()
 
-# Relaxed hands: curl the splayed rest fingers into a loose shape and measure the
-# palm-facing direction from the curl motion (sign-resolved, unlike the static
-# normal). Fingers are set once and ride with the arm through the walk. Then roll
-# each arm about its neutralised (vertical) axis so the palm faces the body.
-palm_in = pose_relaxed_hands(arm_obj, arms)
+# Relaxed hands: curl fingers where they exist, and measure the palm-plane normal
+# from the HAND MESH (works even on a fingerless rig — this is what gives Meshy
+# palm control via a wrist roll). Then roll each arm about its neutralised
+# (vertical) axis so the palm faces the body. The mesh normal's sign is arbitrary
+# (a plane has two faces), so palm-in vs back-of-hand-in is a single global 180deg
+# choice — one mesh, one handedness. `--palm-out` flips it if a render shows the
+# back of the hand.
+PALM_OUT = "--palm-out" in sys.argv
+palm = pose_relaxed_hands(arm_obj, arms, skinned_meshes)
 for a in arms:
-    pin = palm_in.get(a["upperarm"])
-    if pin is None:
+    pn = palm.get(a["upperarm"])
+    if pn is None:
         continue
     q_n = neutral_of(a["upperarm"])
-    palm_after = (q_n @ Vector(pin)).normalized()       # palm dir once arm is at side
+    palm_after = (q_n @ Vector(pn)).normalized()         # palm normal once at side
     arm_axis = (q_n @ Vector(M["bones"][a["upperarm"]]["rest_dir"])).normalized()
-    medial = (-SIDE if a["side"] == "L" else SIDE)       # toward the body centreline
+    # target: palm faces the body centreline (medial). +SIDE = left, so medial is
+    # -SIDE from the left arm and +SIDE from the right.
+    medial = (-SIDE if a["side"] == "L" else SIDE)
+    if PALM_OUT:
+        medial = -medial
     pa = (palm_after - arm_axis * palm_after.dot(arm_axis))
     md = (medial - arm_axis * medial.dot(arm_axis))
     if pa.length > 1e-6 and md.length > 1e-6:
