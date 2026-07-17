@@ -751,7 +751,7 @@ Spec: `scripts/train_lora/datasets/tile_loras_spec.md` (TX0 — needs rewrite fo
     "Collect checkpoints at E:/ai-training/sdxl-output/mat_tile/",
     "Restart ComfyUI (run_3090ti.ps1)"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
