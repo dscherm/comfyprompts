@@ -184,6 +184,69 @@ Both Blender addons follow strict constraints:
 - **Batch scripts** (`hunyuan3d_batch_convert.py`, `generate_props.py`, etc.) use `urllib.request` to talk to ComfyUI's REST API and do NOT need the venv Python — they work with any Python 3.10+.
 - **Hunyuan3D textured pipeline DLL fix**: The `custom_rasterizer_kernel` CUDA extension requires torch and CUDA DLL directories in the DLL search path on Windows. Fixed via `os.add_dll_directory()` in `ComfyUI-Hunyuan3DWrapper/hy3dgen/texgen/custom_rasterizer/custom_rasterizer/__init__.py`. Without this, nodes 12-24 (texture baking) fail with "DLL load failed".
 
+## Evaluating ComfyUI Output — ALWAYS judge, never assume
+
+**Do not report a generation as successful because the job returned exit 0 and wrote a
+PNG.** "The renderer completed" and "the image is what was asked for" are different
+claims. Check the pixels before claiming the outcome.
+
+Use the **`judge_image`** MCP tool (`packages/mcp-server/tools/vlm_judge.py`) — a local
+ollama vision model (`qwen3-vl:8b` by default) that answers a stated criterion about a
+generated image. Companion tools: `list_vision_models`, `unload_vision_model`.
+
+### Why a VLM and not a pixel metric
+
+Pixel metrics score the WHOLE FRAME and **cannot separate a subject from its
+background**. Measured on a real run: a chroma metric scored a 10-image batch **3/10
+while it was ~10/10 by eye** — every "failure" was a false negative caused by grading
+the background instead of the character. On a hand-labelled 9-image probe
+(`scripts/vlm_eval/`), `qwen3-vl:8b` scored **90%** of ground-truth fields, correctly
+judged a monochrome subject on a flat red field (which the metric failed), and caught a
+real spec violation that both the metric and a human reviewer had missed.
+
+Use metrics as a cheap screen; use the VLM for the verdict; show a montage when a human
+must adjudicate.
+
+### Write criteria that are checkable
+
+State what to IGNORE and what to count. Vague criteria get vague answers.
+
+- Good: *"Ignoring the background, is the character monochrome ink with exactly ONE small
+  spot of colour? Report how many distinct accent colours you see."*
+- Bad: *"Is this image good?"*
+
+### Known limits — this is a screen, not an oracle
+
+- **VL7 returned NO-GO for local VLM judging of rig deformation.** Subtle geometric
+  calls are beyond these models. Use `judge_image` for COARSE, articulable questions —
+  colour, composition, presence/absence, obvious artifacts. If you can't state the
+  criterion in one sentence a person could check at a glance, don't trust the answer.
+- **Cold-load INTERMITTENTLY returns EMPTY.** A model's first call after load sometimes
+  returns an empty string (seen on 8b 33s/6GB and 32b 113s/20GB — image 1 of 9 empty,
+  all later calls fine; a later cold 8b run did not reproduce it). Intermittent, not
+  deterministic — which is why it needs a retry, not a warmup. `judge_image` retries
+  once automatically; hand-rolled callers must do the same.
+- **`qwen3-vl:32b` is NOT worth it.** Head-to-head on the 9-image probe: **8b 92%
+  (106s) vs 32b 91% (435s)** — 4.1x slower for *negative* accuracy, and the 32b was the
+  one that lost an image to the cold-load bug. Default to 8b. The 32b's only edge was
+  spotting faint background detail; its losses were over-calling accent size.
+- **False positives happen.** The 8b hallucinated a red accent on a duotone image with
+  none. Treat a single verdict as a signal, not proof — gate for human review.
+
+### GPU contention — ollama and ComfyUI fight over the 3090 Ti
+
+**ollama IGNORES `CUDA_VISIBLE_DEVICES`** and loads onto the 3090 Ti, the same card
+ComfyUI uses. They do not co-exist:
+
+- ComfyUI holding a Flux checkpoint leaves ~7GB; `qwen3-vl:32b` needs ~23GB.
+- **torch's caching allocator does not release VRAM on model unload alone** — ComfyUI can
+  report GB free while `nvidia-smi` still shows them held.
+- At ollama's default `num_ctx` (32768) the 32b spills across both cards + CPU:
+  **>600s/image**. `judge_image` caps `num_ctx` at 4096 for this reason — do not raise it.
+
+Sequence: `judge_image(..., free_comfyui_vram=True)` → judge → `unload_vision_model()`
+before generating again.
+
 ## Common Pitfalls
 
 1. **Two `workflow_manager` modules** - MCP server's (`packages/mcp-server/managers/workflow_manager.py`, ~495 LOC) is a parametric template engine that substitutes PARAM_* placeholders. Prompter's (`packages/prompter/workflow_manager.py`, ~916 LOC) is a UI<>API format converter. They serve completely different purposes and should NOT be merged.

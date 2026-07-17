@@ -35,6 +35,7 @@ from tools.export import register_export_tools
 from tools.prompt_library_tools import register_prompt_library_tools
 from tools.model_management import register_model_management_tools
 from tools.tileset import register_tileset_tools
+from tools.vlm_judge import register_vlm_judge_tools
 from managers.style_presets_manager import StylePresetsManager
 from managers.export_presets_manager import ExportPresetsManager
 from managers.prompt_library import PromptLibrary
@@ -282,6 +283,11 @@ register_model_management_tools(mcp, comfyui_client, defaults_manager)
 
 # Register tileset generation tools
 register_tileset_tools(mcp, comfyui_client, defaults_manager, asset_registry, webhook_manager)
+
+# Register local-VLM visual QA tools (judge_image, list_vision_models, unload_vision_model).
+# Use judge_image to CHECK generation output rather than assuming it worked — pixel
+# metrics score the whole frame and cannot separate a subject from its background.
+register_vlm_judge_tools(mcp, asset_registry)
 
 def main():
     # Check if running as MCP command (stdio) or standalone (streamable-http)
