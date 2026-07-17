@@ -145,10 +145,15 @@ truth).
 
 ## 5. Hyperparameters — kohya sd-scripts SDXL recipe
 
-**Trainer (TX0b — INSTALLED and verified 2026-06-30):**
+**Trainer (TX0b — installed 2026-06-30, venv rebuilt + verified 2026-07-16):**
 - sd-scripts at `E:\ai-training\sd-scripts`, own venv at
   `E:\ai-training\sd-scripts\venv` (torch 2.4.0+cu124, CUDA verified on the
   3090 Ti). Do NOT mix with the ComfyUI or ai-toolkit venvs.
+- History: the 2026-06-30 install completed but pulled numpy 2.x (breaks
+  torch 2.4 imports) and its venv was later deleted (disk cleanup). The
+  2026-07-16 rebuild pins `numpy<2` (install_sd_scripts.sh step 4b). If the
+  venv ever vanishes again, re-run `bash E:/ai-training/install_sd_scripts.sh`
+  — idempotent, caches wheels on E:.
 - Entry point: `sdxl_train_network.py`. Base model: the LOCAL
   `D:\Projects\ComfyUI\models\checkpoints\sd_xl_base_1.0.safetensors`.
 - Re-verify any time:
@@ -253,7 +258,7 @@ proving the metric and the seamless nodes both work.
 | Task | Deliverable | Status |
 |------|-------------|--------|
 | TX0 | this spec (SDXL rewrite) | this doc |
-| TX0b | kohya sd-scripts installed + verified on E:, GPU 1 | **done 2026-06-30** (see §5) |
+| TX0b | kohya sd-scripts installed + verified on E:, GPU 1 | **done 2026-07-16** (rebuilt with numpy<2 pin, see §5) |
 | TX1 | `mat_tile` dataset + manifest | **done, user-approved 2026-07-16** (55 imgs, 17 families) |
 | TX2 | train `mat_tile` SDXL LoRA → checkpoints on E: | pending |
 | TX3 | eval `mat_tile` → `eval/tile_edge_mad.py` + `eval/mat_tile_grid.md` | pending |
