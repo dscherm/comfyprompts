@@ -1883,6 +1883,39 @@ decides what's good/bad, not Claude solo.
   "steps": ["curate exemplars with user", "probe", "findings"], "passes": false }
 ```
 
+## Rig vector manifests + animation recipes (user-directed 2026-07-17)
+
+User asked whether a pre-rig scan could persist orientation/vector data for
+reference when animating, and whether an animation wiki could key recipes to it
+("animating a human walking then first try..."). Architecture: per-rig MEASURED
+manifest (<rig>.rigvec.json) + rig-agnostic motion recipes in the global wiki
+(pages: rig-vector-manifest-then-recipe, human-walk-cycle-from-a-rig-manifest).
+rig_scan.py is BUILT and verified on UniRig/Meshy/AccuRIG (commit 7e2bf6e).
+
+```json
+{ "id": "RS2", "category": "feature", "priority": 1,
+  "description": "Rewire unirig_humanoid_walk.py to CONSUME <rig>.rigvec.json instead of hardcoding. Today it still hardcodes the knee sign (+bend), the T-pose arm-lowering (75deg, mirrored), and SIDE=(1,0,0) — all of which the manifest already measures per-rig. Read frame.forward/side/up, hinges[knee.*].fold_sign, and bones[*].degenerate_axes; ERROR OUT if a requested rotation axis is flagged degenerate for that bone rather than silently twisting. Rename to humanoid_walk.py (it is no longer UniRig-specific).",
+  "files": ["scripts/rig_bakeoff/humanoid_walk.py"],
+  "acceptance_criteria": ["Zero hardcoded signs/axes: every one read from the manifest", "Same walk renders correctly on the UniRig AND Meshy rigs from their own manifests, no per-rig edits", "A degenerate-axis request raises a clear error naming the bone and axis", "Wiki recipe human-walk-cycle-from-a-rig-manifest matches the implementation"],
+  "steps": ["load manifest", "replace hardcoded facts", "degenerate-axis guard", "verify on UniRig + Meshy"], "passes": false }
+```
+
+```json
+{ "id": "RS3", "category": "feature", "priority": 2,
+  "description": "Extend rig_scan.py to quadrupeds and reconcile with quad_anim_v2.py. The quad animator already scans (limb chains by position, side axis from mesh extents) but the facts are ephemeral and its fold signs are hardcoded per-species — the exact pattern that produced the backwards-human-knee bug. Scan the 4 bestiary quads, emit manifests, and have quad_anim_v2 consume them. FOLD_RULES quadruped entry already exists in rig_scan.py but is UNVERIFIED on a real quad rig.",
+  "files": ["scripts/rig_bakeoff/rig_scan.py", "products/grimforge_bestiary_v1/_quadrig/quad_anim_v2.py"],
+  "acceptance_criteria": ["4 bestiary quads scanned; front/hind hinge fold signs verified by the displacement test", "quad_anim_v2 reads manifests instead of hardcoding", "Existing hound walk still renders correctly (regression check vs committed A2_walk.mp4)", "Wiki gains a quadruped-gait recipe page"],
+  "steps": ["scan quads", "verify quad FOLD_RULES", "rewire quad_anim_v2", "regression-check the hound"], "passes": false }
+```
+
+```json
+{ "id": "RS4", "category": "chore", "priority": 3,
+  "description": "Resolve the shoulder-strain known-unknown recorded in the walk recipe: lowering a T-posed arm ~75deg out of rest crumples the shoulder on the UniRig humanoid. Unresolved whether that is a rig-quality signal or an artifact of driving the shoulder that hard from rest. Needs a second instrument (e.g. the same lowering applied to the Meshy and AccuRIG rigs of the SAME mesh — a one-variable comparison the manifests now make cheap).",
+  "files": ["docs/rig_bakeoff_findings.md"],
+  "acceptance_criteria": ["Same arm-lowering applied to all three rigs of the exemplar mesh", "User judges whether the shoulder crumple is rigger-specific or universal", "Wiki known-unknown updated with the answer"],
+  "steps": ["lower arms on all 3 rigs", "render front+side", "user verdict", "update wiki"], "passes": false }
+```
+
 ```json
 { "id": "VL9", "category": "feature", "priority": 1,
   "description": "Human-in-the-loop exemplar curation gate. An exemplar pair enters (or stays in) eval/exemplars/manifest.json ONLY after the user approves it per-pair. Workflow: render candidates WIDE (full-body view + joint-detail view — every region a model claim could cite must be adjudicable in-frame), publish a gallery artifact, collect per-pair approve/reject verdicts from the user, write a curation block {status: approved|rejected|unadjudicated, by, date, reason} into each manifest pair. 2026-07-16 user verdicts on the committed corpus: knee_bend REJECTED (unattached left foot in BOTH twins — pre-existing artifact, violates one-variable contract); elbow_bend UNADJUDICATED (crop excludes neck/shoulder that the 32b's claim cites); quadruped pairs UNADJUDICATED (same framing problem). Probe (VL7) verdicts are provisional until re-run on a curated corpus.",
