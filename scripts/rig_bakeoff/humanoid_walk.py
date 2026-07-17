@@ -309,19 +309,21 @@ for f in range(FRAMES + 1):
         # World-space is parent-agnostic: aim the forearm straight down from the
         # posed upper arm, then flex forward by the elbow angle.
         fore_name = a.get("forearm")
-        eh = M["hinges"].get(f"elbow.{a['side']}")
-        if fore_name and fore_name in bones and eh:
+        if fore_name and fore_name in bones:
             bpy.context.view_layer.update()          # so the upper arm's pose is live
             fore_pb = bones[fore_name]
-            elbow_axis = Vector(eh["axis_vector"])
-            # target forearm direction: CONTINUE from the posed upper arm (so the
-            # forearm follows it — the fix for the snake-like motion, which came
-            # from re-aiming the forearm at world-vertical every frame), then flex
-            # forward at the elbow.
+            # target forearm direction: CONTINUE from the posed upper arm (follow),
+            # then flex it FORWARD at the elbow. The flex axis is computed in the
+            # POSED frame (ua_dir x FORWARD), NOT the manifest's rest-pose elbow
+            # axis — that axis was measured with the arm in a T-pose and is ~76deg
+            # stale once the arm hangs, which bent the elbow SIDEWAYS/inward instead
+            # of swinging the forearm forward. Rotating ua_dir about (ua_dir x
+            # FORWARD) always moves it toward FORWARD, so no fold sign is needed.
             ua_world = arm_obj.matrix_world @ pb.matrix
             ua_dir = (ua_world.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
-            target = (Quaternion(elbow_axis, math.radians(elbow_deg) * eh["fold_sign"])
-                      @ ua_dir).normalized()
+            flex_axis = ua_dir.cross(FORWARD)
+            flex_axis = flex_axis.normalized() if flex_axis.length > 1e-6 else SIDE
+            target = (Quaternion(flex_axis, math.radians(elbow_deg)) @ ua_dir).normalized()
             cur_world = arm_obj.matrix_world @ fore_pb.matrix
             cur_y = (cur_world.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
             align = cur_y.rotation_difference(target)   # world rotation to the target
