@@ -31,7 +31,7 @@ import sys
 from pathlib import Path
 
 import bpy
-from mathutils import Quaternion, Vector
+from mathutils import Matrix, Quaternion, Vector
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 from hand_pose import pose_relaxed_hands  # noqa: E402
@@ -294,18 +294,27 @@ for f in range(FRAMES + 1):
         q_world = Quaternion(SIDE, math.radians(shoulder_deg)) @ q_world
         pb.rotation_quaternion = local_from_world(pb, q_world)
 
-        # elbow: flex the forearm about its measured hinge, on top of its neutral.
-        # Local rotation (relative to the upper arm), so the shoulder swing above
-        # carries the whole forearm+hand — the elbow flex lifts the hand clear of
-        # the body during the forward swing.
+        # elbow / forearm: orient it by POSED WORLD matrix, not a rest-frame local
+        # rotation. The rest-frame conjugation (local_from_world) is wrong once the
+        # parent is posed, and it compounded badly on rigs whose arms rest angled
+        # forward (Meshy), pulling the forearms inward to meet at the centreline.
+        # World-space is parent-agnostic: aim the forearm straight down from the
+        # posed upper arm, then flex forward by the elbow angle.
         fore_name = a.get("forearm")
         eh = M["hinges"].get(f"elbow.{a['side']}")
         if fore_name and fore_name in bones and eh:
+            bpy.context.view_layer.update()          # so the upper arm's pose is live
             fore_pb = bones[fore_name]
-            elbow_bend = Quaternion(Vector(eh["axis_vector"]),
-                                    math.radians(elbow_deg) * eh["fold_sign"])
-            fore_pb.rotation_quaternion = local_from_world(
-                fore_pb, elbow_bend @ neutral_of(fore_name))
+            elbow_axis = Vector(eh["axis_vector"])
+            # target forearm direction: straight down (-UP), flexed forward at the elbow
+            target = (Quaternion(elbow_axis, math.radians(elbow_deg) * eh["fold_sign"])
+                      @ (-UP)).normalized()
+            cur_world = arm_obj.matrix_world @ fore_pb.matrix
+            cur_y = (cur_world.to_3x3() @ Vector((0.0, 1.0, 0.0))).normalized()
+            align = cur_y.rotation_difference(target)   # world rotation to the target
+            new3 = align.to_matrix() @ cur_world.to_3x3()   # keeps roll (palm) intact
+            new_world = Matrix.Translation(cur_world.translation) @ new3.to_4x4()
+            fore_pb.matrix = arm_obj.matrix_world.inverted() @ new_world
 
     root_pb = bones[root_name]
     root_pb.location = UP * (BOB * math.sin(2 * th_base))
