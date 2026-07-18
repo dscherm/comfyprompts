@@ -112,11 +112,24 @@ the business plan is the strategy/rationale. Keep statuses current.*
 - [ ] **E2.4** Export valid GLB (Blender names) + FBX (Unity Humanoid), no import warnings. → clears `RIG-PRODUCT`.
 - [ ] **E2.5** Ship first rigged character (Fab/Unity) + first VRM avatar (Booth/Gumroad).
 
-### Stream F — Animated characters / animation packs (gated on animate hardening)
-- [ ] **F2.1** Add **foot-IK lock** to the mocap retarget (kill foot-sliding).
-- [ ] **F2.2** Loop-cleanup (first=last pose) + a **multi-clip set** (idle/walk/run + ≥2 actions).
-- [ ] **F2.3** Bake + export multi-clip FBX/GLB; **validate playing in Unity Animator** (not just Blender). → clears `ANIM-PRODUCT` (§4.6).
-- [ ] **F2.4** Ship first animated character + first animation pack (Fab/Unity).
+### Stream F — Animated characters / animation packs (multi-clip WORKING 2026-07-18)
+Two routes now clear the core chain (see BUSINESS-PLAN.md §4.6):
+- [x] **F2.2** **Multi-clip set achieved** — barbarian 9-clip Humanoid set (GS4/UH);
+  berserkr 23-clip set via Meshy library. *(Loop-cleanup/first=last still not an
+  automated gate — F2.1 covers the remaining QA.)*
+- [x] **F2.3** **Validated playing in-engine** — barbarian multi-clip FBX validated
+  live in **Unity Animator** via coplay-mcp (states bound, play-mode carriage PASS,
+  GS4). Berserkr merged to one engine GLB (Godot target), per-clip deformation verified.
+- [~] **F2.5** **NEW — Meshy library route (preferred, off-GPU):** auto-rig +
+  `action_id` clips (0-696, ~3 cr/clip) → `merge_clips.py` → one engine GLB. Bypasses
+  the fragile cross-skeleton retarget entirely (berserkr, 2026-07-18). Wiki:
+  `character-animation-sourcing.md` in ralph-universal.
+- [ ] **F2.1** Add a **foot-slide / loop-seam QA gate** (foot-contact lock + first=last
+  check). Less critical now (Meshy/mocap clips are decent by construction) but needed
+  to *guarantee* an anim-pack's quality.
+- [ ] **F2.4** **Package + ship** first animated character + first standalone animation
+  pack (Fab/Unity). *(This is now the real gap — the tech clears, the product wrap doesn't
+  exist yet.)*
 
 ### LoRA to train this phase (the 3D-pipeline moat) — see catalog for rationale
 - [ ] **L3 `ortho_turnaround`** — multi-view character turnaround LoRA (extends `mv_ortho`); training set rendered from our own rigged meshes via `render_multiview`. Improves the rig/animate input **and** sells to 3D creators (2D-only creators can't replicate it). *(Tier 1)*

@@ -38,7 +38,7 @@ custom-LoRA-as-a-service). Passive asset sales fund the runway; productization
 | C | Static 3D game-ready props | Passive | Hunyuan3D/TripoSG | PROVEN | Low-Med | 2–4 wks | Med |
 | D | Flux/SDXL LoRAs + custom-LoRA service | Passive + Active | LoRA harness | PROVEN | Low-Med | 2–3 wks | Med (active: High) |
 | E | Rigged characters (VRM/humanoid) | Passive | UniRig (autorig-ralph) | WORKING | Med-High | 6–10 wks | Med-High |
-| F | Animated characters / anim packs | Passive | Mocap retarget (animate-ralph) | FRAGILE | High | 10–14 wks | High |
+| F | Animated characters / anim packs | Passive | Meshy library + Unity-Humanoid retarget | WORKING (multi-clip, 2026-07-18) | Med-High | 6–10 wks | High |
 | G | Workflow packs / pipeline-as-product | Active/Productize | Whole chain | Varies | Med | 8–12 wks | High |
 | H | Content / audience funnel | Multiplier | Any | n/a | Med, ongoing | n/a | Force-mult. |
 
@@ -144,8 +144,7 @@ Each playbook = **what you sell · who buys & where · pricing · the product ga
   - **Reach vs dollars:** CivitAI is a **lead-magnet + reputation engine**
     (earnings top-heavy: top 1,000 creators ≈ 90% of Buzz; median cycle payout
     ~$81) — capture actual dollars on the **Gumroad/Ko-fi mirror (~90%)**.
-  - **Utility/quality-enhancer LoRA track** (verified 2026-06-30, `flux-model-types-
-    and-feasibility.md`): the **most-downloaded Flux LoRAs are utility enhancers**
+  - **Utility/quality-enhancer LoRA track** (verified 2026-06-30, `flux-model-types-and-feasibility.md`): the **most-downloaded Flux LoRAs are utility enhancers**
     (hands/anatomy/detail/realism), not art styles — they're used in *every*
     generation, so they top the 25%-of-Generator-Buzz mechanic. Build one or two
     **FREE** (licensing bars selling the file) as the best Buzz/reputation/funnel
@@ -177,11 +176,15 @@ Each playbook = **what you sell · who buys & where · pricing · the product ga
 - **Who/where:** **Fab**, **Unity Asset Store**. Animation is the top of the
   3D-asset value pyramid.
 - **Pricing `~est`:** $25–80 animated character; $15–50 animation packs.
-- **Gate:** `ANIM-PRODUCT` (§4.6) — currently the weakest link (one walk cycle
-  works end-to-end).
-- **Production map:** rigged char (Stream E) → mocap retarget per clip → clean
-  loops (no foot-slide, no head pop) → bake → multi-clip FBX/GLB → in-engine
-  validation → list.
+- **Gate:** `ANIM-PRODUCT` (§4.6) — tech now clears (multi-clip sets validated
+  in-engine, 2026-07-18); the remaining gap is packaging + a foot-slide QA gate.
+- **Production map (two proven routes):**
+  - **Meshy library (preferred, off-GPU):** auto-rig the mesh → apply `action_id`
+    clips (idle/walk/run/attack/…) → `merge_clips.py` into one engine GLB → import.
+    ~3 cr/clip; bypasses the fragile retarget. (berserkr, 23 clips.)
+  - **Unity Humanoid retarget:** AccuRIG rig + Mixamo/ActorCore clips → bake through
+    Mecanim → multi-clip FBX → validate in Unity Animator. (barbarian, 9 clips.)
+  - Then: foot-slide/loop QA → turntable/clip previews → package as an anim pack → list.
 
 ### G — Workflow packs / pipeline-as-a-product  *(productization play, audience-gated)*
 - **Sell:** ComfyUI workflow packs (the parametric `workflows/mcp/` set,
@@ -264,14 +267,26 @@ From autorig-ralph PRD, promoted to commercial gate:
 - *Why ❌: rigging is WORKING but needs manual bone cleanup + proximity-weight
   fixes; not yet repeatable to spec without intervention.*
 
-### 4.6 `ANIM-PRODUCT` (Stream F) — current: ❌ (weakest link)
-- ⚠️ Retarget transfers a clip with correct scale (quaternion fix landed) and
-  **no head/neck artifact** (skip-head fix landed) — **one walk proven**.
-- ❌ **No foot-sliding** (foot contacts locked); loops seamless (first=last pose).
-- ❌ A **set** of clips (idle/walk/run + ≥2 actions) all clean, not just one.
-- ❌ Baked, exported, and **validated playing in-engine** (Unity Animator),
-  not just in Blender.
-- *Why ❌: only a single locomotion clip survives the full chain today.*
+### 4.6 `ANIM-PRODUCT` (Stream F) — current: ⚠️ tech mostly ✅, not yet PACKAGED (updated 2026-07-18)
+Two working multi-clip routes now exist (the "one walk cycle" era is over):
+- ✅ **A SET of clips, validated in-engine.** **Barbarian: 9-clip Humanoid set**
+  (idle/walk/run/attack/hit/dodge/block/wave/celebrate) **validated live in Unity**
+  via coplay-mcp — avatar valid, all 9 import Humanoid, Animator states bound,
+  25/50/75 % pose-sanity + play-mode carriage all PASS (GS4/UH, `pipelines/
+  animate-ralph/validation/VALIDATION.md`). **Berserkr: 23-clip set** via the Meshy
+  library route (below), merged to one engine GLB, deformation-verified per clip.
+- ✅ **Two routes, pick by rig:** (a) **Unity Humanoid retarget** — AccuRIG mesh +
+  Mixamo/ActorCore clips baked through Mecanim (barbarian; the fragile Blender
+  retarget is skipped). (b) **Meshy library animation** — auto-rig + `action_id`
+  clips (0-696) applied off-GPU, ~3 cr/clip, merged with `merge_clips.py` (berserkr;
+  bypasses retargeting entirely). Both avoid the cross-skeleton retarget failure zone.
+- ⚠️ **No explicit foot-slide / loop-seam QA gate** yet — clips are real mocap /
+  Meshy (decent by construction) but there is no automated foot-contact-lock or
+  first=last-pose check.
+- ❌ **Not yet packaged/listed as a sellable ANIM-PRODUCT** (a standalone anim pack
+  or an animated-character listing) — the tech clears; the product wrap doesn't exist.
+- *Was ❌ "only a single locomotion clip survives"; that is stale. The gap is now
+  packaging + a foot-slide QA gate, not the core chain.*
 
 ### 4.7 `PRODUCT-KIT` (Stream G) — current: ❌
 - ❌ Runs from a clean checkout with documented setup (no hardcoded D:\ paths).
@@ -385,7 +400,7 @@ audience are where the meaningful ceiling lives.
 - [ ] **Flux-dev license:** never sell a **FLUX.1-dev-derived LoRA *file*** (it's a
       non-commercial "Derivative"). Selling the **output images/assets** is fine.
       For a sellable LoRA file, use **FLUX.1-schnell (Apache-2.0)** or another
-      permissive base. (See `docs/research/flux-lora-edge-and-licensing.md`.)
+      permissive base. (See `flux-lora-edge-and-licensing.md`.)
 - [ ] Don't market assets as "fully copyright-protected" (pure prompt→output
       likely isn't registrable; your editing/rigging strengthens but doesn't
       guarantee the claim).
@@ -400,7 +415,7 @@ audience are where the meaningful ceiling lives.
 - [x] CivitAI 2026 payout mechanics, thresholds, earnings distribution.
 - [x] Fab / Unity / TurboSquid / itch.io / Gumroad royalty cuts.
 
-**Resolved — pass 2** (→ `docs/research/selling-ai-assets-followup.md`):
+**Resolved — pass 2** (→ `selling-ai-assets-followup.md`):
 - [x] Fab's seller-specific AI policy ("Created with AI" mandatory; "NoAI" optional).
 - [x] CGTrader royalty (60%→85% ladder) + AI rules (allowed, no disclosure req).
 - [x] Booth AI policy (allowed, abuse-enforcement only; AI-heavy shops search-suppressed) + VRM resale pricing ($30–$200).
@@ -414,14 +429,14 @@ audience are where the meaningful ceiling lives.
   after `stylized_game` was scrapped for generic output):
   `dissonant_style (own-art) → tile_topdown → lowpoly_flat → ortho_turnaround → mat_tile`.
 
-**Resolved — pass 4 (2026-06-30)** (→ `docs/research/flux-lora-edge-and-licensing.md`):
+**Resolved — pass 4 (2026-06-30)** (→ `flux-lora-edge-and-licensing.md`):
 - [x] **FLUX.1-dev commercial licensing** — selling a Flux-dev LoRA *file* is
   PROHIBITED (non-commercial "Derivative"); but **Outputs/assets are commercially
   sellable**. Sell images/assets, give Flux-dev LoRAs away free, use
   **schnell (Apache-2.0)** for any sellable LoRA file. Folded into §3 (Stream D)
   + §7. **Materially changes D0.6/D0.7.**
 
-**Resolved — pass 5 (2026-06-30)** (→ `docs/research/flux-model-types-and-feasibility.md`):
+**Resolved — pass 5 (2026-06-30)** (→ `flux-model-types-and-feasibility.md`):
 - [x] **Top Flux LoRA category = utility/quality enhancers** (hands/anatomy/detail/
   realism), above any single art style → build a **free** utility-LoRA track for
   CivitAI Buzz/reputation (folded into §3 Stream D).
