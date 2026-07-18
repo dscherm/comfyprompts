@@ -1072,7 +1072,7 @@ keep a dataset-provenance manifest. AI-disclosure ON at listing time.
     "Add to CURATED + re-render flat-shaded; update manifest",
     "Rebuild the contact sheet and get user approval"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
