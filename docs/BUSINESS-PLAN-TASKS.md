@@ -100,8 +100,15 @@ the business plan is the strategy/rationale. Keep statuses current.*
   no robust UV-OVERLAP detection (checks presence+in-bounds; smart-project is
   non-overlapping by construction); normals recalc-outside can over-flag on
   non-watertight/thin geometry (it's a screen); PBR bake + turntable are separate (C1.2/C1.3).*
-- [~] **C1.2** PBR texture/bake; export GLB **and** FBX both clean. *(Export half DONE —
-  `mesh_product_check.py --export-dir` writes clean GLB+FBX. PBR bake still to add.)*
+- [x] **C1.2** **PBR bake DONE** — `scripts/mesh_pbr_bake.py` (headless Blender Cycles,
+  batch). Bakes **albedo + AO + normal + roughness** onto the C1.1 UV layout, handles the
+  three colour sources (image-texture atlas / vertex-colour attribute wired to base-colour /
+  flat material / material-less geometry → default grey), wires a single Principled material
+  (albedo+roughness+normal; AO saved as a separate occlusion map), and re-exports **GLB+FBX
+  with textures embedded**. Verified: kit vertex-colours + sword steel/brown grip captured
+  into albedo, survive the GLB round-trip, render correctly. *Gotcha fixed: bake needs the
+  target image node deselect-all-then-select (Blender 5.0) or it CANCELs. Bake normals are
+  from-self (flat for low-poly) — a hi->lo detail bake would need the pre-decimate mesh.*
 - [ ] **C1.3** Turntable render per asset; produce first themed prop/kitbash pack.
 - [ ] **C1.4** List static prop pack on **Fab + Unity + CGTrader** (AI disclosure on).
 
