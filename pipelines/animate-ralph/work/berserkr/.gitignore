@@ -1,0 +1,13 @@
+# Large binary generation outputs — NOT version-controlled.
+# Regenerable: Meshy clips via _work/meshy_animate.py (action_id map in README.md),
+# merged via _work/merge_clips.py. The isolated rig/mesh copies come from
+# products/berserkr_v2_chars_v1/. Only the scripts + README are tracked.
+*.glb
+*.fbx
+*.obj
+*.png
+clips/
+poses/
+rig/
+mesh/
+reference/
