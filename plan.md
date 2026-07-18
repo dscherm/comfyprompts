@@ -1016,7 +1016,7 @@ keep a dataset-provenance manifest. AI-disclosure ON at listing time.
     "Captions prefixed with trigger lowpoly_flat + subject tag; manifest records mesh sources (owned/CC0) and counts (IP-clean origin)"
   ],
   "steps": ["Render flat-shaded low-poly views via render_multiview/blender-mcp over Stream K + CC0 meshes", "prep_dataset.py --src ... --out E:/ai-training/datasets/lowpoly_flat", "caption.py --trigger lowpoly_flat; write the manifest"],
-  "passes": false
+  "passes": true
 }
 ```
 
@@ -1051,6 +1051,27 @@ keep a dataset-provenance manifest. AI-disclosure ON at listing time.
     "README/listing notes the dual use: sellable LoRA AND a cleaner silhouette source for the image->3D (Hunyuan3D) path"
   ],
   "steps": ["Run the eval grid; pick the winner", "Deploy + sidecar + 8-sample card", "Write lowpoly_flat_listing.md; note the image->3D use"],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "SL8",
+  "category": "feature",
+  "priority": 5,
+  "description": "Regenerate cleaner low-poly SWORD meshes and swap them into the lowpoly_flat dataset. The arsenal sword/greatsword/dagger share one blade mesh whose baked dark-fuller stripe + spade tip reads as a split/broken blade (SL5 confirmed it's the asset, not a render bug — flat==smooth); they were excluded from lowpoly_flat v1. Author/generate clean low-poly swords, render flat-shaded via build_lowpoly_flat_dataset.py (add to CURATED), and refresh the manifest.",
+  "files": ["scripts/train_lora/build_lowpoly_flat_dataset.py", "scripts/train_lora/datasets/lowpoly_flat_manifest.md"],
+  "acceptance_criteria": [
+    "New low-poly sword mesh(es) whose blade reads as a solid tapering blade (no dark split stripe, clean point) under flat shading",
+    "Added to build_lowpoly_flat_dataset.py CURATED (HERO angles) and re-rendered into E:/ai-training/datasets/lowpoly_flat with matching captions",
+    "Manifest updated; dataset contact sheet re-approved by the user"
+  ],
+  "steps": [
+    "Generate/author clean low-poly sword meshes (concept -> 3D, or fix the arsenal blade material/geometry)",
+    "Add to CURATED + re-render flat-shaded; update manifest",
+    "Rebuild the contact sheet and get user approval"
+  ],
   "passes": false
 }
 ```

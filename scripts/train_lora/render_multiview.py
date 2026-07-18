@@ -51,6 +51,14 @@ ANGLES: dict[str, tuple[float, float]] = {
     "right": (90.0, 0.0),
     "front_left": (-40.0, 10.0),
     "front_right": (40.0, 10.0),
+    # broadside / hero angles — for long thin subjects (blades) whose flat face
+    # is along X, so the front camera would otherwise see them edge-on.
+    "side_left": (-90.0, 0.0),
+    "side_right": (90.0, 0.0),
+    "hero_left": (-60.0, 20.0),
+    "hero_right": (60.0, 20.0),
+    "three_quarter": (35.0, 20.0),
+    "three_quarter_left": (-35.0, 20.0),
 }
 
 
@@ -96,7 +104,7 @@ def preflight() -> None:
 
 
 def _blender_code(mesh_path: str, out_dir: str, angles: list[str], res: int,
-                  margin: float, transparent: bool) -> str:
+                  margin: float, transparent: bool, flat: bool = False) -> str:
     """Build the Blender Python program rendered for one mesh.
 
     Runs inside Blender via execute_code; prints a one-line JSON summary that
@@ -110,6 +118,7 @@ def _blender_code(mesh_path: str, out_dir: str, angles: list[str], res: int,
         "res": res,
         "margin": margin,
         "transparent": transparent,
+        "flat": flat,
     }
     # The config is injected as a literal dict so the Blender side needs no args.
     return "import bpy, json, math, os\n" \
@@ -154,6 +163,18 @@ def _import(path):
 
 def _mesh_objects():
     return [o for o in bpy.context.scene.objects if o.type == "MESH"]
+
+def _shade_flat(objs):
+    # Faceted low-poly look: per-face normals (no smooth interpolation) so the
+    # polygon facets read. Operator-free (set the mesh data directly) to stay
+    # robust to whatever context the socket call lands in.
+    for o in objs:
+        me = getattr(o, "data", None)
+        if me is None or not hasattr(me, "polygons"):
+            continue
+        for p in me.polygons:
+            p.use_smooth = False
+        me.update()
 
 def _force_opaque():
     # Some FBX exports (e.g. Quaternius modwomen) bake Principled-BSDF Alpha=0,
@@ -235,6 +256,8 @@ def run():
         print("MVRESULT " + json.dumps({"mesh": CFG["mesh_path"], "rendered": [],
               "error": "no mesh objects after import"}))
         return
+    if CFG.get("flat"):
+        _shade_flat(objs)
     mins, maxs = _combined_bbox(objs)
     center = (mins + maxs) * 0.5
     dims = maxs - mins
@@ -278,9 +301,9 @@ def _parse_result(resp: dict) -> dict:
 
 
 def render_mesh(mesh_path: Path, out_dir: Path, angles: list[str], res: int,
-                margin: float, transparent: bool) -> dict:
+                margin: float, transparent: bool, flat: bool = False) -> dict:
     code = _blender_code(str(mesh_path).replace("\\", "/"), str(out_dir).replace("\\", "/"),
-                         angles, res, margin, transparent)
+                         angles, res, margin, transparent, flat)
     resp = _rpc({"type": "execute_code", "params": {"code": code}})
     return _parse_result(resp)
 
@@ -296,6 +319,8 @@ def main(argv: list[str] | None = None) -> int:
                     help="Ortho framing margin (1.0 = tight bbox).")
     ap.add_argument("--transparent", action="store_true",
                     help="Transparent background (RGBA) instead of neutral grey.")
+    ap.add_argument("--flat", action="store_true",
+                    help="Flat (faceted) shading — per-face normals, for the low-poly look.")
     ap.add_argument("--include", default="",
                     help="Comma substrings; keep only mesh paths matching any (case-insensitive).")
     ap.add_argument("--exclude", default="",
@@ -333,7 +358,8 @@ def main(argv: list[str] | None = None) -> int:
     stats = {"meshes": len(meshes), "rendered": 0, "failed": 0}
     for i, mesh in enumerate(meshes, 1):
         try:
-            result = render_mesh(mesh, out_dir, angles, args.res, args.margin, args.transparent)
+            result = render_mesh(mesh, out_dir, angles, args.res, args.margin, args.transparent,
+                                 args.flat)
             if result.get("error"):
                 stats["failed"] += 1
                 print(f"  ! [{i}/{len(meshes)}] {mesh.name}: {result['error']}", file=sys.stderr)
