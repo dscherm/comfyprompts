@@ -1,0 +1,6 @@
+# Mesh + texture binaries are the shippable payload — regenerable from the arsenal
+# kit via scripts/mesh_product_check.py --fix + scripts/mesh_pbr_bake.py. Only the
+# docs + marketing renders + validation report are tracked (same as the other kits).
+models_glb/
+models_fbx/
+textures/

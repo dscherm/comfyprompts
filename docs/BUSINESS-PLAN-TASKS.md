@@ -109,8 +109,13 @@ the business plan is the strategy/rationale. Keep statuses current.*
   into albedo, survive the GLB round-trip, render correctly. *Gotcha fixed: bake needs the
   target image node deselect-all-then-select (Blender 5.0) or it CANCELs. Bake normals are
   from-self (flat for low-poly) — a hi->lo detail bake would need the pre-decimate mesh.*
-- [ ] **C1.3** Turntable render per asset; produce first themed prop/kitbash pack.
+- [x] **C1.3** **First game-ready prop pack DONE** — `products/arsenal_props_gameready_v1/`:
+  25 GrimForge weapon/loot props run through the full C1.1→C1.2 pipeline (25/25 PASS
+  MESH-PRODUCT, **4,286 tris total**, PBR-baked albedo/AO/normal/roughness @1024, GLB+FBX).
+  Catalog (25) + a 6-angle greatsword turntable + `mesh_validation_report.json` +
+  README/LISTING. Proves the raw-mesh→sellable-prop pipeline end to end.
 - [ ] **C1.4** List static prop pack on **Fab + Unity + CGTrader** (AI disclosure on).
+  *(arsenal_props_gameready_v1 ready — needs account upload + zip of models_glb/fbx + textures/.)*
 
 ### LoRAs to train this phase — see catalog for rationale
 - [ ] **L4 `stylized_game`** — stylized hand-painted "fantasy game render" style (sibling to grimforge). Sellable + sets the house asset look. *(Tier 2)*
