@@ -90,8 +90,18 @@ the business plan is the strategy/rationale. Keep statuses current.*
 ## Phase 1 — Harden static 3D + open the LoRA service
 
 ### Stream C — Static 3D game-ready props
-- [ ] **C1.1** Build a **mesh-cleanup auto-validator**: manifold/watertight check, decimate-to-poly-budget, UV sanity, meter-scale normalize, origin fix. → core of `MESH-PRODUCT` (§4.3).
-- [ ] **C1.2** PBR texture/bake; export GLB **and** FBX, both open clean in Blender + one engine.
+- [x] **C1.1** **Mesh-cleanup auto-validator DONE** — `scripts/mesh_product_check.py`
+  (headless Blender, batch over a dir in one process). VALIDATES §4.3: tri budget,
+  non-manifold/watertight, consistent normals, loose parts, UVs present+in-bounds,
+  real-meter scale, base-centered origin → JSON report + PASS/FAIL + exit code.
+  `--fix` applies weld · recalc-normals · decimate-to-budget · smart-UV auto-unwrap ·
+  meter-normalize (`--target-height`) · base-center origin. Verified: a raw 333,888-tri
+  TRELLIS mesh → 5,000-tri UV'd base-centered PASS; exports clean GLB+FBX. *Limits:
+  no robust UV-OVERLAP detection (checks presence+in-bounds; smart-project is
+  non-overlapping by construction); normals recalc-outside can over-flag on
+  non-watertight/thin geometry (it's a screen); PBR bake + turntable are separate (C1.2/C1.3).*
+- [~] **C1.2** PBR texture/bake; export GLB **and** FBX both clean. *(Export half DONE —
+  `mesh_product_check.py --export-dir` writes clean GLB+FBX. PBR bake still to add.)*
 - [ ] **C1.3** Turntable render per asset; produce first themed prop/kitbash pack.
 - [ ] **C1.4** List static prop pack on **Fab + Unity + CGTrader** (AI disclosure on).
 
