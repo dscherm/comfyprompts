@@ -1455,7 +1455,7 @@ TRELLIS.2 (stretch, better hand topology) is NOT installed.
   "files": ["D:/Projects/ComfyUI/custom_nodes/ComfyUI-Hunyuan3DWrapper/nodes.py"],
   "acceptance_criteria": ["Hunyuan3D-2mv checkpoint on disk and loadable via the wrapper's model loader", "Hy3DGenerateMeshMultiView runs on a dummy front/left/right/back input and returns a mesh latent without error"],
   "steps": ["Read the mv model loader path", "Download the 2mv checkpoint", "Smoke-run the multiview mesh node"],
-  "passes": false
+  "passes": true
 }
 ```
 
