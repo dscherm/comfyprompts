@@ -35,12 +35,19 @@ ANGLES = ["front", "front_left", "front_right"]
 # Long/thin (blades) and end-on-ambiguous (anvil) subjects read as flat cutouts /
 # unrecognizable blobs from the straight-on front; elevated 3/4 hero angles give
 # them dimension and show their silhouette. (User feedback, 2026-07-17.)
-HERO_SUBJECTS = {"anvil", "sword", "greatsword", "battleaxe", "halberd", "scythe", "spear"}
+HERO_SUBJECTS = {"anvil", "battleaxe", "halberd", "scythe", "spear",
+                 "arming_sword", "saber", "dagger"}
 HERO_ANGLES = ["three_quarter_left", "three_quarter", "hero_right"]
 VIEW_PHRASE = {"front": "front view", "front_left": "three-quarter view",
                "front_right": "three-quarter view", "three_quarter": "three-quarter view",
                "three_quarter_left": "three-quarter view", "hero_right": "three-quarter view"}
 
+# SL8: clean low-poly swords GENERATED to replace the arsenal sword/greatsword
+# (whose shared blade mesh had a baked dark-fuller stripe). Pipeline: Flux concept
+# (sl8_gen_sword_concepts.py) -> TRELLIS.2 image-to-3D -> weld/decimate
+# (sl8_lowpoly_sword.py) -> steel blade + brown grip (sl8_color_sword.py). Regen
+# those before a from-scratch rebuild, or these paths will be missing.
+GEN = Path("E:/ai-training/_raw/lowpoly_flat_swords/meshes_colored")
 VIL = REPO / "products/village_kit_grimforge_v2/examples/godot_village/models"
 ARS = REPO / "products/arsenal_kit_grimforge_v1/models_glb"
 SOA = REPO / "products/soapbox_kart_kit_v1/models_glb"
@@ -89,6 +96,11 @@ CURATED: list[tuple[Path, str, str]] = [
     (MAS / "robot.glb", "robot", "soapbox"),
     (MAS / "frog.glb", "frog", "soapbox"),
     (MAS / "skeleton.glb", "skeleton", "soapbox"),
+    # SL8 generated clean swords (steel blade + brown grip). broadsword was tried
+    # but its geometry defeated the grip auto-colour, so it was dropped.
+    (GEN / "arming_sword.glb", "arming sword", "generated"),
+    (GEN / "saber.glb", "saber", "generated"),
+    (GEN / "dagger.glb", "dagger", "generated"),
     # NOTE: the bestiary creatures are intentionally EXCLUDED. Their `_lp` low-poly
     # meshes are untextured (UniRig drops materials) so they render as near-white
     # ghosts on the grey bg; their `_tex` variants ARE textured but read as
@@ -124,7 +136,11 @@ def main() -> int:
     for path, subject, kit in present:
         dst = STAGE / f"{slug(subject)}.glb"
         shutil.copy2(path, dst)
-        subj_by_stem[slug(subject)] = {"subject": subject, "kit": kit, "src": str(path.relative_to(REPO))}
+        try:
+            src = str(path.relative_to(REPO))
+        except ValueError:
+            src = str(path)  # generated meshes live off-repo (E:)
+        subj_by_stem[slug(subject)] = {"subject": subject, "kit": kit, "src": src}
 
     # Render flat-shaded, neutral-grey, even-lit views via blender-mcp (3070, not 3090 Ti).
     rmv.preflight()  # SystemExit with a clear message if Blender/MCP is not open
