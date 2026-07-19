@@ -16,6 +16,7 @@ pipelines/
 ├── audio-ralph/               ← Script → dialogue + SFX + music
 ├── tileset-ralph/             ← Game tileset generation
 ├── style-transfer-ralph/      ← Batch style application
+├── ink-to-clay-ralph/         ← Any 2D drawing → clean "3D-clay" render (img2img → TRELLIS-ready)
 ├── upscale-ralph/             ← Batch upscale + multi-format export
 ├── inpaint-ralph/             ← Self-correcting image refinement
 ├── scene-ralph/               ← Text → rendered 3D scene (cross-server: comfyui-mcp + blender-mcp)
@@ -43,6 +44,7 @@ These run to completion. Each has a defined end state and outputs a `<promise>` 
 | **audio-ralph** | Script → TTS → voice clone → SFX → mix | 5 | `AUDIO COMPLETE` | 10-20 min |
 | **tileset-ralph** | Spec → tiles → transitions → atlas → export | 5 | `TILESET COMPLETE` | 15-30 min |
 | **style-transfer-ralph** | Reference + targets → batch styled output | 4 | `STYLE TRANSFER COMPLETE` | 10-25 min |
+| **ink-to-clay-ralph** | Any 2D drawing → clean "3D-clay" render (img2img + Kontext edit LoRA) that reconstructs cleanly in TRELLIS | 6 | `INK TO CLAY COMPLETE` | training-gated |
 | **upscale-ralph** | Images → analyze → upscale → enhance → export | 4 | `UPSCALE COMPLETE` | 5-15 min |
 | **inpaint-ralph** | Generate → evaluate → fix → loop until quality | 4 | `INPAINT COMPLETE` | 5-20 min |
 | **scene-ralph** | Text → 3D scene via comfyui-mcp + blender-mcp | 6 | `SCENE COMPLETE` | 15-45 min |

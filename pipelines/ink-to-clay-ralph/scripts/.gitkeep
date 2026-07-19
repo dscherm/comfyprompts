@@ -1,0 +1,3 @@
+# Pipeline scripts land here during execution:
+#   bootstrap_pairs.py   — Stage 1: id-driven same-subject/same-seed pair generator
+#   (inference workflow JSONs live in ../output/ or workflows/mcp/)
