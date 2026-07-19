@@ -32,8 +32,9 @@ POS = ("mv_ortho, front view, full body from head to feet, the entire figure cen
        "shadow, no weapon, hands at sides")
 NEG = ("cropped, close-up, portrait, bust shot, cut off, out of frame, feet cut off, "
        "weapon, sword, axe, staff, holding an object, cast shadow, drop shadow, ground, "
-       "floor, scenery, background objects, architecture, signature, logo, watermark, "
-       "text, blurry, low quality")
+       "floor, scenery, background objects, architecture, fire, flames, pedestal, base, "
+       "statue base, stand, arms spread, arms outstretched, arms raised, t-pose, "
+       "signature, logo, watermark, text, blurry, low quality")
 
 
 def upload(path: Path) -> str:
@@ -108,9 +109,14 @@ def main() -> int:
     ap.add_argument("--limit", type=int, default=0)
     ap.add_argument("--rembg", action="store_true",
                     help="isolate the clay subject on transparency (TRELLIS-ready) via rembg.")
+    ap.add_argument("--only", default=None,
+                    help="comma-separated stem substrings; regenerate only matching inks.")
     a = ap.parse_args()
 
     inks = sorted(p for p in a.ink_dir.glob("*.png"))
+    if a.only:
+        want = [s.strip() for s in a.only.split(",") if s.strip()]
+        inks = [p for p in inks if any(w in p.stem for w in want)]
     if a.limit:
         inks = inks[:a.limit]
     if not inks:
