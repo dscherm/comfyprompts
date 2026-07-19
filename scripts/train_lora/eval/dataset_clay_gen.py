@@ -24,11 +24,14 @@ COMFY = "http://localhost:8188"
 CKPT = "flux1-dev-fp8.safetensors"
 MV_ORTHO = "style\\mv_ortho.safetensors"
 
-CLAY = ("smooth matte 3d clay render, isolated on a plain flat neutral-grey background, "
-        "floating, no ground, orthographic, soft even studio lighting, no cast shadow")
+CLAY = ("full body from head to feet, the entire figure centered with the feet "
+        "visible, smooth matte 3d clay render, isolated on a plain flat neutral-grey "
+        "background, floating, no ground, orthographic, soft even studio lighting, "
+        "no cast shadow")
 FISTS = ("both arms straight down at the sides, both hands tightly clenched into closed "
          "fists, fingers fully curled into the palm, holding nothing, no weapon")
-NEG = ("weapon, sword, axe, staff, spear, shield, holding an object, claws, talons, "
+NEG = ("cropped, close-up, portrait, bust shot, cut off, out of frame, feet cut off, "
+       "weapon, sword, axe, staff, spear, shield, holding an object, claws, talons, "
        "long fingers, spread fingers, open hands, cast shadow, drop shadow, ground, "
        "floor, pedestal, scenery, background objects, signature, logo, watermark, "
        "text, blurry, low quality")

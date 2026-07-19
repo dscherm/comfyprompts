@@ -28,10 +28,11 @@ COMFY = "http://localhost:8188"
 WF = json.loads((Path(__file__).resolve().parents[3] / "workflows" / "mcp"
                  / "generate_image_lora.json").read_text())
 
-FISTS = ("both arms hanging straight down at the sides, both hands tightly clenched "
-         "into closed fists, human-like fists, fingers fully curled into the palm, "
-         "knuckles facing forward, holding nothing, no weapon")
-NEG = ("weapon, sword, axe, staff, spear, shield, holding an object, claws, talons, "
+FISTS = ("full body from head to feet, the entire figure centered in frame with the "
+         "feet visible, standing straight, both arms hanging straight down at the "
+         "sides, both hands clenched into closed fists, holding nothing, no weapon")
+NEG = ("cropped, close-up, portrait, bust shot, cut off, out of frame, feet cut off, "
+       "weapon, sword, axe, staff, spear, shield, holding an object, claws, talons, "
        "clawed hands, long fingers, spread fingers, splayed fingers, open hands, "
        "pointing finger, extra fingers, extra thumb, signature, artist name, logo, "
        "watermark, text, blurry, low quality")

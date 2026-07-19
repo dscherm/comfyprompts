@@ -26,10 +26,12 @@ COMFY = "http://localhost:8188"
 CKPT = "flux1-dev-fp8.safetensors"
 MV_ORTHO = "style\\mv_ortho.safetensors"
 
-POS = ("mv_ortho, front view, full body, smooth matte 3d clay render, isolated on a "
-       "plain flat neutral-grey background, orthographic, soft even studio lighting, "
-       "no cast shadow, no weapon, hands at sides")
-NEG = ("weapon, sword, axe, staff, holding an object, cast shadow, drop shadow, ground, "
+POS = ("mv_ortho, front view, full body from head to feet, the entire figure centered "
+       "with the feet visible, smooth matte 3d clay render, isolated on a plain flat "
+       "neutral-grey background, orthographic, soft even studio lighting, no cast "
+       "shadow, no weapon, hands at sides")
+NEG = ("cropped, close-up, portrait, bust shot, cut off, out of frame, feet cut off, "
+       "weapon, sword, axe, staff, holding an object, cast shadow, drop shadow, ground, "
        "floor, scenery, background objects, architecture, signature, logo, watermark, "
        "text, blurry, low quality")
 
