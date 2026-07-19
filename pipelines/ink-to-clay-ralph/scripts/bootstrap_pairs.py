@@ -42,16 +42,24 @@ LORA_MV = "style\\mv_ortho.safetensors"
 OUT_ROOT = Path("E:/ai-training/datasets/ink_to_clay_v1")
 
 NEG = "blurry, low quality, extra limbs, deformed, multiple subjects, watermark, text, photograph"
+# Clay adds shadow/ground suppressors — TRELLIS wants the subject isolated, no ground plane.
+CLAY_NEG = (NEG + ", cast shadow, drop shadow, ground shadow, floor, ground plane, "
+            "pedestal, base, reflection")
 
-# Clay/ink prompt scaffolds — verbatim intent from lora-ink-to-clay-spec.md.
+# Prompt scaffolds (intent from lora-ink-to-clay-spec.md). BOTH share the same pose
+# framing so a shared seed keeps the two renders' composition aligned (Option 1).
+POSE = "front view, full body, A/T-pose"
+
+
 def clay_prompt(subject: str) -> str:
-    return (f"mv_ortho, front view, full body, A/T-pose, {subject}, gritty_comic, "
-            "plain flat neutral-grey background, orthographic, even lighting, no cast shadow")
+    return (f"mv_ortho, {POSE}, {subject}, gritty_comic, smooth matte 3d render, "
+            "isolated on a plain flat neutral-grey backdrop, floating, no ground, "
+            "orthographic, soft even studio lighting, no cast shadow")
 
 
 def ink_prompt(subject: str) -> str:
-    return (f"gritty_comic, {subject}, heavy black ink linework, cel shading, "
-            "flat 2D comic illustration, white background")
+    return (f"gritty_comic, {POSE}, {subject}, heavy black ink linework, cel shading, "
+            "flat 2D comic illustration, plain white background")
 
 
 # Varied starter subjects (chars + creatures + props + objects) for generalization.
@@ -114,7 +122,7 @@ def _slug(s: str) -> str:
 
 
 def build_workflow(prompt: str, seed: int, size: int, prefix: str,
-                   loras: list[tuple[str, float]]) -> dict:
+                   loras: list[tuple[str, float]], neg: str = NEG) -> dict:
     """FLUX graph: checkpoint -> chained LoraLoader(s) -> CLIP/KSampler -> save.
 
     `loras` is applied in order; each LoraLoader consumes the previous node's
@@ -136,7 +144,7 @@ def build_workflow(prompt: str, seed: int, size: int, prefix: str,
     wf["3"] = {"inputs": {"width": size, "height": size, "batch_size": 1},
                "class_type": "EmptySD3LatentImage"}
     wf["4"] = {"inputs": {"text": prompt, "clip": [src, 1]}, "class_type": "CLIPTextEncode"}
-    wf["5"] = {"inputs": {"text": NEG, "clip": [src, 1]}, "class_type": "CLIPTextEncode"}
+    wf["5"] = {"inputs": {"text": neg, "clip": [src, 1]}, "class_type": "CLIPTextEncode"}
     wf["6"] = {"inputs": {"seed": seed, "steps": 22, "cfg": 1.0, "sampler_name": "euler",
                           "scheduler": "beta", "denoise": 1.0, "model": [src, 0],
                           "positive": ["4", 0], "negative": ["5", 0], "latent_image": ["3", 0]},
@@ -186,8 +194,8 @@ def fetch(img: dict, dest: Path) -> None:
 
 
 def gen_one(prompt: str, seed: int, size: int, prefix: str,
-            loras: list[tuple[str, float]], dest: Path) -> bool:
-    pid = queue(build_workflow(prompt, seed, size, prefix, loras))
+            loras: list[tuple[str, float]], dest: Path, neg: str = NEG) -> bool:
+    pid = queue(build_workflow(prompt, seed, size, prefix, loras, neg))
     img = wait(pid)
     if not img:
         print(f"    FAIL {dest.name} (no image)")
@@ -231,7 +239,7 @@ def main() -> int:
     if a.dry_run:
         slug, desc = subjects[0]
         clay = build_workflow(clay_prompt(desc), a.start_seed, a.size, f"i2c_clay_{slug}",
-                              [(LORA_MV, 0.85), (LORA_CHAR, 0.65)])
+                              [(LORA_MV, 0.85), (LORA_CHAR, 0.65)], CLAY_NEG)
         ink = build_workflow(ink_prompt(desc), a.start_seed, a.size, f"i2c_ink_{slug}",
                              [(LORA_CHAR, 0.9)])
         json.dumps(clay)  # must serialize for the ComfyUI /prompt API
@@ -265,7 +273,7 @@ def main() -> int:
         seed = a.start_seed + i * a.seed_step
         print(f"[{i + 1}/{len(subjects)}] {_id} (seed {seed})", flush=True)
         ok_clay = gen_one(clay_prompt(desc), seed, a.size, f"i2c_clay_{slug}",
-                          [(LORA_MV, 0.85), (LORA_CHAR, 0.65)], clay_dst)
+                          [(LORA_MV, 0.85), (LORA_CHAR, 0.65)], clay_dst, CLAY_NEG)
         ok_ink = gen_one(ink_prompt(desc), seed, a.size, f"i2c_ink_{slug}",
                          [(LORA_CHAR, 0.9)], ink_dst)
         if ok_clay and ok_ink:
