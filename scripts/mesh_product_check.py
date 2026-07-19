@@ -8,9 +8,9 @@ ONE Blender process, writing a JSON report + a per-mesh PASS/FAIL summary.
 
 Checks (§4.3): tri budget · non-manifold edges · watertight · consistent normals ·
 loose/floating parts · UVs present + in-bounds · real-meter scale · sane base-centered
-origin. Fixes (--fix): weld · recalc normals outside · decimate to budget ·
-meter-normalize to a target height · recenter origin to the base. Export (--export-dir):
-GLB + FBX.
+origin. Fixes (--fix): weld · recalc normals outside · reduce to budget (decimate-collapse,
+or clean QuadriFlow quad retopology with --quad-remesh) · meter-normalize to a target
+height · recenter origin to the base. Export (--export-dir): GLB + FBX.
 
 Headless Blender (import/analyze/export — CPU, no GPU):
   blender --background --factory-startup --python scripts/mesh_product_check.py -- \
@@ -41,6 +41,11 @@ def _args():
     ap.add_argument("--min-dim", type=float, default=0.05, help="Min sane max-dimension (m).")
     ap.add_argument("--max-dim", type=float, default=20.0, help="Max sane max-dimension (m).")
     ap.add_argument("--fix", action="store_true", help="Apply mechanical fixes in place.")
+    ap.add_argument("--quad-remesh", action="store_true",
+                    help="Reduce to budget via Blender QuadriFlow quad retopology (artist "
+                         "topology) not decimate-collapse. Targets ~max-tris/2 quads; a collapse "
+                         "pass mops up overshoot. DROPS vertex colors + UVs (re-UV'd after), so "
+                         "pair with a PBR re-bake. Falls back to collapse if QuadriFlow fails.")
     ap.add_argument("--export-dir", default=None, help="Write cleaned GLB + FBX here.")
     ap.add_argument("--report", default=None, help="Write the JSON report here.")
     return ap.parse_args(argv)
@@ -184,6 +189,19 @@ def fix(obj, a):
     bmesh.ops.remove_doubles(bm, verts=bm.verts, dist=1e-4)
     bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
     bm.to_mesh(me); bm.free(); me.update()
+    # reduce to budget: QuadriFlow quad retopology (artist topology) then a collapse
+    # pass to mop up any overshoot; without --quad-remesh, collapse is the sole reducer.
+    tris = _tri_count(obj)
+    if getattr(a, "quad_remesh", False) and tris > a.max_tris:
+        target_faces = max(4, a.max_tris // 2)  # QuadriFlow counts quads (~2 tris/quad)
+        bpy.ops.object.select_all(action="DESELECT")
+        obj.select_set(True); bpy.context.view_layer.objects.active = obj
+        try:
+            bpy.ops.object.quadriflow_remesh(
+                target_faces=target_faces, use_mesh_symmetry=False,
+                use_preserve_sharp=True, use_preserve_boundary=True, mode="FACES")
+        except RuntimeError as e:
+            print(f"    quadriflow failed ({str(e)[:60]}); using decimate-collapse")
     # decimate to budget
     tris = _tri_count(obj)
     if tris > a.max_tris:
@@ -270,6 +288,7 @@ def main() -> int:
     out = {"total": len(meshes), "passed": n_pass, "max_tris": a.max_tris,
            "fixed": bool(a.fix), "results": report}
     if a.report:
+        Path(a.report).parent.mkdir(parents=True, exist_ok=True)
         Path(a.report).write_text(json.dumps(out, indent=2), encoding="utf-8")
     print(f"\nMESH-PRODUCT: {n_pass}/{len(meshes)} pass" + (" (post-fix)" if a.fix else ""))
     return 0 if n_pass == len(meshes) else 1

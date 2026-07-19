@@ -1524,6 +1524,33 @@ TRELLIS.2 (stretch, better hand topology) is NOT installed.
 }
 ```
 
+## Phase LP: Low-poly retopology for MESH-PRODUCT (artist topology, not decimate-collapse)
+
+Raised 2026-07-19 (open-model research sweep). The MESH-PRODUCT reducer was
+decimate-collapse only, which yields non-artist "soup". Two-tier plan:
+- **Free algorithmic tier (SHIPPED 2026-07-19):** `scripts/mesh_product_check.py
+  --quad-remesh` uses Blender's native QuadriFlow to retopologize to clean quads
+  (~max-tris/2 target), with a collapse fallback when the input isn't watertight.
+  Verified headless: a 20,480-tri watertight blob -> 2,000 quads/tris, watertight,
+  PASS; a 130-loose-part sword fell back to collapse (PASS). Drops vertex colors +
+  UVs (re-UV'd after), so pair with a PBR re-bake (`scripts/mesh_pbr_bake.py`).
+- **AI artist-mesh tier (LP1):** BPT / MeshAnything V2 generate human-like low-poly
+  topology from a dense shape — a real upgrade over algorithmic remesh for hero
+  props. Local/open, fits the 3090 Ti; needs a ComfyUI node install + GPU (parked).
+
+```json
+{
+  "id": "LP1",
+  "category": "feature",
+  "priority": 3,
+  "description": "Add an AI artist-mesh retopology stage to MESH-PRODUCT using BPT (Tencent, github.com/Tencent-Hunyuan/bpt, scales to 8k+ faces, has a ComfyUI wrapper) with MeshAnything V2 (<=1600 faces, github.com/buaacyw/MeshAnythingV2) as the aggressive-low-poly alt. Feed the dense Hunyuan3D/TRELLIS mesh (or its point cloud) -> artist low-poly topology, replacing decimate-collapse for hero props. GATE on ComfyUI being UP so the node load is smoke-tested; do NOT pip-install 3D-Pack blind (torch-ABI risk per project_comfyui_torch_xformers_pin + venv-corruption lessons). Compare BPT vs QuadriFlow vs collapse on the same props; keep whichever gives cleaner topology at budget.",
+  "files": ["D:/Projects/ComfyUI/custom_nodes/", "scripts/mesh_product_check.py", "scripts/mesh_retopo_bpt.py"],
+  "acceptance_criteria": ["BPT ComfyUI node installed + smoke-tested loading in a RUNNING ComfyUI (no torch-ABI break; generate_image still works after)", "A dense TRELLIS/Hunyuan prop retopo'd to artist topology at <=max-tris, watertight, exported GLB+FBX through the MESH-PRODUCT gate", "3-way comparison (BPT vs QuadriFlow vs collapse) documented; winner wired as the hero-prop default"],
+  "steps": ["Install the BPT node WITH ComfyUI up; verify it loads + generation unaffected", "Wire dense-mesh -> BPT -> MESH-PRODUCT export in a mesh_retopo_bpt.py helper", "Run props through BPT/QuadriFlow/collapse; compare topology at budget; document + set default"],
+  "passes": false
+}
+```
+
 ## Phase KD: GrimForge playable Godot demo (knight + arrow keys)
 
 Human request (2026-07-09): Godot scene from GrimForge castle kit tiles/buildings,
