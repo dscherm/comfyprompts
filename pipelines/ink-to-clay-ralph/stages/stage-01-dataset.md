@@ -25,12 +25,25 @@ style set for Approach A. No GPU training here — this is generation via ComfyU
    pattern: ink|clay side-by-side per row) and get **human approval** before
    Stage 2. Self-confirmation is not approval.
 
-## Write an id-driven generator
+## Generator — `scripts/bootstrap_pairs.py` (provided, tested dry-run)
 
-Put a small script in `scripts/` (e.g. `bootstrap_pairs.py`) that reads
-`subjects.txt`, drives the two generations per subject at a shared per-subject
-seed, and writes the matched files. Reuse the toolchain's ComfyUI client /
-`generate_image_lora` path; do not hardcode absolute output paths outside E:.
+Use the pre-built `scripts/bootstrap_pairs.py`: it drives ComfyUI over HTTP
+(urllib only), builds a FLUX graph with **chained LoraLoaders** (clay =
+mv_ortho@0.85 → char@0.65; ink = char@0.9), generates both styles per subject at
+the **same seed**, and writes matched `{ink,clay}/<NNN_slug>.png`. It is
+**resumable** (skips subjects whose pair already exists) and **keeps pairs
+aligned** (drops a half-made pair on failure so the gate's match check holds).
+
+```bash
+# ComfyUI UP on the 3090 Ti (run_3090ti.ps1); `ollama stop` first if needed.
+python scripts/bootstrap_pairs.py --dry-run          # sanity: builds workflows, no ComfyUI
+python scripts/bootstrap_pairs.py --limit 3          # smoke: 3 subjects -> 6 images
+python scripts/bootstrap_pairs.py                     # full default set (~48 subjects)
+python scripts/bootstrap_pairs.py --subjects subs.txt # extend: one "slug: description" per line
+```
+
+Extend the built-in subject set toward the 50–150 the spec wants (add the real
+soapbox character names + any real ink drawings you own) via `--subjects`.
 
 ## Output artifacts
 - `E:/ai-training/datasets/ink_to_clay_v1/ink/*.png`, `.../clay/*.png` (matched)
