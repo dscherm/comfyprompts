@@ -1,0 +1,71 @@
+{
+  "$comment": "Canonical attachment contract for the soapbox kart-parts kit. Design data lifted from SPEC.md §4 — mesh-independent. build_kit_manifest.py consumes this + the curated part list to emit kit.json + per-part <id>.meta.json. Two parts connect iff a plug's socket_type equals an open socket's type.",
+  "version": "1.0",
+  "orientation": {
+    "up": [0, 1, 0],
+    "forward": [0, 0, 1],
+    "right": [1, 0, 0],
+    "kart_faces": "+Z",
+    "warning": "Confirm +Z kart-forward against soapbox-unity before 3D export — project memory feedback_kart_assembly notes a kart used +Y forward; the exporter MUST match the game."
+  },
+  "socket_types": {
+    "root":          {"on": "chassis",            "accepts": []},
+    "wheel_mount":   {"on": "chassis (FL/FR/RL/RR)", "accepts": ["wheel", "weapon:wheels"]},
+    "engine_mount":  {"on": "chassis",            "accepts": ["engine"]},
+    "nose_mount":    {"on": "chassis (front)",    "accepts": ["nose", "weapon:front"]},
+    "cockpit_mount": {"on": "chassis",            "accepts": ["seat"]},
+    "roof_mount":    {"on": "chassis / cockpit",  "accepts": ["roof", "weapon:top"]},
+    "rear_mount":    {"on": "chassis (rear)",     "accepts": ["tail", "weapon:rear"]},
+    "side_mount":    {"on": "chassis (L/R)",      "accepts": ["side", "weapon:side"]},
+    "steering_mount":{"on": "seat",               "accepts": ["steering"]},
+    "decor_mount":   {"on": "many parts",         "accepts": ["decor"]}
+  },
+  "chassis_sockets": [
+    {"name": "WheelFL",  "type": "wheel_mount",  "pos": [-0.55, 0.0,  0.75], "rot": [0, 0,   0]},
+    {"name": "WheelFR",  "type": "wheel_mount",  "pos": [ 0.55, 0.0,  0.75], "rot": [0, 180, 0]},
+    {"name": "WheelRL",  "type": "wheel_mount",  "pos": [-0.55, 0.0, -0.75], "rot": [0, 0,   0]},
+    {"name": "WheelRR",  "type": "wheel_mount",  "pos": [ 0.55, 0.0, -0.75], "rot": [0, 180, 0]},
+    {"name": "EngineBay","type": "engine_mount", "pos": [0.0,  0.25, -0.65], "rot": [0, 0,   0]},
+    {"name": "Nose",     "type": "nose_mount",   "pos": [0.0,  0.2,   1.05], "rot": [0, 0,   0]},
+    {"name": "Cockpit",  "type": "cockpit_mount","pos": [0.0,  0.3,   0.0],  "rot": [0, 0,   0]},
+    {"name": "Roof",     "type": "roof_mount",   "pos": [0.0,  0.85,  0.0],  "rot": [0, 0,   0]},
+    {"name": "RearTail", "type": "rear_mount",   "pos": [0.0,  0.3,  -1.05], "rot": [0, 0,   0]},
+    {"name": "SideL",    "type": "side_mount",   "pos": [-0.62, 0.3,  0.0],  "rot": [0, 0,   0]},
+    {"name": "SideR",    "type": "side_mount",   "pos": [ 0.62, 0.3,  0.0],  "rot": [0, 180, 0]}
+  ],
+  "category_plugs": {
+    "chassis":  "root",
+    "wheel":    "wheel_mount",
+    "engine":   "engine_mount",
+    "nose":     "nose_mount",
+    "roof":     "roof_mount",
+    "side":     "side_mount",
+    "tail":     "rear_mount",
+    "seat":     "cockpit_mount",
+    "steering": "steering_mount"
+  },
+  "category_mirror_x_ok": {
+    "wheel": true, "side": true, "chassis": false, "engine": false,
+    "nose": false, "roof": false, "tail": false, "seat": false, "steering": false
+  },
+  "exposed_sockets": {
+    "$comment": "Secondary sockets a non-chassis part exposes once mounted.",
+    "seat":      [{"name": "Steering", "type": "steering_mount", "pos": [0.0, 0.35, 0.30], "rot": [0, 0, 0]}],
+    "roof__rack":[{"name": "RackTop",  "type": "roof_mount",     "pos": [0.0, 0.25, 0.0],  "rot": [0, 0, 0]}]
+  },
+  "weapon_mounts": {
+    "$comment": "Weapon id -> structural socket it reuses (SPEC §5.2 / weapons PRD). Gameplay stats (damage/cooldown/deploy) are intentionally NOT here — those belong with P5 Unity integration, pulled from soapbox-unity/weapons-ralph/prd.md.",
+    "wpn_spikes":       "wheel_mount",
+    "wpn_chainsaw":     "side_mount",
+    "wpn_ram":          "nose_mount",
+    "wpn_wreckingball": "rear_mount",
+    "wpn_flamethrower": "nose_mount",
+    "wpn_thunderstick": "roof_mount",
+    "wpn_nailgun":      "nose_mount",
+    "wpn_catapult":     "rear_mount",
+    "wpn_smoke":        "rear_mount",
+    "wpn_oilslick":     "rear_mount",
+    "wpn_tesla":        "roof_mount",
+    "wpn_molotov":      "side_mount"
+  }
+}

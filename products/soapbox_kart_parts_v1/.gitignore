@@ -1,0 +1,16 @@
+# Intermediates and session state — regenerable, not shipped.
+raw_glb/           # pre-decimate Tripo/TRELLIS downloads (137M)
+models_glb/        # earlier full-res GLB experiments (162M)
+.omc/
+.ralph/
+
+# _work holds the pipeline scripts (tracked) plus large render/review
+# intermediates and staging GLBs/PNGs (ignored). Keep only the .py tooling.
+_work/**
+!_work/**/
+!_work/**/*.py
+
+# The repo-root .gitignore globally ignores *.glb. Re-include the shipped
+# geometry so a new decimated part registers on `git add` with no -f flag.
+!models_lowpoly/**/*.glb
+!lowpoly/**/*.glb

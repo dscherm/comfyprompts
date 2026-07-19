@@ -1,0 +1,1303 @@
+{
+  "kit": "soapbox_kart_parts_v1",
+  "version": "1.0",
+  "trigger": "soapbox_kart",
+  "orientation": {
+    "up": [
+      0,
+      1,
+      0
+    ],
+    "forward": [
+      0,
+      0,
+      1
+    ],
+    "right": [
+      1,
+      0,
+      0
+    ],
+    "kart_faces": "+Z",
+    "warning": "Confirm +Z kart-forward against soapbox-unity before 3D export \u2014 project memory feedback_kart_assembly notes a kart used +Y forward; the exporter MUST match the game."
+  },
+  "socket_types": {
+    "root": {
+      "on": "chassis",
+      "accepts": []
+    },
+    "wheel_mount": {
+      "on": "chassis (FL/FR/RL/RR)",
+      "accepts": [
+        "wheel",
+        "weapon:wheels"
+      ]
+    },
+    "engine_mount": {
+      "on": "chassis",
+      "accepts": [
+        "engine"
+      ]
+    },
+    "nose_mount": {
+      "on": "chassis (front)",
+      "accepts": [
+        "nose",
+        "weapon:front"
+      ]
+    },
+    "cockpit_mount": {
+      "on": "chassis",
+      "accepts": [
+        "seat"
+      ]
+    },
+    "roof_mount": {
+      "on": "chassis / cockpit",
+      "accepts": [
+        "roof",
+        "weapon:top"
+      ]
+    },
+    "rear_mount": {
+      "on": "chassis (rear)",
+      "accepts": [
+        "tail",
+        "weapon:rear"
+      ]
+    },
+    "side_mount": {
+      "on": "chassis (L/R)",
+      "accepts": [
+        "side",
+        "weapon:side"
+      ]
+    },
+    "steering_mount": {
+      "on": "seat",
+      "accepts": [
+        "steering"
+      ]
+    },
+    "decor_mount": {
+      "on": "many parts",
+      "accepts": [
+        "decor"
+      ]
+    }
+  },
+  "chassis_sockets": [
+    {
+      "name": "WheelFL",
+      "type": "wheel_mount",
+      "pos": [
+        -0.55,
+        0.0,
+        0.75
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "WheelFR",
+      "type": "wheel_mount",
+      "pos": [
+        0.55,
+        0.0,
+        0.75
+      ],
+      "rot": [
+        0,
+        180,
+        0
+      ]
+    },
+    {
+      "name": "WheelRL",
+      "type": "wheel_mount",
+      "pos": [
+        -0.55,
+        0.0,
+        -0.75
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "WheelRR",
+      "type": "wheel_mount",
+      "pos": [
+        0.55,
+        0.0,
+        -0.75
+      ],
+      "rot": [
+        0,
+        180,
+        0
+      ]
+    },
+    {
+      "name": "EngineBay",
+      "type": "engine_mount",
+      "pos": [
+        0.0,
+        0.25,
+        -0.65
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Nose",
+      "type": "nose_mount",
+      "pos": [
+        0.0,
+        0.2,
+        1.05
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Cockpit",
+      "type": "cockpit_mount",
+      "pos": [
+        0.0,
+        0.3,
+        0.0
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "Roof",
+      "type": "roof_mount",
+      "pos": [
+        0.0,
+        0.85,
+        0.0
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "RearTail",
+      "type": "rear_mount",
+      "pos": [
+        0.0,
+        0.3,
+        -1.05
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SideL",
+      "type": "side_mount",
+      "pos": [
+        -0.62,
+        0.3,
+        0.0
+      ],
+      "rot": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "name": "SideR",
+      "type": "side_mount",
+      "pos": [
+        0.62,
+        0.3,
+        0.0
+      ],
+      "rot": [
+        0,
+        180,
+        0
+      ]
+    }
+  ],
+  "parts": [
+    {
+      "id": "chassis_crate",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source_2d": [
+        "chassis__crate__s19.png",
+        "chassis__crate__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/chassis_crate.glb"
+    },
+    {
+      "id": "chassis_plank",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source_2d": [
+        "chassis__plank__s42.png",
+        "chassis__plank__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/chassis_plank.glb"
+    },
+    {
+      "id": "chassis_rail",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source_2d": [
+        "chassis__rail__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/chassis_rail.glb"
+    },
+    {
+      "id": "chassis_tub",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source_2d": [
+        "chassis__tub__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/chassis_tub.glb"
+    },
+    {
+      "id": "engine_electric",
+      "category": "engine",
+      "socket_type": "engine_mount",
+      "exposes": [],
+      "source_2d": [
+        "engine__electric__s202.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/engine_electric.glb"
+    },
+    {
+      "id": "engine_propeller",
+      "category": "engine",
+      "socket_type": "engine_mount",
+      "exposes": [],
+      "source_2d": [
+        "engine__propeller__s202.png",
+        "engine__propeller__s88.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/engine_propeller.glb"
+    },
+    {
+      "id": "engine_rocket",
+      "category": "engine",
+      "socket_type": "engine_mount",
+      "exposes": [],
+      "source_2d": [
+        "engine__rocket__s202.png",
+        "engine__rocket__s88.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/engine_rocket.glb"
+    },
+    {
+      "id": "engine_steam",
+      "category": "engine",
+      "socket_type": "engine_mount",
+      "exposes": [],
+      "source_2d": [
+        "engine__steam__s101.png",
+        "engine__steam__s19.png",
+        "engine__steam__s202.png",
+        "engine__steam__s42.png",
+        "engine__steam__s77.png",
+        "engine__steam__s88.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/engine_steam.glb"
+    },
+    {
+      "id": "engine_v8",
+      "category": "engine",
+      "socket_type": "engine_mount",
+      "exposes": [],
+      "source_2d": [
+        "engine__v8__s202.png",
+        "engine__v8__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/engine_v8.glb"
+    },
+    {
+      "id": "nose_grille",
+      "category": "nose",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source_2d": [
+        "nose__grille__s42.png",
+        "nose__grille__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/nose_grille.glb"
+    },
+    {
+      "id": "nose_plow",
+      "category": "nose",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source_2d": [
+        "nose__plow__s19.png",
+        "nose__plow__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/nose_plow.glb"
+    },
+    {
+      "id": "nose_pointed",
+      "category": "nose",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source_2d": [
+        "nose__pointed__s19.png",
+        "nose__pointed__s42.png",
+        "nose__pointed__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/nose_pointed.glb"
+    },
+    {
+      "id": "roof_canopy",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source_2d": [
+        "roof__canopy__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/roof_canopy.glb"
+    },
+    {
+      "id": "roof_hardtop",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source_2d": [
+        "roof__hardtop__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/roof_hardtop.glb"
+    },
+    {
+      "id": "roof_rack",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [
+        "RackTop"
+      ],
+      "source_2d": [
+        "roof__rack__s19.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/roof_rack.glb"
+    },
+    {
+      "id": "roof_rollcage",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source_2d": [
+        "roof__rollcage__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/roof_rollcage.glb"
+    },
+    {
+      "id": "roof_umbrella",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source_2d": [
+        "roof__umbrella__s42.png",
+        "roof__umbrella__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/roof_umbrella.glb"
+    },
+    {
+      "id": "seat_bench",
+      "category": "seat",
+      "socket_type": "cockpit_mount",
+      "exposes": [
+        "Steering"
+      ],
+      "source_2d": [
+        "seat__bench__s19.png",
+        "seat__bench__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/seat_bench.glb"
+    },
+    {
+      "id": "seat_bucket",
+      "category": "seat",
+      "socket_type": "cockpit_mount",
+      "exposes": [
+        "Steering"
+      ],
+      "source_2d": [
+        "seat__bucket__s19.png",
+        "seat__bucket__s42.png",
+        "seat__bucket__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/seat_bucket.glb"
+    },
+    {
+      "id": "seat_throne",
+      "category": "seat",
+      "socket_type": "cockpit_mount",
+      "exposes": [
+        "Steering"
+      ],
+      "source_2d": [
+        "seat__throne__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/seat_throne.glb"
+    },
+    {
+      "id": "side_armor",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source_2d": [
+        "side__armor__s19.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/side_armor.glb"
+    },
+    {
+      "id": "side_door",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source_2d": [
+        "side__door__s19.png",
+        "side__door__s42.png",
+        "side__door__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/side_door.glb"
+    },
+    {
+      "id": "side_number",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source_2d": [
+        "side__number__s19.png",
+        "side__number__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/side_number.glb"
+    },
+    {
+      "id": "side_sidepipes",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source_2d": [
+        "side__sidepipes__s19.png",
+        "side__sidepipes__s42.png",
+        "side__sidepipes__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/side_sidepipes.glb"
+    },
+    {
+      "id": "steering_tiller",
+      "category": "steering",
+      "socket_type": "steering_mount",
+      "exposes": [],
+      "source_2d": [
+        "steering__tiller__s19.png",
+        "steering__tiller__s42.png",
+        "steering__tiller__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/steering_tiller.glb"
+    },
+    {
+      "id": "steering_wheel",
+      "category": "steering",
+      "socket_type": "steering_mount",
+      "exposes": [],
+      "source_2d": [
+        "steering__wheel__s19.png",
+        "steering__wheel__s42.png",
+        "steering__wheel__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/steering_wheel.glb"
+    },
+    {
+      "id": "tail_cargo",
+      "category": "tail",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "tail__cargo__s19.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/tail_cargo.glb"
+    },
+    {
+      "id": "tail_fin",
+      "category": "tail",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "tail__fin__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/tail_fin.glb"
+    },
+    {
+      "id": "tail_spoiler",
+      "category": "tail",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "tail__spoiler__s19.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/tail_spoiler.glb"
+    },
+    {
+      "id": "tail_stacks",
+      "category": "tail",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "tail__stacks__s19.png",
+        "tail__stacks__s42.png",
+        "tail__stacks__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/tail_stacks.glb"
+    },
+    {
+      "id": "wpn_catapult",
+      "category": "weapon",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_catapult__s19.png",
+        "weapon__wpn_catapult__s42.png",
+        "weapon__wpn_catapult__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_catapult.glb"
+    },
+    {
+      "id": "wpn_chainsaw",
+      "category": "weapon",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_chainsaw__s19.png",
+        "weapon__wpn_chainsaw__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_chainsaw.glb"
+    },
+    {
+      "id": "wpn_flamethrower",
+      "category": "weapon",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_flamethrower__s19.png",
+        "weapon__wpn_flamethrower__s42.png",
+        "weapon__wpn_flamethrower__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_flamethrower.glb"
+    },
+    {
+      "id": "wpn_molotov",
+      "category": "weapon",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_molotov__s19.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_molotov.glb"
+    },
+    {
+      "id": "wpn_nailgun",
+      "category": "weapon",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_nailgun__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_nailgun.glb"
+    },
+    {
+      "id": "wpn_oilslick",
+      "category": "weapon",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_oilslick__s19.png",
+        "weapon__wpn_oilslick__s42.png",
+        "weapon__wpn_oilslick__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_oilslick.glb"
+    },
+    {
+      "id": "wpn_ram",
+      "category": "weapon",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_ram__s19.png",
+        "weapon__wpn_ram__s42.png",
+        "weapon__wpn_ram__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_ram.glb"
+    },
+    {
+      "id": "wpn_smoke",
+      "category": "weapon",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_smoke__s42.png",
+        "weapon__wpn_smoke__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_smoke.glb"
+    },
+    {
+      "id": "wpn_spikes",
+      "category": "weapon",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_spikes__s19.png",
+        "weapon__wpn_spikes__s42.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_spikes.glb"
+    },
+    {
+      "id": "wpn_tesla",
+      "category": "weapon",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_tesla__s19.png",
+        "weapon__wpn_tesla__s42.png",
+        "weapon__wpn_tesla__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_tesla.glb"
+    },
+    {
+      "id": "wpn_thunderstick",
+      "category": "weapon",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_thunderstick__s19.png",
+        "weapon__wpn_thunderstick__s42.png",
+        "weapon__wpn_thunderstick__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_thunderstick.glb"
+    },
+    {
+      "id": "wpn_wreckingball",
+      "category": "weapon",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source_2d": [
+        "weapon__wpn_wreckingball__s42.png",
+        "weapon__wpn_wreckingball__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wpn_wreckingball.glb"
+    },
+    {
+      "id": "wheel_disc",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source_2d": [
+        "wheel__disc__s19.png",
+        "wheel__disc__s42.png",
+        "wheel__disc__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wheel_disc.glb"
+    },
+    {
+      "id": "wheel_fat_slick",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source_2d": [
+        "wheel__fat_slick__s19.png",
+        "wheel__fat_slick__s42.png",
+        "wheel__fat_slick__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wheel_fat_slick.glb"
+    },
+    {
+      "id": "wheel_knobby",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source_2d": [
+        "wheel__knobby__s19.png",
+        "wheel__knobby__s42.png",
+        "wheel__knobby__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wheel_knobby.glb"
+    },
+    {
+      "id": "wheel_mag",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source_2d": [
+        "wheel__mag__s19.png",
+        "wheel__mag__s42.png",
+        "wheel__mag__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wheel_mag.glb"
+    },
+    {
+      "id": "wheel_monster",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source_2d": [
+        "wheel__monster__s19.png",
+        "wheel__monster__s42.png",
+        "wheel__monster__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wheel_monster.glb"
+    },
+    {
+      "id": "wheel_spoked",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source_2d": [
+        "wheel__spoked__s19.png",
+        "wheel__spoked__s42.png",
+        "wheel__spoked__s77.png"
+      ],
+      "source": "tripo",
+      "textured": true,
+      "model": "models_lowpoly/wheel_spoked.glb"
+    },
+    {
+      "id": "lp_exhaust_stacks",
+      "category": "tail",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_exhaust_stacks.glb"
+    },
+    {
+      "id": "lp_rollcage",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_rollcage.glb"
+    },
+    {
+      "id": "lp_spikes",
+      "category": "weapon",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_spikes.glb"
+    },
+    {
+      "id": "lp_armor_plate",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_armor_plate.glb"
+    },
+    {
+      "id": "lp_ram_bar",
+      "category": "weapon",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_ram_bar.glb"
+    },
+    {
+      "id": "lp_tesla",
+      "category": "weapon",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_tesla.glb"
+    },
+    {
+      "id": "lp_nailgun",
+      "category": "weapon",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_nailgun.glb"
+    },
+    {
+      "id": "lp_number_plate",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_number_plate.glb"
+    },
+    {
+      "id": "lp_wheel",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wheel.glb"
+    },
+    {
+      "id": "lp_grille",
+      "category": "nose",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_grille.glb"
+    },
+    {
+      "id": "lp_fueltank",
+      "category": "side",
+      "socket_type": "decor_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_fueltank.glb"
+    },
+    {
+      "id": "lp_chassis_rail",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_chassis_rail.glb"
+    },
+    {
+      "id": "lp_wheel_slick",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wheel_slick.glb"
+    },
+    {
+      "id": "lp_wheel_disc",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wheel_disc.glb"
+    },
+    {
+      "id": "lp_tail_fin",
+      "category": "tail",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_tail_fin.glb"
+    },
+    {
+      "id": "lp_roof_rack",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_roof_rack.glb"
+    },
+    {
+      "id": "lp_wreckingball",
+      "category": "weapon",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wreckingball.glb"
+    },
+    {
+      "id": "lp_nose_plow",
+      "category": "nose",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_nose_plow.glb"
+    },
+    {
+      "id": "lp_chainsaw",
+      "category": "weapon",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_chainsaw.glb"
+    },
+    {
+      "id": "lp_smoke",
+      "category": "weapon",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_smoke.glb"
+    },
+    {
+      "id": "lp_oilslick",
+      "category": "weapon",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_oilslick.glb"
+    },
+    {
+      "id": "lp_thunderstick",
+      "category": "weapon",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_thunderstick.glb"
+    },
+    {
+      "id": "lp_wood_door",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wood_door.glb"
+    },
+    {
+      "id": "lp_wood_roof",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wood_roof.glb"
+    },
+    {
+      "id": "lp_wood_barrel",
+      "category": "side",
+      "socket_type": "decor_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wood_barrel.glb"
+    },
+    {
+      "id": "lp_tire_bumper",
+      "category": "nose",
+      "socket_type": "nose_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_tire_bumper.glb"
+    },
+    {
+      "id": "lp_tarp_roof",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_tarp_roof.glb"
+    },
+    {
+      "id": "lp_chassis_tub",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_chassis_tub.glb"
+    },
+    {
+      "id": "lp_chassis_crate",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_chassis_crate.glb"
+    },
+    {
+      "id": "lp_chassis_plank",
+      "category": "chassis",
+      "socket_type": "root",
+      "exposes": [
+        "WheelFL",
+        "WheelFR",
+        "WheelRL",
+        "WheelRR",
+        "EngineBay",
+        "Nose",
+        "Cockpit",
+        "Roof",
+        "RearTail",
+        "SideL",
+        "SideR"
+      ],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_chassis_plank.glb"
+    },
+    {
+      "id": "lp_roof_hardtop",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_roof_hardtop.glb"
+    },
+    {
+      "id": "lp_roof_canopy",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_roof_canopy.glb"
+    },
+    {
+      "id": "lp_roof_umbrella",
+      "category": "roof",
+      "socket_type": "roof_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_roof_umbrella.glb"
+    },
+    {
+      "id": "lp_sidepipes",
+      "category": "side",
+      "socket_type": "side_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_sidepipes.glb"
+    },
+    {
+      "id": "lp_tail_stacks",
+      "category": "tail",
+      "socket_type": "rear_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_tail_stacks.glb"
+    },
+    {
+      "id": "lp_wheel_spoked",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wheel_spoked.glb"
+    },
+    {
+      "id": "lp_wheel_monster",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wheel_monster.glb"
+    },
+    {
+      "id": "lp_wheel_wagon",
+      "category": "wheel",
+      "socket_type": "wheel_mount",
+      "exposes": [],
+      "source": "lowpoly",
+      "model": "lowpoly/lp_wheel_wagon.glb"
+    }
+  ],
+  "counts": {
+    "total": 86,
+    "by_category": {
+      "chassis": 8,
+      "engine": 5,
+      "nose": 6,
+      "roof": 12,
+      "seat": 3,
+      "side": 10,
+      "steering": 2,
+      "tail": 7,
+      "weapon": 21,
+      "wheel": 12
+    }
+  }
+}
