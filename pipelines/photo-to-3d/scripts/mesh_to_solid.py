@@ -140,6 +140,11 @@ def main():
         rm.mode = "VOXEL"; rm.voxel_size = a.voxel_remesh
         bpy.ops.object.modifier_apply(modifier=rm.name)
         me = obj.data
+        # OpenVDB output is closed + manifold, but recalc so face winding is
+        # unambiguously outward — downstream QuadriFlow refuses inconsistent normals.
+        bm = bmesh.new(); bm.from_mesh(me)
+        bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+        bm.to_mesh(me); bm.free()
         print(f"REMESH  voxel={a.voxel_remesh} faces={len(me.polygons)}")
 
     # 4) NOW smooth (welded -> shared verts move together, no cracks)

@@ -16,6 +16,7 @@ already exists (resumable).
 from __future__ import annotations
 
 import argparse
+import json
 import re
 import shutil
 import subprocess
@@ -52,6 +53,10 @@ def main() -> None:
     ap.add_argument("--out-dir", default=None, help="default <ROOT>/output/ink_to_3d/<name>")
     ap.add_argument("--name", default=None, help="slug (default from the ink filename)")
     ap.add_argument("--max-tris", type=int, default=8000)
+    ap.add_argument("--voxel", type=float, default=0.005,
+                    help="heal voxel size (mesh normalized ~1u); smaller = more detail + "
+                         "more tris. 0.005 (~200 voxels tall) preserves a character silhouette "
+                         "+ limbs while guaranteeing a closed manifold.")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--base", action="store_true", help="base-model clay (skip the trained LoRA)")
     ap.add_argument("--skip-trellis", action="store_true", help="stop after clay (plumbing check)")
@@ -94,14 +99,23 @@ def main() -> None:
     raw = out / f"{name}.glb"
     shutil.copyfile(glb, raw)
 
-    # Stage 2.5: heal the raw TRELLIS mesh — weld unwelded fragments + voxel remesh
-    # toward watertight, so the reducer isn't blocked by non-manifold soup.
+    # Stage 2.5: heal the raw TRELLIS mesh. A raw TRELLIS GLB is non-manifold soup
+    # (thousands of boundary edges); --watertight's holes_fill can't close it and the
+    # reducer floors. --voxel-remesh resamples the volume into a GUARANTEED closed
+    # manifold (boundary=0), which is what unblocks QuadriFlow + the game-ready gate.
     healed = out / f"{name}_solid.glb"
+    heal_report = out / f"{name}_solid_report.json"
     if not healed.exists():
         sh([BLENDER, "--background", "--python", MESH_TO_SOLID, "--",
             "--input", str(raw), "--output-dir", str(out), "--name", f"{name}_solid",
-            "--watertight", "--formats", "glb"], "2.5/3 heal -> solid")
+            "--voxel-remesh", a.voxel, "--formats", "glb", "--report", str(heal_report)],
+           "2.5/3 heal -> solid (voxel remesh)")
     src = healed if healed.exists() else raw
+    # Assert the heal actually produced a closed manifold — trust the geometry, not the
+    # flag name (lesson: trellis-watertight-gate-gap). Warn loudly if it didn't.
+    if heal_report.exists():
+        wt = json.loads(heal_report.read_text()).get("after", {}).get("watertight")
+        print(f"[2.5] healed watertight={wt}" + ("" if wt else "  <-- NOT closed; gate will fail"))
 
     # Stage 3: game-ready validate + fix + export. NON-FATAL — raw TRELLIS meshes are
     # organic/non-manifold and may not clear the strict MESH-PRODUCT gate; report the

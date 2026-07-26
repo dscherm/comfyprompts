@@ -209,6 +209,15 @@ def fix(obj, a):
         d.decimate_type = "COLLAPSE"
         d.ratio = max(0.01, a.max_tris / tris)
         bpy.ops.object.modifier_apply(modifier=d.name)
+    # Clean up AFTER reduction, THEN recalc normals outside. Aggressive collapse
+    # leaves zero-area sliver faces whose normals are undefined — they read as
+    # "flipped" no matter how you recalc and fail the normals check on the very
+    # mesh we just fixed. Dissolve them (and any degenerate edges) first.
+    me = obj.data
+    bm = bmesh.new(); bm.from_mesh(me)
+    bmesh.ops.dissolve_degenerate(bm, dist=1e-6, edges=bm.edges)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me); bm.free(); me.update()
     # give it UVs if missing (game-ready props need them) — smart project is a
     # reasonable auto-unwrap for props; a hero asset still wants a hand UV pass.
     if len(me.uv_layers) == 0:
@@ -232,6 +241,13 @@ def fix(obj, a):
         s = a.target_height / h
         obj.scale = (s, s, s)
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
+    # FINAL recalc — the origin_set / UV-unwrap / transform_apply steps above desync
+    # the stored winding from the geometry (observed: 8 faces read flipped afterward).
+    # This must be the LAST mesh op so the exported mesh matches what check() recomputes.
+    me = obj.data
+    bm = bmesh.new(); bm.from_mesh(me)
+    bmesh.ops.recalc_face_normals(bm, faces=bm.faces)
+    bm.to_mesh(me); bm.free(); me.update()
 
 
 def export(obj, out_dir: Path, stem: str):
