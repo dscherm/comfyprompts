@@ -37,9 +37,17 @@ RESOLVED 2026-07-25. The working recipe (`ink_to_3d.py` stage 2.5 → stage 3):
 1. **Heal with `mesh_to_solid --voxel-remesh <size>`, NOT `--watertight`.** The
    `--watertight` (holes_fill) path can't close TRELLIS soup; the OpenVDB voxel
    remesh resamples the volume into a GUARANTEED closed manifold (verified:
-   `boundary=0 watertight=True`). `0.005` (~200 voxels tall) preserves a
-   character silhouette + limbs; finer (`0.003`) barely helps and just adds tris
-   the reducer discards.
+   `boundary=0 watertight=True`).
+1b. **Voxel size and tri budget are COUPLED — raise both together for a
+   character.** A raw TRELLIS character mesh is GOOD (clean arms, pauldrons,
+   gauntlets); what wrecks it is a too-coarse heal, not the reconstruction.
+   `--voxel-remesh 0.005` fuses arms-to-torso and blobs thin gauntlet blades
+   (voxel > the arm-body gap); `0.0025` (~400 voxels tall) resolves them. But a
+   fine voxel is WASTED if `--max-tris 8000` (a static-prop budget) then
+   decimates the recovered detail away — 8k melts the arms even at 0.0025.
+   Characters need BOTH: voxel `0.0025` + `--max-tris ~20000` (a normal
+   game-character budget); QuadriFlow then gives clean quads at ~16.6k, arms
+   intact. `ink_to_3d` defaults to this pair.
 2. **Recalc face normals AFTER the voxel remesh** — OpenVDB output is manifold
    but QuadriFlow refuses inconsistent winding, so recalc before handing off.
 3. **In `mesh_product_check.fix()`, recalc normals as the LAST op** (after
@@ -50,11 +58,18 @@ RESOLVED 2026-07-25. The working recipe (`ink_to_3d.py` stage 2.5 → stage 3):
 4. **Assert `watertight=True` from the heal report** before the gate — trust the
    geometry, not the flag name. `ink_to_3d` prints it and warns if False.
 
-Residual (NOT a remesh bug): if TRELLIS reconstructs a part as fragmented soup
-(e.g. spiky gauntlets on arms held away from the body — 12k+ non-manifold edges,
-32 loose parts), the voxel remesh faithfully closes it into blobby/shredded
-geometry. The gate still PASSES (watertight/manifold/budget/normals) but the
-arms look bad. That's an UPSTREAM input-pose problem
-([[trellis-input-pose-drives-mesh-quality]]), fix it at the clay stage, not here.
-Related: [[trellis-decimate-splits-solid-vs-round]] (voxel remesh blobs round
-parts), [[project_trellis_unwelded_mesh_weld_before_smooth]] (weld before remesh).
+CORRECTION — an earlier version of this lesson blamed TRELLIS ("arms shredded
+upstream, fix at the clay stage"). That was WRONG, diagnosed by rendering the
+RAW pre-heal mesh: the raw TRELLIS arms were clean and intact. The heal was the
+culprit (too-coarse voxel + too-low budget, see 1b). Always render the raw mesh
+before blaming the reconstruction — "the healed output looks bad" ≠ "the
+reconstruction is bad". The non-manifold-edge / loose-part counts are a property
+of the raw soup, NOT evidence the geometry is wrong.
+
+Residual (genuinely inherent): voxelizing very thin detail (the gauntlet blade
+tips) frays it slightly, and QuadriFlow quads look faintly faceted. Minor and
+acceptable for a game asset. Related:
+[[trellis-decimate-splits-solid-vs-round]] (voxel remesh blobs ROUND parts at
+low res — same coupling), [[trellis-input-pose-drives-mesh-quality]] (input pose
+still governs raw quality), [[project_trellis_unwelded_mesh_weld_before_smooth]]
+(weld before remesh).

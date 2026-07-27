@@ -52,11 +52,16 @@ def main() -> None:
     ap.add_argument("ink")
     ap.add_argument("--out-dir", default=None, help="default <ROOT>/output/ink_to_3d/<name>")
     ap.add_argument("--name", default=None, help="slug (default from the ink filename)")
-    ap.add_argument("--max-tris", type=int, default=8000)
-    ap.add_argument("--voxel", type=float, default=0.005,
-                    help="heal voxel size (mesh normalized ~1u); smaller = more detail + "
-                         "more tris. 0.005 (~200 voxels tall) preserves a character silhouette "
-                         "+ limbs while guaranteeing a closed manifold.")
+    ap.add_argument("--max-tris", type=int, default=20000,
+                    help="tri budget. Characters carry thin detail (gauntlets, pauldrons, "
+                         "belts) — 20k is a normal game-character budget and holds it; 8k "
+                         "(a static-prop budget) decimates the arms/gauntlets away even when "
+                         "a fine voxel recovers them. The two are COUPLED: raise both together.")
+    ap.add_argument("--voxel", type=float, default=0.0025,
+                    help="heal voxel size (mesh normalized ~1u); smaller = more detail + more "
+                         "tris. 0.0025 (~400 voxels tall) resolves the arm-to-body gap and thin "
+                         "gauntlet blades; 0.005 fuses arms to the torso and blobs them. Pair a "
+                         "finer voxel with a higher --max-tris or the reducer discards the gain.")
     ap.add_argument("--seed", type=int, default=7)
     ap.add_argument("--base", action="store_true", help="base-model clay (skip the trained LoRA)")
     ap.add_argument("--skip-trellis", action="store_true", help="stop after clay (plumbing check)")
