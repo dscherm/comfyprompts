@@ -1,0 +1,37 @@
+{
+  "name": "VN Character (Adult)",
+  "description": "The character cutout with a second LoRA slot for an adult adapter stacked on the project's style. Same output contract as vn_character_cutout -- an RGBA sprite that layers over a background the way Ren'Py's `show` does. Tagged nsfw, which is what gates it: vn-forge filters this out of the workflow list unless the open project has turned adult pipelines on.",
+  "requirements": {
+    "nodes": ["CheckpointLoaderSimple", "LoraLoader", "CLIPTextEncode", "FluxGuidance", "EmptySD3LatentImage", "KSampler", "VAEDecode", "InspyrenetRembg", "SaveImage"],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors",
+      "adapter": "an nsfw_* LoRA in models/loras/ -- which exist varies per machine, so ask /object_info rather than assuming a name"
+    },
+    "install": "comfyui-inspyrenet-rembg",
+    "minimum_vram_gb": 8
+  },
+  "stacking_is_the_whole_design": "Two adapters on one checkpoint, and the order and strengths are measured rather than chosen. The style LoRA loads first and the adult adapter stacks ON it, because an opinionated adapter at 0.9-1.0 COMPLETELY SUPPRESSES a style LoRA underneath -- both write the same Flux attention weights and the opinionated one wins, to the point that a style-0.0 control and a style-0.8 output came out near-identical. The measured band for the second adapter is 0.6-0.8: at 1.0 the style still holds but anatomy collapses. strength_clip is 0 on both, because every LoRA in this ecosystem was trained with train_text_encoder false and a non-zero CLIP strength only adds noise.",
+  "the_prompt_does-the-work": "An under-specified prompt reads as a failed adapter. The finding, recorded after several wasted batches: with an explicit mechanical description a GENERIC adult adapter is sufficient and no position-specific LoRA is needed, while euphemism leaves the act to be inferred and produces figures doing nothing. If output looks like the adapter is not loading, suspect the prompt before the weights.",
+  "framing_must_match_the_adapter": "Read each adapter's own trigger text for whether it is POV or third-person; do not infer it from the family name. Mismatching duplicates the subject -- a third-person prompt against a POV adapter produced two sets of anatomy on every attempt, and switching the phrasing eliminated it across all ten seeds.",
+  "caller_must_pass_every_parameter": "run_workflow fills an unsupplied parameter only from DefaultsManager and never from a node's `_defaults` block, so an omitted name is either a crash or a silently wrong value. Both LoRA weights are named off DefaultsManager's vocabulary on purpose -- `style_strength` and `adapter_strength` rather than `lora_strength`, which silently becomes 1.0. For the adapter that default is not merely wrong, it is the value the measurements say collapses anatomy.",
+  "parameters": {
+    "prompt": {"type": "string", "required": true, "description": "The character, the act and the framing, stated mechanically. See 'the_prompt_does_the_work'."},
+    "negative_prompt": {"type": "string", "required": true, "description": "Suggested: 'busy background, scenery, props, extra limbs, duplicate anatomy, cropped, text, watermark'."},
+    "lora_name": {"type": "string", "required": true, "description": "Style LoRA, e.g. 'style/daz3d_vn.safetensors'. To disable, name a real LoRA and pass style_strength 0.0."},
+    "style_strength": {"type": "float", "required": true, "description": "0.0 disables. daz3d_vn and daz3d-doll are BAKED to run at 1.0."},
+    "adapter_name": {"type": "string", "required": true, "description": "The adult adapter, e.g. 'NSFW V2.safetensors'. Which are installed varies per machine."},
+    "adapter_strength": {"type": "float", "required": true, "description": "0.6-0.8 is the measured band. 1.0 collapses anatomy; 0.0 makes this workflow identical to vn_character_cutout."},
+    "width": {"type": "int", "required": true, "description": "Omitting it gives 512. E.g. 832."},
+    "height": {"type": "int", "required": true, "description": "Omitting it gives 512. E.g. 1216."},
+    "seed": {"type": "int", "required": true, "description": "Vary per candidate. Batch-and-select is not optional here -- the measured hit rate with correct framing is about 8 in 10."},
+    "steps": {"type": "int", "required": true, "description": "Suggested 20-24."}
+  },
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage",
+    "has_alpha": true
+  },
+  "category": "generation",
+  "tags": ["text-to-image", "flux", "t2i", "vn-forge", "character", "cutout", "alpha", "nsfw", "adult"]
+}
