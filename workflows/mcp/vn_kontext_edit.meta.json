@@ -1,0 +1,73 @@
+{
+  "name": "VN Kontext Edit",
+  "description": "Changes one thing about an existing image from a plain-language instruction -- 'make it night', 'add rain', 'clear the table' -- while keeping the rest. Flux Kontext wired so the source arrives as an EDIT REFERENCE rather than as a noisy starting point. Also the correct route for converting a flat illustration into a render, which img2img cannot do at any denoise.",
+  "requirements": {
+    "nodes": [
+      "UNETLoader",
+      "DualCLIPLoader",
+      "VAELoader",
+      "LoadImage",
+      "FluxKontextImageScale",
+      "VAEEncode",
+      "CLIPTextEncode",
+      "ReferenceLatent",
+      "FluxGuidance",
+      "ConditioningZeroOut",
+      "KSampler",
+      "VAEDecode",
+      "SaveImage"
+    ],
+    "models": {
+      "unet": "flux1-dev-kontext_fp8_scaled.safetensors",
+      "clip": [
+        "t5xxl_fp8_e4m3fn_scaled.safetensors",
+        "clip_l.safetensors"
+      ],
+      "vae": "ae.safetensors"
+    },
+    "minimum_vram_gb": 12
+  },
+  "why_this_exists_alongside_edit_image_kontext": "The older edit_image_kontext.json in this directory is mis-wired for identity preservation: it runs the source through VAEEncode into KSampler at denoise < 1, which is ordinary img2img wearing Kontext weights -- the model never receives the image as an edit reference at all. Observed consequences: at denoise 0.75 it replaced every person in frame, and at 0.60 it swapped a woman's face. The fix is ReferenceLatent. The source latent feeds BOTH KSampler.latent_image AND ReferenceLatent.latent, the instruction conditioning passes through ReferenceLatent before FluxGuidance, and the negative is a ConditioningZeroOut of the same instruction. denoise then stays at 1.0 -- which looks alarming next to an img2img workflow and is correct here, because preservation comes from the reference, not from withholding noise. That older file is left untouched; anything relying on its behaviour keeps it.",
+  "caller_must_pass_every_parameter": "run_workflow fills unsupplied parameters only from DefaultsManager, never from a node's `_defaults` block, so an omitted name is either a crash or a silently wrong value. The edit text here is called `instruction` rather than `prompt` for a second reason too: it is not a description of the desired image, it is a command about what to change, and prompts written as descriptions behave noticeably worse.",
+  "parameters": {
+    "image_path": {
+      "type": "string",
+      "required": true,
+      "description": "Filename of the source inside ComfyUI's input/ folder. Chain from an earlier generation via resolve_asset_for_workflow(asset_id); a path into some other application's project tree will not resolve without POST /upload/image first."
+    },
+    "instruction": {
+      "type": "string",
+      "required": true,
+      "description": "What to CHANGE, imperative: 'change the lighting to night with streetlamps'. Name what to REMOVE as well as what to add -- props travel with their subject, and relocating a seated character once carried her armchair along into the water."
+    },
+    "seed": {
+      "type": "int",
+      "required": true,
+      "description": "Random seed. Vary per candidate."
+    },
+    "steps": {
+      "type": "int",
+      "required": true,
+      "description": "Sampling steps. Suggested 25."
+    }
+  },
+  "follow_up": "Kontext output is photoreal by nature. To land it back in a game's art style, follow with vn_restyle at strength 0.35-0.40.",
+  "the_output_is_not_the_input_size": "Measured: a 1280x720 background came back 1392x752. FluxKontextImageScale snaps the source to a Kontext-native resolution and the result keeps it, so an edited image no longer matches the size it had. This matters for a visual novel, where a background is composited against a fixed virtual stage -- Ren'Py will scale or letterbox the odd one out, and only that one, which reads as a bug in that specific scene. A caller that cares about exact dimensions must resize on the way back in rather than assume the round trip preserved them.",
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "editing",
+  "tags": [
+    "adjust",
+    "character-consistency",
+    "flux",
+    "identity",
+    "instruction-edit",
+    "kontext",
+    "relocate",
+    "vn-forge"
+  ],
+  "it_preserves_facial_identity": "Measured 2026-08-01, and it is the reason to reach for this workflow rather than img2img when a character has to appear somewhere new. A generated character was relocated from a plain backdrop to a cafe interior and kept the same face -- eye shape, fringe, hairline -- plus the garment's drawstrings and button placement, while correctly gaining a table, a plate, a window and morning light. The same relocation attempted with img2img at denoise 0.55 kept the face and IGNORED THE RELOCATION ENTIRELY: the subject stayed front-on against the same plain backdrop. img2img preserves by not changing much, which is useless when the point is to change where someone is. So: same person somewhere else -> this workflow. Same person, another shot of the same moment -> img2img. Scope, so it is not over-read: one character, one relocation, a freshly generated reference rather than a shipped art corpus. It establishes that ReferenceLatent carries facial identity through a setting change at all, which was previously untested and was the open question."
+}

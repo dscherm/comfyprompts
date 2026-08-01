@@ -1,0 +1,80 @@
+{
+  "name": "VN Restyle / Vary",
+  "description": "Adjusts an image that already exists: same scene, pushed toward the project's art style or varied into a near-neighbour. Flux img2img with an optional style LoRA. This is the gentlest of the three vn-forge adjust modes -- it re-renders the whole frame at partial strength, so it changes surface and light but cannot restructure what is baked into the source pixels. For 'make it night' or 'clear the table' use vn_kontext_edit; to change one region only, use vn_inpaint.",
+  "requirements": {
+    "nodes": [
+      "CheckpointLoaderSimple",
+      "LoraLoader",
+      "LoadImage",
+      "VAEEncode",
+      "CLIPTextEncode",
+      "FluxGuidance",
+      "KSampler",
+      "VAEDecode",
+      "SaveImage"
+    ],
+    "models": {
+      "checkpoint": "flux1-dev-fp8.safetensors"
+    },
+    "minimum_vram_gb": 8
+  },
+  "caller_must_pass_every_parameter": "run_workflow fills an unsupplied parameter only from DefaultsManager and never from a node's `_defaults` block. That makes an omitted parameter either a loud crash (a name DefaultsManager does not know stays as the literal 'PARAM_...' and ComfyUI rejects the prompt) or a silent wrong value (a name it knows). Two names here are chosen for the loud failure ON PURPOSE: `strength` rather than `denoise`, because denoise silently defaults to 1.0 and 1.0 means the source image is ignored completely -- an img2img that quietly became a text2img; and `style_strength` rather than `lora_strength`, which silently defaults to 1.0.",
+  "parameters": {
+    "image_path": {
+      "type": "string",
+      "required": true,
+      "description": "Filename of the source inside ComfyUI's input/ folder. Chain from a previous generation by passing that step's asset_id through resolve_asset_for_workflow, which downloads from output/ and re-uploads to input/. A path from some other application's project tree will NOT resolve -- upload it first via POST /upload/image."
+    },
+    "strength": {
+      "type": "float",
+      "required": true,
+      "description": "Denoise. This is the whole control and it fails in BOTH directions, measured: 0.30-0.40 for already-CG game art, 0.35-0.45 for a photoreal source. 0.55 is the working point when the goal is a genuinely new shot of the same subject. By ~0.70 identity is gone AND the content with it, because past a threshold the model stops editing and starts re-imagining. Below ~0.30 nothing visibly happens."
+    },
+    "prompt": {
+      "type": "string",
+      "required": true,
+      "description": "What the adjusted image should be. Describe the whole frame, not just the change -- img2img re-renders everything."
+    },
+    "negative_prompt": {
+      "type": "string",
+      "required": true,
+      "description": "Suggested: 'text, watermark, blurry, distorted'."
+    },
+    "lora_name": {
+      "type": "string",
+      "required": true,
+      "description": "Style LoRA, e.g. 'style/daz3d_vn.safetensors'. To disable, name a real LoRA and pass style_strength 0.0."
+    },
+    "style_strength": {
+      "type": "float",
+      "required": true,
+      "description": "0.0 disables. When restyling on top of an opinionated adapter, retaining that adapter at ~0.40 stops the style LoRA repainting anatomy it knows nothing about."
+    },
+    "seed": {
+      "type": "int",
+      "required": true,
+      "description": "Random seed. Vary per candidate -- adjacent source frames at a shared seed produce near-identical outputs."
+    },
+    "steps": {
+      "type": "int",
+      "required": true,
+      "description": "Sampling steps. Suggested 20."
+    }
+  },
+  "known_limit": "img2img cannot restructure what is baked into the source pixels. A flat ink illustration stayed flat at denoise 0.45, 0.60 AND 0.75 -- the failure is not a tuning problem. Route by source medium: photoreal or already-CG -> restyle here; flat illustration or comic -> vn_kontext_edit first to convert the medium, then restyle.",
+  "output": {
+    "type": "image",
+    "format": "png",
+    "node": "SaveImage"
+  },
+  "category": "editing",
+  "tags": [
+    "img2img",
+    "flux",
+    "vn-forge",
+    "restyle",
+    "adjust",
+    "variation"
+  ],
+  "it_will_not_move_a_character_somewhere_new": "Measured 2026-08-01. Asked to relocate a character from a plain backdrop to a cafe interior at strength 0.55 -- the documented working point for a new still of an existing character -- this kept her face perfectly and produced no cafe, no table and no morning light. She stayed front-on against the same plain backdrop. That is the known limit stated one notch up: img2img preserves BY NOT CHANGING MUCH, so leaning on it to restage someone spends their identity before it moves them. Same person, another shot of the same moment -> this workflow. Same person somewhere else -> vn_kontext_edit, which preserves through ReferenceLatent rather than through withheld noise and was measured doing both at once."
+}
