@@ -53,8 +53,72 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+# Project root for this invocation. None until the payload is read, or when
+# the hook is invoked outside Claude Code (direct run, tests).
+_ROOT: Path | None = None
+
+
+def _set_root_from_payload(payload: object) -> None:
+    """Adopt the `cwd` Claude Code sent in the hook payload.
+
+    Claude Code reports the session's working directory in every payload.
+    Trusting the hook PROCESS's cwd instead is a silent-corruption bug: state
+    lands wherever the shell happened to be, and nothing reports the mistake.
+    That is not hypothetical -- ralph-universal accumulated a stray
+    tools/.ralph/ (handoff.md, memories.md, bash_telemetry.jsonl,
+    reflection_state.json) on 2026-07-16 from hooks that ran with cwd=tools/.
+
+    Falls back to process cwd when the payload has no usable `cwd`, so direct
+    invocation and tests keep working unchanged.
+    """
+    global _ROOT
+    if not isinstance(payload, dict):
+        return
+    cwd = payload.get("cwd")
+    if not isinstance(cwd, str) or not cwd.strip():
+        return
+    try:
+        candidate = Path(cwd)
+        if candidate.is_dir():
+            _ROOT = candidate
+    except (OSError, ValueError):
+        pass
+
+
+def _git_root(start: Path) -> Path:
+    """Nearest ancestor holding `.git`, else `start` unchanged.
+
+    `.exists()` rather than `.is_dir()`: in a worktree or submodule `.git` is
+    a FILE containing a gitdir pointer, and treating that as "not a repo"
+    would walk straight past the root it was looking for.
+    """
+    try:
+        start = start.resolve()
+    except OSError:
+        return start
+    for d in (start, *start.parents):
+        if (d / ".git").exists():
+            return d
+    return start
+
+
 def _repo_root() -> Path:
-    return Path.cwd()
+    """Project root: the git root at or above the session cwd.
+
+    Anchoring to the git root, not to the cwd itself. The cwd is where the
+    session happens to be standing, which is not the same thing: `cd tools`
+    inside this repo made hooks write state to `tools/.ralph/` -- four files
+    that then got committed. Trusting the payload cwd (2026-07-16) fixed
+    hooks running from an unrelated directory; it does not fix a cwd that is
+    a genuine SUBDIRECTORY of the project, which is the common case.
+
+    Worse for the guards than for telemetry: a guard resolving to the wrong
+    root reads no active session and fails OPEN, silently.
+
+    Falls back to the unanchored path outside a repo, so tests and direct
+    invocation behave as before.
+    """
+    return _git_root(_ROOT if _ROOT is not None else Path.cwd())
 
 
 def _load_session() -> dict | None:
@@ -118,6 +182,7 @@ def main() -> int:
 
     try:
         hook_data = json.loads(raw)
+        _set_root_from_payload(hook_data)
     except json.JSONDecodeError:
         return 0
 

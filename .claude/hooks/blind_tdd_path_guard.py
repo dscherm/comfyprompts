@@ -83,13 +83,72 @@ _PATH_FIELDS = {
 }
 
 
-def _repo_root() -> Path:
-    """Return the current working directory as the repo root.
+# Project root for this invocation. None until the payload is read, or when
+# the hook is invoked outside Claude Code (direct run, tests).
+_ROOT: Path | None = None
 
-    claude-code hooks run in the project's working directory, so CWD is
-    the right reference for relative path resolution.
+
+def _set_root_from_payload(payload: object) -> None:
+    """Adopt the `cwd` Claude Code sent in the hook payload.
+
+    Claude Code reports the session's working directory in every payload.
+    Trusting the hook PROCESS's cwd instead is a silent-corruption bug: state
+    lands wherever the shell happened to be, and nothing reports the mistake.
+    That is not hypothetical -- ralph-universal accumulated a stray
+    tools/.ralph/ (handoff.md, memories.md, bash_telemetry.jsonl,
+    reflection_state.json) on 2026-07-16 from hooks that ran with cwd=tools/.
+
+    Falls back to process cwd when the payload has no usable `cwd`, so direct
+    invocation and tests keep working unchanged.
     """
-    return Path.cwd()
+    global _ROOT
+    if not isinstance(payload, dict):
+        return
+    cwd = payload.get("cwd")
+    if not isinstance(cwd, str) or not cwd.strip():
+        return
+    try:
+        candidate = Path(cwd)
+        if candidate.is_dir():
+            _ROOT = candidate
+    except (OSError, ValueError):
+        pass
+
+
+def _git_root(start: Path) -> Path:
+    """Nearest ancestor holding `.git`, else `start` unchanged.
+
+    `.exists()` rather than `.is_dir()`: in a worktree or submodule `.git` is
+    a FILE containing a gitdir pointer, and treating that as "not a repo"
+    would walk straight past the root it was looking for.
+    """
+    try:
+        start = start.resolve()
+    except OSError:
+        return start
+    for d in (start, *start.parents):
+        if (d / ".git").exists():
+            return d
+    return start
+
+
+def _repo_root() -> Path:
+    """Project root: the git root at or above the session cwd.
+
+    Anchoring to the git root, not to the cwd itself. The cwd is where the
+    session happens to be standing, which is not the same thing: `cd tools`
+    inside this repo made hooks write state to `tools/.ralph/` -- four files
+    that then got committed. Trusting the payload cwd (2026-07-16) fixed
+    hooks running from an unrelated directory; it does not fix a cwd that is
+    a genuine SUBDIRECTORY of the project, which is the common case.
+
+    Worse for the guards than for telemetry: a guard resolving to the wrong
+    root reads no active session and fails OPEN, silently.
+
+    Falls back to the unanchored path outside a repo, so tests and direct
+    invocation behave as before.
+    """
+    return _git_root(_ROOT if _ROOT is not None else Path.cwd())
 
 
 def _session_file() -> Path:
@@ -320,6 +379,7 @@ def main() -> int:
 
     try:
         hook_data = json.loads(raw)
+        _set_root_from_payload(hook_data)
     except json.JSONDecodeError:
         # Not valid JSON → not a hook we understand → allow
         return 0
@@ -335,6 +395,40 @@ def main() -> int:
         # No active blind session → passthrough
         return 0
 
+    # A session IS active from here, so the failure direction inverts.
+    #
+    # Above this line the hook fails OPEN: with no session there is nothing to
+    # protect, and a bug in the guard must not wedge every file read in every
+    # enrolled project. Below it, failing open means a blind agent reads `src/`
+    # -- which is the one thing this guard exists to prevent, and the gate has
+    # no other way to notice. An unhandled raise here used to exit 1, and
+    # Claude Code treats any non-2 exit as a NON-blocking error: the tool call
+    # proceeds. A crash silently became permission.
+    #
+    # `_load_session` already applies the same rule to its own branch: a
+    # session file that exists but will not parse yields blocked_paths ["**"]
+    # rather than None.
+    try:
+        return _decide(tool_name, tool_input, session)
+    except Exception as e:  # noqa: BLE001 -- deliberate catch-all, see above
+        print(
+            f"[blind-tdd] BLOCKED: guard raised {type(e).__name__}: {e} while a "
+            f"blind-TDD session is active (session "
+            f"{session.get('session_id', '?')}, role "
+            f"{session.get('agent_role', '?')}). Blocking rather than allowing "
+            f"-- a guard that cannot decide must not grant access. Fix the "
+            f"guard or end the session.",
+            file=sys.stderr,
+        )
+        return 2
+
+
+def _decide(tool_name: str, tool_input: dict, session: dict) -> int:
+    """Allow (0) or block (2) one tool call against an ACTIVE blind session.
+
+    Split out of main() so the caller can convert any unexpected failure into
+    a block. Every `return 0` below is a deliberate allow.
+    """
     path_raw = _extract_path(tool_name, tool_input)
     if not path_raw:
         # Tool call doesn't carry a path → allow (e.g. Grep with no --path)

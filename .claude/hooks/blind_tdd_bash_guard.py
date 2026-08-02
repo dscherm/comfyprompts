@@ -32,8 +32,72 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
+# Project root for this invocation. None until the payload is read, or when
+# the hook is invoked outside Claude Code (direct run, tests).
+_ROOT: Path | None = None
+
+
+def _set_root_from_payload(payload: object) -> None:
+    """Adopt the `cwd` Claude Code sent in the hook payload.
+
+    Claude Code reports the session's working directory in every payload.
+    Trusting the hook PROCESS's cwd instead is a silent-corruption bug: state
+    lands wherever the shell happened to be, and nothing reports the mistake.
+    That is not hypothetical -- ralph-universal accumulated a stray
+    tools/.ralph/ (handoff.md, memories.md, bash_telemetry.jsonl,
+    reflection_state.json) on 2026-07-16 from hooks that ran with cwd=tools/.
+
+    Falls back to process cwd when the payload has no usable `cwd`, so direct
+    invocation and tests keep working unchanged.
+    """
+    global _ROOT
+    if not isinstance(payload, dict):
+        return
+    cwd = payload.get("cwd")
+    if not isinstance(cwd, str) or not cwd.strip():
+        return
+    try:
+        candidate = Path(cwd)
+        if candidate.is_dir():
+            _ROOT = candidate
+    except (OSError, ValueError):
+        pass
+
+
+def _git_root(start: Path) -> Path:
+    """Nearest ancestor holding `.git`, else `start` unchanged.
+
+    `.exists()` rather than `.is_dir()`: in a worktree or submodule `.git` is
+    a FILE containing a gitdir pointer, and treating that as "not a repo"
+    would walk straight past the root it was looking for.
+    """
+    try:
+        start = start.resolve()
+    except OSError:
+        return start
+    for d in (start, *start.parents):
+        if (d / ".git").exists():
+            return d
+    return start
+
+
 def _repo_root() -> Path:
-    return Path.cwd()
+    """Project root: the git root at or above the session cwd.
+
+    Anchoring to the git root, not to the cwd itself. The cwd is where the
+    session happens to be standing, which is not the same thing: `cd tools`
+    inside this repo made hooks write state to `tools/.ralph/` -- four files
+    that then got committed. Trusting the payload cwd (2026-07-16) fixed
+    hooks running from an unrelated directory; it does not fix a cwd that is
+    a genuine SUBDIRECTORY of the project, which is the common case.
+
+    Worse for the guards than for telemetry: a guard resolving to the wrong
+    root reads no active session and fails OPEN, silently.
+
+    Falls back to the unanchored path outside a repo, so tests and direct
+    invocation behave as before.
+    """
+    return _git_root(_ROOT if _ROOT is not None else Path.cwd())
 
 
 def _session_file() -> Path:
@@ -70,6 +134,15 @@ _ALLOWED_TEST = [
     r"go\s+test\b",
     r"mvn\s+test\b",
     r"gradle\s+test\b",
+    # GDScript/Godot headless test runs. The target must be a test SCENE
+    # (.tscn) or GUT's cmdline runner (gut_cmdln.gd), or a cache-warming
+    # --import pass. A bare `-s <arbitrary>.gd` is deliberately NOT allowed:
+    # godot executes any GDScript, so an unconstrained `-s` would let the
+    # runner read source and defeat its src-blindness. The binary may be
+    # `godot`/`godot4`, the `$GODOT`/`${GODOT}` env override, or a quoted
+    # absolute path to a Godot .exe; each match stays within one shell segment.
+    r'"?(?:godot\w*(?:\.exe)?|\$\{?GODOT\}?|[^"|;&]*[Gg]odot[^"|;&]*\.exe)"?[^|;&]*--headless[^|;&]*(?:\.tscn|gut_cmdln\.gd)\b',
+    r'"?(?:godot\w*(?:\.exe)?|\$\{?GODOT\}?|[^"|;&]*[Gg]odot[^"|;&]*\.exe)"?[^|;&]*--headless[^|;&]*--import\b',
 ]
 _ALLOWED_RE = [re.compile(r"^\s*" + p, re.IGNORECASE) for p in _ALLOWED_TEST]
 
@@ -139,6 +212,7 @@ def main() -> int:
         return 0
     try:
         hook_data = json.loads(raw)
+        _set_root_from_payload(hook_data)
     except json.JSONDecodeError:
         return 0
 
@@ -149,6 +223,29 @@ def main() -> int:
     if session is None:
         return 0  # no active blind session => passthrough
 
+    # A session IS active from here, so the failure direction inverts. Above
+    # this line the hook fails OPEN (no session, nothing to protect, and a
+    # guard bug must not wedge every Bash call in every enrolled project);
+    # below it, failing open lets a blind agent read implementation through
+    # the shell -- the exact bypass this guard exists to close. An unhandled
+    # raise exits 1, and Claude Code treats any non-2 exit as a NON-blocking
+    # error, so the command runs. `_load_session` already applies this rule to
+    # its own branch: a corrupt session file denies rather than passes through.
+    try:
+        return _decide(hook_data, session)
+    except Exception as e:  # noqa: BLE001 -- deliberate catch-all, see above
+        print(
+            f"[blind-tdd] BLOCKED Bash: guard raised {type(e).__name__}: {e} "
+            f"while a blind-TDD session is active (session "
+            f"{session.get('session_id', '?')}). Blocking rather than allowing "
+            f"-- a guard that cannot decide must not grant access.",
+            file=sys.stderr,
+        )
+        return 2
+
+
+def _decide(hook_data: dict, session: dict) -> int:
+    """Allow (0) or block (2) one Bash call against an ACTIVE blind session."""
     command = (hook_data.get("tool_input") or {}).get("command", "") or ""
     role = session.get("agent_role", "unknown")
     allowed, reason = evaluate(command, role)

@@ -57,8 +57,8 @@ from datetime import datetime, timezone
 from pathlib import Path
 
 
-TELEMETRY_FILE = ".ralph/bash_telemetry.jsonl"
-PHASE_FILE = ".ralph/phase.json"
+TELEMETRY_NAME = "bash_telemetry.jsonl"
+PHASE_NAME = "phase.json"
 
 # Verb-level risk hint (matches "first token" of the command).
 SAFE_VERBS = {
@@ -178,14 +178,99 @@ def _verb_class(v: str) -> str:
 
 
 def _record(payload: dict) -> None:
-    project_dir = Path.cwd()
-    out = project_dir / TELEMETRY_FILE
+    project_dir = _repo_root()
+    out = _state_dir(project_dir) / TELEMETRY_NAME
     try:
         out.parent.mkdir(parents=True, exist_ok=True)
         with out.open("a", encoding="utf-8") as f:
             f.write(json.dumps(payload, ensure_ascii=False) + "\n")
     except OSError as e:
         print(f"[bash-telemetry] write failed: {e}", file=sys.stderr)
+
+
+# Project root for this invocation. None until the payload is read, or when
+# the hook is invoked outside Claude Code (direct run, tests).
+_ROOT: Path | None = None
+
+
+def _set_root_from_payload(payload: object) -> None:
+    """Adopt the `cwd` Claude Code sent in the hook payload.
+
+    Claude Code reports the session's working directory in every payload.
+    Trusting the hook PROCESS's cwd instead is a silent-corruption bug: state
+    lands wherever the shell happened to be, and nothing reports the mistake.
+    That is not hypothetical -- ralph-universal accumulated a stray
+    tools/.ralph/ (handoff.md, memories.md, bash_telemetry.jsonl,
+    reflection_state.json) on 2026-07-16 from hooks that ran with cwd=tools/.
+
+    Falls back to process cwd when the payload has no usable `cwd`, so direct
+    invocation and tests keep working unchanged.
+    """
+    global _ROOT
+    if not isinstance(payload, dict):
+        return
+    cwd = payload.get("cwd")
+    if not isinstance(cwd, str) or not cwd.strip():
+        return
+    try:
+        candidate = Path(cwd)
+        if candidate.is_dir():
+            _ROOT = candidate
+    except (OSError, ValueError):
+        pass
+
+
+# Inlined copy of tools/_internal/paths.state_dir. These hooks are COPIED into
+# each project, so they cannot import the harness resolver -- keep the rule in
+# sync with it and with .git/hooks/post-commit, which carries a third copy in
+# shell. Prefer the new name when it exists, else the legacy one; when neither
+# exists, return NEW -- matching paths.DEFAULT_ON_MISSING, flipped at cutover
+# 2026-08-01. All three copies must agree, or a project splits its state
+# between two directories with no error.
+_STATE_DIR_NAMES = (".schermness", ".ralph")
+
+
+def _state_dir(root: Path) -> Path:
+    for name in _STATE_DIR_NAMES:
+        if (root / name).is_dir():
+            return root / name
+    return root / _STATE_DIR_NAMES[0]
+
+
+def _git_root(start: Path) -> Path:
+    """Nearest ancestor holding `.git`, else `start` unchanged.
+
+    `.exists()` rather than `.is_dir()`: in a worktree or submodule `.git` is
+    a FILE containing a gitdir pointer, and treating that as "not a repo"
+    would walk straight past the root it was looking for.
+    """
+    try:
+        start = start.resolve()
+    except OSError:
+        return start
+    for d in (start, *start.parents):
+        if (d / ".git").exists():
+            return d
+    return start
+
+
+def _repo_root() -> Path:
+    """Project root: the git root at or above the session cwd.
+
+    Anchoring to the git root, not to the cwd itself. The cwd is where the
+    session happens to be standing, which is not the same thing: `cd tools`
+    inside this repo made hooks write state to `tools/.ralph/` -- four files
+    that then got committed. Trusting the payload cwd (2026-07-16) fixed
+    hooks running from an unrelated directory; it does not fix a cwd that is
+    a genuine SUBDIRECTORY of the project, which is the common case.
+
+    Worse for the guards than for telemetry: a guard resolving to the wrong
+    root reads no active session and fails OPEN, silently.
+
+    Falls back to the unanchored path outside a repo, so tests and direct
+    invocation behave as before.
+    """
+    return _git_root(_ROOT if _ROOT is not None else Path.cwd())
 
 
 def main() -> int:
@@ -197,6 +282,7 @@ def main() -> int:
         return 0
     try:
         hook = json.loads(raw_in)
+        _set_root_from_payload(hook)
     except json.JSONDecodeError:
         return 0
 
@@ -212,7 +298,7 @@ def main() -> int:
     risk = _classify(verb, subverb, flags, command)
 
     phase = None
-    phase_rec = _read_json(Path.cwd() / PHASE_FILE)
+    phase_rec = _read_json(_state_dir(_repo_root()) / PHASE_NAME)
     if phase_rec:
         phase = phase_rec.get("phase")
 
