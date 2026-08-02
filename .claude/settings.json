@@ -5,7 +5,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/inject_lessons_interactive.py\" --project-dir ."
+            "command": "python \"$RALPH_HOME/tools/inject_lessons_interactive.py\" --project-dir .",
+            "timeout": 60
           }
         ]
       },
@@ -13,7 +14,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/parse_claude_sessions.py\" --project-dir ."
+            "command": "python \"$RALPH_HOME/tools/parse_claude_sessions.py\" --project-dir .",
+            "timeout": 60
           }
         ]
       },
@@ -21,7 +23,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/compact_memories.py\" --check-only"
+            "command": "python \"$RALPH_HOME/tools/compact_memories.py\" --check-only",
+            "timeout": 60
           }
         ]
       },
@@ -29,7 +32,17 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/cost_by_phase.py\" --project-dir . --format jsonl"
+            "command": "python \"$RALPH_HOME/tools/cost_by_phase.py\" --project-dir . --format jsonl",
+            "timeout": 60
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$RALPH_HOME/tools/inject_examples.py\" --project-dir .",
+            "timeout": 60
           }
         ]
       }
@@ -40,7 +53,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/pre_commit_gate.py\" --project-dir ."
+            "command": "python \"$RALPH_HOME/tools/pre_commit_gate.py\" --project-dir .",
+            "timeout": 330
           }
         ]
       },
@@ -49,7 +63,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/blind_tdd_path_guard.py\""
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/blind_tdd_path_guard.py\"",
+            "timeout": 10
           }
         ]
       },
@@ -58,7 +73,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/phase_permission_guard.py\""
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/phase_permission_guard.py\"",
+            "timeout": 10
           }
         ]
       },
@@ -67,7 +83,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/bash_telemetry.py\""
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/bash_telemetry.py\"",
+            "timeout": 10
           }
         ]
       },
@@ -76,7 +93,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/blind_tdd_bash_guard.py\""
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/blind_tdd_bash_guard.py\"",
+            "timeout": 10
           }
         ]
       }
@@ -87,7 +105,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/comfyui-toolchain/.claude/hooks/blind_tdd_audit.py\""
+            "command": "python \"$CLAUDE_PROJECT_DIR/.claude/hooks/blind_tdd_audit.py\"",
+            "timeout": 10
           }
         ]
       }
@@ -97,7 +116,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/synthesize_memories.py\" --source post-commit"
+            "command": "python \"$RALPH_HOME/tools/synthesize_memories.py\" --source post-commit",
+            "timeout": 30
           }
         ]
       },
@@ -105,7 +125,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/unpossible-ralph/tools/write_handoff.py\""
+            "command": "python \"$RALPH_HOME/tools/write_handoff.py\"",
+            "timeout": 30
           }
         ]
       },
@@ -113,7 +134,26 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/reflect_prompt.py\" --project-dir ."
+            "command": "python \"$RALPH_HOME/tools/reflect_prompt.py\" --project-dir .",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$RALPH_HOME/tools/yellow_queue.py\" prompt-check",
+            "timeout": 30
+          }
+        ]
+      },
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python \"$RALPH_HOME/tools/context_guard.py\" --project-dir .",
+            "timeout": 30
           }
         ]
       }
@@ -123,7 +163,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/precompact_handoff.py\" --project-dir ."
+            "command": "python \"$RALPH_HOME/tools/precompact_handoff.py\" --project-dir .",
+            "timeout": 30
           }
         ]
       }
@@ -133,7 +174,8 @@
         "hooks": [
           {
             "type": "command",
-            "command": "python \"D:/Projects/ralph-universal/tools/scoped_context.py\" refresh"
+            "command": "python \"$RALPH_HOME/tools/scoped_context.py\" refresh",
+            "timeout": 10
           }
         ]
       }
