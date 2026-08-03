@@ -65,7 +65,7 @@ def _set_root_from_payload(payload: object) -> None:
     Trusting the hook PROCESS's cwd instead is a silent-corruption bug: state
     lands wherever the shell happened to be, and nothing reports the mistake.
     That is not hypothetical -- ralph-universal accumulated a stray
-    tools/.ralph/ (handoff.md, memories.md, bash_telemetry.jsonl,
+    tools/.schermness/ (handoff.md, memories.md, bash_telemetry.jsonl,
     reflection_state.json) on 2026-07-16 from hooks that ran with cwd=tools/.
 
     Falls back to process cwd when the payload has no usable `cwd`, so direct
@@ -107,7 +107,7 @@ def _repo_root() -> Path:
 
     Anchoring to the git root, not to the cwd itself. The cwd is where the
     session happens to be standing, which is not the same thing: `cd tools`
-    inside this repo made hooks write state to `tools/.ralph/` -- four files
+    inside this repo made hooks write state to `tools/.schermness/` -- four files
     that then got committed. Trusting the payload cwd (2026-07-16) fixed
     hooks running from an unrelated directory; it does not fix a cwd that is
     a genuine SUBDIRECTORY of the project, which is the common case.
