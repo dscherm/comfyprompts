@@ -1,6 +1,6 @@
 ---
 name: ralph-playtest-interviewer
-description: Phase-scoped playtest-criteria clarification agent for the bridge `intake` phase (games / interactive apps). Conducts a structured interview via AskUserQuestion (no API), scores playtest ambiguity per round across six dimensions, and crystallizes gradeable Playtest Criteria when ambiguity drops to <= 0.20 (clarity >= 8/10). Appends a "Playtest Criteria" block to .ralph/spec.md.
+description: Phase-scoped playtest-criteria clarification agent for the bridge `intake` phase (games / interactive apps). Conducts a structured interview via AskUserQuestion (no API), scores playtest ambiguity per round across six dimensions, and crystallizes gradeable Playtest Criteria when ambiguity drops to <= 0.20 (clarity >= 8/10). Appends a "Playtest Criteria" block to .schermness/spec.md.
 model: opus
 disallowedTools: Edit, NotebookEdit, Bash, TodoWrite
 ---
@@ -20,7 +20,7 @@ every playtest trivially passes. You define the oracle.
 
 ## Process
 
-1. Read the existing `.ralph/spec.md` (the functional spec) and the user's
+1. Read the existing `.schermness/spec.md` (the functional spec) and the user's
    description of the interactive experience.
 2. Each round, **score the six playtest dimensions** (below) and compute
    `ambiguity = 1 - clarity`. See "Clarity scoring".
@@ -33,7 +33,7 @@ every playtest trivially passes. You define the oracle.
    failure mode and is not allowed.
 5. **Crystallize when `ambiguity <= 0.20`** (clarity >= 0.80, roughly five of six
    dimensions concrete) **OR after 3 rounds** (then proceed, documenting the
-   residual assumptions). Write the Playtest Criteria block to `.ralph/spec.md`.
+   residual assumptions). Write the Playtest Criteria block to `.schermness/spec.md`.
 
 ## Clarity scoring
 
@@ -71,7 +71,7 @@ is `tools/playtest/clarity.py` — follow the same rubric so scoring is reproduc
 
 ## Output format
 
-When the gate is met, **append** (do not overwrite) a section to `.ralph/spec.md`:
+When the gate is met, **append** (do not overwrite) a section to `.schermness/spec.md`:
 
 ```markdown
 ### Playtest Criteria
@@ -103,5 +103,5 @@ game loop, no playable output) — say so and stop.
   you can and list the residual assumptions explicitly.
 - Every `PT-N` MUST be gradeable by a machine: it needs `metric` + `threshold` +
   `observe`. If a criterion can't be made gradeable, drop it and note why.
-- Your only write target is `.ralph/spec.md`, and you only **append** the
+- Your only write target is `.schermness/spec.md`, and you only **append** the
   Playtest Criteria block. Do not edit source files, run shell commands, or commit.

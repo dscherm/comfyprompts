@@ -2,11 +2,11 @@
 
 ## Context
 
-@.ralph/pending_tasks.md
-@.ralph/recent_activity.md
-@.ralph/memories.md
-@.ralph/gate_failure.md
-@.ralph/human_note.md
+@.schermness/pending_tasks.md
+@.schermness/recent_activity.md
+@.schermness/memories.md
+@.schermness/gate_failure.md
+@.schermness/human_note.md
 @CLAUDE.md
 
 Source code: `packages/`. Tests: `packages/*/tests/`. Workflows: `workflows/`.
@@ -68,7 +68,7 @@ Follow these phases in order. ONE task per iteration.
 
   **Status:** COMPLETE
   ```
-- If you learned something non-obvious, add it to `.ralph/memories.md` with a unique ID
+- If you learned something non-obvious, add it to `.schermness/memories.md` with a unique ID
   (`mem-YYYYMMDD-NNN`), evidence, and tags.
 - If you discovered new issues, add them as new JSON task blocks at the end of `plan.md`
   with appropriate priority.

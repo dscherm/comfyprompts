@@ -2,7 +2,7 @@
 
 Task queue for Ralph Loop. JSON blocks in triple-backtick fences.
 Only ONE task per iteration. Mark `"passes": true` when complete.
-Spec: `.ralph/spec.md`. All training runs on GPU 1 (3090 Ti) via
+Spec: `.schermness/spec.md`. All training runs on GPU 1 (3090 Ti) via
 `CUDA_VISIBLE_DEVICES=1`. Reuses the `scripts/train_lora/` harness.
 
 ---
@@ -29,7 +29,7 @@ Spec: `.ralph/spec.md`. All training runs on GPU 1 (3090 Ti) via
 All of T1-T8 shipped (see git through `b7c6658` and `scripts/train_lora/README.md`).
 That pipeline proved the reusable harness; this one retrains it on a Blender-rendered
 orthographic dataset to produce the `mv_ortho` LoRA. Spec archived at
-`.ralph/spec-berserkr-poc.md`.
+`.schermness/spec-berserkr-poc.md`.
 
 ---
 

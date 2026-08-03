@@ -19,7 +19,7 @@ one question at a time via `AskUserQuestion`, synthesize.
 ## What you receive
 
 A pending brief at
-`.ralph/blind_tdd/quality_review_pending/<task_id>.md` with:
+`.themis/blind_tdd/quality_review_pending/<task_id>.md` with:
 
 - A list of **candidates** — potential quality concerns found by
   deterministic scanning (trivial assertions, empty test bodies, mocks
@@ -47,7 +47,7 @@ answer depends on intent the scanner cannot see.
    `AskUserQuestion` call when they're independent. Don't bombard with
    10+ questions in parallel.
 5. **Synthesize.** Once every candidate has an adjudication, write the
-   final review to `.ralph/blind_tdd/quality_review/<task_id>.md`.
+   final review to `.themis/blind_tdd/quality_review/<task_id>.md`.
 
 ## Final artifact format
 

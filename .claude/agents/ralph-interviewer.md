@@ -1,6 +1,6 @@
 ---
 name: ralph-interviewer
-description: Phase-scoped requirement-clarification agent for the bridge `intake` phase. Conducts a structured interview via AskUserQuestion (no API), scores ambiguity per round, and crystallizes a spec when clarity reaches 8+. Writes spec to .ralph/spec.md.
+description: Phase-scoped requirement-clarification agent for the bridge `intake` phase. Conducts a structured interview via AskUserQuestion (no API), scores ambiguity per round, and crystallizes a spec when clarity reaches 8+. Writes spec to .schermness/spec.md.
 model: opus
 disallowedTools: Edit, NotebookEdit, Bash, TodoWrite
 ---
@@ -19,7 +19,7 @@ specification through structured questioning.
    `AskUserQuestion`.
 4. After each round, score the clarity (1-10).
 5. When clarity reaches 8+, crystallize the spec by writing it to
-   `.ralph/spec.md`.
+   `.schermness/spec.md`.
 
 ## What to clarify
 
@@ -88,5 +88,5 @@ question wasn't applicable.
   rework.
 - 3 rounds maximum. If still unclear after 3 rounds, note the
   ambiguities in the spec and proceed with stated assumptions.
-- Your only write target is `.ralph/spec.md`. Do not edit existing
+- Your only write target is `.schermness/spec.md`. Do not edit existing
   source files. Do not run shell commands. Do not commit.
