@@ -1,0 +1,138 @@
+{
+  "version": "2.0",
+  "project": {
+    "name": "comfyui-toolchain",
+    "expertise": [
+      "full-stack"
+    ]
+  },
+  "stack": {
+    "languages": [
+      "python"
+    ],
+    "test_runner": {
+      "python": {
+        "command": "D:/Projects/comfyui-toolchain/.venv/Scripts/python.exe -m pytest",
+        "test_dir": "tests/",
+        "targeted_flags": [
+          "-v",
+          "--tb=short"
+        ],
+        "full_flags": [
+          "-x",
+          "--tb=short",
+          "-q"
+        ],
+        "ignore": []
+      }
+    },
+    "type_checker": "mypy",
+    "linter": null
+  },
+  "gate": {
+    "test_map": {},
+    "shared_files": [],
+    "secrets_scan": true,
+    "denylist": [
+      "\\.env",
+      ".*\\.pem$",
+      ".*\\.key$",
+      "credentials\\.",
+      "id_rsa",
+      "id_ed25519"
+    ],
+    "manager_review": {
+      "enabled": true,
+      "model": "sonnet",
+      "trigger": "always",
+      "auto_approve_threshold": 3,
+      "escalation_patterns": [
+        "security",
+        "database",
+        "breaking-change"
+      ]
+    },
+    "blind_tdd": {
+      "enabled": true,
+      "enforcement": "warn",
+      "spawner": "manual",
+      "preflight": "warn",
+      "test_dirs": [
+        "tests/contracts/",
+        "tests/integration/"
+      ],
+      "public_api_file": "public_api.md",
+      "routing": {
+        "mode": "all",
+        "path_globs": [
+          "**/auth/**",
+          "**/security/**",
+          "**/secrets/**",
+          "**/billing/**",
+          "**/payment/**"
+        ],
+        "keywords": [
+          "password",
+          "token",
+          "secret",
+          "credential",
+          "authentication",
+          "payment",
+          "encrypt"
+        ],
+        "min_severity": "critical",
+        "_ab_experiment_note": "mode set to all for the per-trap A/B window (2026-07-06); revert to selective when the experiment concludes \u2014 predicates below are preserved"
+      },
+      "suppression_audit": true,
+      "security_ac_pack": {
+        "enabled": true
+      }
+    }
+  },
+  "harness": {
+    "max_iterations": 20,
+    "gate_mode": "warn",
+    "timeout_seconds": 1800,
+    "max_files_per_iteration": 20,
+    "consecutive_fail_threshold": 3,
+    "agent_model": {
+      "default": "sonnet",
+      "critical_tasks": "opus"
+    },
+    "pause_on_signals": [
+      "NEEDS_REVIEW",
+      "SPAWN_REQUESTED"
+    ]
+  },
+  "context": {
+    "recent_activity_count": 5,
+    "max_context_lines": 600,
+    "plan_file": "plan.md",
+    "activity_file": "activity.md",
+    "prompt_file": "PROMPT.md"
+  },
+  "memories": {
+    "enabled": true,
+    "max_entries": 15,
+    "max_bytes": 2048,
+    "staleness_threshold": 10
+  },
+  "observations": {
+    "enabled": true,
+    "sync_to_global": true
+  },
+  "alerts": {
+    "enabled": true,
+    "methods": [
+      "file"
+    ],
+    "alert_on": [
+      "gate_fail_3x",
+      "blocked",
+      "complete",
+      "timeout",
+      "needs_human"
+    ],
+    "alert_file": null
+  }
+}
