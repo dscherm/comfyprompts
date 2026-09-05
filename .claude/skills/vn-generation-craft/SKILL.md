@@ -182,6 +182,52 @@ mannequins. `deck` → wooden porch. `frost-furred corridor` → snowy birch for
 **Setting words carry LIGHT, and light binds to the trigger.** A set half-shot in
 daylight teaches the adapter daylight even when the caption names the setting.
 
+## Settings: what makes a room read at game size
+
+Measured 2026-09-05 on four Flux backgrounds (1280x720, style adapter 0.5),
+same seed per room, ONE clause changed per arm, judged on a 640-wide contact
+sheet beside the control — i.e. at roughly the size a background has under
+two sprites and a textbox. Counts are rooms in which the arm read without
+explanation.
+
+**Light is the lever, and coloured light always reads (14/16).** A red wash
+4/4, a green console glow 4/4, one warm amber lamp 3/4, a single lamp against
+shadow 3/4. Naming the light SOURCE ("one warm amber lamp over the table")
+also draws the lamp and gives the room a key; naming a colour alone gives a
+wash. The only light arm that failed was amber in a white room: a small
+practical cannot warm a room the prompt has already painted white.
+
+**A foreground occluder gives depth (11/16), but only if it is big.** A
+doorframe edge 4/4, a thick pipe 3/4, a railing 2/4, hanging cables 2/4. The
+arms that failed drew a thin dark blur at one edge that vanishes at game
+size. Say "close to the camera", "thick", "heavy", and where in the frame it
+sits ("along the top edge") — an occluder that crosses the middle of the
+frame will be drawn OVER by a sprite standing in front of it.
+
+**Camera words are weak (7/16).** "Seen from the doorway, framed through the
+open hatch" 4/4 — because it is really an occluder. High angle 2/4, corner
+perspective 1/4, low angle 0/4: a room described as symmetric (two bunks
+either side, a corridor of doors) snaps back to the one-point eye-level view
+whatever the camera clause says. Change the room description, not the camera.
+
+**Dressing reads (8/12) and carries text.** Signs of habitation (mugs, a
+jacket, notes taped up, a chart) 4/4 and it is the cheapest "lived-in";
+"steam and haze, dust in a beam" 4/4 and it changes the LIGHT too (a beam
+needs a source, so the model adds one). Condensation / wet floor 0/4 —
+invisible at game size. Anything "taped to the wall" comes with gibberish
+lettering the negative does not remove; keep notes small or name them as
+"blank".
+
+**Palette words repaint the room (7/8) — too well.** "Dominant warm amber
+palette" rebuilt the mess as a different, orange, riveted room; "dominant
+teal" is a monochrome wash. Carry a palette through the LIGHT clause (an
+amber lamp, a green screen) and the props, not through a colour word.
+
+**"Suit racks" draws standing figures.** Gear on the wall rendered as
+people in suits in 4 of 18 moonpool arms despite "no people" in the negative;
+"pressure vessels and coiled hoses" does not. "Dead strip lighting" renders
+the strips ON — say "the ceiling lights dead and dark".
+
 ## Kontext
 
 Preserves what it is not told to change — that is the whole tool.
