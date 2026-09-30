@@ -1,0 +1,74 @@
+{
+  "_comment": "Concept image -> toon-aware cutout -> framed square on 50% grey -> TripoSR mesh (OBJ with vertex colours). Built for K-09 kart parts (Soapbox-2D). The framed image is saved so it can be camera-projected onto the mesh downstream.",
+  "1": {
+    "inputs": {"image": "PARAM_STR_IMAGE_PATH", "upload": "image"},
+    "class_type": "LoadImage",
+    "_meta": {"title": "Load concept"}
+  },
+  "2": {
+    "inputs": {
+      "image": ["1", 0],
+      "model": "BiRefNet_toonout",
+      "sensitivity": 1.0,
+      "mask_blur": 0,
+      "mask_offset": 0,
+      "invert_output": false,
+      "refine_foreground": false,
+      "background": "Color",
+      "background_color": "#808080"
+    },
+    "class_type": "BiRefNetRMBG",
+    "_meta": {"title": "Cutout (BiRefNet toonout, grey bg)"}
+  },
+  "3": {
+    "inputs": {"image": ["2", 0], "mask": ["2", 1], "padding": "PARAM_INT_PADDING"},
+    "class_type": "AILab_CropObject",
+    "_meta": {"title": "Crop to object + margin"}
+  },
+  "4": {
+    "inputs": {
+      "image": ["3", 0],
+      "mask": ["3", 1],
+      "custom_width": 1024,
+      "custom_height": 1024,
+      "megapixels": 0.0,
+      "scale_by": 1.0,
+      "resize_mode": "longest_side",
+      "resize_value": 0,
+      "upscale_method": "lanczos",
+      "device": "cpu",
+      "divisible_by": 2,
+      "output_mode": "pad",
+      "crop_position": "center",
+      "pad_color": "#808080"
+    },
+    "class_type": "AILab_ImageResize",
+    "_meta": {"title": "Square 1024 on grey"}
+  },
+  "5": {
+    "inputs": {"filename_prefix": "PARAM_STR_OUTPUT_PREFIX", "images": ["4", 0]},
+    "class_type": "SaveImage",
+    "_meta": {"title": "Save framed input (for projection)"}
+  },
+  "6": {
+    "inputs": {"model": "tripoSR.ckpt", "chunk_size": 8192},
+    "class_type": "TripoSRModelLoader",
+    "_meta": {"title": "TripoSR"}
+  },
+  "7": {
+    "inputs": {
+      "model": ["6", 0],
+      "reference_image": ["4", 0],
+      "reference_mask": ["4", 1],
+      "geometry_resolution": "PARAM_INT_RESOLUTION",
+      "threshold": "PARAM_FLOAT_THRESHOLD"
+    },
+    "class_type": "TripoSRSampler",
+    "_meta": {"title": "TripoSR reconstruct"}
+  },
+  "8": {
+    "inputs": {"mesh": ["7", 0]},
+    "class_type": "TripoSRViewer",
+    "_meta": {"title": "Save OBJ (output/meshsave_NNNNN_.obj)"}
+  }
+}

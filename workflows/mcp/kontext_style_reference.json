@@ -1,0 +1,17 @@
+{
+  "_comment": "FLUX.1 Kontext used as a STYLE reference, not an edit: the reference image enters only through ReferenceLatent, sampling starts from an empty latent at denoise 1.0, so the prompt decides the object and the reference passes on materials/paint/weathering. Built for Soapbox-2D K-09 (new kart parts that must match Tripo Studio pieces).",
+  "1": {"inputs": {"unet_name": "flux1-dev-kontext_fp8_scaled.safetensors", "weight_dtype": "default"}, "class_type": "UNETLoader", "_meta": {"title": "Kontext UNet"}},
+  "2": {"inputs": {"clip_name1": "t5xxl_fp8_e4m3fn_scaled.safetensors", "clip_name2": "clip_l.safetensors", "type": "flux"}, "class_type": "DualCLIPLoader", "_meta": {"title": "T5 + CLIP-L"}},
+  "3": {"inputs": {"vae_name": "ae.safetensors"}, "class_type": "VAELoader", "_meta": {"title": "Flux VAE"}},
+  "4": {"inputs": {"image": "PARAM_STR_IMAGE_PATH", "upload": "image"}, "class_type": "LoadImage", "_meta": {"title": "Style reference (e.g. a Tripo render)"}},
+  "5": {"inputs": {"image": ["4", 0]}, "class_type": "FluxKontextImageScale", "_meta": {"title": "Kontext scale"}},
+  "6": {"inputs": {"pixels": ["5", 0], "vae": ["3", 0]}, "class_type": "VAEEncode", "_meta": {"title": "Encode reference"}},
+  "7": {"inputs": {"text": "PARAM_PROMPT", "clip": ["2", 0]}, "class_type": "CLIPTextEncode", "_meta": {"title": "Prompt"}},
+  "8": {"inputs": {"conditioning": ["7", 0], "latent": ["6", 0]}, "class_type": "ReferenceLatent", "_meta": {"title": "Attach reference"}},
+  "9": {"inputs": {"conditioning": ["8", 0], "guidance": "PARAM_FLOAT_GUIDANCE"}, "class_type": "FluxGuidance", "_meta": {"title": "Guidance"}},
+  "10": {"inputs": {"text": "", "clip": ["2", 0]}, "class_type": "CLIPTextEncode", "_meta": {"title": "Empty negative (cfg 1)"}},
+  "11": {"inputs": {"width": "PARAM_INT_WIDTH", "height": "PARAM_INT_HEIGHT", "batch_size": 1}, "class_type": "EmptySD3LatentImage", "_meta": {"title": "Empty latent"}},
+  "12": {"inputs": {"seed": "PARAM_INT_SEED", "steps": "PARAM_INT_STEPS", "cfg": 1.0, "sampler_name": "euler", "scheduler": "simple", "denoise": 1.0, "model": ["1", 0], "positive": ["9", 0], "negative": ["10", 0], "latent_image": ["11", 0]}, "class_type": "KSampler", "_meta": {"title": "Sample"}},
+  "13": {"inputs": {"samples": ["12", 0], "vae": ["3", 0]}, "class_type": "VAEDecode", "_meta": {"title": "Decode"}},
+  "14": {"inputs": {"filename_prefix": "PARAM_STR_OUTPUT_PREFIX", "images": ["13", 0]}, "class_type": "SaveImage", "_meta": {"title": "Save"}}
+}

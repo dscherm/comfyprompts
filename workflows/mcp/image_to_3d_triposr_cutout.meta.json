@@ -1,0 +1,34 @@
+{
+  "name": "Image to 3D (TripoSR, toon cutout + framing)",
+  "description": "Single concept image -> BiRefNet_toonout cutout on 50% grey -> crop to object with margin -> padded 1024 square -> TripoSR mesh. Saves the framed square (use it to camera-project the concept onto the mesh: TripoSR input camera = +X, distance 1.9, vertical FOV 40 deg, Z up after Blender's default OBJ import). Output OBJ carries per-vertex colour; no UVs, no texture. Hard-surface detail is soft (marching cubes at PARAM_INT_RESOLUTION). Built for Soapbox-2D K-09 kart parts.",
+  "requirements": {
+    "nodes": ["LoadImage", "BiRefNetRMBG", "AILab_CropObject", "AILab_ImageResize", "SaveImage", "TripoSRModelLoader", "TripoSRSampler", "TripoSRViewer"],
+    "custom_nodes": {
+      "BiRefNetRMBG": {"install": "ComfyUI-RMBG"},
+      "AILab_CropObject": {"install": "ComfyUI-RMBG"},
+      "AILab_ImageResize": {"install": "ComfyUI-RMBG"},
+      "TripoSRModelLoader": {"install": "ComfyUI-Flowty-TripoSR"},
+      "TripoSRSampler": {"install": "ComfyUI-Flowty-TripoSR"},
+      "TripoSRViewer": {"install": "ComfyUI-Flowty-TripoSR"}
+    },
+    "models": {
+      "triposr": "checkpoints/tripoSR.ckpt",
+      "birefnet": "RMBG/BiRefNet/BiRefNet_toonout.safetensors"
+    },
+    "minimum_vram_gb": 6
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Concept image filename in ComfyUI/input (object on a plain light background)"},
+    "padding": {"type": "int", "required": false, "default": 96, "description": "Margin in pixels around the cutout bbox before squaring (96 on a 1024 concept ~= TripoSR's preferred 0.85 foreground ratio)"},
+    "resolution": {"type": "int", "required": false, "default": 320, "description": "Marching-cubes grid resolution"},
+    "threshold": {"type": "float", "required": false, "default": 25.0, "description": "Density iso-level"},
+    "output_prefix": {"type": "string", "required": false, "default": "triposr_prep", "description": "Filename prefix for the saved framed input"}
+  },
+  "output": {
+    "type": "3d_mesh",
+    "format": "obj",
+    "node": "TripoSRViewer"
+  },
+  "category": "conversion",
+  "tags": ["image-to-3d", "triposr", "3d", "mesh", "cutout", "birefnet", "kart-parts"]
+}

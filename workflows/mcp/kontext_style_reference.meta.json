@@ -1,0 +1,26 @@
+{
+  "name": "Kontext style reference (new object, reference look)",
+  "description": "Text-to-image on FLUX.1 Kontext where the input image is a STYLE reference only (ReferenceLatent, empty latent, denoise 1.0). The prompt names a new object; the reference passes on materials, paint and weathering. Use to make concepts that match an existing asset set (e.g. Tripo Studio kart parts) before image-to-3D. Not an editor: for edits use edit_image_kontext.",
+  "requirements": {
+    "nodes": ["UNETLoader", "DualCLIPLoader", "VAELoader", "LoadImage", "FluxKontextImageScale", "VAEEncode", "CLIPTextEncode", "ReferenceLatent", "FluxGuidance", "EmptySD3LatentImage", "KSampler", "VAEDecode", "SaveImage"],
+    "models": {
+      "unet": "diffusion_models/flux1-dev-kontext_fp8_scaled.safetensors",
+      "clip": ["text_encoders/t5xxl_fp8_e4m3fn_scaled.safetensors", "clip_l.safetensors"],
+      "vae": "vae/ae.safetensors"
+    },
+    "minimum_vram_gb": 16
+  },
+  "parameters": {
+    "image_path": {"type": "string", "required": true, "description": "Reference image filename in ComfyUI/input"},
+    "prompt": {"type": "string", "required": true, "description": "Describe the NEW object and say it shares the reference's materials/paint (e.g. 'a <object> made of the same weathered painted metal as the reference, isolated on plain grey background')"},
+    "guidance": {"type": "float", "required": false, "default": 2.5, "description": "Flux guidance"},
+    "width": {"type": "int", "required": false, "default": 1024, "description": "Output width"},
+    "height": {"type": "int", "required": false, "default": 1024, "description": "Output height"},
+    "seed": {"type": "int", "required": false, "default": 42, "description": "Seed"},
+    "steps": {"type": "int", "required": false, "default": 24, "description": "Steps"},
+    "output_prefix": {"type": "string", "required": false, "default": "kontext_styleref", "description": "SaveImage prefix"}
+  },
+  "output": {"type": "image", "format": "png", "node": "SaveImage"},
+  "category": "generation",
+  "tags": ["flux", "kontext", "style-reference", "reference-latent", "concept", "kart-parts"]
+}
