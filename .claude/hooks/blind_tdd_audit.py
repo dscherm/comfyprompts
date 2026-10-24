@@ -9,9 +9,12 @@ in the forensic record.
 ## Behavior
 
 1. If `.themis/blind_tdd/active_session.json` does not exist, passthrough.
-2. Otherwise, append one JSONL record per tool call to
+2. If the session declares a `scope_root` (TD144) and the call names only paths
+   outside it, passthrough — another project's work is not this session's
+   record to keep. See `_governed`.
+3. Otherwise, append one JSONL record per tool call to
    `.themis/blind_audit/<session_id>.jsonl`.
-3. Always exit 0 — audit logging must never block tool execution.
+4. Always exit 0 — audit logging must never block tool execution.
 
 ## Input format
 
@@ -126,9 +129,74 @@ def _load_session() -> dict | None:
     if not p.exists():
         return None
     try:
-        return json.loads(p.read_text(encoding="utf-8"))
+        data = json.loads(p.read_text(encoding="utf-8"))
     except (json.JSONDecodeError, OSError):
         return None
+    # An empty object or `"active": false` ends a session (TD140 AC-1). All
+    # three hooks have to read that the same way, or Layer 3 keeps filing
+    # every tool call in the project under a session that no longer exists.
+    if not isinstance(data, dict) or not data or data.get("active") is False:
+        return None
+    return data
+
+
+# Tool-input fields that genuinely name a file. `pattern` is deliberately not
+# here: a Grep pattern is a regex, not a path, and treating one as a path would
+# drop records for searches the session very much does govern.
+_PATH_FIELDS = ("file_path", "path", "notebook_path")
+
+
+def _scope_root(session: dict) -> Path | None:
+    """Absolute root of the tree this session governs, or None if unscoped.
+
+    See `blind_tdd_path_guard._scope_root`; the two must agree, or Layer 3
+    keeps filing calls the guard already decided were none of its business.
+    """
+    raw = session.get("scope_root")
+    if not isinstance(raw, str) or not raw.strip():
+        return None
+    try:
+        p = Path(raw.strip())
+        if not p.is_absolute():
+            p = _repo_root() / p
+        return p.resolve()
+    except (OSError, ValueError):
+        return None
+
+
+def _governed(tool_input: dict, scope: Path | None) -> bool:
+    """False only when the call provably names paths outside the governed tree.
+
+    TD144 AC-5. On 2026-08-19 another agent's `mod-my-week-platform` reads were
+    filed under a session armed here, and the resulting log could not be read
+    as a record of that session at all.
+
+    A call carrying no path at all is still filed. That includes Bash, and it
+    is the conservative side of a question a hook cannot answer: a shell
+    command's text does not bound the files it touches (see the Bash guard's
+    docstring), so a session that cannot rule the call out records it.
+    """
+    if scope is None:
+        return True
+    seen = False
+    for field in _PATH_FIELDS:
+        raw = tool_input.get(field)
+        if not isinstance(raw, str) or not raw.strip():
+            continue
+        seen = True
+        try:
+            p = Path(raw)
+            if not p.is_absolute():
+                p = _repo_root() / p
+            p = p.resolve()
+        except (OSError, ValueError):
+            return True  # cannot place it → cannot rule it out
+        try:
+            p.relative_to(scope)
+            return True
+        except ValueError:
+            continue
+    return not seen
 
 
 def _summarize_input(tool_name: str, tool_input: dict) -> dict:
@@ -193,6 +261,9 @@ def main() -> int:
     tool_name = hook_data.get("tool_name", "unknown")
     tool_input = hook_data.get("tool_input", {}) or {}
     tool_response = hook_data.get("tool_response", {}) or {}
+
+    if not _governed(tool_input, _scope_root(session)):
+        return 0  # outside scope_root — not this session's record to keep
 
     record = {
         "timestamp": datetime.now(timezone.utc).isoformat(),
