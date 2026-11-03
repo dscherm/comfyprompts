@@ -150,3 +150,9 @@ NUL
 !.themis/blind_tdd/quality_review/
 !.themis/blind_tdd/quality_review/**
 scripts/vlm_eval/verdicts_*.json
+
+# Tripo Studio browser automation: the Chrome profile holds a live login (cookies) -- never commit it
+tripo-studio/chrome-profile/
+tripo-studio/pw-out/
+tripo-studio/*.log
+tripo-studio/out/

@@ -1,0 +1,19 @@
+{
+  "mcpServers": {
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@0.0.83",
+        "--browser",
+        "chrome",
+        "--user-data-dir",
+        "D:/Projects/comfyui-toolchain/tripo-studio/chrome-profile",
+        "--caps",
+        "vision",
+        "--output-dir",
+        "D:/Projects/comfyui-toolchain/tripo-studio/pw-out"
+      ]
+    }
+  }
+}
