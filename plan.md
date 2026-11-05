@@ -2109,3 +2109,210 @@ so rig-deformation QA should be attempted as code, not perception.
   "acceptance_criteria": ["Both models on the identical exemplar corpus, side by side", "Explicit go/no-go with the threshold it was judged against", "VRAM + latency per model recorded"],
   "steps": ["run 8b", "run 32b", "compare + recommend"], "passes": true }
 ```
+
+## Pipeline spine (filed 2026-11-05 from the Prompt Bridge Roadmap interview)
+
+Source: https://claude.ai/artifact/USod4APzTZzCzvgZi8N6o3 and ralph-universal/.schermness/spec-prompt-bridge-roadmap.md. Dan's decisions: the Blender integration is both a script
+runner for the pipeline and a repair of blender-mcp for ad-hoc work; the import contract is
+per project with per-kit overrides; the first asset is a GrimForge creature; Tripo is driven
+by browser automation only, through Claude in Chrome, with the stage gated by the GLB audit
+on the downloaded file; ComfyUI jobs wait for an idle queue. Runs in parallel with the
+harness design tool (DT-1..5). The Godot end (asset session AP-3) is in godot-prompt-bridge.
+
+```json
+{
+  "id": "AP-1a",
+  "category": "feature",
+  "priority": 1,
+  "title": "Blender script runner over a local port: named bpy operations, path and log back, testable headless",
+  "description": "blender/runner.py: a small HTTP server started inside Blender (blender --background --python blender/runner.py -- --port N) exposing POST /op with {name, args}; ops are registered in blender/ops/*.py and wrap the quad-rig and low-poly scripts that exist today (decimate_to {tris}, bake_uv, apply_cycle {clip}, export_glb). Each op returns {ok, path, log, seconds}; an unknown op or a failing op returns ok: false with the traceback in log. blender/client.py is the Python client (run_op(name, **args)) the pipeline and the Godot asset session call. The Blender binary comes from schermness.config.json tools.blender_bin; absent -> the client refuses with the config key, never silently skips. Replaces blender-mcp for pipeline use; AP-1b keeps the connector for sessions.",
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "given": "a running runner and a test GLB",
+      "when": "client.run_op('decimate_to', path=glb, tris=500) is called",
+      "then": "the returned path exists, is a GLB whose triangle count is at most 500, and ok is true"
+    },
+    {
+      "id": "AC-2",
+      "given": "a running runner",
+      "when": "client.run_op('no_such_op') is called",
+      "then": "ok is false and log names the op and lists the registered ops"
+    },
+    {
+      "id": "AC-3",
+      "given": "schermness.config.json with no tools.blender_bin",
+      "when": "client.start() is called",
+      "then": "it raises naming tools.blender_bin and starts nothing"
+    },
+    {
+      "id": "AC-4",
+      "given": "the runner started with --port 0",
+      "when": "it starts",
+      "then": "it prints the port it bound and client.start() reads it"
+    }
+  ],
+  "public_surface": {
+    "module": "blender/client.py",
+    "adds": [
+      "start",
+      "stop",
+      "run_op"
+    ]
+  },
+  "files": [
+    "blender/runner.py",
+    "blender/client.py",
+    "blender/ops/__init__.py",
+    "blender/ops/mesh.py",
+    "blender/ops/rig.py",
+    "schermness.config.json"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "AP-1b",
+  "category": "chore",
+  "priority": 2,
+  "title": "blender-mcp connects again from a fresh session, and the failure mode is documented",
+  "description": "blender-mcp has failed to connect in three sessions (CONNECTION_CLOSED). Diagnose with tripo-studio/start_blender_mcp.py and the connector's own log: Blender not running, the addon's socket not listening, a port clash, or the MCP process exiting on start. Fix what is fixable in this repo (start script, port, addon enablement) and write docs/blender-mcp.md: how to start it, how to check it is listening, what each failure looks like. The connector stays for ad-hoc session work; the pipeline uses AP-1a. Verification needs a human: a fresh Claude session connects. Record the verdict with bridge_state.py review --reviewer dan.",
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "given": "Blender closed",
+      "when": "start_blender_mcp.py runs",
+      "then": "it exits non-zero naming Blender as not running, and does not hang"
+    },
+    {
+      "id": "AC-2",
+      "given": "Blender running with the addon enabled",
+      "when": "start_blender_mcp.py --check runs",
+      "then": "it reports the socket's host and port as listening"
+    },
+    {
+      "id": "AC-3",
+      "given": "docs/blender-mcp.md",
+      "when": "it is read",
+      "then": "it names the three failure modes seen and the check command for each"
+    }
+  ],
+  "public_surface": {
+    "module": "tripo-studio/start_blender_mcp.py",
+    "adds": [
+      "check",
+      "main"
+    ]
+  },
+  "files": [
+    "tripo-studio/start_blender_mcp.py",
+    "docs/blender-mcp.md"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "AP-2",
+  "category": "feature",
+  "priority": 1,
+  "title": "import_rules.json per Godot project (per-kit overrides) and the Godot import stage that enforces it",
+  "description": "pipelines/godot_import.py: given a GLB, a Godot project dir and a kit name, reads <project>/import_rules.json (scale, collision: none|box|convex|trimesh, material_slots, animation_names: [...], land_in: res:// folder) merged with <kit>/import_overrides.json if present, copies the GLB under land_in, runs Godot headless to import it, instances it in a probe scene, screenshots it with the --shot convention, and checks: scale within tolerance of the rule, a collision shape of the right kind present, every named animation present in the AnimationPlayer, material slot count. Returns a gate dict {ok, checks: [{name, ok, detail}], shot}. Godot binary from schermness.config.json tools.godot_bin; absent -> refuses naming the key. A GrimForge creature GLB from products/ is the fixture. The asset session (godot-prompt-bridge AP-3) calls this as asset.import_cmd.",
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "given": "a temp Godot project with import_rules.json {scale: 1.0, collision: convex, animation_names: ['idle','walk']} and a GrimForge creature GLB with both clips",
+      "when": "godot_import.py runs",
+      "then": "ok is true, every check is ok, and the shot PNG exists"
+    },
+    {
+      "id": "AC-2",
+      "given": "rules naming an animation 'attack' the GLB lacks",
+      "when": "godot_import.py runs",
+      "then": "ok is false and the failing check names 'attack'"
+    },
+    {
+      "id": "AC-3",
+      "given": "a kit folder with import_overrides.json {collision: box}",
+      "when": "godot_import.py runs with that kit",
+      "then": "the collision check reports box, not the project's convex"
+    },
+    {
+      "id": "AC-4",
+      "given": "no tools.godot_bin in the config",
+      "when": "godot_import.py runs",
+      "then": "it exits non-zero naming tools.godot_bin and writes nothing into the project"
+    }
+  ],
+  "public_surface": {
+    "module": "pipelines/godot_import.py",
+    "adds": [
+      "load_rules",
+      "import_glb",
+      "main"
+    ]
+  },
+  "files": [
+    "pipelines/godot_import.py",
+    "pipelines/import_rules.schema.json",
+    "schermness.config.json"
+  ],
+  "passes": false
+}
+```
+
+```json
+{
+  "id": "AP-7",
+  "category": "feature",
+  "priority": 2,
+  "title": "Tripo stage by browser: Claude in Chrome drives Tripo Studio under the probe's Guard; the GLB audit is the gate",
+  "description": "Dan (interview 2026-11-05): 'Can we integrate a call to navigate to Tripo through a browser for meshes, rigging and animations?' and chose browser automation only, via Claude in Chrome. Build on tripo-studio/probe.py (d47440a): its Guard (one generation per run, no buy/upgrade/sign-out clicks, tripo3d.ai only, upload of the given image only) moves to tripo-studio/guard.py so a session can apply the same limits whichever driver it uses. New tripo-studio/stage.md is the stage's runbook for a Claude session: open the job in Claude in Chrome, upload, generate (mesh, then auto-rig, then animation as separate steps), wait, download with Dan's approval, record the job URL and the downloaded path in the stage record; --scripted-export stays the no-model fallback. pipelines/tripo_stage.py wraps the after-download part: runs the GLB audit (scripts/mesh_product_check.py) and rig-source triage on the file and writes the gate dict {ok, job_url, path, audit}. Because the browser part is session-driven, the stage never reports green on its own: without an audit result it is yellow/needs_human naming the runbook. ComfyUI is not involved in this stage.",
+  "acceptance_criteria": [
+    {
+      "id": "AC-1",
+      "given": "a downloaded Tripo GLB and a stage record with its job URL",
+      "when": "tripo_stage.py runs on it",
+      "then": "the gate dict has ok true, the job URL, the path, and the audit's counts"
+    },
+    {
+      "id": "AC-2",
+      "given": "a stage record with a job URL and no downloaded file",
+      "when": "tripo_stage.py runs",
+      "then": "the gate dict is yellow with needs_human and names tripo-studio/stage.md"
+    },
+    {
+      "id": "AC-3",
+      "given": "tripo-studio/guard.py imported alone",
+      "when": "Guard is given a click on a 'Buy' control, a navigation off tripo3d.ai, and a second generate",
+      "then": "each is refused with its reason and nothing else changes"
+    },
+    {
+      "id": "AC-4",
+      "given": "probe.py after the move",
+      "when": "it runs with --scripted-export on a known job URL (no model in the loop)",
+      "then": "it downloads the GLB through guard.py's Guard and tripo_stage.py's gate on it is ok"
+    }
+  ],
+  "public_surface": {
+    "module": "pipelines/tripo_stage.py",
+    "adds": [
+      "gate",
+      "main"
+    ]
+  },
+  "files": [
+    "tripo-studio/guard.py",
+    "tripo-studio/probe.py",
+    "tripo-studio/stage.md",
+    "pipelines/tripo_stage.py"
+  ],
+  "depends_on": [
+    "AP-2"
+  ],
+  "passes": false
+}
+```
