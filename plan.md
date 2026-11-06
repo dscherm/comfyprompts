@@ -2168,7 +2168,7 @@ harness design tool (DT-1..5). The Godot end (asset session AP-3) is in godot-pr
     "blender/ops/rig.py",
     "schermness.config.json"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
