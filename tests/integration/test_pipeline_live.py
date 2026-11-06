@@ -6,10 +6,37 @@ if ComfyUI is not running at localhost:8188.
 Run with: pytest tests/integration/test_pipeline_live.py -m integration -v
 """
 
+import json
 import os
 import tempfile
+import urllib.error
+import urllib.request
 
 import pytest
+
+
+def _comfyui_url() -> str:
+    return os.environ.get("COMFYUI_URL", "http://127.0.0.1:8188").rstrip("/")
+
+
+def _missing_checkpoint_reason(name: str) -> str | None:
+    """Why a live test needing checkpoint `name` cannot run here, or None.
+    Asks ComfyUI's /object_info for CheckpointLoaderSimple (read-only)."""
+    url = f"{_comfyui_url()}/object_info/CheckpointLoaderSimple"
+    try:
+        with urllib.request.urlopen(url, timeout=5) as resp:
+            info = json.loads(resp.read().decode("utf-8"))
+        names = info["CheckpointLoaderSimple"]["input"]["required"]["ckpt_name"][0]
+    except (urllib.error.URLError, OSError, ValueError, KeyError, IndexError) as e:
+        return f"ComfyUI not reachable at {_comfyui_url()} ({type(e).__name__})"
+    if name not in names:
+        return f"checkpoint {name} not installed in ComfyUI at {_comfyui_url()}"
+    return None
+
+
+SDXL_CHECKPOINT = "sd_xl_base_1.0.safetensors"
+_SDXL_MISSING = _missing_checkpoint_reason(SDXL_CHECKPOINT)
+needs_sdxl = pytest.mark.skipif(_SDXL_MISSING is not None, reason=_SDXL_MISSING or "")
 
 
 @pytest.mark.integration
@@ -21,6 +48,7 @@ class TestLiveComfyUIConnection:
         assert ok
         assert "system" in info
 
+    @needs_sdxl
     def test_has_default_checkpoint(self, live_comfyui_client):
         ok, checkpoints = live_comfyui_client.get_checkpoints()
         assert ok, f"Failed to get checkpoints: {checkpoints}"
@@ -59,6 +87,7 @@ class TestLiveTxt2ImgGeneration:
     Run with: pytest tests/integration/test_pipeline_live.py -m "integration and slow" -v
     """
 
+    @needs_sdxl
     def test_minimal_txt2img(self, live_comfyui_client):
         """Generate a tiny image (256x256, 8 steps) to verify the pipeline works."""
         from workflows import build_txt2img_workflow
@@ -105,6 +134,7 @@ class TestLiveTxt2ImgGeneration:
 class TestLiveImg2ImgGeneration:
     """Test img2img pipeline with live ComfyUI."""
 
+    @needs_sdxl
     def test_minimal_img2img(self, live_comfyui_client, sample_render_png):
         from workflows import build_img2img_workflow
 

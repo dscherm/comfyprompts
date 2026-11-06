@@ -6,8 +6,11 @@ always — no ComfyUI needed. Full schema validation against the live
 """
 
 import importlib.util
+import json
+import os
 import sys
 import urllib.error
+import urllib.request
 from pathlib import Path
 
 import pytest
@@ -16,6 +19,30 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 WORKFLOWS_DIR = REPO_ROOT / "workflows" / "mcp"
 VALIDATOR_PATH = REPO_ROOT / "scripts" / "workflow_validator.py"
 COMFYUI_URL = "http://localhost:8188"
+
+
+def _comfyui_url() -> str:
+    return os.environ.get("COMFYUI_URL", "http://127.0.0.1:8188").rstrip("/")
+
+
+def _missing_checkpoint_reason(name: str) -> str | None:
+    """Why a live test needing checkpoint `name` cannot run here, or None.
+    Asks ComfyUI's /object_info for CheckpointLoaderSimple (read-only)."""
+    url = f"{_comfyui_url()}/object_info/CheckpointLoaderSimple"
+    try:
+        with urllib.request.urlopen(url, timeout=5) as resp:
+            info = json.loads(resp.read().decode("utf-8"))
+        names = info["CheckpointLoaderSimple"]["input"]["required"]["ckpt_name"][0]
+    except (urllib.error.URLError, OSError, ValueError, KeyError, IndexError) as e:
+        return f"ComfyUI not reachable at {_comfyui_url()} ({type(e).__name__})"
+    if name not in names:
+        return f"checkpoint {name} not installed in ComfyUI at {_comfyui_url()}"
+    return None
+
+
+SDXL_CHECKPOINT = "sd_xl_base_1.0.safetensors"
+_SDXL_MISSING = _missing_checkpoint_reason(SDXL_CHECKPOINT)
+needs_sdxl = pytest.mark.skipif(_SDXL_MISSING is not None, reason=_SDXL_MISSING or "")
 
 # scripts/ is not a package — load the validator module by path
 _spec = importlib.util.spec_from_file_location("workflow_validator", VALIDATOR_PATH)
@@ -47,6 +74,7 @@ def test_every_workflow_has_meta_sidecar():
 
 
 @pytest.mark.integration
+@needs_sdxl
 def test_workflows_against_live_object_info(tmp_path: Path):
     """Full schema validation against the running ComfyUI's /object_info.
 

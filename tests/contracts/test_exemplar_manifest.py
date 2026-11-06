@@ -9,12 +9,19 @@ No Blender, no network — pure file/JSON checks against the committed corpus.
 """
 
 import json
+import subprocess
 from pathlib import Path
 
 import pytest
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 MANIFEST_PATH = REPO_ROOT / "eval" / "exemplars" / "manifest.json"
+
+
+def _git_ignored(rel: Path) -> bool:
+    r = subprocess.run(["git", "check-ignore", "-q", str(rel)], cwd=REPO_ROOT,
+                       capture_output=True)
+    return r.returncode == 0
 
 
 @pytest.fixture(scope="module")
@@ -63,6 +70,7 @@ def test_rig_deformation_covers_humanoid_and_quadruped(manifest):
 
 
 def test_source_assets_exist_and_live_under_products(manifest):
+    missing: list[Path] = []
     for criterion in manifest["criteria"]:
         for pair in criterion["pairs"]:
             src = Path(pair["source_asset"])
@@ -70,7 +78,16 @@ def test_source_assets_exist_and_live_under_products(manifest):
             assert src.parts[0] == "products", (
                 "exemplars must derive from shipped products/ assets"
             )
-            assert (REPO_ROOT / src).exists(), f"source asset missing: {src}"
+            if not (REPO_ROOT / src).exists():
+                missing.append(src)
+    # A missing asset git tracks is a real failure. One git ignores (product
+    # binaries live only in the main checkout, never in a fresh clone or a
+    # worktree) is an environment gap: skip, naming it.
+    tracked = [s for s in missing if not _git_ignored(s)]
+    assert not tracked, f"source asset missing: {tracked}"
+    if missing:
+        pytest.skip(f"git-ignored source asset(s) absent from this checkout: "
+                    f"{', '.join(map(str, dict.fromkeys(missing)))}")
 
 
 def test_exemplar_images_live_under_eval(manifest):
