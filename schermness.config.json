@@ -134,5 +134,8 @@
       "needs_human"
     ],
     "alert_file": null
+  },
+  "tools": {
+    "blender_bin": "C:/Program Files/Blender Foundation/Blender 5.0/blender.exe"
   }
 }
