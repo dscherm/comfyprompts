@@ -25,7 +25,8 @@ def glb_tris(path: str) -> int:
             if prim.get("mode", 4) != 4:
                 continue
             idx = prim.get("indices")
-            count = acc[idx]["count"] if idx is not None else acc[prim["attributes"]["POSITION"]]["count"]
+            src = idx if idx is not None else prim["attributes"]["POSITION"]
+            count = acc[src]["count"]
             tris += count // 3
     return tris
 
@@ -45,7 +46,8 @@ def decimate_to(path=None, tris=None, out=None):
     for attempt in range(4):
         logs.append(run_script(script, [src, dst, target]))
         got = glb_tris(dst)
-        logs.append(f"decimate_to: attempt {attempt + 1} target={target} -> {got} tris (budget {budget})")
+        logs.append(f"decimate_to: attempt {attempt + 1} target={target} "
+                    f"-> {got} tris (budget {budget})")
         if got <= budget:
             return dst, "\n".join(logs)
         target = max(4, int(target * budget / got * 0.97))
@@ -86,7 +88,8 @@ def export_glb(path=None, out=None):
         bpy.ops.wm.read_factory_settings(use_empty=True)
         _IMPORTERS[ext](src)
     else:
-        raise ValueError(f"export_glb cannot read '{ext}' (supported: .blend, {', '.join(_IMPORTERS)})")
+        raise ValueError(f"export_glb cannot read '{ext}' "
+                         f"(supported: .blend, {', '.join(_IMPORTERS)})")
     Path(out).parent.mkdir(parents=True, exist_ok=True)
     bpy.ops.export_scene.gltf(filepath=str(out), export_format="GLB", export_animations=True)
     n = len([o for o in bpy.context.scene.objects if o.type == "MESH"])

@@ -17,6 +17,7 @@ thread bpy may be called from.
 """
 
 import argparse
+import importlib
 import json
 import sys
 from http.server import BaseHTTPRequestHandler, HTTPServer
@@ -24,7 +25,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import ops  # noqa: E402  (blender/ops, found via the path insert above)
+ops = importlib.import_module("ops")  # blender/ops, found via the path insert above
 
 
 def _parse_args(argv: list[str]) -> argparse.Namespace:

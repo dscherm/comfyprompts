@@ -9,6 +9,7 @@ Op modules (mesh.py, rig.py) import bpy, so they only load inside Blender.
 """
 
 import contextlib
+import importlib
 import io
 import runpy
 import sys
@@ -82,4 +83,10 @@ def require_file(path, what: str = "path") -> str:
     return str(path)
 
 
-from . import mesh, rig  # noqa: E402,F401  (registers the ops)
+def _load_op_modules() -> None:
+    """Import the op modules; each registers its ops on import."""
+    for mod in ("mesh", "rig"):
+        importlib.import_module(f"{__name__}.{mod}")
+
+
+_load_op_modules()

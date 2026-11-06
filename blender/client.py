@@ -55,12 +55,13 @@ def blender_bin(config_path: str | Path | None = None) -> str:
     path = Path(config_path) if config_path else DEFAULT_CONFIG
     try:
         cfg = json.loads(path.read_text(encoding="utf-8"))
-    except FileNotFoundError as e:
+    except FileNotFoundError:
         raise ConfigError(f"{CONFIG_KEY} is not set: config file {path.name} not found") from None
-    value = (cfg.get("tools") or {}).get("blender_bin") if isinstance(cfg, dict) else None
+    tools = (cfg.get("tools") or {}) if isinstance(cfg, dict) else {}
+    value = tools.get("blender_bin")
     if not value:
-        raise ConfigError(f"{CONFIG_KEY} is not set in {path.name}; add the Blender executable path "
-                          f"under \"tools\": {{\"blender_bin\": ...}}")
+        raise ConfigError(f"{CONFIG_KEY} is not set in {path.name}; add the Blender "
+                          f"executable path under \"tools\": {{\"blender_bin\": ...}}")
     if not Path(value).is_file():
         raise ConfigError(f"{CONFIG_KEY} points at a file that does not exist "
                           f"({Path(value).name}); fix it in {path.name}")
@@ -147,10 +148,13 @@ def stop() -> None:
     if h.process.poll() is None:
         try:
             _post(f"{h.url}/shutdown", {}, 10.0)
-        except (urllib.error.URLError, OSError, ValueError):
-            pass
+            graceful = True
+        except (urllib.error.URLError, OSError, ValueError) as e:
+            # The runner is not answering; waiting on it would only stall.
+            h.output.append(f"client: shutdown request failed ({e!r}); killing Blender")
+            graceful = False
         try:
-            h.process.wait(30)
+            h.process.wait(30 if graceful else 0)
         except subprocess.TimeoutExpired:
             h.process.kill()
             h.process.wait(10)

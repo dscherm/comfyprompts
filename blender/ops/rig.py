@@ -19,7 +19,8 @@ def apply_cycle(path=None, clip=None, out=None):
     the other tracks are dropped and the GLB is re-exported."""
     src = require_file(path)
     if clip not in (*CLIPS, "all"):
-        raise ValueError(f"apply_cycle clip must be one of {', '.join(CLIPS)} or 'all', got {clip!r}")
+        raise ValueError(f"apply_cycle clip must be one of {', '.join(CLIPS)} or 'all', "
+                         f"got {clip!r}")
     dst = out or default_out(src, f"apply_cycle_{clip}")
     log = run_script(QUAD_ANIM, [src, dst])
     if clip != "all":
