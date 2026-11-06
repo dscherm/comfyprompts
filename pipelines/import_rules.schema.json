@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "pipelines/import_rules.schema.json",
+  "title": "Godot import contract",
+  "description": "<project>/import_rules.json, and a kit's <kit>/import_overrides.json (same keys, all optional; the kit's value wins key by key). Read by pipelines/godot_import.py.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "scale": {
+      "description": "Godot import root scale applied to the GLB; the stage checks the imported mesh's longest side is this multiple of the GLB's.",
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 1.0
+    },
+    "scale_tolerance": {
+      "description": "Allowed relative error on the scale check (0.05 = 5%).",
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "default": 0.05
+    },
+    "collision": {
+      "description": "Collision the stage builds on the landed scene: none, box (BoxShape3D around all meshes), convex (ConvexPolygonShape3D per mesh), trimesh (ConcavePolygonShape3D per mesh).",
+      "enum": ["none", "box", "convex", "trimesh"],
+      "default": "none"
+    },
+    "material_slots": {
+      "description": "Expected total surface (material slot) count across the asset's meshes; null skips the check.",
+      "type": ["integer", "null"],
+      "minimum": 0,
+      "default": null
+    },
+    "animation_names": {
+      "description": "Clips that must be present in the imported AnimationPlayer.",
+      "type": "array",
+      "items": {"type": "string", "minLength": 1},
+      "default": []
+    },
+    "land_in": {
+      "description": "res:// folder the GLB is copied into (and its wrapper .tscn saved beside it).",
+      "type": "string",
+      "pattern": "^res://",
+      "default": "res://imported/"
+    }
+  }
+}

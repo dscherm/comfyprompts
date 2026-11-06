@@ -136,6 +136,7 @@
     "alert_file": null
   },
   "tools": {
-    "blender_bin": "C:/Program Files/Blender Foundation/Blender 5.0/blender.exe"
+    "blender_bin": "C:/Program Files/Blender Foundation/Blender 5.0/blender.exe",
+    "godot_bin": "C:/Users/scher/Desktop/Godot_v4.6-stable_win64.exe/Godot_v4.6-stable_win64_console.exe"
   }
 }
