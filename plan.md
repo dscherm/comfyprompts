@@ -2260,7 +2260,7 @@ harness design tool (DT-1..5). The Godot end (asset session AP-3) is in godot-pr
     "pipelines/import_rules.schema.json",
     "schermness.config.json"
   ],
-  "passes": false
+  "passes": true
 }
 ```
 
